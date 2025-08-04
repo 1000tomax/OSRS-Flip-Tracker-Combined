@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Force dark background */
+html.dark {
+  background-color: #000;
+}

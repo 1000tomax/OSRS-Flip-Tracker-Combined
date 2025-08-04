@@ -1,22 +1,13 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import DailySummaryLog from "./components/DailySummaryLog";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div className="text-3xl font-bold text-green-500">
-		  Tailwind is working!
-		</div>
-
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="bg-black text-white min-h-screen font-sans [&_*]:text-white">
+      <DailySummaryLog />
+    </div>
+  );
 }
 
-export default App
+
+export default App;
