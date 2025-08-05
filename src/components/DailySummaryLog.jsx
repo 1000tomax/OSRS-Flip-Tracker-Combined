@@ -51,16 +51,19 @@ export default function DailySummaryLog() {
 			  className="bg-gray-900 rounded-xl shadow p-4 hover:ring-2 hover:ring-[white] transition duration-150"
 			>
 
-            <div className="grid grid-cols-6 gap-x-2 items-center text-sm">
-              <div className="font-bold w-24 text-[white]">
-				  {showDayNumber ? `Day ${i}` : s.date}
-				</div>
-              <div className="w-28 text-[white]">📦 Total Flips: {s.flips}</div>
-              <div className="w-28 text-[white]">🧾 Unique Items: {s.items_flipped}</div>
-              <div className="w-28 text-[white]">📈 ROI: {formatPercent(s.roi_percent)}</div>
-              <div className="w-32 text-[white]">💰 Profit: {formatGP(s.profit)}</div>
-              <div className="w-32 text-[white]">🏆 Total Cash: {formatGP(s.net_worth)}</div>
-            </div>
+            <div className="grid grid-cols-8 gap-x-2 items-center text-sm">
+			  <div className="font-bold w-24 text-[white]">
+				{showDayNumber ? `Day ${i}` : s.date}
+			  </div>
+			  <div className="w-28 text-[white]">📦 Total Flips: {s.flips}</div>
+			  <div className="w-28 text-[white]">🧾 Unique Items: {s.items_flipped}</div>
+			  <div className="w-28 text-[white]">📈 ROI: {formatPercent(s.roi_percent)}</div>
+			  <div className="w-32 text-[white]">💰 Profit: {formatGP(s.profit)}</div>
+			  <div className="w-32 text-[white]">🏆 Total Cash: {formatGP(s.net_worth)}</div>
+			  <div className="w-32 text-[white]">🎯 % to Goal: {formatPercent(s.percent_to_goal)}</div>
+			  <div className="w-32 text-[white]">📊 % Change: {formatPercent(s.percent_change)}</div>
+			</div>
+
           </div>
         ))}
       </div>
