@@ -17,6 +17,12 @@ function formatPercent(value) {
   return prefix + value.toFixed(1) + "%";
 }
 
+function formatProgress(value) {
+  if (Math.abs(value) < 1) return value.toFixed(3) + "%";
+  if (Math.abs(value) < 100) return value.toFixed(2) + "%";
+  return value.toFixed(1) + "%";
+}
+
 
 export default function DailySummaryLog() {
   const { summaries, loading } = useDailySummaries();
@@ -63,7 +69,7 @@ export default function DailySummaryLog() {
 			  <div className="w-32 text-[white]">💰 Profit: {formatGP(s.profit)}</div>
 			  <div className="w-32 text-[white]">🏆 Net Worth: {formatGP(s.net_worth)}</div>
 			  <div className="w-32 text-[white]">📈 Daily Growth: {formatPercent(s.percent_change)}</div>
-			  <div className="w-32 text-[white]">🎯 % to Goal: {formatPercent(s.percent_to_goal)}</div>
+			  <div className="w-32 text-[white]">🎯 Progress: {formatProgress(s.percent_to_goal)}</div>
 			</div>
 
           </div>
