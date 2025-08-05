@@ -1,12 +1,65 @@
-# React + Vite
+# OSRS Flip Tracker – 1K to Max Challenge 💰
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend for my personal Old School RuneScape flipping challenge, starting from **1,000 GP** with the goal of reaching **max cash (2.147B GP)** using only Grand Exchange trades.
 
-Currently, two official plugins are available:
+Flipping data is manually exported from [Flipping Copilot](https://www.flippingcopilot.com/) and automatically summarized into daily performance logs, ROI tracking, item profitability, and net worth growth.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 📊 Live Site
+> https://mreedon.com
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🧠 How It Works
+
+This is a **static React dashboard**, built with:
+
+- **React + Vite**
+- **TailwindCSS** for styling
+- **Recharts** (in progress) for graphs
+- **PapaParse** for CSV processing
+- **Hosted via Vercel** (auto-deployed on Git push)
+
+All data is pre-generated locally using a custom Node.js backend, then committed as static `.json` / `.csv` files in `/public/data`.
+
+---
+
+## 🗂 Project Structure
+
+| Folder / File            | Purpose                                |
+|--------------------------|----------------------------------------|
+| `public/data/`           | Auto-generated flip summaries          |
+| `src/components/`        | React view components (daily logs, etc)|
+| `src/hooks/`             | Data loading hooks                     |
+| `index.html`             | Entry HTML, includes favicon + title   |
+| `tailwind.config.js`     | Tailwind styling setup                 |
+| `package.json`           | Dependencies and Vite config           |
+
+---
+
+## 📦 Data Sources
+
+Flip data is exported daily from the **Flipping Copilot** RuneLite plugin and includes:
+
+- All Grand Exchange flips (buy/sell pairs)
+- Item name, quantities, price, ROI, and profit
+- Daily summaries with:
+    - Net worth
+    - Daily profit
+    - ROI %
+    - Progress toward 2.147B
+    - ETA to max cash based on average profit
+
+---
+
+## 🤝 Credits
+
+- All flip data exported via **Flipping Copilot**
+- Hosted using **Vercel**
+- Built and maintained by [@1000tomax](https://github.com/1000tomax)
+
+---
+
+> “Progress updates automatically every time I run my local tracker. All stats are real, manual flips — no automation or merch bots used.”
+
