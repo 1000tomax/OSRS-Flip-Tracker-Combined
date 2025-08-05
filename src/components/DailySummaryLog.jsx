@@ -62,7 +62,7 @@ export default function DailySummaryLog() {
 			  <div className="w-28 text-[white]">📈 ROI: {formatPercent(s.roi_percent)}</div>
 			  <div className="w-32 text-[white]">💰 Profit: {formatGP(s.profit)}</div>
 			  <div className="w-32 text-[white]">🏆 Net Worth: {formatGP(s.net_worth)}</div>
-			  <div className="w-32 text-[white]">📊 Net Worth Change: {formatPercent(s.percent_change)}</div>
+			  <div className="w-32 text-[white]">📈 Daily Growth: {formatPercent(s.percent_change)}</div>
 			  <div className="w-32 text-[white]">🎯 % to Goal: {formatPercent(s.percent_to_goal)}</div>
 			</div>
 
