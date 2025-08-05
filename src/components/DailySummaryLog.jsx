@@ -11,10 +11,12 @@ function formatGP(value) {
 }
 
 function formatPercent(value) {
-  if (value < 1) return value.toFixed(3) + "%";
-  if (value < 100) return value.toFixed(2) + "%";
-  return value.toFixed(1) + "%";
+  const prefix = value > 0 ? "+" : "";
+  if (Math.abs(value) < 1) return prefix + value.toFixed(3) + "%";
+  if (Math.abs(value) < 100) return prefix + value.toFixed(2) + "%";
+  return prefix + value.toFixed(1) + "%";
 }
+
 
 export default function DailySummaryLog() {
   const { summaries, loading } = useDailySummaries();
@@ -59,9 +61,9 @@ export default function DailySummaryLog() {
 			  <div className="w-28 text-[white]">🧾 Unique Items: {s.items_flipped}</div>
 			  <div className="w-28 text-[white]">📈 ROI: {formatPercent(s.roi_percent)}</div>
 			  <div className="w-32 text-[white]">💰 Profit: {formatGP(s.profit)}</div>
-			  <div className="w-32 text-[white]">🏆 Total Cash: {formatGP(s.net_worth)}</div>
+			  <div className="w-32 text-[white]">🏆 Net Worth: {formatGP(s.net_worth)}</div>
+			  <div className="w-32 text-[white]">📊 Net Worth Change: {formatPercent(s.percent_change)}</div>
 			  <div className="w-32 text-[white]">🎯 % to Goal: {formatPercent(s.percent_to_goal)}</div>
-			  <div className="w-32 text-[white]">📊 % Change: {formatPercent(s.percent_change)}</div>
 			</div>
 
           </div>
