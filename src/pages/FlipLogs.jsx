@@ -4,14 +4,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCsvData } from '../hooks/useCsvData';
 import { useJsonData } from '../hooks/useJsonData';
 
-function formatGP(value) {
-  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
-  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
-  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
-  return value?.toLocaleString?.() ?? value;
-}
-
-
 function parseDateParts(dateStr) {
   const [month, day, year] = dateStr.split('-');
   return { month, day, year };
@@ -23,6 +15,12 @@ function formatDuration(ms) {
   const hours = Math.floor(minutes / 60);
   const remaining = minutes % 60;
   return `${hours}h ${remaining}m`;
+}
+
+function dateToInputValue(date) {
+  if (!date) return "";
+  const [mm, dd, yyyy] = date.split("-");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 export default function FlipLogs() {
@@ -39,29 +37,29 @@ export default function FlipLogs() {
 
   const validFlips = flips
     .filter(f => f.closed_quantity > 0 && f.received_post_tax > 0)
-    .sort((a, b) => new Date(a.closed_time) - new Date(b.closed_time)); // ⏱️ sorted earliest → latest
+    .sort((a, b) => new Date(a.closed_time) - new Date(b.closed_time));
 
   return (
     <div className="dark:bg-black dark:text-white p-4 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">📋 Flip Log Viewer</h1>
 
-      {/* 📅 Date Picker */}
-      {Array.isArray(summaryDates) && summaryDates.length > 0 && (
-		  <div className="mb-6">
+      {/* 📅 Calendar-style Date Picker */}
+      {summaryDates && (
+        <div className="mb-6">
           <label htmlFor="date-picker" className="mr-2 font-medium">
             Select a date:
           </label>
-          <select
+          <input
+            type="date"
             id="date-picker"
-            value={date ?? ""}
-            onChange={(e) => navigate(`/flip-logs?date=${e.target.value}`)}
             className="bg-gray-800 text-white border border-gray-500 rounded px-2 py-1"
-          >
-            <option value="" disabled>Select a day...</option>
-            {summaryDates.map(d => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
+            value={dateToInputValue(date)}
+            onChange={(e) => {
+              const [yyyy, mm, dd] = e.target.value.split("-");
+              const formatted = `${mm}-${dd}-${yyyy}`;
+              navigate(`/flip-logs?date=${formatted}`);
+            }}
+          />
         </div>
       )}
 
@@ -101,9 +99,9 @@ export default function FlipLogs() {
                 <div className="text-sm grid grid-cols-2 sm:grid-cols-4 gap-2 text-white">
                   <div>Sold: {flip.closed_quantity}</div>
                   <div>Profit: {formatGP(flip.profit)}</div>
-					<div>
-					  Profit Per Item: {Math.floor(flip.profit / flip.closed_quantity).toLocaleString()}
-					</div>
+                  <div>
+                    Profit Per Item: {Math.floor(flip.profit / flip.closed_quantity).toLocaleString()}
+                  </div>
                   <div>Time: {openTime} → {closeTime} ({duration})</div>
                 </div>
               </div>
@@ -113,4 +111,12 @@ export default function FlipLogs() {
       )}
     </div>
   );
+}
+
+// GP formatter reused from Daily Summary
+function formatGP(value) {
+  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
+  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
+  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
+  return value?.toLocaleString?.() ?? value;
 }
