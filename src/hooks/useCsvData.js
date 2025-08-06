@@ -13,6 +13,7 @@ export function useCsvData(filePath) {
           header: true,
           dynamicTyping: true,
           skipEmptyLines: true,
+          transformHeader: header => header.trim(), // ✅ Trim column names
           complete: (results) => {
             setData(results.data);
           },

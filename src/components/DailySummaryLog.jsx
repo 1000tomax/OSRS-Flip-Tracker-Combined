@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useDailySummaries from "../hooks/useDailySummaries";
 import { useJsonData } from "../hooks/useJsonData";
-// import html2canvas from "html2canvas"; // Screenshot disabled for now
+import { Link } from "react-router-dom";
 
 function formatGP(value) {
   if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
@@ -60,20 +60,6 @@ export default function DailySummaryLog() {
   const pagedSummaries = reversedSummaries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const percentToGoal = meta?.net_worth ? (meta.net_worth / 2147483647) * 100 : 0;
 
-  // function handleScreenshot() {
-  //   const capture = document.getElementById("screenshot-log");
-  //   if (!capture) return;
-  //   html2canvas(capture, {
-  //     backgroundColor: "#000",
-  //     scale: 2,
-  //   }).then((canvas) => {
-  //     const link = document.createElement("a");
-  //     link.download = "daily-summary.png";
-  //     link.href = canvas.toDataURL();
-  //     link.click();
-  //   });
-  // }
-
   if (loading) {
     return (
       <div className="text-center mt-10 text-gray-900 dark:text-white">
@@ -96,12 +82,10 @@ export default function DailySummaryLog() {
       {meta?.last_updated && (
         <div className="border-b border-gray-400 dark:border-gray-700 pb-4 mb-6 text-sm text-white space-y-2">
           <p>
-            🕒 Last Data Upload: {" "}
+            🕒 Last Data Upload:{" "}
             <span className="font-medium text-white">
-              {formatLastUpdated(meta.last_updated)} {" "}
-              <span className="text-gray-400 dark:text-gray-500">
-                {timeAgo(meta.last_updated)}
-              </span>
+              {formatLastUpdated(meta.last_updated)}{" "}
+              <span className="text-gray-400 dark:text-gray-500">{timeAgo(meta.last_updated)}</span>
             </span>
           </p>
           <div>
@@ -137,18 +121,20 @@ export default function DailySummaryLog() {
           Page {page + 1} of {Math.ceil(summaries.length / PAGE_SIZE)}
         </span>
         <button
-          onClick={() => setPage((prev) => (prev + 1) * PAGE_SIZE < summaries.length ? prev + 1 : prev)}
+          onClick={() =>
+            setPage((prev) =>
+              (prev + 1) * PAGE_SIZE < summaries.length ? prev + 1 : prev
+            )
+          }
           disabled={(page + 1) * PAGE_SIZE >= summaries.length}
-          className={`px-3 py-1 text-sm rounded ${(page + 1) * PAGE_SIZE >= summaries.length ? "bg-gray-500" : "bg-yellow-600 hover:bg-yellow-500"} text-black transition`}
+          className={`px-3 py-1 text-sm rounded ${
+            (page + 1) * PAGE_SIZE >= summaries.length
+              ? "bg-gray-500"
+              : "bg-yellow-600 hover:bg-yellow-500"
+          } text-black transition`}
         >
           Next
         </button>
-        {/* <button
-          onClick={handleScreenshot}
-          className="px-3 py-1 text-sm rounded bg-green-600 hover:bg-green-500 text-white transition"
-        >
-          📸 Screenshot
-        </button> */}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -170,31 +156,16 @@ export default function DailySummaryLog() {
                 <div className="whitespace-nowrap truncate">📈 ROI: {formatPercent(s.roi_percent)}</div>
                 <div className="whitespace-nowrap truncate">📈 Growth: {formatPercent(s.percent_change)}</div>
                 <div className="whitespace-nowrap truncate">🎯 Progress: {formatProgress(s.percent_to_goal)}</div>
+                <div className="whitespace-nowrap truncate">
+                  <Link to={`/flip-logs?date=${s.date}`} className="text-blue-500 hover:underline">
+                    View Flips →
+                  </Link>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-
-      {/* <div id="screenshot-log" className="hidden">
-        {summaries.map((s, i) => (
-          <div
-            key={s.date}
-            className="bg-black border border-gray-700 text-white rounded-xl shadow p-3 mb-2 text-sm"
-          >
-            <div className="font-bold mb-1 text-base">Day {i}</div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-0.5">
-              <div>📦 Flips: {s.flips}</div>
-              <div>🧾 Items: {s.items_flipped}</div>
-              <div>💰 Profit: {formatGP(s.profit)}</div>
-              <div>🏆 Net Worth: {formatGP(s.net_worth)}</div>
-              <div>📈 ROI: {formatPercent(s.roi_percent)}</div>
-              <div>📈 Growth: {formatPercent(s.percent_change)}</div>
-              <div>🎯 Progress: {formatProgress(s.percent_to_goal)}</div>
-            </div>
-          </div>
-        ))}
-      </div> */}
     </div>
   );
 }
