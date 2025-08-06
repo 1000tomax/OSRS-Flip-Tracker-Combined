@@ -83,7 +83,7 @@ export default function DailySummaryLog() {
   }
 
   return (
-    <div className="dark:bg-black dark:text-white min-h-screen p-10">
+    <div className="dark:bg-black dark:text-white min-h-screen p-1">
       <div className="mb-8 max-w-3xl leading-relaxed">
         <h1 className="text-3xl font-bold mb-2">💰 1,000 GP to Max Cash Challenge</h1>
         <p className="text-sm text-gray-700 dark:text-gray-300">
