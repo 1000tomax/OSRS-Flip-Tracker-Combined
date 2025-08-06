@@ -46,6 +46,20 @@ function formatLastUpdated(timestamp) {
   });
 }
 
+function timeAgo(timestamp) {
+  const now = new Date();
+  const then = new Date(timestamp);
+  const diffMs = now - then;
+
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours >= 1) return `(${hours} hour${hours !== 1 ? "s" : ""} ago)`;
+  if (minutes >= 1) return `(${minutes} min${minutes !== 1 ? "s" : ""} ago)`;
+  return `(${seconds} sec${seconds !== 1 ? "s" : ""} ago)`;
+}
+
 export default function DailySummaryLog() {
   const { summaries, loading } = useDailySummaries();
   const meta = useJsonData("/data/meta.json");
@@ -76,31 +90,33 @@ export default function DailySummaryLog() {
       <h2 className="text-2xl font-bold mb-3">📅 Daily Summary Log</h2>
 
       {meta?.last_updated && (
-		  <div className="border-b border-gray-400 dark:border-gray-700 pb-4 mb-6 text-sm text-white space-y-2">
-			<p>
-			  🕒 Last Data Upload:{" "}
-			  <span className="font-medium text-white">
-				{formatLastUpdated(meta.last_updated)}
-			  </span>
-			</p>
+        <div className="border-b border-gray-400 dark:border-gray-700 pb-4 mb-6 text-sm text-white space-y-2">
+          <p>
+            🕒 Last Data Upload:{" "}
+            <span className="font-medium text-white">
+              {formatLastUpdated(meta.last_updated)}{" "}
+              <span className="text-gray-400 dark:text-gray-500">
+                {timeAgo(meta.last_updated)}
+              </span>
+            </span>
+          </p>
 
-			<div>
-			  <div className="flex justify-between items-center mb-1">
-				<p className="text-sm text-white">📊 Challenge Progress:</p>
-				<p className="text-sm text-white font-medium">
-				  {percentToGoal.toFixed(3)}%
-				</p>
-			  </div>
-			  <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
-				<div
-				  className="bg-green-600 h-4 transition-all"
-				  style={{ width: `${percentToGoal}%` }}
-				/>
-			  </div>
-			</div>
-		  </div>
-		)}
-
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <p className="text-sm text-white">📊 Challenge Progress:</p>
+              <p className="text-sm text-white font-medium">
+                {percentToGoal.toFixed(3)}%
+              </p>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
+              <div
+                className="bg-green-600 h-4 transition-all rounded-full"
+                style={{ width: `${percentToGoal}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-4">
         <button
