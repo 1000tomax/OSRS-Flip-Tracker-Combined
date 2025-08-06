@@ -8,7 +8,6 @@ function parseDateParts(dateStr) {
   return { month, day, year };
 }
 
-// Utility to format duration into "1h 15m" or "45m"
 function formatDuration(ms) {
   const minutes = Math.round(ms / 60000);
   if (minutes < 60) return `${minutes}m`;
@@ -30,7 +29,9 @@ export default function FlipLogs() {
   const csvPath = `/data/processed-flips/${year}/${month}/${day}/flips.csv`;
   const flips = useCsvData(csvPath);
 
-  const validFlips = flips.filter(f => f.closed_quantity > 0 && f.received_post_tax > 0);
+  const validFlips = flips
+    .filter(f => f.closed_quantity > 0 && f.received_post_tax > 0)
+    .sort((a, b) => new Date(a.closed_time) - new Date(b.closed_time)); // ✅ Sort ascending
 
   return (
     <div className="dark:bg-black dark:text-white p-4 min-h-screen">

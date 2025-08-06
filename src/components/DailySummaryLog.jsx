@@ -1,3 +1,4 @@
+// src/components/DailySummaryLog.jsx
 import React, { useState } from "react";
 import useDailySummaries from "../hooks/useDailySummaries";
 import { useJsonData } from "../hooks/useJsonData";
@@ -157,7 +158,12 @@ export default function DailySummaryLog() {
                 <div className="whitespace-nowrap truncate">📈 Growth: {formatPercent(s.percent_change)}</div>
                 <div className="whitespace-nowrap truncate">🎯 Progress: {formatProgress(s.percent_to_goal)}</div>
                 <div className="whitespace-nowrap truncate">
-                  <Link to={`/flip-logs?date=${s.date}`} className="text-blue-500 hover:underline">
+                  <Link
+                    to={`/flip-logs?date=${s.date}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
                     View Flips →
                   </Link>
                 </div>
