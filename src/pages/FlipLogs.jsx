@@ -4,6 +4,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCsvData } from '../hooks/useCsvData';
 import { useJsonData } from '../hooks/useJsonData';
 
+function formatGP(value) {
+  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
+  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
+  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
+  return value?.toLocaleString?.() ?? value;
+}
+
+
 function parseDateParts(dateStr) {
   const [month, day, year] = dateStr.split('-');
   return { month, day, year };
@@ -92,8 +100,10 @@ export default function FlipLogs() {
                 <div className="font-bold text-yellow-500 text-sm mb-1">{flip.item_name}</div>
                 <div className="text-sm grid grid-cols-2 sm:grid-cols-4 gap-2 text-white">
                   <div>Sold: {flip.closed_quantity}</div>
-                  <div>Profit: {flip.profit?.toLocaleString()}</div>
-                  <div>GP Each: {(flip.received_post_tax / flip.closed_quantity).toFixed(1)}</div>
+                  <div>Profit: {formatGP(flip.profit)}</div>
+					<div>
+					  Profit Per Item: {Math.floor(flip.profit / flip.closed_quantity).toLocaleString()}
+					</div>
                   <div>Time: {openTime} → {closeTime} ({duration})</div>
                 </div>
               </div>
