@@ -1,8 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Force dark background */
+/* Force dark mode globally */
 html.dark {
-  background-color: #000;
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+html.dark body {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Override any light mode backgrounds */
+html.dark .bg-white {
+  background-color: #000 !important;
+}
+
+html.dark .bg-gray-100 {
+  background-color: #1f2937 !important;
+}
+
+html.dark .text-gray-900 {
+  color: #fff !important;
+}
+
+html.dark .text-gray-700 {
+  color: #d1d5db !important;
+}
+
+html.dark .border-gray-300 {
+  border-color: #374151 !important;
 }

@@ -1,13 +1,17 @@
-import React from "react";
-import DailySummaryLog from "./components/DailySummaryLog";
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Items from './pages/Items';
 
 function App() {
   return (
-    <div className="bg-black text-white min-h-screen font-sans [&_*]:text-white">
-      <DailySummaryLog />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/items" element={<Items />} />
+      </Routes>
+    </Router>
   );
 }
-
 
 export default App;
