@@ -1,12 +1,12 @@
 {
   "date": "08-05-2025",
   "day": 9,
-  "flips": 192,
+  "flips": 190,
   "items_flipped": 130,
-  "profit": 5347185,
-  "gp_per_day": 5347185,
-  "roi_percent": 1.4158523068079107,
-  "net_worth": 25663063,
-  "percent_to_goal": 1.195298695854681,
-  "percent_change": 26.320225982849472
+  "profit": 5320742,
+  "gp_per_day": 5320742,
+  "roi_percent": 1.4147509544135806,
+  "net_worth": 25636620,
+  "percent_to_goal": 1.194067070330694,
+  "percent_change": 26.190066705460623
 }
