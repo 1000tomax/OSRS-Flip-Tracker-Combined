@@ -75,8 +75,8 @@ export default function FlipLogs() {
     .sort((a, b) => new Date(a.closed_time) - new Date(b.closed_time));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-2 sm:p-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-3 sm:p-6 shadow-lg max-w-full overflow-hidden">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-white">📋 Flip Log Viewer</h1>
 
         {/* Date Picker Controls */}
@@ -140,14 +140,14 @@ export default function FlipLogs() {
                 return (
                   <div
                     key={i}
-                    className="bg-gray-800 border border-gray-600 rounded-xl p-4 hover:ring-2 hover:ring-yellow-500 transition duration-150"
+                    className="bg-gray-800 border border-gray-600 rounded-xl p-3 sm:p-4 hover:ring-2 hover:ring-yellow-500 transition duration-150 min-w-0"
                   >
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-bold text-lg text-white truncate flex-1 mr-3">
+                    <div className="flex items-center justify-between mb-3 min-w-0">
+                      <h3 className="font-bold text-base sm:text-lg text-white truncate flex-1 mr-2 min-w-0">
                         {flip.item_name}
                       </h3>
-                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      <div className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium flex-shrink-0 ${
                         isProfit ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
                       }`}>
                         {isProfit ? '+' : ''}{formatGP(profit)} GP
@@ -155,37 +155,37 @@ export default function FlipLogs() {
                     </div>
 
                     {/* Stats Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                      <div>
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
+                      <div className="min-w-0">
                         <span className="text-gray-400 block">Quantity:</span>
                         <span className="text-white font-medium">{flip.closed_quantity}</span>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <span className="text-gray-400 block">Duration:</span>
                         <span className="text-white font-medium">{duration}</span>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <span className="text-gray-400 block">Opened:</span>
                         <span className="text-white font-medium">{openTime}</span>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <span className="text-gray-400 block">Closed:</span>
                         <span className="text-white font-medium">{closeTime}</span>
                       </div>
                     </div>
 
                     {/* Financial Details */}
-                    <div className="mt-3 pt-3 border-t border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                      <div>
-                        <span className="text-gray-400 block">Spent:</span>
+                    <div className="mt-3 pt-3 border-t border-gray-700 grid grid-cols-1 gap-2 sm:gap-3 text-xs sm:text-sm">
+                      <div className="flex justify-between min-w-0">
+                        <span className="text-gray-400">Spent:</span>
                         <span className="text-white font-medium font-mono">{formatGP(flip.spent)} GP</span>
                       </div>
-                      <div>
-                        <span className="text-gray-400 block">Received:</span>
+                      <div className="flex justify-between min-w-0">
+                        <span className="text-gray-400">Received:</span>
                         <span className="text-white font-medium font-mono">{formatGP(flip.received_post_tax)} GP</span>
                       </div>
-                      <div>
-                        <span className="text-gray-400 block">Tax Paid:</span>
+                      <div className="flex justify-between min-w-0">
+                        <span className="text-gray-400">Tax Paid:</span>
                         <span className="text-white font-medium font-mono">{formatGP(flip.tax_paid)} GP</span>
                       </div>
                     </div>
