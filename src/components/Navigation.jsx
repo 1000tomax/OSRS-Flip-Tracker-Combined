@@ -1,4 +1,4 @@
-// src/components/Navigation.jsx - Mobile Optimized
+// src/components/Navigation.jsx - Updated with Charts link
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ export default function Navigation() {
   const navItems = [
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/items', label: 'Items', icon: '📦' },
+    { path: '/charts', label: 'Charts', icon: '📈' },
     { path: '/flip-logs', label: 'Flip Logs', icon: '📋' }
   ];
 

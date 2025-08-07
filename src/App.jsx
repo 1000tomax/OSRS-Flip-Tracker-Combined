@@ -5,6 +5,7 @@ import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import Items from './pages/Items';
 import FlipLogs from './pages/FlipLogs';
+import Charts from './pages/Charts';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/items" element={<Items />} />
               <Route path="/flip-logs" element={<FlipLogs />} />
+			  <Route path="/charts" element={<Charts />} />
             </Routes>
           </main>
         </div>
