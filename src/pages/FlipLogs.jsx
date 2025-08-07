@@ -181,7 +181,7 @@ export default function FlipLogs() {
                         <span className="text-white font-medium font-mono">{formatGP(flip.spent)} GP</span>
                       </div>
                       <div className="flex justify-between min-w-0">
-                        <span className="text-gray-400">Received:</span>
+                        <span className="text-gray-400">Post-Tax Received:</span>
                         <span className="text-white font-medium font-mono">{formatGP(flip.received_post_tax)} GP</span>
                       </div>
                       <div className="flex justify-between min-w-0">
