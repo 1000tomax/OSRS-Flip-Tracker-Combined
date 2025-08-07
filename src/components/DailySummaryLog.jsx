@@ -67,6 +67,7 @@ export default function DailySummaryLog() {
   const hasError = summariesError || metaError;
 
   const handleRetry = () => {
+    // Keep for error states only
     refetchSummaries();
     refetchMeta();
   };
@@ -110,21 +111,12 @@ export default function DailySummaryLog() {
       {/* Last Updated Section */}
       {meta?.last_updated && (
         <div className="border-b border-gray-700 pb-4 mb-6 text-sm space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <p className="text-sm sm:text-base text-gray-300">
-              🕒 Last Data Upload:{" "}
-              <span className="font-medium text-white block sm:inline">
-                {formatLastUpdated(meta.last_updated)}{" "}
-                <span className="text-gray-400">{timeAgo(meta.last_updated)}</span>
-              </span>
-            </p>
-            <button
-              onClick={handleRetry}
-              className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors min-h-[44px] self-start sm:self-auto"
-              title="Refresh data"
-            >
-              🔄 Refresh
-            </button>
+          <div className="text-sm sm:text-base text-gray-300">
+            🕒 Last Data Upload:{" "}
+            <span className="font-medium text-white">
+              {formatLastUpdated(meta.last_updated)}{" "}
+              <span className="text-gray-400">{timeAgo(meta.last_updated)}</span>
+            </span>
           </div>
           
           {/* Progress Bar */}
