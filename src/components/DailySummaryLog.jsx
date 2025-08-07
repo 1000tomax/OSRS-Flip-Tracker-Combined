@@ -360,7 +360,7 @@ export default function DailySummaryLog() {
             margin: '0',
             fontSize: '14px'
           }}>
-            Day {summaries.length} • Current: {formatGP(meta?.net_worth || 0)} GP • 
+            Day {summaries.length - 1} • Current: {formatGP(meta?.net_worth || 0)} GP • 
             Goal: 2,147M GP ({((meta?.net_worth || 0) / 2147483647 * 100).toFixed(2)}%)
           </p>
         </div>
@@ -378,13 +378,16 @@ export default function DailySummaryLog() {
             </tr>
           </thead>
           <tbody>
-            {summaries.map((day, index) => {
-              const startingGP = index === 0 ? 1000 : summaries[index - 1]?.net_worth || 1000;
+            {summaries
+              .filter((day, index) => index > 0) // Skip Day 0
+              .map((day, index) => {
+              const actualIndex = index + 1; // Since we filtered out index 0
+              const startingGP = summaries[actualIndex - 1]?.net_worth || 1000;
               const isProfit = day.profit >= 0;
               
               return (
                 <tr key={day.date} style={{ borderBottom: '1px solid #374151' }}>
-                  <td style={{ padding: '8px', fontWeight: '600' }}>{index}</td>
+                  <td style={{ padding: '8px', fontWeight: '600' }}>{actualIndex}</td>
                   <td style={{ padding: '8px', fontFamily: 'monospace', color: '#d1d5db' }}>
                     {formatGP(startingGP)}
                   </td>
