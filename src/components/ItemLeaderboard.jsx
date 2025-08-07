@@ -1,4 +1,4 @@
-// src/components/ItemLeaderboard.jsx - Mobile Optimized (Fixed)
+// src/components/ItemLeaderboard.jsx - Mobile Optimized with Polished Buttons
 import React, { useState } from 'react';
 import { useCsvData } from '../hooks/useCsvData';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
@@ -59,30 +59,49 @@ export default function ItemLeaderboard() {
   };
 
   return (
-    <div className="flex flex-col justify-start w-full xl:pt-[10px] pt-4 px-2 sm:px-0">
-      {/* Copilot Credit Block */}
-      <div className="bg-gray-900 border border-yellow-600 rounded-lg p-3 sm:p-4 mb-4 shadow-sm text-yellow-300">
-        <div className="flex gap-3 items-start">
-          <img
-            src="https://flippingcopilot.com/static/logo.png"
-            alt="Flipping Copilot"
-            className="w-6 h-6 sm:w-7 sm:h-7 mt-0.5 rounded-sm bg-white flex-shrink-0"
-          />
-          <div className="text-xs sm:text-sm leading-snug">
-            All flips in this challenge are fully powered by 🔗{' '}
-            <a
-              href="https://flippingcopilot.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold underline hover:text-yellow-200"
-            >
-              Flipping Copilot
-            </a>, using the <span className="font-bold">5-minute offer setting</span>. Join the 🔗{' '}
+    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+      {/* Flipping Copilot Attribution - Prominent */}
+      <div className="mb-6 space-y-3">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg shadow-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <img
+              src="https://flippingcopilot.com/static/logo.png"
+              alt="Flipping Copilot Logo"
+              className="w-10 h-10 bg-white rounded-lg p-1 flex-shrink-0"
+            />
+            <div>
+              <h3 className="font-bold text-lg">Powered by Flipping Copilot</h3>
+              <p className="text-blue-100 text-sm">Trade recommendations & flip tracking</p>
+            </div>
+          </div>
+          <div className="text-sm text-blue-100 space-y-1">
+            <p>
+              All trades were executed using{' '}
+              <span className="font-semibold text-white">Flipping Copilot's 5-minute offer setting</span>{' '}
+              for recommendations, with completed flips exported automatically from the plugin.
+            </p>
+            <p>
+              Get the RuneLite plugin at{' '}
+              <a
+                href="https://flippingcopilot.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-white underline hover:text-blue-200 transition"
+              >
+                FlippingCopilot.com
+              </a>
+            </p>
+          </div>
+        </div>
+        
+        <div className="bg-yellow-600 text-black p-3 rounded-lg text-center text-sm font-medium">
+          <div>
+            Join the 🔗{' '}
             <a
               href="https://discord.gg/UyQxA4QJAq"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold underline hover:text-yellow-200"
+              className="font-semibold underline hover:text-yellow-800"
             >
               Discord
             </a>{' '}
@@ -106,19 +125,19 @@ export default function ItemLeaderboard() {
           </a>
         </div>
 
-        {/* Mobile-optimized controls */}
+        {/* Mobile-optimized controls - POLISHED VERSION */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          {/* Mode Toggle */}
+          {/* Mode Toggle - Refined */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <span className="text-xs text-gray-400 font-medium">Sort by:</span>
-            <div className="bg-gray-700 rounded-full p-1 flex gap-1">
+            <div className="bg-gray-700 rounded-lg p-0.5 flex gap-0.5">
               {['roi', 'profit'].map(option => (
                 <button
                   key={option}
                   onClick={() => setMode(option)}
-                  className={`px-3 py-2 text-xs rounded-full transition min-h-[44px] flex-1 sm:flex-none ${
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none ${
                     mode === option
-                      ? 'bg-yellow-500 text-black font-semibold'
+                      ? 'bg-yellow-500 text-black'
                       : 'text-white hover:bg-gray-600'
                   }`}
                 >
@@ -128,23 +147,23 @@ export default function ItemLeaderboard() {
             </div>
           </div>
 
-          {/* Direction Toggle */}
+          {/* Direction Toggle - Refined */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <span className="text-xs text-gray-400 font-medium">Direction:</span>
-            <div className="bg-gray-700 rounded-full p-1 flex gap-1">
+            <div className="bg-gray-700 rounded-lg p-0.5 flex gap-0.5">
               {['positive', 'negative'].map(option => (
                 <button
                   key={option}
                   onClick={() => setFilter(option)}
-                  className={`px-3 py-2 text-xs rounded-full transition min-h-[44px] flex-1 sm:flex-none ${
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none ${
                     filter === option
                       ? (option === 'positive'
-                        ? 'bg-green-500 text-black font-semibold'
-                        : 'bg-red-500 text-white font-semibold')
+                        ? 'bg-green-500 text-black'
+                        : 'bg-red-500 text-white')
                       : 'text-white hover:bg-gray-600'
                   }`}
                 >
-                  {option === 'positive' ? '▲ Top' : '▼ Worst'}
+                  {option === 'positive' ? '▲ Winners' : '▼ Losers'}
                 </button>
               ))}
             </div>

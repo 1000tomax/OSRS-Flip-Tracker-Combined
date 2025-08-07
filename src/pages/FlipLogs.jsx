@@ -1,4 +1,4 @@
-// src/pages/FlipLogs.jsx
+// src/pages/FlipLogs.jsx - Updated with Modern Container Styling
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCsvData } from '../hooks/useCsvData';
@@ -46,92 +46,156 @@ export default function FlipLogs() {
   const isLoading = summaryLoading || flipsLoading;
   const hasError = summaryError || flipsError;
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
+        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <LoadingSpinner size="large" text="Loading flip logs..." />
+        </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
+        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <ErrorMessage 
+            title="Failed to load flip logs"
+            error={flipsError || summaryError}
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+      </div>
+    );
+  }
+
   const validFlips = flips
     .filter(f => f.closed_quantity > 0 && f.received_post_tax > 0)
     .sort((a, b) => new Date(a.closed_time) - new Date(b.closed_time));
 
   return (
-    <div className="text-gray-900 dark:text-white p-4 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">📋 Flip Log Viewer</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-white">📋 Flip Log Viewer</h1>
 
-      {/* 📅 Calendar-style Date Picker */}
-      {summaryDates && (
-        <div className="mb-6">
-          <label htmlFor="date-picker" className="mr-2 font-medium">
-            Select a date:
-          </label>
-          <input
-            type="date"
-            id="date-picker"
-            className="bg-gray-800 text-white border border-gray-500 rounded px-2 py-1"
-            value={dateToInputValue(date)}
-            onChange={(e) => {
-              const [yyyy, mm, dd] = e.target.value.split("-");
-              const formatted = `${mm}-${dd}-${yyyy}`;
-              navigate(`/flip-logs?date=${formatted}`);
-            }}
-          />
-        </div>
-      )}
+        {/* Date Picker Controls */}
+        {summaryDates && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+            <span className="text-sm text-gray-300 font-medium">Select date:</span>
+            <div className="flex-1 sm:flex-none">
+              <input
+                type="date"
+                className="w-full sm:w-auto bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+                value={dateToInputValue(date)}
+                onChange={(e) => {
+                  const [yyyy, mm, dd] = e.target.value.split("-");
+                  const formatted = `${mm}-${dd}-${yyyy}`;
+                  navigate(`/flip-logs?date=${formatted}`);
+                }}
+              />
+            </div>
+          </div>
+        )}
 
-      {!date && (
-        <p className="text-gray-400">Please select a date to view flip logs.</p>
-      )}
+        {/* Content States */}
+        {!date && (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">📅</div>
+            <p className="text-gray-400 text-lg">Please select a date to view flip logs</p>
+          </div>
+        )}
 
-      {isLoading && date && (
-        <LoadingSpinner size="medium" text="Loading flip logs..." />
-      )}
+        {date && validFlips.length === 0 && !isLoading && !hasError && (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">📭</div>
+            <p className="text-gray-400 text-lg">No flips found for {date}</p>
+          </div>
+        )}
 
-      {hasError && date && (
-        <ErrorMessage 
-          title="Failed to load flip logs"
-          error={flipsError || summaryError}
-          onRetry={() => window.location.reload()}
-        />
-      )}
+        {/* Flips List */}
+        {date && validFlips.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-700 pb-3">
+              <h2 className="text-xl font-bold text-white">Flips for {date}</h2>
+              <span className="text-sm text-gray-400">{validFlips.length} flips</span>
+            </div>
+            
+            <div className="grid gap-3">
+              {validFlips.map((flip, i) => {
+                const open = flip.opened_time ? new Date(flip.opened_time) : null;
+                const close = flip.closed_time ? new Date(flip.closed_time) : null;
 
-      {date && !isLoading && !hasError && validFlips.length === 0 && (
-        <p className="text-gray-400">No valid flips found for {date}.</p>
-      )}
+                const openTime = open
+                  ? open.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                  : "—";
+                const closeTime = close
+                  ? close.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                  : "—";
+                
+                const duration = open && close ? formatDuration(close - open) : "—";
+                const profit = Number(flip.profit);
+                const isProfit = profit > 0;
 
-      {date && !isLoading && !hasError && validFlips.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold mb-2">Flips for {date}</h2>
-          {validFlips.map((flip, i) => {
-            const open = flip.opened_time ? new Date(flip.opened_time) : null;
-            const close = flip.closed_time ? new Date(flip.closed_time) : null;
+                return (
+                  <div
+                    key={i}
+                    className="bg-gray-800 border border-gray-600 rounded-xl p-4 hover:ring-2 hover:ring-yellow-500 transition duration-150"
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-lg text-white truncate flex-1 mr-3">
+                        {flip.item_name}
+                      </h3>
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        isProfit ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+                      }`}>
+                        {isProfit ? '+' : ''}{formatGP(profit)} GP
+                      </div>
+                    </div>
 
-            const openTime = open
-              ? open.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-              : "—";
-            const closeTime = close
-              ? close.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-              : "—";
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-400 block">Quantity:</span>
+                        <span className="text-white font-medium">{flip.closed_quantity}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Duration:</span>
+                        <span className="text-white font-medium">{duration}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Opened:</span>
+                        <span className="text-white font-medium">{openTime}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Closed:</span>
+                        <span className="text-white font-medium">{closeTime}</span>
+                      </div>
+                    </div>
 
-            let duration = "—";
-            if (open && close) {
-              duration = formatDuration(close - open);
-            }
-
-            return (
-              <div
-                key={i}
-                className="border border-gray-300 dark:border-gray-700 p-3 rounded-md shadow bg-white dark:bg-gray-900"
-              >
-                <div className="font-bold text-yellow-500 text-sm mb-1">{flip.item_name}</div>
-                <div className="text-sm grid grid-cols-2 sm:grid-cols-4 gap-2 text-white">
-                  <div>Sold: {flip.closed_quantity}</div>
-                  <div>Profit: {formatGP(flip.profit)}</div>
-                  <div>
-                    Profit Per Item: {Math.floor(flip.profit / flip.closed_quantity).toLocaleString()}
+                    {/* Financial Details */}
+                    <div className="mt-3 pt-3 border-t border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-400 block">Spent:</span>
+                        <span className="text-white font-medium font-mono">{formatGP(flip.spent)} GP</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Received:</span>
+                        <span className="text-white font-medium font-mono">{formatGP(flip.received_post_tax)} GP</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400 block">Tax Paid:</span>
+                        <span className="text-white font-medium font-mono">{formatGP(flip.tax_paid)} GP</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>Time: {openTime} → {closeTime} ({duration})</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
