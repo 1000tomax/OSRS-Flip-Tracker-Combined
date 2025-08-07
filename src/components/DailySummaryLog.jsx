@@ -1,10 +1,11 @@
 // src/components/DailySummaryLog.jsx - Complete with Container Background
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import useDailySummaries from "../hooks/useDailySummaries";
 import { useJsonData } from "../hooks/useJsonData";
 import { Link } from "react-router-dom";
 import LoadingSpinner, { ErrorMessage } from "./LoadingSpinner";
 import { useETACalculator, formatETA } from "./ETACalculator";
+import html2canvas from 'html2canvas';
 
 function formatGP(value) {
   if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
@@ -58,6 +59,7 @@ export default function DailySummaryLog() {
   const [showDayNumber, setShowDayNumber] = useState(true);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 7;
+  const screenshotRef = useRef(null);
 
   // Calculate ETA to max cash (must be called before any early returns)
   const etaData = useETACalculator(summaries, meta?.net_worth || 0);
@@ -66,10 +68,32 @@ export default function DailySummaryLog() {
   const isLoading = summariesLoading || metaLoading;
   const hasError = summariesError || metaError;
 
+  // Keep for error states only
   const handleRetry = () => {
-    // Keep for error states only
     refetchSummaries();
     refetchMeta();
+  };
+
+  // Screenshot generator
+  const generateScreenshot = async () => {
+    if (screenshotRef.current) {
+      try {
+        const canvas = await html2canvas(screenshotRef.current, {
+          backgroundColor: '#1f2937',
+          scale: 2, // High quality
+          width: 800,
+          height: summaries.length * 35 + 200 // Dynamic height
+        });
+        
+        // Download the image
+        const link = document.createElement('a');
+        link.download = `1K-to-Max-Challenge-Day-${summaries.length}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      } catch (error) {
+        console.error('Screenshot generation failed:', error);
+      }
+    }
   };
 
   if (isLoading) {
@@ -219,6 +243,17 @@ export default function DailySummaryLog() {
             </button>
           </div>
         </div>
+
+        {/* Screenshot Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <span className="text-xs text-gray-400 font-medium sm:hidden">Share:</span>
+          <button
+            onClick={generateScreenshot}
+            className="px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1"
+          >
+            📸 <span className="hidden sm:inline">Full History Screenshot</span><span className="sm:hidden">Screenshot</span>
+          </button>
+        </div>
       </div>
 
       {/* Daily Summary Cards */}
@@ -290,6 +325,115 @@ export default function DailySummaryLog() {
             </div>
           );
         })}
+      </div>
+
+      {/* Hidden Screenshot Content */}
+      <div
+        ref={screenshotRef}
+        style={{ 
+          position: 'fixed',
+          left: '-9999px',
+          width: '800px',
+          backgroundColor: '#1f2937',
+          color: '#ffffff',
+          padding: '24px',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}
+      >
+        {/* Header */}
+        <div style={{ 
+          textAlign: 'center', 
+          marginBottom: '16px', 
+          borderBottom: '1px solid #4b5563', 
+          paddingBottom: '16px' 
+        }}>
+          <h1 style={{ 
+            fontSize: '24px', 
+            fontWeight: 'bold', 
+            color: '#fbbf24',
+            margin: '0 0 8px 0'
+          }}>
+            💰 1,000 GP to Max Cash Challenge
+          </h1>
+          <p style={{ 
+            color: '#d1d5db', 
+            margin: '0',
+            fontSize: '14px'
+          }}>
+            Day {summaries.length} • Current: {formatGP(meta?.net_worth || 0)} GP • 
+            Goal: 2,147M GP ({((meta?.net_worth || 0) / 2147483647 * 100).toFixed(2)}%)
+          </p>
+        </div>
+
+        {/* Compact Table */}
+        <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#374151' }}>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Day</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Starting GP</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Ending GP</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Daily Profit</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>ROI %</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Flips</th>
+            </tr>
+          </thead>
+          <tbody>
+            {summaries.map((day, index) => {
+              const startingGP = index === 0 ? 1000 : summaries[index - 1]?.net_worth || 1000;
+              const isProfit = day.profit >= 0;
+              
+              return (
+                <tr key={day.date} style={{ borderBottom: '1px solid #374151' }}>
+                  <td style={{ padding: '8px', fontWeight: '600' }}>{index}</td>
+                  <td style={{ padding: '8px', fontFamily: 'monospace', color: '#d1d5db' }}>
+                    {formatGP(startingGP)}
+                  </td>
+                  <td style={{ padding: '8px', fontFamily: 'monospace', fontWeight: '600' }}>
+                    {formatGP(day.net_worth)}
+                  </td>
+                  <td style={{ 
+                    padding: '8px', 
+                    fontFamily: 'monospace', 
+                    fontWeight: '600',
+                    color: isProfit ? '#22c55e' : '#ef4444'
+                  }}>
+                    {isProfit ? '+' : ''}{formatGP(day.profit)}
+                  </td>
+                  <td style={{ 
+                    padding: '8px', 
+                    fontFamily: 'monospace',
+                    color: isProfit ? '#22c55e' : '#ef4444'
+                  }}>
+                    {day.roi_percent.toFixed(2)}%
+                  </td>
+                  <td style={{ padding: '8px', color: '#d1d5db' }}>{day.flips}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {/* Footer Stats */}
+        <div style={{ 
+          marginTop: '16px', 
+          paddingTop: '16px', 
+          borderTop: '1px solid #4b5563', 
+          textAlign: 'center', 
+          fontSize: '13px',
+          color: '#9ca3af'
+        }}>
+          <p style={{ margin: '0 0 4px 0' }}>
+            Total Profit: <span style={{ color: '#22c55e', fontWeight: '600' }}>
+              {formatGP((meta?.net_worth || 0) - 1000)} GP
+            </span> • 
+            Average Daily ROI: <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+              {(summaries.reduce((sum, day) => sum + day.roi_percent, 0) / summaries.length).toFixed(2)}%
+            </span>
+          </p>
+          <p style={{ fontSize: '11px', margin: '0', color: '#6b7280' }}>
+            Generated from mreedon.com • Powered by Flipping Copilot
+          </p>
+        </div>
       </div>
     </div>
   );
