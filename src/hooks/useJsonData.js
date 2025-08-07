@@ -1,17 +1,31 @@
-import { useEffect, useState } from 'react';
+// src/hooks/useJsonData.js - Optimized with React Query
+import { useQuery } from '@tanstack/react-query'
+
+async function fetchJsonData(path) {
+  const res = await fetch(path)
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}: Failed to fetch ${path}`)
+  }
+  return res.json()
+}
 
 export function useJsonData(path) {
-  const [data, setData] = useState(null);
+  const {
+    data,
+    isLoading: loading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['json', path],
+    queryFn: () => fetchJsonData(path),
+    enabled: !!path, // Only run if path is provided
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
 
-  useEffect(() => {
-    fetch(path)
-      .then((res) => res.json())
-      .then(setData)
-      .catch((err) => {
-        console.error("Failed to load JSON:", path, err);
-        setData(null);
-      });
-  }, [path]);
-
-  return data;
+  return { 
+    data, 
+    loading, 
+    error: error?.message, 
+    refetch 
+  }
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCsvData } from '../hooks/useCsvData';
 import { useJsonData } from '../hooks/useJsonData';
+import LoadingSpinner, { ErrorMessage } from '../components/LoadingSpinner';
 
 function parseDateParts(dateStr) {
   const [month, day, year] = dateStr.split('-');
@@ -23,24 +24,34 @@ function dateToInputValue(date) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function formatGP(value) {
+  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
+  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
+  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
+  return value?.toLocaleString?.() ?? value;
+}
+
 export default function FlipLogs() {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const date = queryParams.get('date');
 
-  const summaryDates = useJsonData("/data/summary-index.json");
+  const { data: summaryDates, loading: summaryLoading, error: summaryError } = useJsonData("/data/summary-index.json");
 
   const { month, day, year } = date ? parseDateParts(date) : {};
   const csvPath = date ? `/data/processed-flips/${year}/${month}/${day}/flips.csv` : null;
-  const flips = useCsvData(csvPath);
+  const { data: flips, loading: flipsLoading, error: flipsError } = useCsvData(csvPath);
+
+  const isLoading = summaryLoading || flipsLoading;
+  const hasError = summaryError || flipsError;
 
   const validFlips = flips
     .filter(f => f.closed_quantity > 0 && f.received_post_tax > 0)
     .sort((a, b) => new Date(a.closed_time) - new Date(b.closed_time));
 
   return (
-    <div className="dark:bg-black dark:text-white p-4 min-h-screen">
+    <div className="text-gray-900 dark:text-white p-4 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">📋 Flip Log Viewer</h1>
 
       {/* 📅 Calendar-style Date Picker */}
@@ -67,11 +78,23 @@ export default function FlipLogs() {
         <p className="text-gray-400">Please select a date to view flip logs.</p>
       )}
 
-      {date && validFlips.length === 0 && (
+      {isLoading && date && (
+        <LoadingSpinner size="medium" text="Loading flip logs..." />
+      )}
+
+      {hasError && date && (
+        <ErrorMessage 
+          title="Failed to load flip logs"
+          error={flipsError || summaryError}
+          onRetry={() => window.location.reload()}
+        />
+      )}
+
+      {date && !isLoading && !hasError && validFlips.length === 0 && (
         <p className="text-gray-400">No valid flips found for {date}.</p>
       )}
 
-      {date && validFlips.length > 0 && (
+      {date && !isLoading && !hasError && validFlips.length > 0 && (
         <div className="space-y-2">
           <h2 className="text-xl font-semibold mb-2">Flips for {date}</h2>
           {validFlips.map((flip, i) => {
@@ -111,12 +134,4 @@ export default function FlipLogs() {
       )}
     </div>
   );
-}
-
-// GP formatter reused from Daily Summary
-function formatGP(value) {
-  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
-  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
-  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
-  return value?.toLocaleString?.() ?? value;
 }
