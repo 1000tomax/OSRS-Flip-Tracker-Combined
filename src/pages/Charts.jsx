@@ -1,7 +1,8 @@
-// src/pages/Charts.jsx - With Both Charts
+// src/pages/Charts.jsx - With Weekday Performance
 import React from 'react';
 import NetWorthChart from '../components/NetWorthChart';
 import DailyProfitChart from '../components/DailyProfitChart';
+import WeekdayPerformanceChart from '../components/WeekdayPerformanceChart';
 
 export default function Charts() {
   return (
@@ -20,10 +21,11 @@ export default function Charts() {
         <div className="space-y-6">
           <NetWorthChart />
           <DailyProfitChart />
+          <WeekdayPerformanceChart />
           
           {/* Future charts placeholder */}
-          <div className="text-center py-8 text-gray-500">
-            <p className="text-sm">More charts coming soon: Top Items, ROI Analysis, Weekday Performance...</p>
+          <div className="text-center py-6 text-gray-500">
+            <p className="text-sm">Charts dashboard complete! 🎉</p>
           </div>
         </div>
 

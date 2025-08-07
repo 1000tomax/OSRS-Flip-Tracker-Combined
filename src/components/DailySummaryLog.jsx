@@ -4,6 +4,7 @@ import useDailySummaries from "../hooks/useDailySummaries";
 import { useJsonData } from "../hooks/useJsonData";
 import { Link } from "react-router-dom";
 import LoadingSpinner, { ErrorMessage } from "./LoadingSpinner";
+import { useETACalculator, formatETA } from "./ETACalculator";
 
 function formatGP(value) {
   if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
@@ -57,6 +58,9 @@ export default function DailySummaryLog() {
   const [showDayNumber, setShowDayNumber] = useState(true);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 7;
+
+  // Calculate ETA to max cash (must be called before any early returns)
+  const etaData = useETACalculator(summaries, meta?.net_worth || 0);
 
   // Show loading if either is loading
   const isLoading = summariesLoading || metaLoading;
@@ -134,6 +138,26 @@ export default function DailySummaryLog() {
                 className="h-5 transition-all rounded-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-300"
                 style={{ width: `${percentToGoal}%` }}
               />
+            </div>
+            
+            {/* ETA Calculator */}
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-300">⏱️ ETA to Max Cash:</span>
+                <span className="text-white font-medium">
+                  {etaData.eta ? formatETA(etaData.eta, etaData.confidence) : 'Calculating...'}
+                </span>
+              </div>
+              {etaData.confidence === 'low' && (
+                <div className="space-y-1 mt-1">
+                  <p className="text-xs text-gray-400">
+                    💡 ETA will become more accurate as you add more flipping days
+                  </p>
+                  <p className="text-xs text-gray-300">
+                    ℹ️ 🤔 = Low confidence (few data points), 📊 = Medium, 🎯 = High
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
