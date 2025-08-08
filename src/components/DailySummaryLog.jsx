@@ -1,166 +1,222 @@
-// src/components/DailySummaryLog.jsx - Complete with improved header
-import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+// src/components/DailySummaryLog.jsx - Complete with Container Background
+import React, { useState, useRef } from "react";
+import useDailySummaries from "../hooks/useDailySummaries";
+import { useJsonData } from "../hooks/useJsonData";
+import { Link } from "react-router-dom";
+import LoadingSpinner, { ErrorMessage } from "./LoadingSpinner";
+import { useETACalculator, formatETA } from "./ETACalculator";
 import html2canvas from 'html2canvas';
-import { useJsonData } from '../hooks/useJsonData';
-import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 
-const PAGE_SIZE = 10;
+function formatGP(value) {
+  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
+  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
+  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
+  return value.toString();
+}
+
+function formatPercent(value) {
+  const prefix = value > 0 ? "+" : "";
+  if (Math.abs(value) < 1) return prefix + value.toFixed(3) + "%";
+  if (Math.abs(value) < 100) return prefix + value.toFixed(2) + "%";
+  return prefix + value.toFixed(1) + "%";
+}
+
+function formatProgress(value) {
+  if (Math.abs(value) < 1) return value.toFixed(3) + "%";
+  if (Math.abs(value) < 100) return value.toFixed(2) + "%";
+  return value.toFixed(1) + "%";
+}
+
+function formatLastUpdated(timestamp) {
+  const date = new Date(timestamp);
+  return date.toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+function timeAgo(timestamp) {
+  const now = new Date();
+  const then = new Date(timestamp);
+  const diffMs = now - then;
+
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours >= 1) return `(${hours} hour${hours !== 1 ? "s" : ""} ago)`;
+  if (minutes >= 1) return `(${minutes} min${minutes !== 1 ? "s" : ""} ago)`;
+  return `(${seconds} sec${seconds !== 1 ? "s" : ""} ago)`;
+}
 
 export default function DailySummaryLog() {
-  // Using compact summary for fast loading
-  const { data: summaries, loading: summariesLoading, error: summariesError } = useJsonData('/data/summaries-compact.json');
-  const { data: meta, loading: metaLoading, error: metaError } = useJsonData('/data/meta.json');
-  
-  const [page, setPage] = useState(0);
+  const { summaries, loading: summariesLoading, error: summariesError, refetch: refetchSummaries } = useDailySummaries();
+  const { data: meta, loading: metaLoading, error: metaError, refetch: refetchMeta } = useJsonData("/data/meta.json");
   const [showDayNumber, setShowDayNumber] = useState(true);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 7;
   const screenshotRef = useRef(null);
 
+  // Calculate ETA to max cash (must be called before any early returns)
+  const etaData = useETACalculator(summaries, meta?.net_worth || 0);
+
+  // Show loading if either is loading
   const isLoading = summariesLoading || metaLoading;
-  const error = summariesError || metaError;
+  const hasError = summariesError || metaError;
+
+  // Keep for error states only
+  const handleRetry = () => {
+    refetchSummaries();
+    refetchMeta();
+  };
+
+  // Screenshot generator
+  const generateScreenshot = async () => {
+    if (screenshotRef.current) {
+      try {
+        const canvas = await html2canvas(screenshotRef.current, {
+          backgroundColor: '#1f2937',
+          scale: 2, // High quality
+          width: 800,
+          height: summaries.length * 35 + 200 // Dynamic height
+        });
+        
+        // Download the image
+        const link = document.createElement('a');
+        link.download = `1K-to-Max-Challenge-Day-${summaries.length}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      } catch (error) {
+        console.error('Screenshot generation failed:', error);
+      }
+    }
+  };
 
   if (isLoading) {
     return (
-      <div className="flex flex-col justify-start w-full pt-4 px-2 sm:px-0">
-        <LoadingSpinner size="large" text="Loading daily summaries..." />
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <LoadingSpinner size="large" text="Loading flip summaries..." />
       </div>
     );
   }
 
-  if (error) {
+  if (hasError) {
     return (
-      <div className="flex flex-col justify-start w-full pt-4 px-2 sm:px-0">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
         <ErrorMessage 
-          title="Failed to load daily summaries"
-          error={error}
-          onRetry={() => window.location.reload()}
+          title="Failed to load flip data"
+          error={summariesError || metaError}
+          onRetry={handleRetry}
         />
       </div>
     );
   }
 
-  if (!summaries || summaries.length === 0) {
-    return (
-      <div className="flex flex-col justify-start w-full pt-4 px-2 sm:px-0">
-        <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center">
-          <div className="text-4xl mb-2">📊</div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Yet</h3>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            Daily summaries will appear here once you process your first flips.csv file.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Reverse for newest-first display
   const reversedSummaries = [...summaries].reverse();
   const pagedSummaries = reversedSummaries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
-  const formatGP = (value) => {
-    const abs = Math.abs(value);
-    if (abs >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + 'B';
-    if (abs >= 1_000_000) return (value / 1_000_000).toFixed(2) + 'M';
-    if (abs >= 1_000) return (value / 1_000).toFixed(0) + 'K';
-    return value?.toLocaleString?.() ?? value;
-  };
-
-  const formatPercent = (value) => {
-    const prefix = value > 0 ? '+' : '';
-    return `${prefix}${value.toFixed(2)}%`;
-  };
-
-  const formatProgress = (value) => {
-    return `${value.toFixed(4)}%`;
-  };
-
-  const generateScreenshot = async () => {
-    try {
-      const element = screenshotRef.current;
-      if (!element) return;
-
-      console.log('Generating screenshot...');
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#1f2937',
-        scale: 1,
-        logging: false,
-        useCORS: true
-      });
-
-      // Download the image
-      const link = document.createElement('a');
-      link.download = `osrs-flipping-history-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-      
-      console.log('Screenshot saved!');
-    } catch (err) {
-      console.error('Screenshot failed:', err);
-      alert('Screenshot failed. Try using your browser\'s built-in screenshot tool instead.');
-    }
-  };
+  const percentToGoal = meta?.net_worth ? (meta.net_worth / 2147483647) * 100 : 0;
 
   return (
-    <div className="w-full space-y-4">
-      {/* Header */}
-      <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+      {/* Header Section */}
+      <div className="mb-6 max-w-3xl leading-relaxed">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-white">💰 1,000 GP to Max Cash Challenge</h1>
+        <p className="text-sm sm:text-base text-gray-300 mb-4">
+          This dashboard tracks my flipping progress, starting from <span className="font-semibold text-white">1,000 GP</span> with the goal of reaching <span className="font-semibold text-white">2.147B</span>&nbsp;— max&nbsp;cash&nbsp;stack.
+        </p>
+      </div>
+
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 text-white">📅 Daily Summary Log</h2>
+
+      {/* Last Updated Section */}
+      {meta?.last_updated && (
+        <div className="border-b border-gray-700 pb-4 mb-6 text-sm space-y-3">
+          <div className="text-sm sm:text-base text-gray-300">
+            🕒 Last Data Upload:{" "}
+            <span className="font-medium text-white">
+              {formatLastUpdated(meta.last_updated)}{" "}
+              <span className="text-gray-400">{timeAgo(meta.last_updated)}</span>
+            </span>
+          </div>
+          
+          {/* Progress Bar */}
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
-              💰 1,000 GP to Max Cash Challenge
-            </h1>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm text-gray-300">📊 Challenge Progress:</p>
+              <p className="text-sm sm:text-base text-white font-medium">{percentToGoal.toFixed(3)}%</p>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-5 overflow-hidden">
+              <div
+                className="h-5 transition-all rounded-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-300"
+                style={{ width: `${percentToGoal}%` }}
+              />
+            </div>
             
-            {/* Progress Stats - Clean Layout */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm">
-              {/* Day Counter */}
-              <div className="flex items-center gap-2">
-                <span style={{ color: '#60a5fa' }} className="font-semibold">📅</span>
-                <span className="text-gray-300">Day</span>
-                <span className="font-bold text-white text-lg">{summaries.length}</span>
-              </div>
-              
-              {/* Current Net Worth */}
-              <div className="flex items-center gap-2">
-                <span style={{ color: '#34d399' }} className="font-semibold">💰</span>
-                <span className="text-gray-300">Current:</span>
-                <span className="font-bold text-white text-lg">{formatGP(meta?.net_worth || 0)} GP</span>
-              </div>
-              
-              {/* Goal Progress */}
-              <div className="flex items-center gap-2">
-                <span style={{ color: '#fbbf24' }} className="font-semibold">🎯</span>
-                <span className="text-gray-300">Progress:</span>
-                <span className="font-bold text-white text-lg">
-                  {((meta?.net_worth || 0) / 2147483647 * 100).toFixed(2)}%
+            {/* ETA Calculator */}
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-300">⏱️ ETA to Max Cash:</span>
+                <span className="text-white font-medium">
+                  {etaData.eta ? formatETA(etaData.eta, etaData.confidence) : 'Calculating...'}
                 </span>
-                <span className="text-gray-400 text-xs">to 2.147B GP</span>
               </div>
+              {etaData.confidence === 'low' && (
+                <div className="space-y-1 mt-1">
+                  <p className="text-xs text-gray-400">
+                    💡 ETA will become more accurate as you add more flipping days
+                  </p>
+                  <p className="text-xs text-gray-300">
+                    ℹ️ 🤔 = Low confidence (few data points), 📊 = Medium, 🎯 = High
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Controls */}
-      <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl p-3 sm:p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          {/* Display Toggle */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Display:</span>
+      {/* Controls - Polished */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+        {/* Date/Day Toggle */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <span className="text-xs text-gray-400 font-medium">Display:</span>
+          <div className="bg-gray-700 rounded-lg p-0.5 flex gap-0.5">
             <button
-              onClick={() => setShowDayNumber(!showDayNumber)}
-              className="px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] bg-gray-600 hover:bg-gray-500 text-white"
+              onClick={() => setShowDayNumber(false)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none ${
+                !showDayNumber
+                  ? 'bg-yellow-500 text-black'
+                  : 'text-white hover:bg-gray-600'
+              }`}
             >
-              {showDayNumber ? '📅 Show Dates' : '📊 Show Days'}
+              Date
+            </button>
+            <button
+              onClick={() => setShowDayNumber(true)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none ${
+                showDayNumber
+                  ? 'bg-yellow-500 text-black'
+                  : 'text-white hover:bg-gray-600'
+              }`}
+            >
+              Day #
             </button>
           </div>
+        </div>
 
-          {/* Pagination */}
+        {/* Pagination */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <span className="text-xs text-gray-400 font-medium">Page:</span>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setPage((prev) => (prev > 0 ? prev - 1 : prev))}
+              onClick={() => setPage((prev) => Math.max(0, prev - 1))}
               disabled={page === 0}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] ${
-                page === 0
+                page === 0 
                   ? "bg-gray-600 cursor-not-allowed text-gray-400" 
                   : "bg-yellow-600 hover:bg-yellow-500 text-black"
               }`}
@@ -186,17 +242,17 @@ export default function DailySummaryLog() {
               Next →
             </button>
           </div>
+        </div>
 
-          {/* Screenshot Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs text-gray-400 font-medium sm:hidden">Share:</span>
-            <button
-              onClick={generateScreenshot}
-              className="px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1"
-            >
-              📸 <span className="hidden sm:inline">Full History Screenshot</span><span className="sm:hidden">Screenshot</span>
-            </button>
-          </div>
+        {/* Screenshot Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <span className="text-xs text-gray-400 font-medium sm:hidden">Share:</span>
+          <button
+            onClick={generateScreenshot}
+            className="px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1"
+          >
+            📸 <span className="hidden sm:inline">Full History Screenshot</span><span className="sm:hidden">Screenshot</span>
+          </button>
         </div>
       </div>
 
@@ -212,7 +268,7 @@ export default function DailySummaryLog() {
               {/* Header: Day/Date + View Flips Button */}
               <div className="flex items-center justify-between mb-2">
                 <div className="font-bold text-base text-gray-900 dark:text-white">
-                  {showDayNumber ? `Day ${summaries.length - trueIndex}` : s.date}
+                  {showDayNumber ? `Day ${summaries.length - 1 - trueIndex}` : s.date}
                 </div>
                 <Link
                   to={`/flip-logs?date=${s.date}`}
@@ -236,30 +292,30 @@ export default function DailySummaryLog() {
               </div>
 
               {/* Mobile: Compact grid */}
-              <div className="sm:hidden grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                <div className="flex justify-between col-span-2">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:hidden text-xs">
+                <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Flips:</span>
                   <span className="text-gray-900 dark:text-white">📦 {s.flips}</span>
                 </div>
-                <div className="flex justify-between col-span-2">
+                <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Items:</span>
                   <span className="text-gray-900 dark:text-white">🧾 {s.items_flipped}</span>
                 </div>
-                <div className="flex justify-between col-span-2">
+                <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Profit:</span>
                   <span className="text-gray-900 dark:text-white">💰 {formatGP(s.profit)}</span>
                 </div>
-                <div className="flex justify-between col-span-2">
-                  <span className="text-gray-600 dark:text-gray-400">Net Worth:</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Worth:</span>
                   <span className="text-gray-900 dark:text-white">🏆 {formatGP(s.net_worth)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">ROI:</span>
-                  <span className="text-gray-900 dark:text-white">{formatPercent(s.roi_percent)}</span>
+                  <span className="text-gray-900 dark:text-white">📈 {formatPercent(s.roi_percent)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Growth:</span>
-                  <span className="text-gray-900 dark:text-white">{formatPercent(s.percent_change)}</span>
+                  <span className="text-gray-900 dark:text-white">📈 {formatPercent(s.percent_change)}</span>
                 </div>
                 <div className="flex justify-between col-span-2">
                   <span className="text-gray-600 dark:text-gray-400">Progress:</span>
@@ -304,7 +360,7 @@ export default function DailySummaryLog() {
             margin: '0',
             fontSize: '14px'
           }}>
-            Day {summaries.length} • Current: {formatGP(meta?.net_worth || 0)} GP • 
+            Day {summaries.length - 1} • Current: {formatGP(meta?.net_worth || 0)} GP • 
             Goal: 2,147M GP ({((meta?.net_worth || 0) / 2147483647 * 100).toFixed(2)}%)
           </p>
         </div>
@@ -313,50 +369,73 @@ export default function DailySummaryLog() {
         <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#374151' }}>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Day</th>
-              <th style={{ padding: '8px', textAlign: 'right', borderBottom: '1px solid #4b5563' }}>Flips</th>
-              <th style={{ padding: '8px', textAlign: 'right', borderBottom: '1px solid #4b5563' }}>Profit</th>
-              <th style={{ padding: '8px', textAlign: 'right', borderBottom: '1px solid #4b5563' }}>Net Worth</th>
-              <th style={{ padding: '8px', textAlign: 'right', borderBottom: '1px solid #4b5563' }}>ROI</th>
-              <th style={{ padding: '8px', textAlign: 'right', borderBottom: '1px solid #4b5563' }}>Progress</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Day</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Starting GP</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Ending GP</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Daily Profit</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>ROI %</th>
+              <th style={{ padding: '8px', fontWeight: '600', textAlign: 'left' }}>Flips</th>
             </tr>
           </thead>
           <tbody>
-            {summaries.slice(-20).map((s, i) => (
-              <tr key={s.date} style={{ backgroundColor: i % 2 === 0 ? '#1f2937' : '#111827' }}>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #374151' }}>
-                  Day {s.day}
-                </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', borderBottom: '1px solid #374151' }}>
-                  {s.flips}
-                </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', borderBottom: '1px solid #374151' }}>
-                  {formatGP(s.profit)}
-                </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', borderBottom: '1px solid #374151' }}>
-                  {formatGP(s.net_worth)}
-                </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', borderBottom: '1px solid #374151' }}>
-                  {formatPercent(s.roi_percent)}
-                </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', borderBottom: '1px solid #374151' }}>
-                  {formatProgress(s.percent_to_goal)}
-                </td>
-              </tr>
-            ))}
+            {summaries
+              .filter((day, index) => index > 0) // Skip Day 0
+              .map((day, index) => {
+              const actualIndex = index + 1; // Since we filtered out index 0
+              const startingGP = summaries[actualIndex - 1]?.net_worth || 1000;
+              const isProfit = day.profit >= 0;
+              
+              return (
+                <tr key={day.date} style={{ borderBottom: '1px solid #374151' }}>
+                  <td style={{ padding: '8px', fontWeight: '600' }}>{actualIndex}</td>
+                  <td style={{ padding: '8px', fontFamily: 'monospace', color: '#d1d5db' }}>
+                    {formatGP(startingGP)}
+                  </td>
+                  <td style={{ padding: '8px', fontFamily: 'monospace', fontWeight: '600' }}>
+                    {formatGP(day.net_worth)}
+                  </td>
+                  <td style={{ 
+                    padding: '8px', 
+                    fontFamily: 'monospace', 
+                    fontWeight: '600',
+                    color: isProfit ? '#22c55e' : '#ef4444'
+                  }}>
+                    {isProfit ? '+' : ''}{formatGP(day.profit)}
+                  </td>
+                  <td style={{ 
+                    padding: '8px', 
+                    fontFamily: 'monospace',
+                    color: isProfit ? '#22c55e' : '#ef4444'
+                  }}>
+                    {day.roi_percent.toFixed(2)}%
+                  </td>
+                  <td style={{ padding: '8px', color: '#d1d5db' }}>{day.flips}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
-        {/* Footer */}
+        {/* Footer Stats */}
         <div style={{ 
-          textAlign: 'center', 
           marginTop: '16px', 
-          paddingTop: '16px',
-          borderTop: '1px solid #4b5563',
-          fontSize: '12px',
+          paddingTop: '16px', 
+          borderTop: '1px solid #4b5563', 
+          textAlign: 'center', 
+          fontSize: '13px',
           color: '#9ca3af'
         }}>
-          Generated on {new Date().toLocaleDateString()} • OSRS Flipping Tracker v4
+          <p style={{ margin: '0 0 4px 0' }}>
+            Total Profit: <span style={{ color: '#22c55e', fontWeight: '600' }}>
+              {formatGP((meta?.net_worth || 0) - 1000)} GP
+            </span> • 
+            Average Daily ROI: <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+              {(summaries.reduce((sum, day) => sum + day.roi_percent, 0) / summaries.length).toFixed(2)}%
+            </span>
+          </p>
+          <p style={{ fontSize: '11px', margin: '0', color: '#6b7280' }}>
+            Generated from mreedon.com • Powered by Flipping Copilot
+          </p>
         </div>
       </div>
     </div>
