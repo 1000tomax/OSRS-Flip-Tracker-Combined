@@ -1,256 +1,169 @@
-// ETACalculator.final.js
-// Simple, robust ETA calculator for "1k -> Max Cash" style runs
-// Takes the solid refactored base and adds just the essential improvements
-
+// src/components/ETACalculator.js
 import { useMemo } from 'react';
 
-// Default configuration
-const DEFAULTS = {
-  target: 2147483647,           // OSRS max stack (GP)
-  skipFirstDays: 7,             // ignore early noise
-  expLookbackDays: 14,          // window for exponential fit
-  maxExponentialDailyGrowth: 0.20, // 20%/day hard guard
-  minDailyProfit: 1,            // avoid divide-by-zero
-  confidenceThresholds: { high: 0.15, medium: 0.35 }, // relative spread
-  maxReasonableETA: 1095,       // 3 years max (anything beyond is "unable to calculate")
-};
-
-// ----------------- Utilities -----------------
-
-const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
-
-function median(arr) {
-  if (!arr.length) return NaN;
-  const a = [...arr].sort((x, y) => x - y);
-  const mid = Math.floor(a.length / 2);
-  return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
-}
-
-function variance(arr) {
-  if (arr.length < 2) return 0;
-  const m = arr.reduce((s, x) => s + x, 0) / arr.length;
-  return arr.reduce((s, x) => s + (x - m) ** 2, 0) / (arr.length - 1);
-}
-
-function isFinitePositive(x) {
-  return Number.isFinite(x) && x > 0;
-}
-
-// Least squares linear regression with R-squared
-function linearRegression(x, y) {
-  const n = Math.min(x.length, y.length);
-  if (n < 2) return { a: NaN, b: NaN, r2: 0 };
-  
-  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, sumYY = 0;
-  for (let i = 0; i < n; i++) {
-    const xi = x[i], yi = y[i];
-    if (!Number.isFinite(xi) || !Number.isFinite(yi)) continue;
-    sumX += xi; sumY += yi; sumXY += xi * yi; 
-    sumXX += xi * xi; sumYY += yi * yi;
-  }
-  
-  const denom = n * sumXX - sumX * sumX;
-  if (denom === 0) return { a: NaN, b: NaN, r2: 0 };
-  
-  const b = (n * sumXY - sumX * sumY) / denom;
-  const a = (sumY - b * sumX) / n;
-  
-  // Calculate R-squared to know if linear fit is actually good
-  const yMean = sumY / n;
-  const ssRes = y.reduce((sum, yi, i) => {
-    const predicted = a + b * x[i];
-    return sum + Math.pow(yi - predicted, 2);
-  }, 0);
-  const ssTot = y.reduce((sum, yi) => sum + Math.pow(yi - yMean, 2), 0);
-  const r2 = ssTot === 0 ? 1 : Math.max(0, 1 - (ssRes / ssTot));
-  
-  return { a, b, r2 };
-}
-
-// Format ETA for display
-export function formatETA(etaDays) {
-  if (etaDays == null || etaDays === Infinity || Number.isNaN(etaDays)) return "Unable to calculate";
-  if (etaDays === 0) return "Goal reached";
-  const days = Math.ceil(etaDays);
-  return days === 1 ? "1 day" : `${days} days`;
-}
-
-// ----------------- Core Methods -----------------
-
-// Method A: Linear trend (only use if reasonably linear)
-function etaLinear(validDays, target) {
-  const x = validDays.map(d => d.day);
-  const y = validDays.map(d => d.netWorth);
-  const lastNW = y[y.length - 1];
-  if (lastNW >= target) return 0;
-
-  const { b: slopePerDay, r2 } = linearRegression(x, y);
-  
-  // Only trust linear if it's actually a decent fit AND positive slope
-  if (!Number.isFinite(slopePerDay) || slopePerDay <= 0 || r2 < 0.3) {
-    return Infinity;
-  }
-
-  const remaining = target - lastNW;
-  return remaining / slopePerDay;
-}
-
-// Method B: Exponential trend (only use if good fit)
-function etaExponential(validDays, target, { expLookbackDays, maxExponentialDailyGrowth }) {
-  const last = validDays[validDays.length - 1];
-  const lastNW = last.netWorth;
-  if (lastNW >= target) return 0;
-
-  const cutoff = last.day - expLookbackDays;
-  const window = validDays.filter(d => d.day >= cutoff && d.netWorth > 0);
-  if (window.length < 3) return Infinity;
-
-  const x = window.map(d => d.day);
-  const y = window.map(d => Math.log(d.netWorth));
-
-  const { b, r2 } = linearRegression(x, y);
-  
-  // Only trust exponential if it's a good fit
-  if (!Number.isFinite(b) || r2 < 0.5) return Infinity;
-
-  const dailyGrowth = clamp(Math.exp(b) - 1, 0, maxExponentialDailyGrowth);
-  if (dailyGrowth <= 0) return Infinity;
-
-  const t = Math.log(target / lastNW) / Math.log(1 + dailyGrowth);
-  return t > 0 && Number.isFinite(t) ? t : Infinity;
-}
-
-// Method C: Weighted average (always applicable)
-function etaWeightedAverage(validDays, target, { minDailyProfit }) {
-  const lastNW = validDays[validDays.length - 1].netWorth;
-  if (lastNW >= target) return 0;
-
-  const minDay = validDays[0].day;
-  let weightedSum = 0;
-  let weightTotal = 0;
-
-  for (let i = 1; i < validDays.length; i++) {
-    const prev = validDays[i - 1];
-    const curr = validDays[i];
-    const dt = curr.day - prev.day;
-    if (dt <= 0) continue;
-    const profitPerDay = (curr.netWorth - prev.netWorth) / dt;
-
-    const w = (curr.day - minDay + 1);
-    weightedSum += w * profitPerDay;
-    weightTotal += w;
-  }
-
-  if (weightTotal === 0) return Infinity;
-  const avgProfitPerDay = Math.max(minDailyProfit, weightedSum / weightTotal);
-  if (!Number.isFinite(avgProfitPerDay) || avgProfitPerDay <= 0) return Infinity;
-
-  const remaining = target - lastNW;
-  return remaining / avgProfitPerDay;
-}
-
-// ----------------- Main API -----------------
-
-export function calculateETA(days, options = {}) {
-  const cfg = { ...DEFAULTS, ...options };
-
-  if (!Array.isArray(days) || days.length < 2) {
-    return {
-      etaDays: NaN,
-      confidence: "low",
-      methods: { linear: NaN, exponential: NaN, weighted: NaN },
-      formatted: "Unable to calculate",
-      note: "Not enough data",
-    };
-  }
-
-  // Sort by day and filter early noise
-  const sorted = [...days].sort((a, b) => a.day - b.day);
-  const validDays = sorted.filter(d => d.day >= (sorted[0].day + cfg.skipFirstDays));
-  const data = validDays.length >= 2 ? validDays : sorted;
-  const currentNW = data[data.length - 1].netWorth;
-
-  // Early exit: already at target
-  if (currentNW >= cfg.target) {
-    return {
-      etaDays: 0,
-      confidence: "high",
-      methods: { linear: 0, exponential: 0, weighted: 0 },
-      formatted: formatETA(0),
-    };
-  }
-
-  // Compute all methods
-  const linear = etaLinear(data, cfg.target);
-  const exponential = etaExponential(data, cfg.target, cfg);
-  const weighted = etaWeightedAverage(data, cfg.target, cfg);
-
-  // Filter reasonable estimates
-  const candidates = [linear, exponential, weighted]
-    .filter(eta => isFinitePositive(eta) && eta <= cfg.maxReasonableETA);
-
-  if (candidates.length === 0) {
-    return {
-      etaDays: NaN,
-      confidence: "low",
-      methods: { linear, exponential, weighted },
-      formatted: "Unable to calculate",
-      note: "No methods produced reasonable estimates",
-    };
-  }
-
-  // Use median for robustness
-  const etaDays = median(candidates);
-
-  // Confidence based on spread between methods
-  const sd = Math.sqrt(variance(candidates));
-  const relativeSpread = sd / etaDays;
-  
-  const confidence =
-    relativeSpread < cfg.confidenceThresholds.high ? "high"
-    : relativeSpread < cfg.confidenceThresholds.medium ? "medium"
-    : "low";
-
-  return {
-    etaDays,
-    confidence,
-    methods: { linear, exponential, weighted },
-    formatted: formatETA(etaDays),
-  };
-}
-
-// Pretty-print helper
-export function describeETA(result) {
-  if (!result) return "No result";
-  const { formatted, confidence, methods } = result;
-  const parts = [
-    `ETA: ${formatted}`,
-    `Confidence: ${confidence}`,
-    `Linear: ${formatETA(methods.linear)}`,
-    `Exponential: ${formatETA(methods.exponential)}`,
-    `Weighted: ${formatETA(methods.weighted)}`,
-  ];
-  return parts.join(" | ");
-}
-
-// React hook wrapper for compatibility with existing components
 export function useETACalculator(summaries, currentNetWorth) {
-  return useMemo(() => {
-    if (!summaries || summaries.length < 2) {
+  const etaData = useMemo(() => {
+    if (!summaries || summaries.length < 7) {
       return { eta: null, confidence: 'low', method: 'insufficient_data' };
     }
 
-    const result = calculateETA(summaries);
+    const MAX_CASH = 2147483647;
+    const remaining = MAX_CASH - currentNetWorth;
+    
+    if (remaining <= 0) {
+      return { eta: 0, confidence: 'high', method: 'complete' };
+    }
+
+    // Filter out very early days and sort by day
+    const validDays = summaries
+      .filter(day => day.day >= 8) // Skip first week outliers
+      .sort((a, b) => a.day - b.day);
+    
+    if (validDays.length < 3) {
+      return { eta: null, confidence: 'low', method: 'insufficient_filtered_data' };
+    }
+
+    // Method 1: Linear regression on daily profits to find acceleration
+    const linearTrendETA = calculateLinearTrendETA(validDays, remaining);
+    
+    // Method 2: Exponential growth model based on net worth progression
+    const exponentialETA = calculateExponentialETA(validDays, currentNetWorth, MAX_CASH);
+    
+    // Method 3: Rolling average with recent weighting
+    const weightedAverageETA = calculateWeightedAverageETA(validDays, remaining);
+    
+    // Combine methods for final estimate
+    const estimates = [linearTrendETA, exponentialETA, weightedAverageETA].filter(eta => eta > 0 && eta < 1000);
+    
+    if (estimates.length === 0) {
+      return { eta: null, confidence: 'low', method: 'calculation_error' };
+    }
+    
+    // Use median of valid estimates
+    estimates.sort((a, b) => a - b);
+    const finalETA = estimates[Math.floor(estimates.length / 2)];
+    
+    // Confidence based on consistency of estimates
+    const variance = estimates.reduce((sum, eta) => sum + Math.pow(eta - finalETA, 2), 0) / estimates.length;
+    const confidence = variance < 100 ? 'high' : variance < 400 ? 'medium' : 'low';
     
     return {
-      eta: result.etaDays,
-      confidence: result.confidence,
+      eta: Math.round(finalETA),
+      confidence,
       method: 'combined_analysis',
       estimates: {
-        linear: Math.round(result.methods.linear || 0),
-        exponential: Math.round(result.methods.exponential || 0),
-        weighted: Math.round(result.methods.weighted || 0)
+        linear: Math.round(linearTrendETA),
+        exponential: Math.round(exponentialETA),
+        weighted: Math.round(weightedAverageETA)
       }
     };
   }, [summaries, currentNetWorth]);
+
+  return etaData;
+}
+
+// Method 1: Linear regression on daily profits (captures acceleration)
+function calculateLinearTrendETA(validDays, remaining) {
+  const n = validDays.length;
+  
+  // Linear regression: y = mx + b where y = daily_profit, x = day_number
+  const sumX = validDays.reduce((sum, day) => sum + day.day, 0);
+  const sumY = validDays.reduce((sum, day) => sum + day.profit, 0);
+  const sumXY = validDays.reduce((sum, day) => sum + day.day * day.profit, 0);
+  const sumX2 = validDays.reduce((sum, day) => sum + day.day * day.day, 0);
+  
+  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+  
+  if (slope <= 0) return Infinity; // No growth trend
+  
+  // Project future profits and sum until we reach target
+  const lastDay = validDays[validDays.length - 1].day;
+  let totalProjectedProfit = 0;
+  let projectedDays = 0;
+  
+  while (totalProjectedProfit < remaining && projectedDays < 1000) {
+    projectedDays++;
+    const futureDay = lastDay + projectedDays;
+    const projectedDailyProfit = Math.max(slope * futureDay + intercept, 0);
+    totalProjectedProfit += projectedDailyProfit;
+  }
+  
+  return projectedDays;
+}
+
+// Method 2: Exponential growth model based on net worth progression
+function calculateExponentialETA(validDays, currentNetWorth, maxCash) {
+  if (validDays.length < 3) return Infinity;
+  
+  // Take recent samples for exponential fitting
+  const recentDays = validDays.slice(-14); // Last 2 weeks
+  
+  // Fit exponential curve to net worth: net_worth = a * e^(b * day)
+  // Using log-linear regression: ln(net_worth) = ln(a) + b * day
+  const validNetWorthDays = recentDays.filter(day => day.net_worth > 1000);
+  
+  if (validNetWorthDays.length < 3) return Infinity;
+  
+  const n = validNetWorthDays.length;
+  const sumX = validNetWorthDays.reduce((sum, day) => sum + day.day, 0);
+  const sumLnY = validNetWorthDays.reduce((sum, day) => sum + Math.log(day.net_worth), 0);
+  const sumXLnY = validNetWorthDays.reduce((sum, day) => sum + day.day * Math.log(day.net_worth), 0);
+  const sumX2 = validNetWorthDays.reduce((sum, day) => sum + day.day * day.day, 0);
+  
+  const b = (n * sumXLnY - sumX * sumLnY) / (n * sumX2 - sumX * sumX);
+  const lnA = (sumLnY - b * sumX) / n;
+  
+  if (b <= 0) return Infinity; // No exponential growth
+  
+  // Solve for day when net_worth = maxCash: maxCash = a * e^(b * day)
+  // day = (ln(maxCash) - ln(a)) / b
+  const lastDay = validNetWorthDays[validNetWorthDays.length - 1].day;
+  const targetDay = (Math.log(maxCash) - lnA) / b;
+  
+  return Math.max(targetDay - lastDay, 0);
+}
+
+// Method 3: Weighted average with recent emphasis
+function calculateWeightedAverageETA(validDays, remaining) {
+  if (validDays.length < 2) return Infinity;
+  
+  // Weight recent days more heavily
+  let totalWeightedProfit = 0;
+  let totalWeight = 0;
+  
+  validDays.forEach((day, index) => {
+    // Linear weight: more recent days get higher weight
+    const weight = index + 1;
+    totalWeightedProfit += day.profit * weight;
+    totalWeight += weight;
+  });
+  
+  const weightedAverage = totalWeightedProfit / totalWeight;
+  
+  if (weightedAverage <= 0) return Infinity;
+  
+  return remaining / weightedAverage;
+}
+
+// Utility function to format ETA for display
+export function formatETA(eta, confidence) {
+  if (!eta || eta === Infinity) return 'Unable to calculate';
+  
+  const confidenceEmoji = {
+    high: '🎯',
+    medium: '📊', 
+    low: '🤔'
+  };
+  
+  if (eta < 1) return `${confidenceEmoji[confidence]} Less than 1 day!`;
+  if (eta === 1) return `${confidenceEmoji[confidence]} About 1 day`;
+  if (eta < 30) return `${confidenceEmoji[confidence]} ${eta} days`;
+  if (eta < 365) {
+    const weeks = Math.round(eta / 7);
+    return `${confidenceEmoji[confidence]} ~${weeks} weeks (${eta} days)`;
+  }
+  
+  const years = Math.round(eta / 365 * 10) / 10;
+  return `${confidenceEmoji[confidence]} ~${years} year${years !== 1 ? 's' : ''}`;
 }
