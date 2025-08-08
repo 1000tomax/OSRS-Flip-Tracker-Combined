@@ -2,6 +2,8 @@
 // Simple, robust ETA calculator for "1k -> Max Cash" style runs
 // Takes the solid refactored base and adds just the essential improvements
 
+import { useMemo } from 'react';
+
 // Default configuration
 const DEFAULTS = {
   target: 2147483647,           // OSRS max stack (GP)
@@ -229,4 +231,26 @@ export function describeETA(result) {
     `Weighted: ${formatETA(methods.weighted)}`,
   ];
   return parts.join(" | ");
+}
+
+// React hook wrapper for compatibility with existing components
+export function useETACalculator(summaries, currentNetWorth) {
+  return useMemo(() => {
+    if (!summaries || summaries.length < 2) {
+      return { eta: null, confidence: 'low', method: 'insufficient_data' };
+    }
+
+    const result = calculateETA(summaries);
+    
+    return {
+      eta: result.etaDays,
+      confidence: result.confidence,
+      method: 'combined_analysis',
+      estimates: {
+        linear: Math.round(result.methods.linear || 0),
+        exponential: Math.round(result.methods.exponential || 0),
+        weighted: Math.round(result.methods.weighted || 0)
+      }
+    };
+  }, [summaries, currentNetWorth]);
 }
