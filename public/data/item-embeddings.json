@@ -1,0 +1,1145 @@
+[
+  {
+    "name": "Toktz-ket-xil",
+    "x": 0.30871,
+    "y": 0.46712,
+    "profit": 38986,
+    "stable": 0.5,
+    "holdMin": 8,
+    "margin": 12995
+  },
+  {
+    "name": "Death rune",
+    "x": -0.3619,
+    "y": 3.02872,
+    "profit": 72390,
+    "stable": 1,
+    "holdMin": 18,
+    "margin": 2
+  },
+  {
+    "name": "Eclipse atlatl",
+    "x": 0.30584,
+    "y": 0.455,
+    "profit": 46724,
+    "stable": 0.5,
+    "holdMin": 13,
+    "margin": 15575
+  },
+  {
+    "name": "Soul rune",
+    "x": 0.16346,
+    "y": -0.64598,
+    "profit": 329410,
+    "stable": 0.2842,
+    "holdMin": 7,
+    "margin": 6
+  },
+  {
+    "name": "Armadyl godsword",
+    "x": 1.69825,
+    "y": 0.46383,
+    "profit": 78407,
+    "stable": 0.5,
+    "holdMin": 7,
+    "margin": 78407
+  },
+  {
+    "name": "Chaos rune",
+    "x": 0.08123,
+    "y": 0.12929,
+    "profit": 252000,
+    "stable": 0.4341,
+    "holdMin": 7,
+    "margin": 3
+  },
+  {
+    "name": "Rune arrow",
+    "x": 0.15954,
+    "y": -0.91123,
+    "profit": 132000,
+    "stable": 0.2341,
+    "holdMin": 9,
+    "margin": 4
+  },
+  {
+    "name": "Dragonfire shield",
+    "x": 0.61217,
+    "y": 0.47118,
+    "profit": 52422,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 26211
+  },
+  {
+    "name": "Crystal weapon seed",
+    "x": -0.05416,
+    "y": 0.41884,
+    "profit": 13823,
+    "stable": 0.5,
+    "holdMin": 26,
+    "margin": 6912
+  },
+  {
+    "name": "Dragon felling axe",
+    "x": 1.77285,
+    "y": 0.44411,
+    "profit": 86292,
+    "stable": 0.5,
+    "holdMin": 14,
+    "margin": 86292
+  },
+  {
+    "name": "Rune dart",
+    "x": -0.42673,
+    "y": 3.01521,
+    "profit": 106497,
+    "stable": 1,
+    "holdMin": 23,
+    "margin": 9
+  },
+  {
+    "name": "Toxic staff (uncharged)",
+    "x": 1.96745,
+    "y": 0.45627,
+    "profit": 92627,
+    "stable": 0.5,
+    "holdMin": 10,
+    "margin": 92627
+  },
+  {
+    "name": "Divine magic potion(4)",
+    "x": -0.50138,
+    "y": 0.35537,
+    "profit": 21222,
+    "stable": 0.5,
+    "holdMin": 49,
+    "margin": 299
+  },
+  {
+    "name": "Ornate maul handle",
+    "x": -0.21074,
+    "y": 0.39225,
+    "profit": 44585,
+    "stable": 0.5,
+    "holdMin": 35,
+    "margin": 5573
+  },
+  {
+    "name": "Quetzal feed",
+    "x": -0.05684,
+    "y": 0.44524,
+    "profit": 78142,
+    "stable": 0.5,
+    "holdMin": 17,
+    "margin": 878
+  },
+  {
+    "name": "Zamorakian hasta",
+    "x": 0.56287,
+    "y": -2.14515,
+    "profit": 36034,
+    "stable": 0.0001,
+    "holdMin": 17,
+    "margin": 18017
+  },
+  {
+    "name": "Burnt page",
+    "x": -0.22341,
+    "y": 0.41435,
+    "profit": 20646,
+    "stable": 0.5,
+    "holdMin": 28,
+    "margin": 37
+  },
+  {
+    "name": "White berries",
+    "x": -0.1795,
+    "y": 0.42361,
+    "profit": 34920,
+    "stable": 0.5,
+    "holdMin": 24,
+    "margin": 9
+  },
+  {
+    "name": "Pharaoh's sceptre (uncharged)",
+    "x": 1.12186,
+    "y": 0.44552,
+    "profit": 111351,
+    "stable": 0.5,
+    "holdMin": 15,
+    "margin": 55676
+  },
+  {
+    "name": "Zamorak d'hide boots",
+    "x": 2.2599,
+    "y": -2.15704,
+    "profit": 199206,
+    "stable": 0,
+    "holdMin": 19,
+    "margin": 99603
+  },
+  {
+    "name": "Snape grass seed",
+    "x": 0.27065,
+    "y": -2.11205,
+    "profit": 81837,
+    "stable": 0.0029,
+    "holdMin": 11,
+    "margin": 366
+  },
+  {
+    "name": "Emerald ring",
+    "x": -0.02446,
+    "y": 0.45582,
+    "profit": 9452,
+    "stable": 0.5,
+    "holdMin": 13,
+    "margin": 17
+  },
+  {
+    "name": "Ranarr seed",
+    "x": 0.048,
+    "y": -2.14638,
+    "profit": 125116,
+    "stable": 0.0051,
+    "holdMin": 27,
+    "margin": 288
+  },
+  {
+    "name": "Falador teleport",
+    "x": -0.26027,
+    "y": -1.22797,
+    "profit": 58495,
+    "stable": 0.1907,
+    "holdMin": 43,
+    "margin": 20
+  },
+  {
+    "name": "Holy sandals",
+    "x": 0.56448,
+    "y": 0.42856,
+    "profit": 33530,
+    "stable": 0.5,
+    "holdMin": 22,
+    "margin": 33530
+  },
+  {
+    "name": "Mage's book",
+    "x": 0.79758,
+    "y": -2.14128,
+    "profit": 175416,
+    "stable": 0.0001,
+    "holdMin": 15,
+    "margin": 28085
+  },
+  {
+    "name": "Dragon knife",
+    "x": 0.08354,
+    "y": 0.4769,
+    "profit": 103005,
+    "stable": 0.5,
+    "holdMin": 5,
+    "margin": 327
+  },
+  {
+    "name": "Saradomin d'hide boots",
+    "x": 0.51758,
+    "y": 0.4822,
+    "profit": 19342,
+    "stable": 0.5,
+    "holdMin": 3,
+    "margin": 19342
+  },
+  {
+    "name": "Blighted super restore(4)",
+    "x": -0.13573,
+    "y": -1.55535,
+    "profit": 28000,
+    "stable": 0.1239,
+    "holdMin": 36,
+    "margin": 7
+  },
+  {
+    "name": "Accursed sceptre (u)",
+    "x": 1.41397,
+    "y": -2.1066,
+    "profit": 205867,
+    "stable": 0.0001,
+    "holdMin": 2,
+    "margin": 49104
+  },
+  {
+    "name": "Cannonball",
+    "x": 0.17796,
+    "y": -1.48924,
+    "profit": 353328,
+    "stable": 0.1241,
+    "holdMin": 12,
+    "margin": 3
+  },
+  {
+    "name": "Ring of the gods",
+    "x": 0.43934,
+    "y": -2.27369,
+    "profit": 79659,
+    "stable": 0,
+    "holdMin": 62,
+    "margin": 40980
+  },
+  {
+    "name": "Dark crab",
+    "x": 0.02151,
+    "y": 0.46531,
+    "profit": 4250,
+    "stable": 0.5,
+    "holdMin": 9,
+    "margin": 34
+  },
+  {
+    "name": "Mahogany logs",
+    "x": -0.04472,
+    "y": -1.18308,
+    "profit": 42450,
+    "stable": 0.1907,
+    "holdMin": 26,
+    "margin": 6
+  },
+  {
+    "name": "Vial of blood",
+    "x": 0.06795,
+    "y": 0.4746,
+    "profit": 79235,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 115
+  },
+  {
+    "name": "Cadantine potion (unf)",
+    "x": -0.49358,
+    "y": 0.35836,
+    "profit": -7016,
+    "stable": 0.5,
+    "holdMin": 48,
+    "margin": -7
+  },
+  {
+    "name": "Antidote++(4)",
+    "x": -0.29602,
+    "y": 0.39955,
+    "profit": -24857,
+    "stable": 0.5,
+    "holdMin": 33,
+    "margin": -29
+  },
+  {
+    "name": "Wilderness crabs teleport",
+    "x": 0.03319,
+    "y": -2.14438,
+    "profit": 25015,
+    "stable": 0.0061,
+    "holdMin": 28,
+    "margin": 285
+  },
+  {
+    "name": "Blood rune",
+    "x": -0.28888,
+    "y": 0.21113,
+    "profit": 200000,
+    "stable": 0.4641,
+    "holdMin": 34,
+    "margin": 2
+  },
+  {
+    "name": "Red chinchompa",
+    "x": -0.44521,
+    "y": -1.23747,
+    "profit": 180552,
+    "stable": 0.1962,
+    "holdMin": 56,
+    "margin": 13
+  },
+  {
+    "name": "Law rune",
+    "x": -0.21299,
+    "y": -0.35735,
+    "profit": 105000,
+    "stable": 0.3536,
+    "holdMin": 33,
+    "margin": 3
+  },
+  {
+    "name": "Manta ray",
+    "x": -0.00543,
+    "y": -2.12124,
+    "profit": -107606,
+    "stable": 0.0117,
+    "holdMin": 31,
+    "margin": -13
+  },
+  {
+    "name": "Yew longbow (u)",
+    "x": 0.01336,
+    "y": -1.49311,
+    "profit": 58339,
+    "stable": 0.1298,
+    "holdMin": 25,
+    "margin": 12
+  },
+  {
+    "name": "Astral rune",
+    "x": 0.13042,
+    "y": -0.4614,
+    "profit": 225000,
+    "stable": 0.3204,
+    "holdMin": 8,
+    "margin": 5
+  },
+  {
+    "name": "Blue moon spear",
+    "x": 0.16695,
+    "y": 0.46404,
+    "profit": 14176,
+    "stable": 0.5,
+    "holdMin": 10,
+    "margin": 7088
+  },
+  {
+    "name": "Runite bolts",
+    "x": 0.05358,
+    "y": 0.49451,
+    "profit": 79018,
+    "stable": 0.5042,
+    "holdMin": 7,
+    "margin": 4
+  },
+  {
+    "name": "Varrock teleport",
+    "x": -1.03424,
+    "y": -1.23169,
+    "profit": 56856,
+    "stable": 0.2205,
+    "holdMin": 99,
+    "margin": 7
+  },
+  {
+    "name": "Lava rune",
+    "x": -0.55416,
+    "y": 0.34573,
+    "profit": 18000,
+    "stable": 0.5,
+    "holdMin": 52,
+    "margin": 1
+  },
+  {
+    "name": "Gold bar",
+    "x": -1.17261,
+    "y": -0.73239,
+    "profit": 10000,
+    "stable": 0.3204,
+    "holdMin": 106,
+    "margin": 1
+  },
+  {
+    "name": "Yew logs",
+    "x": -0.27098,
+    "y": 0.40459,
+    "profit": 57914,
+    "stable": 0.5,
+    "holdMin": 31,
+    "margin": 8
+  },
+  {
+    "name": "Accursed sceptre (au)",
+    "x": 1.36248,
+    "y": 0.47539,
+    "profit": 60191,
+    "stable": 0.5,
+    "holdMin": 4,
+    "margin": 60191
+  },
+  {
+    "name": "Shark",
+    "x": -0.07696,
+    "y": -1.7921,
+    "profit": 137459,
+    "stable": 0.0768,
+    "holdMin": 33,
+    "margin": 7
+  },
+  {
+    "name": "Divine ranging potion(4)",
+    "x": -0.07761,
+    "y": 0.44372,
+    "profit": 4769,
+    "stable": 0.5,
+    "holdMin": 17,
+    "margin": 251
+  },
+  {
+    "name": "Nature rune",
+    "x": -0.12616,
+    "y": 1.14294,
+    "profit": 72000,
+    "stable": 0.634,
+    "holdMin": 15,
+    "margin": 1
+  },
+  {
+    "name": "Zulrah's scales",
+    "x": -0.61972,
+    "y": 2.34981,
+    "profit": 109700,
+    "stable": 0.8817,
+    "holdMin": 42,
+    "margin": 2
+  },
+  {
+    "name": "Bones to peaches",
+    "x": 0.02788,
+    "y": 0.46646,
+    "profit": 7200,
+    "stable": 0.5,
+    "holdMin": 9,
+    "margin": 72
+  },
+  {
+    "name": "Adamant bolts",
+    "x": -0.03058,
+    "y": 0.00114,
+    "profit": 66000,
+    "stable": 0.4142,
+    "holdMin": 17,
+    "margin": 3
+  },
+  {
+    "name": "Obsidian platebody",
+    "x": 0.34808,
+    "y": 0.45643,
+    "profit": 34442,
+    "stable": 0.5,
+    "holdMin": 12,
+    "margin": 17221
+  },
+  {
+    "name": "Adamant dart",
+    "x": 0.11154,
+    "y": -0.22402,
+    "profit": 66240,
+    "stable": 0.366,
+    "holdMin": 8,
+    "margin": 3
+  },
+  {
+    "name": "Warrior ring",
+    "x": 0.25792,
+    "y": 0.46771,
+    "profit": 20998,
+    "stable": 0.5,
+    "holdMin": 8,
+    "margin": 10499
+  },
+  {
+    "name": "Steel arrowtips",
+    "x": -0.21754,
+    "y": 0.41575,
+    "profit": -15,
+    "stable": 0.5,
+    "holdMin": 27,
+    "margin": -1
+  },
+  {
+    "name": "Infinity boots",
+    "x": -0.26818,
+    "y": 0.3899,
+    "profit": 13707,
+    "stable": 0.5,
+    "holdMin": 36,
+    "margin": 3427
+  },
+  {
+    "name": "Atlatl dart",
+    "x": 0.06462,
+    "y": -1.16033,
+    "profit": 110000,
+    "stable": 0.1907,
+    "holdMin": 18,
+    "margin": 5
+  },
+  {
+    "name": "Teleport to house",
+    "x": -0.86876,
+    "y": -0.17319,
+    "profit": 57738,
+    "stable": 0.4142,
+    "holdMin": 79,
+    "margin": 5
+  },
+  {
+    "name": "Antler guard",
+    "x": 1.69271,
+    "y": -2.11055,
+    "profit": 125743,
+    "stable": 0.0001,
+    "holdMin": 3,
+    "margin": 62872
+  },
+  {
+    "name": "Bottomless compost bucket",
+    "x": 0.21874,
+    "y": 0.43048,
+    "profit": 34014,
+    "stable": 0.5,
+    "holdMin": 21,
+    "margin": 17007
+  },
+  {
+    "name": "Red spiders' eggs",
+    "x": -0.22172,
+    "y": 0.41487,
+    "profit": 13012,
+    "stable": 0.5,
+    "holdMin": 28,
+    "margin": 1
+  },
+  {
+    "name": "Revenant ether",
+    "x": -0.82865,
+    "y": 0.75499,
+    "profit": 90300,
+    "stable": 0.5882,
+    "holdMin": 69,
+    "margin": 2
+  },
+  {
+    "name": "Blue moon tassets",
+    "x": 1.11303,
+    "y": -2.12734,
+    "profit": 125097,
+    "stable": 0.0001,
+    "holdMin": 10,
+    "margin": 39705
+  },
+  {
+    "name": "Dragon bones",
+    "x": -0.20375,
+    "y": 0.87195,
+    "profit": 157615,
+    "stable": 0.5858,
+    "holdMin": 23,
+    "margin": 29
+  },
+  {
+    "name": "Cosmic rune",
+    "x": 0.22309,
+    "y": -1.03115,
+    "profit": 252000,
+    "stable": 0.2089,
+    "holdMin": 6,
+    "margin": 3
+  },
+  {
+    "name": "Amethyst arrow",
+    "x": 0.06516,
+    "y": 0.47452,
+    "profit": 18880,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 4
+  },
+  {
+    "name": "Ahrim's armour set",
+    "x": 0.99709,
+    "y": 0.47187,
+    "profit": 43971,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 43971
+  },
+  {
+    "name": "Eclipse moon chestplate",
+    "x": 0.40964,
+    "y": 0.46792,
+    "profit": 35026,
+    "stable": 0.5,
+    "holdMin": 8,
+    "margin": 17513
+  },
+  {
+    "name": "Coal",
+    "x": 0.0196,
+    "y": -1.21728,
+    "profit": 33034,
+    "stable": 0.1817,
+    "holdMin": 22,
+    "margin": 3
+  },
+  {
+    "name": "Amethyst dart",
+    "x": 0.03041,
+    "y": 0.0138,
+    "profit": 198000,
+    "stable": 0.4142,
+    "holdMin": 12,
+    "margin": 9
+  },
+  {
+    "name": "Dagon'hai robe bottom",
+    "x": 0.288,
+    "y": 0.46669,
+    "profit": 12128,
+    "stable": 0.5,
+    "holdMin": 8,
+    "margin": 12128
+  },
+  {
+    "name": "Rangers' tights",
+    "x": -0.26204,
+    "y": 0.28642,
+    "profit": 26869,
+    "stable": 0.5,
+    "holdMin": 73,
+    "margin": 26869
+  },
+  {
+    "name": "Iron bar",
+    "x": -1.19094,
+    "y": 0.21328,
+    "profit": 28365,
+    "stable": 0.5,
+    "holdMin": 100,
+    "margin": 4
+  },
+  {
+    "name": "Amulet of avarice",
+    "x": 0.26626,
+    "y": 0.47259,
+    "profit": 58776,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 9796
+  },
+  {
+    "name": "Eclipse moon tassets",
+    "x": 0.58496,
+    "y": 0.46487,
+    "profit": 26356,
+    "stable": 0.5,
+    "holdMin": 9,
+    "margin": 26356
+  },
+  {
+    "name": "Yew sapling",
+    "x": -0.21509,
+    "y": 0.41399,
+    "profit": 11640,
+    "stable": 0.5,
+    "holdMin": 28,
+    "margin": 506
+  },
+  {
+    "name": "Blighted anglerfish",
+    "x": 0.06563,
+    "y": 0.47461,
+    "profit": 4040,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 5
+  },
+  {
+    "name": "Blood moon helm",
+    "x": 0.60782,
+    "y": 0.43338,
+    "profit": 34468,
+    "stable": 0.5,
+    "holdMin": 20,
+    "margin": 34468
+  },
+  {
+    "name": "Maple longbow (u)",
+    "x": -0.31052,
+    "y": 0.39645,
+    "profit": -90580,
+    "stable": 0.5,
+    "holdMin": 34,
+    "margin": -10
+  },
+  {
+    "name": "Verac's plateskirt",
+    "x": 0.68493,
+    "y": -2.10735,
+    "profit": 49523,
+    "stable": 0.0013,
+    "holdMin": 6,
+    "margin": 16691
+  },
+  {
+    "name": "Lava dragon bones",
+    "x": -0.0189,
+    "y": -2.09092,
+    "profit": 62146,
+    "stable": 0.018,
+    "holdMin": 31,
+    "margin": 67
+  },
+  {
+    "name": "Unpowered orb",
+    "x": -0.35639,
+    "y": 0.38687,
+    "profit": -9909,
+    "stable": 0.5,
+    "holdMin": 38,
+    "margin": -1
+  },
+  {
+    "name": "Barrows teleport",
+    "x": -0.02865,
+    "y": 0.45475,
+    "profit": 2684,
+    "stable": 0.5,
+    "holdMin": 13,
+    "margin": 61
+  },
+  {
+    "name": "Oak plank",
+    "x": -0.19855,
+    "y": 0.41968,
+    "profit": 29972,
+    "stable": 0.5,
+    "holdMin": 26,
+    "margin": 2
+  },
+  {
+    "name": "Dwarf cannon set",
+    "x": 0.09569,
+    "y": 0.44526,
+    "profit": 31892,
+    "stable": 0.5,
+    "holdMin": 16,
+    "margin": 7973
+  },
+  {
+    "name": "Mixed hide top",
+    "x": -0.21104,
+    "y": 0.41435,
+    "profit": 19648,
+    "stable": 0.5,
+    "holdMin": 28,
+    "margin": 614
+  },
+  {
+    "name": "Blighted entangle sack",
+    "x": -0.40255,
+    "y": 0.37724,
+    "profit": 24370,
+    "stable": 0.5,
+    "holdMin": 41,
+    "margin": 5
+  },
+  {
+    "name": "Kwuarm seed",
+    "x": -0.32043,
+    "y": 0.39309,
+    "profit": 44800,
+    "stable": 0.5,
+    "holdMin": 35,
+    "margin": 280
+  },
+  {
+    "name": "Bandos d'hide boots",
+    "x": 1.13615,
+    "y": 0.48678,
+    "profit": 47109,
+    "stable": 0.5,
+    "holdMin": 0,
+    "margin": 47109
+  },
+  {
+    "name": "Malediction ward",
+    "x": 0.68044,
+    "y": 0.47798,
+    "profit": 27868,
+    "stable": 0.5,
+    "holdMin": 4,
+    "margin": 27868
+  },
+  {
+    "name": "Cadantine seed",
+    "x": 0.08775,
+    "y": 0.47816,
+    "profit": 38478,
+    "stable": 0.5,
+    "holdMin": 5,
+    "margin": 242
+  },
+  {
+    "name": "Numulite",
+    "x": 0.02859,
+    "y": 0.46693,
+    "profit": 0,
+    "stable": 0.5,
+    "holdMin": 9,
+    "margin": 0
+  },
+  {
+    "name": "Molten glass",
+    "x": -0.20018,
+    "y": 0.41936,
+    "profit": -13000,
+    "stable": 0.5,
+    "holdMin": 26,
+    "margin": -1
+  },
+  {
+    "name": "Dragon platebody",
+    "x": 0.38288,
+    "y": 0.42672,
+    "profit": 25488,
+    "stable": 0.5,
+    "holdMin": 22,
+    "margin": 25488
+  },
+  {
+    "name": "Torstol seed",
+    "x": -0.28585,
+    "y": 0.40008,
+    "profit": 65366,
+    "stable": 0.5,
+    "holdMin": 33,
+    "margin": 327
+  },
+  {
+    "name": "Rune dart tip",
+    "x": -0.43464,
+    "y": 0.37044,
+    "profit": 24800,
+    "stable": 0.5,
+    "holdMin": 44,
+    "margin": 34
+  },
+  {
+    "name": "Dragon dart",
+    "x": -0.31071,
+    "y": 0.39626,
+    "profit": 37312,
+    "stable": 0.5,
+    "holdMin": 34,
+    "margin": 23
+  },
+  {
+    "name": "Berserker necklace",
+    "x": 0.60855,
+    "y": 0.47903,
+    "profit": 48570,
+    "stable": 0.5,
+    "holdMin": 4,
+    "margin": 24285
+  },
+  {
+    "name": "Diamond dragon bolts (e)",
+    "x": 0.0585,
+    "y": 0.47294,
+    "profit": 23171,
+    "stable": 0.5,
+    "holdMin": 7,
+    "margin": 47
+  },
+  {
+    "name": "Devout boots",
+    "x": 0.0008,
+    "y": 0.40562,
+    "profit": 12427,
+    "stable": 0.5,
+    "holdMin": 30,
+    "margin": 12427
+  },
+  {
+    "name": "Mithril dart tip",
+    "x": 0.10542,
+    "y": 0.4829,
+    "profit": 60000,
+    "stable": 0.5,
+    "holdMin": 3,
+    "margin": 3
+  },
+  {
+    "name": "Eclipse moon helm",
+    "x": 0.12,
+    "y": 0.44643,
+    "profit": 8842,
+    "stable": 0.5,
+    "holdMin": 16,
+    "margin": 8842
+  },
+  {
+    "name": "Ring of dueling(8)",
+    "x": -0.04708,
+    "y": 0.45115,
+    "profit": 5130,
+    "stable": 0.5,
+    "holdMin": 14,
+    "margin": 10
+  },
+  {
+    "name": "Uncut ruby",
+    "x": -0.78748,
+    "y": 0.29727,
+    "profit": -28948,
+    "stable": 0.5,
+    "holdMin": 70,
+    "margin": -15
+  },
+  {
+    "name": "Trouver parchment",
+    "x": 0.03323,
+    "y": 0.44378,
+    "profit": 43184,
+    "stable": 0.5,
+    "holdMin": 17,
+    "margin": 5398
+  },
+  {
+    "name": "Rune pouch note",
+    "x": 0.79588,
+    "y": 0.42324,
+    "profit": 45490,
+    "stable": 0.5,
+    "holdMin": 23,
+    "margin": 45490
+  },
+  {
+    "name": "Ahrim's robetop",
+    "x": 0.10145,
+    "y": 0.43768,
+    "profit": 9937,
+    "stable": 0.5,
+    "holdMin": 19,
+    "margin": 9937
+  },
+  {
+    "name": "Sapphire dragon bolts (e)",
+    "x": -3.6336,
+    "y": -1.14889,
+    "profit": 28795,
+    "stable": 0.3384,
+    "holdMin": 289,
+    "margin": 26
+  },
+  {
+    "name": "Ardougne teleport",
+    "x": -0.11693,
+    "y": 0.43662,
+    "profit": 44,
+    "stable": 0.5,
+    "holdMin": 20,
+    "margin": 11
+  },
+  {
+    "name": "Torag's platelegs",
+    "x": 0.15338,
+    "y": 0.46674,
+    "profit": 5852,
+    "stable": 0.5,
+    "holdMin": 9,
+    "margin": 5852
+  },
+  {
+    "name": "Mithril bar",
+    "x": 0.05973,
+    "y": 0.47336,
+    "profit": 350,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 10
+  },
+  {
+    "name": "Odium ward",
+    "x": 1.69836,
+    "y": 0.48092,
+    "profit": 74587,
+    "stable": 0.5,
+    "holdMin": 1,
+    "margin": 74587
+  },
+  {
+    "name": "Eternal boots",
+    "x": 1.09943,
+    "y": 0.47777,
+    "profit": 47415,
+    "stable": 0.5,
+    "holdMin": 3,
+    "margin": 47415
+  },
+  {
+    "name": "Virtus mask",
+    "x": -12.45775,
+    "y": -0.8723,
+    "profit": -281454,
+    "stable": 0.5,
+    "holdMin": 500,
+    "margin": -281454
+  },
+  {
+    "name": "Spiked manacles",
+    "x": 0.20005,
+    "y": 0.46413,
+    "profit": 8607,
+    "stable": 0.5,
+    "holdMin": 10,
+    "margin": 8607
+  },
+  {
+    "name": "Blighted manta ray",
+    "x": -0.21035,
+    "y": 0.41723,
+    "profit": 3793,
+    "stable": 0.5,
+    "holdMin": 27,
+    "margin": 2
+  },
+  {
+    "name": "Occult ornament kit",
+    "x": 0.58323,
+    "y": 0.44411,
+    "profit": 30923,
+    "stable": 0.5,
+    "holdMin": 16,
+    "margin": 30923
+  },
+  {
+    "name": "Impling jar",
+    "x": -0.50452,
+    "y": 0.35605,
+    "profit": 14755,
+    "stable": 0.5,
+    "holdMin": 49,
+    "margin": 2
+  },
+  {
+    "name": "Guthix d'hide boots",
+    "x": 0.36046,
+    "y": 0.48782,
+    "profit": 10772,
+    "stable": 0.5,
+    "holdMin": 1,
+    "margin": 10772
+  },
+  {
+    "name": "Aldarium",
+    "x": -0.28274,
+    "y": 0.40384,
+    "profit": -16695,
+    "stable": 0.5,
+    "holdMin": 32,
+    "margin": -371
+  },
+  {
+    "name": "Diamond bolts (e)",
+    "x": -0.0632,
+    "y": 0.44777,
+    "profit": 39728,
+    "stable": 0.5,
+    "holdMin": 16,
+    "margin": 16
+  }
+]

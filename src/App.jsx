@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Items from './pages/Items';
 import FlipLogs from './pages/FlipLogs';
 import Charts from './pages/Charts';
+import Lab from './pages/Lab'; // <-- add this import
 
 function App() {
   return (
@@ -18,7 +19,9 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/items" element={<Items />} />
               <Route path="/flip-logs" element={<FlipLogs />} />
-			  <Route path="/charts" element={<Charts />} />
+              <Route path="/charts" element={<Charts />} />
+              <Route path="/lab" element={<Lab />} />
+              <Route path="*" element={<Home />} /> {/* fallback, not a second "/" */}
             </Routes>
           </main>
         </div>
