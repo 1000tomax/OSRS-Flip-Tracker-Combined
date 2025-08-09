@@ -48,6 +48,31 @@ function timeAgo(isoString) {
   return `(${seconds} sec${seconds !== 1 ? "s" : ""} ago)`;
 }
 
+// Helper function to convert date format for flip link
+function formatDateForFlipLink(dateStr) {
+  if (!dateStr) return '';
+
+  // Handle different date formats
+  // If it's already in MM-DD-YYYY format, use it directly
+  if (dateStr.match(/^\d{2}-\d{2}-\d{4}$/)) {
+    return dateStr;
+  }
+
+  // If it's in YYYY-MM-DD format, convert to MM-DD-YYYY
+  if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateStr.split('-');
+    return `${month}-${day}-${year}`;
+  }
+
+  // If it's in MM/DD/YYYY format, convert to MM-DD-YYYY
+  if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+    const [month, day, year] = dateStr.split('/');
+    return `${month.padStart(2, '0')}-${day.padStart(2, '0')}-${year}`;
+  }
+
+  return dateStr;
+}
+
 export default function DailySummaryLog() {
   const { summaries, loading: summariesLoading, error: summariesError, refetch: refetchSummaries } = useDailySummaries();
   const { data: meta, loading: metaLoading, error: metaError, refetch: refetchMeta } = useJsonData("/data/meta.json");
@@ -301,6 +326,7 @@ export default function DailySummaryLog() {
       <div className="flex flex-col gap-3">
         {pagedSummaries.map((s) => {
           const incomplete = isIncompleteDay(s, summaries);
+          const formattedDate = formatDateForFlipLink(s?.date);
 
           return (
             <div
@@ -320,8 +346,13 @@ export default function DailySummaryLog() {
                   )}
                 </div>
                 <button
-                  onClick={() => window.open(`/flips/${s?.date}`, '_blank')}
+                  onClick={() => {
+                    if (formattedDate) {
+                      window.open(`/flip-logs?date=${formattedDate}`, '_blank');
+                    }
+                  }}
                   className="px-3 py-1 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition"
+                  disabled={!formattedDate}
                 >
                   View Flips
                 </button>
@@ -444,7 +475,7 @@ export default function DailySummaryLog() {
         {/* Footer */}
         <div style={{
           marginTop: '16px',
-          paddingTop: '16px', 
+          paddingTop: '16px',
           borderTop: '1px solid #4b5563',
           textAlign: 'center',
           fontSize: '12px',
