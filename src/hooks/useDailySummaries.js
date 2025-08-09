@@ -18,8 +18,16 @@ async function fetchDailySummaries() {
     // Old format: ["07-27-2025", "07-28-2025", ...]
     dates = indexData
   } else if (indexData.days && Array.isArray(indexData.days)) {
-    // New format: { days: [{ date: "07-27-2025", ... }, ...] }
-    dates = indexData.days.map(d => d.date)
+    // New format: { days: [{ date: "2025-07-27", ... }, ...] }
+    // Convert ISO format back to MM-DD-YYYY for file names
+    dates = indexData.days.map(d => {
+      const isoDate = d.date; // "2025-07-27"
+      if (isoDate && isoDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = isoDate.split('-');
+        return `${month}-${day}-${year}`; // "07-27-2025"
+      }
+      return d.date; // fallback to original
+    })
   } else {
     throw new Error("Invalid summary index format")
   }
@@ -66,10 +74,10 @@ export default function useDailySummaries() {
     staleTime: 10 * 60 * 1000, // 10 minutes - summaries don't change often
   })
 
-  return { 
-    summaries, 
-    loading, 
-    error: error?.message, 
-    refetch 
+  return {
+    summaries,
+    loading,
+    error: error?.message,
+    refetch
   }
 }
