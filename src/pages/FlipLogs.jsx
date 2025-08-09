@@ -140,14 +140,37 @@ export default function FlipLogs() {
         {/* Header */}
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-white">📋 Flip Log Viewer</h1>
 
-        {/* Date Picker */}
+        {/* Date Picker with Navigation */}
         {summaryDates && (
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
             <span className="text-sm text-gray-300 font-medium">Select date:</span>
-            <div className="flex-1 sm:flex-none">
+            <div className="flex items-center gap-2">
+              {/* Previous Day Button */}
+              <button
+                onClick={() => {
+                  if (date) {
+                    const [mm, dd, yyyy] = date.split('-');
+                    const currentDate = new Date(yyyy, mm - 1, dd);
+                    const prevDate = new Date(currentDate);
+                    prevDate.setDate(currentDate.getDate() - 1);
+
+                    const newMM = String(prevDate.getMonth() + 1).padStart(2, '0');
+                    const newDD = String(prevDate.getDate()).padStart(2, '0');
+                    const newYYYY = prevDate.getFullYear();
+
+                    navigate(`/flip-logs?date=${newMM}-${newDD}-${newYYYY}`);
+                  }
+                }}
+                className="px-2 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                disabled={!date}
+              >
+                ←
+              </button>
+
+              {/* Date Input */}
               <input
                 type="date"
-                className="w-full sm:w-auto bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+                className="bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 value={dateToInputValue(date)}
                 onChange={(e) => {
                   const [yyyy, mm, dd] = e.target.value.split("-");
@@ -155,6 +178,28 @@ export default function FlipLogs() {
                   navigate(`/flip-logs?date=${formatted}`);
                 }}
               />
+
+              {/* Next Day Button */}
+              <button
+                onClick={() => {
+                  if (date) {
+                    const [mm, dd, yyyy] = date.split('-');
+                    const currentDate = new Date(yyyy, mm - 1, dd);
+                    const nextDate = new Date(currentDate);
+                    nextDate.setDate(currentDate.getDate() + 1);
+
+                    const newMM = String(nextDate.getMonth() + 1).padStart(2, '0');
+                    const newDD = String(nextDate.getDate()).padStart(2, '0');
+                    const newYYYY = nextDate.getFullYear();
+
+                    navigate(`/flip-logs?date=${newMM}-${newDD}-${newYYYY}`);
+                  }
+                }}
+                className="px-2 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                disabled={!date}
+              >
+                →
+              </button>
             </div>
           </div>
         )}
@@ -203,16 +248,12 @@ export default function FlipLogs() {
             {/* Timeline Visualization */}
             <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 mb-6 relative">
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Activity Timeline</h3>
-                <div className="flex justify-between text-xs text-gray-400 mb-2">
-                  <span>12a</span>
-                  <span>3a</span>
-                  <span>6a</span>
-                  <span>9a</span>
-                  <span>12p</span>
-                  <span>3p</span>
-                  <span>6p</span>
-                  <span>9p</span>
+                <div className="grid grid-cols-24 gap-1 text-xs text-gray-400 mb-2">
+                  {['12a', '', '', '3a', '', '', '6a', '', '', '9a', '', '', '12p', '', '', '3p', '', '', '6p', '', '', '9p', '', ''].map((label, i) => (
+                    <div key={i} className="text-center">
+                      {label}
+                    </div>
+                  ))}
                 </div>
               </div>
 
