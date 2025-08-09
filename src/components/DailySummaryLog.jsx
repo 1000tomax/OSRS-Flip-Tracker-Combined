@@ -6,41 +6,25 @@ import { useETACalculator } from './ETACalculator';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 
 // Simple helper function to check if a day looks incomplete
-function isIncompleteDay(day) {
+function isIncompleteDay(day, allDays) {
   if (!day || !day.date || typeof day.flips !== 'number') {
     return true;
   }
 
   try {
-    const now = new Date();
-    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    // Find the highest day number in the dataset
+    const maxDay = allDays && allDays.length > 0
+      ? Math.max(...allDays.map(d => d.day || 0))
+      : day.day || 0;
 
-    // Convert MM-DD-YYYY to YYYY-MM-DD for comparison
-    const dateParts = day.date.split('-');
-    if (dateParts.length !== 3) return true;
-
-    const [mm, dd, yyyy] = dateParts;
-    if (!mm || !dd || !yyyy) return true;
-
-    const dayDateString = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
-
-    // If it's today and has very few flips, probably incomplete
-    if (dayDateString === today && day.flips < 50) {
-      return true;
+    // Only mark the LATEST day as incomplete
+    // Once a newer day exists, all previous days are locked and complete
+    if (day.day === maxDay) {
+      return true; // Latest day is always considered in progress
     }
 
-    // If it's a very recent day with suspiciously low flips
-    const dayDate = new Date(dayDateString);
-    if (isNaN(dayDate.getTime())) return true;
-
-    const hoursSinceDay = (now - dayDate) / (1000 * 60 * 60);
-    if (hoursSinceDay < 12 && day.flips < 30) {
-      return true;
-    }
-
-    return false;
+    return false; // All previous days are complete
   } catch (e) {
-    // If any error in date processing, assume incomplete
     return true;
   }
 }
@@ -77,7 +61,7 @@ export default function DailySummaryLog() {
   const hasError = summariesError || metaError;
 
   // Only process data if it exists
-  const completeSummaries = summaries ? summaries.filter(day => !isIncompleteDay(day)) : [];
+  const completeSummaries = summaries ? summaries.filter(day => !isIncompleteDay(day, summaries)) : [];
   const etaData = useETACalculator(completeSummaries, meta?.net_worth || 0);
 
   // Keep for error states only
@@ -316,7 +300,7 @@ export default function DailySummaryLog() {
       {/* Daily Summary Cards */}
       <div className="flex flex-col gap-3">
         {pagedSummaries.map((s) => {
-          const incomplete = isIncompleteDay(s);
+          const incomplete = isIncompleteDay(s, summaries);
 
           return (
             <div
@@ -460,7 +444,7 @@ export default function DailySummaryLog() {
         {/* Footer */}
         <div style={{
           marginTop: '16px',
-          paddingTop: '16px',
+          paddingTop: '16px', 
           borderTop: '1px solid #4b5563',
           textAlign: 'center',
           fontSize: '12px',
