@@ -1,0 +1,21 @@
+# Normalize text files; keep LF endings
+* text=auto eol=lf
+
+# Source/data as LF
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.json text eol=lf
+*.csv  text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf
+
+# Binary (no normalization)
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary
+*.zip  binary
+*.gz   binary
