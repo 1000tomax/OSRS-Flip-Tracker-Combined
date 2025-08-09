@@ -179,9 +179,74 @@ export default function DailySummaryLog() {
             <div className="mt-3 pt-3 border-t border-gray-700">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-300">⏱️ ETA to Max Cash:</span>
-                <span className="text-white font-medium">
-                  {etaData.eta ? `${etaData.eta} days` : 'Calculating...'}
-                </span>
+                <div className="relative group">
+                  <span className="text-white font-medium cursor-help">
+                    {etaData.eta ? `${etaData.eta} days` : 'Calculating...'}
+                  </span>
+
+                  {/* Hover Tooltip */}
+                  {etaData.estimates && (
+                    <div className="absolute right-0 bottom-full mb-2 w-80 bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="text-xs text-white space-y-3">
+                        <div className="border-b border-gray-600 pb-2">
+                          <h4 className="font-semibold text-yellow-400">📊 ETA Analysis Breakdown</h4>
+                          <p className="text-gray-300 mt-1">Using 3 mathematical models:</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-300">📈 Linear Trend:</span>
+                            <span className="text-white font-medium">
+                              {etaData.estimates.linear ? `${etaData.estimates.linear} days` : 'N/A'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-4">
+                            Tracks profit acceleration as cash stack grows
+                          </p>
+
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-300">📊 Exponential Growth:</span>
+                            <span className="text-white font-medium">
+                              {etaData.estimates.exponential ? `${etaData.estimates.exponential} days` : 'N/A'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-4">
+                            Models compound net worth progression
+                          </p>
+
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-300">⚖️ Weighted Average:</span>
+                            <span className="text-white font-medium">
+                              {etaData.estimates.weighted ? `${etaData.estimates.weighted} days` : 'N/A'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-4">
+                            Recent performance weighted more heavily
+                          </p>
+                        </div>
+
+                        <div className="border-t border-gray-600 pt-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-300">🎯 Final Estimate:</span>
+                            <span className="text-yellow-400 font-bold">
+                              {etaData.eta} days (median)
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-gray-300">Confidence:</span>
+                            <span className="text-white">
+                              {etaData.confidence === 'high' ? '🎯 High' :
+                               etaData.confidence === 'medium' ? '📊 Medium' : '🤔 Low'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Tooltip Arrow */}
+                      <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
