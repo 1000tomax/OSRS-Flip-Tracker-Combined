@@ -336,7 +336,7 @@ export default function DailySummaryLog() {
                   )}
                 </div>
                 <button
-                  onClick={() => window.open(`/flips/${s.date}`, '_blank')}
+                  onClick={() => window.open(`/flips/${s?.date}`, '_blank')}
                   className="px-3 py-1 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition"
                 >
                   View Flips
@@ -364,9 +364,9 @@ export default function DailySummaryLog() {
                   <span className="text-white">{formatGP(s?.net_worth || 0)}</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-gray-400">📊 ROI</span>
-                  <span className={`${(s?.roi_percent || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    +{((s?.roi_percent || 0) * 100).toFixed(2)}%
+                  <span className="text-gray-400">📈 Growth</span>
+                  <span className={`${(s?.percent_change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    +{((s?.percent_change || 0)).toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex flex-col">
@@ -422,34 +422,36 @@ export default function DailySummaryLog() {
           <thead>
             <tr style={{ backgroundColor: '#374151' }}>
               <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Day</th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Starting GP</th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Ending GP</th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Daily Profit</th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>ROI %</th>
               <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Flips</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Items</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Profit</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Net Worth</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Growth</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>Progress</th>
             </tr>
           </thead>
           <tbody>
             {completeSummaries.map((s, i) => (
               <tr key={s.date} style={{ backgroundColor: i % 2 === 0 ? '#1f2937' : '#374151' }}>
                 <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{s.day}</td>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{formatGP((s.net_worth || 0) - (s.profit || 0))}</td>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{formatGP(s.net_worth || 0)}</td>
+                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{s.flips || 0}</td>
+                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{s.items_flipped || 0}</td>
                 <td style={{
                   padding: '6px 8px',
                   borderBottom: '1px solid #4b5563',
                   color: (s.profit || 0) >= 0 ? '#10b981' : '#ef4444'
                 }}>
-                  {(s.profit || 0) >= 0 ? '+' : ''}{formatGP(s.profit || 0)}
+                  {formatGP(s.profit || 0)}
                 </td>
+                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{formatGP(s.net_worth || 0)}</td>
                 <td style={{
                   padding: '6px 8px',
                   borderBottom: '1px solid #4b5563',
-                  color: (s.roi_percent || 0) >= 0 ? '#10b981' : '#ef4444'
+                  color: (s.percent_change || 0) >= 0 ? '#10b981' : '#ef4444'
                 }}>
-                  {((s.roi_percent || 0) * 100).toFixed(2)}%
+                  +{((s.percent_change || 0)).toFixed(2)}%
                 </td>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{s.flips || 0}</td>
+                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{((s.percent_to_goal || 0)).toFixed(2)}%</td>
               </tr>
             ))}
           </tbody>
@@ -466,7 +468,7 @@ export default function DailySummaryLog() {
         }}>
           <p style={{ margin: '0' }}>
             Total Profit: {formatGP((completeSummaries[completeSummaries.length - 1]?.net_worth || 1000) - 1000)} GP •
-            Average Daily ROI: {completeSummaries.length > 0 ? ((completeSummaries.reduce((sum, day) => sum + day.roi_percent, 0) / completeSummaries.length) * 100).toFixed(2) : 0}%
+            Average Daily Growth: {completeSummaries.length > 0 ? ((completeSummaries.reduce((sum, day) => sum + (day.percent_change || 0), 0) / completeSummaries.length)).toFixed(2) : 0}%
           </p>
         </div>
       </div>
