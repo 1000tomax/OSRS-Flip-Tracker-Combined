@@ -1,0 +1,2 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Law rune,FINISHED,18000,1998000,18000,2034000,36000,36000,2025-08-12T04:28:22Z,2025-08-12T05:02:10Z,2025-08-12T05:02:10Z,bc22e85d0a2c7e74a799348e3312ddf07ba668bdd0dbf63a105f42916991d69b
