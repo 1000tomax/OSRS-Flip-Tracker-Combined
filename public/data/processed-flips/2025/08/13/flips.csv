@@ -1,0 +1,2 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Feather,FINISHED,1,3,1,2,0,-1,2025-08-13T05:01:05Z,2025-08-13T05:01:14Z,2025-08-13T05:01:14Z,2efee8029f34ec432997eb3b0c496b3f10be9dd167b40156a3180989ef5bf772
