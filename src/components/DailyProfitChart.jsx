@@ -1,4 +1,3 @@
-
 // src/components/DailyProfitChart.jsx
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -67,18 +66,24 @@ export default function DailyProfitChart() {
   const completeSummaries = summaries ? summaries.filter(day => !isIncompleteDay(day, summaries)) : [];
 
   // Prepare data for chart
-  const chartData = completeSummaries.map(day => ({
-    dayLabel: `Day ${day.day}`,
-    profit: day.profit,
-    day: day.day || 0,
-    flips: day.flips,
-    isProfit: day.profit >= 0,
-    fullDate: new Date(day.date.split('-').reverse().join('-')).toLocaleDateString('en-US', {
+  const chartData = completeSummaries.map(day => {
+    // Parse MM-DD-YYYY format correctly
+    const [mm, dd, yyyy] = day.date.split('-');
+    const fullDate = new Date(yyyy, mm - 1, dd).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric'
-    })
-  }));
+    });
+
+    return {
+      dayLabel: `Day ${day.day}`,
+      profit: day.profit,
+      day: day.day || 0,
+      flips: day.flips,
+      isProfit: day.profit >= 0,
+      fullDate
+    };
+  });
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }) => {

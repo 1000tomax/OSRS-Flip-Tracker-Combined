@@ -35,11 +35,6 @@ function formatGP(value) {
   return value.toString();
 }
 
-function formatDate(dateStr) {
-  const [mm, dd, yyyy] = dateStr.split('-');
-  return `${mm}/${dd}`;
-}
-
 export default function NetWorthChart() {
   const { summaries, loading, error } = useDailySummaries();
 
@@ -66,16 +61,22 @@ export default function NetWorthChart() {
   const completeSummaries = summaries ? summaries.filter(day => !isIncompleteDay(day, summaries)) : [];
 
   // Prepare data for chart
-  const chartData = completeSummaries.map(day => ({
-    dayLabel: `Day ${day.day}`,
-    netWorth: day.net_worth,
-    day: day.day || 0,
-    fullDate: new Date(day.date.split('-').reverse().join('-')).toLocaleDateString('en-US', {
+  const chartData = completeSummaries.map(day => {
+    // Parse MM-DD-YYYY format correctly
+    const [mm, dd, yyyy] = day.date.split('-');
+    const fullDate = new Date(yyyy, mm - 1, dd).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric'
-    })
-  }));
+    });
+
+    return {
+      dayLabel: `Day ${day.day}`,
+      netWorth: day.net_worth,
+      day: day.day || 0,
+      fullDate
+    };
+  });
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }) => {
@@ -113,17 +114,17 @@ export default function NetWorthChart() {
               fontSize={12}
               tickLine={false}
             />
-            <YAxis 
+            <YAxis
               stroke="#9CA3AF"
               fontSize={12}
               tickLine={false}
               tickFormatter={formatGP}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line 
-              type="monotone" 
-              dataKey="netWorth" 
-              stroke="#F59E0B" 
+            <Line
+              type="monotone"
+              dataKey="netWorth"
+              stroke="#F59E0B"
               strokeWidth={3}
               dot={{ fill: '#F59E0B', strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, fill: '#FCD34D' }}

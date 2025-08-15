@@ -1,6 +1,14 @@
-// src/components/Navigation.jsx - Updated with Charts link
+// src/components/Navigation.jsx - Updated with Charts link and current day default
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+
+function getCurrentDateFormatted() {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const year = today.getFullYear();
+  return `${month}-${day}-${year}`;
+}
 
 export default function Navigation() {
   const location = useLocation();
@@ -10,7 +18,7 @@ export default function Navigation() {
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/items', label: 'Items', icon: '📦' },
     { path: '/charts', label: 'Charts', icon: '📈' },
-    { path: '/flip-logs', label: 'Flip Logs', icon: '📋' }
+    { path: `/flip-logs?date=${getCurrentDateFormatted()}`, label: 'Flip Logs', icon: '📋' }
   ];
 
   return (
@@ -19,8 +27,8 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <div className="flex items-center">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="flex items-center space-x-2 text-yellow-500 hover:text-yellow-400 transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -32,7 +40,8 @@ export default function Navigation() {
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex space-x-1">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname === item.path.split('?')[0] &&
+                              (item.path.includes('?') ? location.search === item.path.split('?')[1] : true);
               return (
                 <Link
                   key={item.path}
@@ -70,24 +79,25 @@ export default function Navigation() {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-700 bg-gray-800">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+          <div className="md:hidden pb-4">
+            <div className="space-y-1">
               {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
+                const isActive = location.pathname === item.path.split('?')[0] &&
+                                (item.path.includes('?') ? location.search === item.path.split('?')[1] : true);
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-3 px-3 py-3 rounded-md text-base font-medium transition-colors duration-200 min-h-[44px] ${
+                    className={`block px-4 py-3 rounded-md text-base font-medium transition-colors flex items-center space-x-3 ${
                       isActive
                         ? 'bg-yellow-600 text-black'
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <span className="text-xl">{item.icon}</span>
+                    <span className="text-lg">{item.icon}</span>
                     <span>{item.label}</span>
                   </Link>
                 );
