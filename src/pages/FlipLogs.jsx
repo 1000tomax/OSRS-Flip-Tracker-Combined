@@ -206,7 +206,22 @@ export default function FlipLogs() {
         {summaryDates && (
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
             <span className="text-sm text-gray-300 font-medium">Select date:</span>
-            <div className="flex-1 sm:flex-none">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  if (!date) return;
+                  const [mm, dd, yyyy] = date.split('-');
+                  const currentDate = new Date(yyyy, mm - 1, dd);
+                  const previousDate = new Date(currentDate);
+                  previousDate.setDate(currentDate.getDate() - 1);
+                  const prevFormatted = `${String(previousDate.getMonth() + 1).padStart(2, '0')}-${String(previousDate.getDate()).padStart(2, '0')}-${previousDate.getFullYear()}`;
+                  navigate(`/flip-logs?date=${prevFormatted}`);
+                }}
+                className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-sm font-medium"
+                disabled={!date}
+              >
+                ←
+              </button>
               <input
                 type="date"
                 className="w-full sm:w-auto bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
@@ -217,6 +232,21 @@ export default function FlipLogs() {
                   navigate(`/flip-logs?date=${formatted}`);
                 }}
               />
+              <button
+                onClick={() => {
+                  if (!date) return;
+                  const [mm, dd, yyyy] = date.split('-');
+                  const currentDate = new Date(yyyy, mm - 1, dd);
+                  const nextDate = new Date(currentDate);
+                  nextDate.setDate(currentDate.getDate() + 1);
+                  const nextFormatted = `${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}-${nextDate.getFullYear()}`;
+                  navigate(`/flip-logs?date=${nextFormatted}`);
+                }}
+                className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-sm font-medium"
+                disabled={!date}
+              >
+                →
+              </button>
             </div>
           </div>
         )}
@@ -266,7 +296,7 @@ export default function FlipLogs() {
                 </div>
 
                 {/* Heat map bars container */}
-                <div className="flex gap-1 h-8 items-end">
+                <div className="flex gap-1 h-8 items-end relative">
                   {heatMapData.map((bucket, i) => {
                     const intensity = bucket.intensity;
                     const height = Math.max(4, intensity * 100); // Min height for visibility
@@ -275,19 +305,28 @@ export default function FlipLogs() {
                     return (
                       <div
                         key={i}
-                        className={`flex-1 rounded-sm transition-all duration-200 ${
+                        className={`flex-1 rounded-sm transition-all duration-200 cursor-pointer relative group ${
                           intensity > 0
                             ? isGreen
                               ? 'bg-green-500 hover:bg-green-400'
                               : 'bg-red-500 hover:bg-red-400'
-                            : 'bg-gray-700'
+                            : 'bg-gray-700 hover:bg-gray-600'
                         }`}
                         style={{
                           height: `${height}%`,
                           opacity: intensity > 0 ? Math.max(0.3, intensity) : 0.2
                         }}
-                        title={`${bucket.hour}:00 - ${bucket.flips} flips, ${formatGP(bucket.profit)} GP`}
-                      />
+                      >
+                        {/* Custom tooltip */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 px-3 py-2 bg-gray-800 border border-gray-600 text-white text-sm rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                          <div className="font-medium text-yellow-400">{bucket.hour}:00</div>
+                          <div className="text-xs text-gray-300">
+                            {bucket.flips} flips • <span className={bucket.profit >= 0 ? 'text-green-400' : 'text-red-400'}>{bucket.profit >= 0 ? '+' : ''}{formatGP(bucket.profit)} GP</span>
+                          </div>
+                          {/* Tooltip arrow */}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
