@@ -1,39 +1,41 @@
+/**
+ * DAILY PROFIT CHART COMPONENT
+ * 
+ * This component creates a bar chart showing your daily profit/loss for each trading day.
+ * It helps you identify your best and worst performing days and spot patterns.
+ * 
+ * What it shows:
+ * - X-axis: Trading days (Day 1, Day 2, etc.)
+ * - Y-axis: Daily profit in GP (can be positive or negative)
+ * - Bars: Green for profitable days, red for loss days
+ * 
+ * Key features:
+ * - Color-coded bars (green = profit, red = loss)
+ * - Only shows complete days (excludes today if still trading)
+ * - Interactive tooltip shows exact profit and number of flips
+ * - Responsive design that adapts to screen size
+ * 
+ * How it works:
+ * 1. Fetches daily summary data using the useDailySummaries hook
+ * 2. Filters out incomplete days to ensure accurate representation
+ * 3. Transforms data and marks each day as profit/loss
+ * 4. Uses Cell component to color each bar individually
+ * 5. Custom tooltip shows detailed day information
+ * 
+ * Educational notes:
+ * - BarChart is better than LineChart for showing discrete daily values
+ * - Cell component allows individual bar coloring
+ * - isProfit boolean determines bar color (green vs red)
+ * - formatDate utility converts MM-DD-YYYY to MM/DD for tooltip
+ */
 // src/components/DailyProfitChart.jsx
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
+import { formatGP, isIncompleteDay } from '../lib/utils';
 
-// Same filtering logic as DailySummaryLog
-function isIncompleteDay(day, allDays) {
-  if (!day || !day.date || typeof day.flips !== 'number') {
-    return true;
-  }
 
-  try {
-    // Find the highest day number in the dataset
-    const maxDay = allDays && allDays.length > 0
-      ? Math.max(...allDays.map(d => d.day || 0))
-      : day.day || 0;
-
-    // Only mark the LATEST day as incomplete
-    // Once a newer day exists, all previous days are locked and complete
-    if (day.day === maxDay) {
-      return true; // Latest day is always considered in progress
-    }
-
-    return false; // All previous days are complete
-  } catch (e) {
-    return true;
-  }
-}
-
-function formatGP(value) {
-  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
-  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
-  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
-  return value.toString();
-}
 
 function formatDate(dateStr) {
   const [mm, dd, yyyy] = dateStr.split('-');

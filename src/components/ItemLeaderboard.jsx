@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useCsvData } from '../hooks/useCsvData';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
+import { formatGP, formatPercent } from '../lib/utils';
 
 export default function ItemLeaderboard() {
   const { data: items, loading, error } = useCsvData('/data/item-stats.csv');
@@ -45,18 +46,6 @@ export default function ItemLeaderboard() {
     })
     .slice(0, 10);
 
-  const formatGP = (value) => {
-    const abs = Math.abs(value);
-    if (abs >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + 'B';
-    if (abs >= 1_000_000) return (value / 1_000_000).toFixed(2) + 'M';
-    if (abs >= 1_000) return (value / 1_000).toFixed(0) + 'K';
-    return value.toLocaleString();
-  };
-
-  const formatPercent = (value) => {
-    const prefix = value > 0 ? '+' : '';
-    return prefix + value.toFixed(2) + '%';
-  };
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">

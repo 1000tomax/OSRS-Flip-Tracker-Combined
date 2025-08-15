@@ -1,39 +1,40 @@
+/**
+ * NET WORTH CHART COMPONENT
+ * 
+ * This component creates a line chart showing your net worth progression over time.
+ * It's one of the most important visual indicators of your flipping journey progress.
+ * 
+ * What it shows:
+ * - X-axis: Trading days (Day 1, Day 2, etc.)
+ * - Y-axis: Total net worth in GP (formatted as K, M, B)
+ * - Line: Your progression from starting capital (1K) toward max cash
+ * 
+ * Key features:
+ * - Only shows complete days (excludes today if still trading)
+ * - Interactive tooltip shows exact net worth and date
+ * - Responsive design that works on mobile and desktop
+ * - Smooth line animation with hover effects
+ * 
+ * How it works:
+ * 1. Fetches daily summary data using the useDailySummaries hook
+ * 2. Filters out incomplete days using isIncompleteDay utility
+ * 3. Transforms data into format needed by Recharts library
+ * 4. Renders as a LineChart with custom styling and tooltip
+ * 
+ * Educational notes:
+ * - This uses the Recharts library for data visualization
+ * - ResponsiveContainer makes the chart resize automatically
+ * - Custom tooltip provides detailed information on hover
+ * - Date parsing converts MM-DD-YYYY format to readable dates
+ */
 // src/components/NetWorthChart.jsx
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
+import { formatGP, isIncompleteDay } from '../lib/utils';
 
-// Same filtering logic as DailySummaryLog
-function isIncompleteDay(day, allDays) {
-  if (!day || !day.date || typeof day.flips !== 'number') {
-    return true;
-  }
 
-  try {
-    // Find the highest day number in the dataset
-    const maxDay = allDays && allDays.length > 0
-      ? Math.max(...allDays.map(d => d.day || 0))
-      : day.day || 0;
-
-    // Only mark the LATEST day as incomplete
-    // Once a newer day exists, all previous days are locked and complete
-    if (day.day === maxDay) {
-      return true; // Latest day is always considered in progress
-    }
-
-    return false; // All previous days are complete
-  } catch (e) {
-    return true;
-  }
-}
-
-function formatGP(value) {
-  if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
-  if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
-  if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
-  return value.toString();
-}
 
 export default function NetWorthChart() {
   const { summaries, loading, error } = useDailySummaries();

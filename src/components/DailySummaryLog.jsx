@@ -4,37 +4,9 @@ import useDailySummaries from '../hooks/useDailySummaries';
 import { useJsonData } from '../hooks/useJsonData';
 import { useETACalculator } from './ETACalculator';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
+import { formatGP, isIncompleteDay } from '../lib/utils';
 
-// Simple helper function to check if a day looks incomplete
-function isIncompleteDay(day, allDays) {
-  if (!day || !day.date || typeof day.flips !== 'number') {
-    return true;
-  }
 
-  try {
-    // Find the highest day number in the dataset
-    const maxDay = allDays && allDays.length > 0
-      ? Math.max(...allDays.map(d => d.day || 0))
-      : day.day || 0;
-
-    // Only mark the LATEST day as incomplete
-    // Once a newer day exists, all previous days are locked and complete
-    if (day.day === maxDay) {
-      return true; // Latest day is always considered in progress
-    }
-
-    return false; // All previous days are complete
-  } catch (e) {
-    return true;
-  }
-}
-
-function formatGP(amount) {
-  if (!amount || typeof amount !== 'number' || isNaN(amount)) return '0';
-  if (amount >= 1000000) return `${(amount / 1000000).toFixed(2)}M`;
-  if (amount >= 1000) return `${(amount / 1000).toFixed(0)}K`;
-  return amount.toString();
-}
 
 function timeAgo(isoString) {
   const now = new Date();
@@ -199,7 +171,7 @@ export default function DailySummaryLog() {
                       <div className="text-xs text-white space-y-3">
                         <div className="border-b border-gray-600 pb-2">
                           <h4 className="font-semibold text-yellow-400">📊 ETA Analysis Breakdown</h4>
-                          <p className="text-gray-300 mt-1">Using 3 mathematical models:</p>
+                          <p className="text-gray-300 mt-1">Using 4 mathematical models:</p>
                         </div>
 
                         <div className="space-y-2">
@@ -221,6 +193,16 @@ export default function DailySummaryLog() {
                           </div>
                           <p className="text-xs text-gray-400 ml-4">
                             Models compound net worth progression
+                          </p>
+
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-300">🚀 Compound Growth:</span>
+                            <span className="text-white font-medium">
+                              {etaData.estimates.compound ? `${etaData.estimates.compound} days` : 'N/A'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-4">
+                            Based on recent daily percentage gains (most accurate)
                           </p>
 
                           <div className="flex justify-between items-center">

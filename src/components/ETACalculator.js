@@ -14,9 +14,9 @@ export function useETACalculator(summaries, currentNetWorth) {
       return { eta: 0, confidence: 'high', method: 'complete' };
     }
 
-    // Filter out very early days and sort by day
+    // Filter out very early days and sort by day - reduced filter since you have more data now
     const validDays = summaries
-      .filter(day => day.day >= 8) // Skip first week outliers
+      .filter(day => day.day >= 5) // Skip first few days outliers (reduced from 8 to 5)
       .sort((a, b) => a.day - b.day);
     
     if (validDays.length < 3) {
@@ -32,8 +32,11 @@ export function useETACalculator(summaries, currentNetWorth) {
     // Method 3: Rolling average with recent weighting
     const weightedAverageETA = calculateWeightedAverageETA(validDays, remaining);
     
-    // Combine methods for final estimate
-    const estimates = [linearTrendETA, exponentialETA, weightedAverageETA].filter(eta => eta > 0 && eta < 1000);
+    // Method 4: NEW - Compound growth based on daily percentage gains (most accurate for your trading style)
+    const compoundGrowthETA = calculateCompoundGrowthETA(validDays, currentNetWorth, MAX_CASH);
+    
+    // Combine methods for final estimate - now includes compound growth method
+    const estimates = [linearTrendETA, exponentialETA, weightedAverageETA, compoundGrowthETA].filter(eta => eta > 0 && eta < 1000);
     
     if (estimates.length === 0) {
       return { eta: null, confidence: 'low', method: 'calculation_error' };
@@ -54,7 +57,8 @@ export function useETACalculator(summaries, currentNetWorth) {
       estimates: {
         linear: Math.round(linearTrendETA),
         exponential: Math.round(exponentialETA),
-        weighted: Math.round(weightedAverageETA)
+        weighted: Math.round(weightedAverageETA),
+        compound: Math.round(compoundGrowthETA)
       }
     };
   }, [summaries, currentNetWorth]);
@@ -96,8 +100,8 @@ function calculateLinearTrendETA(validDays, remaining) {
 function calculateExponentialETA(validDays, currentNetWorth, maxCash) {
   if (validDays.length < 3) return Infinity;
   
-  // Take recent samples for exponential fitting
-  const recentDays = validDays.slice(-14); // Last 2 weeks
+  // Take recent samples for exponential fitting - using more data for better accuracy
+  const recentDays = validDays.slice(-Math.min(21, validDays.length)); // Last 3 weeks or all available data
   
   // Fit exponential curve to net worth: net_worth = a * e^(b * day)
   // Using log-linear regression: ln(net_worth) = ln(a) + b * day
@@ -144,6 +148,52 @@ function calculateWeightedAverageETA(validDays, remaining) {
   if (weightedAverage <= 0) return Infinity;
   
   return remaining / weightedAverage;
+}
+
+// Method 4: NEW - Compound growth based on daily percentage gains
+function calculateCompoundGrowthETA(validDays, currentNetWorth, maxCash) {
+  if (validDays.length < 3) return Infinity;
+  
+  // Get recent days for more accurate compound growth calculation
+  const recentDays = validDays.slice(-10); // Last 10 days for good sample size
+  
+  // Calculate daily growth percentages
+  const growthRates = [];
+  for (let i = 1; i < recentDays.length; i++) {
+    const prevDay = recentDays[i - 1];
+    const currentDay = recentDays[i];
+    
+    if (prevDay.net_worth > 0 && currentDay.net_worth > prevDay.net_worth) {
+      const growthRate = (currentDay.net_worth - prevDay.net_worth) / prevDay.net_worth;
+      growthRates.push(growthRate);
+    }
+  }
+  
+  if (growthRates.length === 0) return Infinity;
+  
+  // Calculate weighted average of recent growth rates (more recent = higher weight)
+  let totalWeightedGrowth = 0;
+  let totalWeight = 0;
+  
+  growthRates.forEach((rate, index) => {
+    const weight = (index + 1) * 2; // Recent days get exponentially more weight
+    totalWeightedGrowth += rate * weight;
+    totalWeight += weight;
+  });
+  
+  const avgDailyGrowthRate = totalWeightedGrowth / totalWeight;
+  
+  // Add some conservative adjustment - don't assume growth rate will maintain indefinitely
+  // But you've been very consistent, so being less conservative
+  const conservativeGrowthRate = Math.min(avgDailyGrowthRate * 0.9, 0.12); // Cap at 12% daily max, reduce by only 10%
+  
+  if (conservativeGrowthRate <= 0) return Infinity;
+  
+  // Use compound interest formula: FV = PV * (1 + r)^t
+  // Solve for t: t = log(FV/PV) / log(1 + r)
+  const daysToGoal = Math.log(maxCash / currentNetWorth) / Math.log(1 + conservativeGrowthRate);
+  
+  return Math.max(daysToGoal, 0);
 }
 
 // Utility function to format ETA for display

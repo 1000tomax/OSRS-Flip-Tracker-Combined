@@ -1,8 +1,40 @@
+/**
+ * WEEKDAY PERFORMANCE CHART COMPONENT
+ * 
+ * This component analyzes your trading performance by day of the week to identify patterns.
+ * It helps answer questions like "Do I trade better on weekends?" or "Are Mondays my worst days?"
+ * 
+ * What it shows:
+ * - X-axis: Days of the week (Mon, Tue, Wed, etc.)
+ * - Y-axis: Average ROI percentage for that day of the week
+ * - Bars: Height represents average ROI performance
+ * 
+ * Key features:
+ * - Excludes first week (days 1-7) to avoid early learning curve skewing data
+ * - Shows best and worst performing days in summary cards
+ * - Calculates averages across all instances of each weekday
+ * - Interactive tooltip shows detailed statistics
+ * 
+ * How it works:
+ * 1. Fetches daily summary data and filters out first week
+ * 2. Groups data by weekday using JavaScript Date methods
+ * 3. Calculates average ROI, profit, and flips for each weekday
+ * 4. Identifies best and worst performing days
+ * 5. Renders as bar chart with summary statistics
+ * 
+ * Educational notes:
+ * - Date parsing: MM-DD-YYYY string -> Date object -> weekday name
+ * - JavaScript months are 0-indexed (0=January, 11=December)
+ * - Statistical analysis: grouping and averaging data
+ * - Array.reduce() used for aggregating statistics by weekday
+ * - Filter by sample size ensures reliable averages
+ */
 // src/components/WeekdayPerformanceChart.jsx - Fixed with Percentage Returns
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
+import { formatGP } from '../lib/utils';
 
 export default function WeekdayPerformanceChart() {
   const { summaries, loading, error } = useDailySummaries();
@@ -89,13 +121,6 @@ export default function WeekdayPerformanceChart() {
     current.avgROI > best.avgROI ? current : best, chartData[0] || {});
   const worstDay = chartData.reduce((worst, current) => 
     current.avgROI < worst.avgROI ? current : worst, chartData[0] || {});
-
-  // Format GP values
-  const formatGP = (value) => {
-    if (value >= 1_000_000) return (value / 1_000_000).toFixed(1) + "M";
-    if (value >= 1_000) return (value / 1_000).toFixed(0) + "K";
-    return value.toFixed(0);
-  };
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }) => {
