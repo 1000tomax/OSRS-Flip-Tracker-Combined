@@ -1,5 +1,5 @@
 // src/components/Navigation.jsx - Updated with Charts link and current day default
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 function getCurrentDateFormatted() {
@@ -10,16 +10,26 @@ function getCurrentDateFormatted() {
   return `${month}-${day}-${year}`;
 }
 
-export default function Navigation() {
+function getYesterdayFormatted() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const month = String(yesterday.getMonth() + 1).padStart(2, '0');
+  const day = String(yesterday.getDate()).padStart(2, '0');
+  const year = yesterday.getFullYear();
+  return `${month}-${day}-${year}`;
+}
+
+const Navigation = React.memo(function Navigation() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems = [
+  const navItems = useMemo(() => [
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/items', label: 'Items', icon: '📦' },
     { path: '/charts', label: 'Charts', icon: '📈' },
+    { path: `/volume?date=${getYesterdayFormatted()}`, label: 'Volume', icon: '⚔️' },
     { path: `/flip-logs?date=${getCurrentDateFormatted()}`, label: 'Flip Logs', icon: '📋' }
-  ];
+  ], []);
 
   return (
     <nav className="bg-gray-900 border-b border-gray-700 sticky top-0 z-50">
@@ -108,4 +118,6 @@ export default function Navigation() {
       </div>
     </nav>
   );
-}
+});
+
+export default Navigation;
