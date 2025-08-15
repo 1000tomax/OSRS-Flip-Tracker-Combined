@@ -23,8 +23,8 @@
  * patterns in their trading behavior.
  */
 
-import React, { useState, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useCsvData } from '../hooks/useCsvData';
 import { useJsonData } from '../hooks/useJsonData';
 import LoadingSpinner, { ErrorMessage } from '../components/LoadingSpinner';
@@ -44,13 +44,8 @@ import { parseDateParts, formatDuration, formatGP } from '../lib/utils';
 export default function FlipLogs() {
   // URL and navigation management
   const location = useLocation();                          // Current URL location
-  const navigate = useNavigate();                          // Navigation function
   const queryParams = new URLSearchParams(location.search); // Parse URL query parameters
   const date = queryParams.get('date');                    // Get selected date from URL (?date=MM-DD-YYYY)
-
-  // Local component state for table sorting (not used since SortableTable handles its own sorting)
-  const [sortField, setSortField] = useState('closed_time');
-  const [sortDirection, setSortDirection] = useState('desc');
 
   // Data loading hooks
   // Load the summary index to know which dates have data available

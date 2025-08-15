@@ -28,7 +28,8 @@ import React, { useState } from "react";
 import { useCsvData } from "../hooks/useCsvData";
 import LoadingSpinner, { ErrorMessage } from "../components/LoadingSpinner";
 import SearchControls, { ResultsCount } from "../components/SearchControls";
-import ItemCards, { itemStatsColumns } from "../components/ItemCards";
+import ItemCards from "../components/ItemCards";
+import { itemStatsColumns } from "../lib/columnConfigs.jsx";
 import SortableTable from "../components/SortableTable";
 import { formatGP, formatPercent } from "../lib/utils";
 

@@ -37,10 +37,6 @@ import { formatGP, isIncompleteDay } from '../lib/utils';
 
 
 
-function formatDate(dateStr) {
-  const [mm, dd, yyyy] = dateStr.split('-');
-  return `${mm}/${dd}`;
-}
 
 export default function DailyProfitChart() {
   const { summaries, loading, error } = useDailySummaries();
@@ -88,7 +84,7 @@ export default function DailyProfitChart() {
   });
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

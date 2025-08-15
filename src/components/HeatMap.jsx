@@ -29,7 +29,7 @@ import { formatGP } from '../lib/utils';
  * @param {string} date - The date being displayed (for debugging/context)
  * @returns {JSX.Element} - The heat map visualization
  */
-export default function HeatMap({ flips, date }) {
+export default function HeatMap({ flips }) {
   /**
    * Process the flip data into hourly buckets for visualization
    * 
@@ -106,7 +106,7 @@ export default function HeatMap({ flips, date }) {
     <div className="mb-6">
       {/* Time markers */}
       <div className="flex justify-between items-center mb-2 px-1">
-        {['12a', '3a', '6a', '9a', '12p', '3p', '6p', '9p'].map((time, i) => (
+        {['12a', '3a', '6a', '9a', '12p', '3p', '6p', '9p'].map((time) => (
           <div key={time} className="text-xs text-gray-400 font-medium">
             {time}
           </div>

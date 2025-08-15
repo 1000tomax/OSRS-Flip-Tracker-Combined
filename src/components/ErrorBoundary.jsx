@@ -7,7 +7,7 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
@@ -30,7 +30,7 @@ class ErrorBoundary extends React.Component {
               The OSRS dashboard encountered an unexpected error. Don't worry, your flipping data is safe!
             </p>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env?.DEV && this.state.error && (
               <details className="text-left bg-gray-100 dark:bg-gray-800 p-4 rounded border text-sm">
                 <summary className="cursor-pointer font-medium mb-2">Error Details (Dev Mode)</summary>
                 <div className="space-y-2">

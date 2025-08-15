@@ -123,7 +123,7 @@ export default function WeekdayPerformanceChart() {
     current.avgROI < worst.avgROI ? current : worst, chartData[0] || {});
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

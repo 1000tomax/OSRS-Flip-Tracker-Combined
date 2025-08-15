@@ -161,7 +161,7 @@ export function isIncompleteDay(day, allDays) {
     }
 
     return false; // All previous days are complete
-  } catch (e) {
+  } catch {
     return true; // If anything goes wrong, err on the side of caution
   }
 }
