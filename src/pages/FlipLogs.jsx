@@ -53,7 +53,11 @@ export default function FlipLogs() {
   const summary = useMemo(() => {
     if (!flips || flips.length === 0) return null;
 
-    const validFlips = flips.filter(f => f.closed_quantity > 0 && f.received_post_tax > 0);
+    const validFlips = flips.filter(f =>
+      f.closed_quantity > 0 &&
+      f.received_post_tax > 0 &&
+      f.status === 'FINISHED'
+    );
     const totalFlips = validFlips.length;
     const totalProfit = validFlips.reduce((sum, flip) => sum + (flip.received_post_tax - flip.spent), 0);
 
@@ -64,7 +68,12 @@ export default function FlipLogs() {
   const heatMapData = useMemo(() => {
     if (!flips || flips.length === 0) return [];
 
-    const validFlips = flips.filter(f => f.closed_quantity > 0 && f.received_post_tax > 0 && f.closed_time);
+    const validFlips = flips.filter(f =>
+      f.closed_quantity > 0 &&
+      f.received_post_tax > 0 &&
+      f.closed_time &&
+      f.status === 'FINISHED'
+    );
 
     // Create 24 hourly buckets
     const hourlyBuckets = Array(24).fill(0).map((_, hour) => ({
@@ -111,7 +120,11 @@ export default function FlipLogs() {
   const sortedFlips = useMemo(() => {
     if (!flips) return [];
 
-    const validFlips = flips.filter(f => f.closed_quantity > 0 && f.received_post_tax > 0);
+    const validFlips = flips.filter(f =>
+      f.closed_quantity > 0 &&
+      f.received_post_tax > 0 &&
+      f.status === 'FINISHED'
+    );
 
     return validFlips.sort((a, b) => {
       let aVal, bVal;
