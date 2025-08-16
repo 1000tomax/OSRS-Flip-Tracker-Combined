@@ -30,12 +30,6 @@ async function runParser() {
     return;
   }
 
-  const flipIndexPath = path.join(__dirname, '..', 'public', 'data', 'flip-index.json');
-  let flipIndex = {};
-  try {
-    const idxText = await fs.promises.readFile(flipIndexPath, 'utf8');
-    flipIndex = JSON.parse(idxText);
-  } catch (_) {}
 
   const flipsByDate = {};
 
@@ -69,9 +63,7 @@ async function runParser() {
     const spent = openedQuantity * avgBuyPrice;
     const receivedPostTax = closedQuantity * avgSellPrice - taxPaid;
 
-    const hashInput = `${accountId}|${itemName}|${status}|${closedQuantity}|${receivedPostTax}|${taxPaid}|${profit}|${closedTimeRaw}`;
-    const flipHash = crypto.createHash('sha256').update(hashInput).digest('hex');
-    if (flipIndex.hasOwnProperty(flipHash)) continue;
+    const flipHash = crypto.createHash('sha256').update(`${accountId}|${itemName}|${status}|${closedQuantity}|${receivedPostTax}|${taxPaid}|${profit}|${closedTimeRaw}`).digest('hex');
 
     // 🔧 FIX: Use opened_time for date grouping to avoid timezone issues
     // This ensures flips are grouped by when they were started, not when they ended
@@ -97,7 +89,6 @@ async function runParser() {
       flipsByDate[openedDate] = [];
     }
     flipsByDate[openedDate].push(recordOut);
-    flipIndex[flipHash] = openedDate;
   }
 
   const processedBase = path.join(__dirname, '..', 'public', 'data', 'processed-flips');
@@ -134,8 +125,6 @@ async function runParser() {
     await fs.promises.writeFile(filePath, output, 'utf8');
   }
 
-  await ensureDir(path.join(__dirname, '..', 'public', 'data'));
-  await fs.promises.writeFile(flipIndexPath, JSON.stringify(flipIndex, null, 2), 'utf8');
 
   const now = new Date();
   const archiveDate = formatDate(now);
