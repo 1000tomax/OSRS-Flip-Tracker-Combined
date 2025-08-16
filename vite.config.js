@@ -81,9 +81,22 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Simplified chunking strategy to avoid circular imports
+        // Improved chunking strategy for better bundle splitting
         manualChunks: id => {
-          if (id.includes('node_modules')) return 'vendor';
+          // Split large vendor libraries into separate chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('recharts')) return 'charts';
+            if (id.includes('react-router')) return 'router';
+            if (id.includes('papaparse')) return 'csv-parser';
+            if (id.includes('react') || id.includes('react-dom')) return 'react';
+            return 'vendor';
+          }
+
+          // Split pages into separate chunks
+          if (id.includes('/pages/')) return 'pages';
+
+          // Split utilities and hooks
+          if (id.includes('/utils/') || id.includes('/hooks/')) return 'utils';
         },
 
         // Optimize chunk file names - cache bust
@@ -98,8 +111,8 @@ export default defineConfig({
       },
     },
 
-    // Optimize chunk sizes
-    chunkSizeWarningLimit: 500,
+    // Optimize chunk sizes - increased limit since we're splitting intelligently
+    chunkSizeWarningLimit: 800,
 
     // Source maps only in development
     sourcemap: process.env.NODE_ENV === 'development',
