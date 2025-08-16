@@ -46,7 +46,7 @@ export default function ProfitVelocity() {
         
         return {
           ...flip,
-          date: openTime.toISOString().split('T')[0],
+          date: `${openTime.getFullYear()}-${String(openTime.getMonth() + 1).padStart(2, '0')}-${String(openTime.getDate()).padStart(2, '0')}`,
           durationMinutes,
           profit
         };
