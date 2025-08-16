@@ -3,31 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { useJsonData } from './useJsonData'
 import Papa from 'papaparse'
 
-async function fetchCsvData(filePath) {
-  const res = await fetch(filePath)
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: Failed to fetch ${filePath}`)
-  }
-  const text = await res.text()
-  
-  return new Promise((resolve, reject) => {
-    Papa.parse(text, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      transformHeader: header => header.trim(),
-      complete: (results) => {
-        if (results.errors.length > 0) {
-          console.warn('CSV parsing warnings:', results.errors)
-        }
-        resolve(results.data)
-      },
-      error: (error) => {
-        reject(new Error(`CSV parsing failed: ${error.message}`))
-      }
-    })
-  })
-}
 
 async function fetchAllFlips(dates) {
   if (!dates?.length) return []
@@ -52,7 +27,7 @@ async function fetchAllFlips(dates) {
       }
       
       // Parse the CSV text directly
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         Papa.parse(text, {
           header: true,
           dynamicTyping: true,

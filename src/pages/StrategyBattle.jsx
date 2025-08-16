@@ -39,7 +39,7 @@ const HIGH_VALUE_QUANTITY = 100; // Items with <100 quantity per flip are high v
 /**
  * ItemBreakdown Component - Shows detailed breakdown of items contributing to strategy performance
  */
-function ItemBreakdown({ items, totalProfitPerHour, color, strategyName }) {
+function ItemBreakdown({ items, color, strategyName }) {
   const [isExpanded, setIsExpanded] = useState(false);
   
   const colorClasses = {
@@ -494,7 +494,6 @@ export default function StrategyBattle() {
                   {strategyAnalysis.volume.items.length > 0 && (
                     <ItemBreakdown 
                       items={strategyAnalysis.volume.items} 
-                      totalProfitPerHour={strategyAnalysis.volume.profitPerHour}
                       color="green"
                       strategyName="High Volume"
                     />
@@ -541,7 +540,6 @@ export default function StrategyBattle() {
                   {strategyAnalysis.value.items.length > 0 && (
                     <ItemBreakdown 
                       items={strategyAnalysis.value.items} 
-                      totalProfitPerHour={strategyAnalysis.value.profitPerHour}
                       color="blue"
                       strategyName="High Value"
                     />
