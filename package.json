@@ -9,6 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:data": "node scripts/build-embeddings.cjs && node scripts/build-summary-index.cjs",
+    "process-flips": "node data-processing/run-all.cjs",
+    "process:parse": "node data-processing/parser.cjs",
+    "process:summaries": "node data-processing/summaryBuilder.cjs",
+    "process:items": "node data-processing/itemStats.cjs",
+    "process:meta": "node data-processing/metaWriter.cjs",
     "prebuild": "npm run build:data"
   },
   "dependencies": {

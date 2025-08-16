@@ -11,6 +11,7 @@ const Items = lazy(() => import('./pages/Items'));
 const FlipLogs = lazy(() => import('./pages/FlipLogs'));
 const Charts = lazy(() => import('./pages/Charts'));
 const StrategyBattle = lazy(() => import('./pages/StrategyBattle'));
+const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/flip-logs" element={<FlipLogs />} />
                 <Route path="/charts" element={<Charts />} />
                 <Route path="/volume" element={<StrategyBattle />} />
+                <Route path="/profit-velocity" element={<ProfitVelocity />} />
                 <Route path="*" element={<Home />} />
               </Routes>
             </Suspense>
