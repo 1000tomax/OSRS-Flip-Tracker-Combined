@@ -44,9 +44,12 @@ export default function ProfitVelocity() {
           return null;
         }
         
+        // Convert to Chicago timezone for consistent date grouping
+        const chicagoDate = new Date(openTime.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+        
         return {
           ...flip,
-          date: `${openTime.getFullYear()}-${String(openTime.getMonth() + 1).padStart(2, '0')}-${String(openTime.getDate()).padStart(2, '0')}`,
+          date: `${chicagoDate.getFullYear()}-${String(chicagoDate.getMonth() + 1).padStart(2, '0')}-${String(chicagoDate.getDate()).padStart(2, '0')}`,
           durationMinutes,
           profit
         };
