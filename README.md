@@ -1,65 +1,66 @@
-# OSRS Flip Tracker – 1K to Max Challenge 💰
+# OSRS Flip Dashboard
 
-This is the frontend for my personal Old School RuneScape flipping challenge, starting from **1,000 GP** with the goal of reaching **max cash (2.147B GP)** using only Grand Exchange trades.
+Personal dashboard for tracking my Old School RuneScape flipping challenge from 1K GP to max cash (2.147B GP).
 
-Flipping data is manually exported from [Flipping Copilot](https://www.flippingcopilot.com/) and automatically summarized into daily performance logs, ROI tracking, item profitability, and net worth growth.
+## Features
 
----
+### Pages
+- **Home** - Daily summary overview and item leaderboards
+- **Items** - Item analytics with profitability rankings and search
+- **Flip Logs** - Complete transaction history with filtering
+- **Charts** - Interactive profit trends and performance visualizations
+- **Volume** - Strategy comparison and detailed item breakdowns
 
-## 📊 Live Site
-> https://mreedon.com
+### Analytics
+- Daily/weekly profit tracking and summaries
+- Item profitability rankings with ML-based similarity search
+- ROI calculations and trend analysis
+- Net worth progression and ETA calculations
+- Trading volume analysis across different strategies
 
----
+## Tech Stack
 
-## 🧠 How It Works
-
-This is a **static React dashboard**, built with:
-
-- **React + Vite**
-- **TailwindCSS** for styling
-- **Recharts** (in progress) for graphs
+- **React 19** with Vite and React Router
+- **TailwindCSS 4.x** for styling
+- **Recharts** for data visualization
+- **TanStack Query** for data fetching
 - **PapaParse** for CSV processing
-- **Hosted via Vercel** (auto-deployed on Git push)
+- **ML embeddings** for item similarity matching
 
-All data is pre-generated locally using a custom Node.js backend, then committed as static `.json` / `.csv` files in `/public/data`.
+## Development
 
----
+```bash
+npm install
+npm run dev           # Start dev server
+npm run build         # Build for production
+npm run build:data    # Process data files only
+```
 
-## 🗂 Project Structure
+## Data Pipeline
 
-| Folder / File            | Purpose                                |
-|--------------------------|----------------------------------------|
-| `public/data/`           | Auto-generated flip summaries          |
-| `src/components/`        | React view components (daily logs, etc)|
-| `src/hooks/`             | Data loading hooks                     |
-| `index.html`             | Entry HTML, includes favicon + title   |
-| `tailwind.config.js`     | Tailwind styling setup                 |
-| `package.json`           | Dependencies and Vite config           |
+1. Export flip data from Flipping Copilot RuneLite plugin
+2. Process CSV files into optimized JSON with Node.js scripts
+3. Generate item embeddings for similarity search
+4. Deploy static files to Vercel
 
----
+Data is stored in `/public/data/` as pre-processed JSON/CSV files for fast loading.
 
-## 📦 Data Sources
+## Project Structure
 
-Flip data is exported daily from the **Flipping Copilot** RuneLite plugin and includes:
+```
+public/data/
+├── daily-summary/     # Daily performance summaries
+├── processed-flips/   # Historical flip data by date
+├── item-embeddings.json
+├── item-stats.csv
+└── meta.json
 
-- All Grand Exchange flips (buy/sell pairs)
-- Item name, quantities, price, ROI, and profit
-- Daily summaries with:
-    - Net worth
-    - Daily profit
-    - ROI %
-    - Progress toward 2.147B
-    - ETA to max cash based on average profit
+src/
+├── components/        # UI components
+├── hooks/            # Data loading hooks
+├── lib/              # Utils and configurations
+└── pages/            # Route components
 
----
-
-## 🤝 Credits
-
-- All flip data exported via **Flipping Copilot**
-- Hosted using **Vercel**
-- Built and maintained by [@1000tomax](https://github.com/1000tomax)
-
----
-
-> “Progress updates automatically every time I run my local tracker. All stats are real, manual flips — no automation or merch bots used.”
+scripts/              # Data processing scripts
+```
 
