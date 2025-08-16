@@ -23,21 +23,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['flipping-copilot-logo.png'],
-      manifest: {
-        name: 'OSRS Flip Dashboard',
-        short_name: 'FlipDash',
-        description: 'Old School RuneScape Flip Trading Dashboard',
-        theme_color: '#1f2937',
-        background_color: '#000000',
-        display: 'standalone',
-        icons: [
-          {
-            src: '/flipping-copilot-logo.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-        ],
-      },
+      manifest: false, // use the static /public/manifest.json
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
@@ -95,39 +81,9 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Improved chunking strategy
+        // Simplified chunking strategy to avoid circular imports
         manualChunks: id => {
-          // Vendor chunk for core dependencies
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react-vendor';
-            }
-            if (id.includes('recharts')) {
-              return 'charts';
-            }
-            if (id.includes('@tanstack')) {
-              return 'tanstack';
-            }
-            if (id.includes('papaparse') || id.includes('html2canvas')) {
-              return 'utils';
-            }
-            // Other vendor libraries
-            return 'vendor';
-          }
-
-          // App chunks by feature
-          if (id.includes('/pages/')) {
-            return 'pages';
-          }
-          if (id.includes('/components/')) {
-            return 'components';
-          }
-          if (id.includes('/hooks/')) {
-            return 'hooks';
-          }
-          if (id.includes('/utils/')) {
-            return 'utils-app';
-          }
+          if (id.includes('node_modules')) return 'vendor';
         },
 
         // Optimize chunk file names - cache bust
