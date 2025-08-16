@@ -20,7 +20,7 @@
  * high margin trading in real-world conditions.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCsvData } from '../hooks/useCsvData';
 import { useJsonData } from '../hooks/useJsonData';
@@ -35,6 +35,102 @@ import { parseDateParts, formatGP } from '../lib/utils';
  */
 const HIGH_VOLUME_QUANTITY = 1000; // Items with 1000+ quantity per flip are high volume
 const HIGH_VALUE_QUANTITY = 100; // Items with <100 quantity per flip are high value
+
+/**
+ * ItemBreakdown Component - Shows detailed breakdown of items contributing to strategy performance
+ */
+function ItemBreakdown({ items, totalProfitPerHour, color, strategyName }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const colorClasses = {
+    green: {
+      text: 'text-green-400',
+      bg: 'bg-green-900/20',
+      border: 'border-green-400/30',
+      hover: 'hover:bg-green-800/30'
+    },
+    blue: {
+      text: 'text-blue-400', 
+      bg: 'bg-blue-900/20',
+      border: 'border-blue-400/30',
+      hover: 'hover:bg-blue-800/30'
+    }
+  };
+  
+  const colors = colorClasses[color];
+  const displayItems = isExpanded ? items : items.slice(0, 3);
+  
+  return (
+    <div className="border-t border-gray-600 pt-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm font-medium text-gray-300">Contributing Items:</div>
+        {items.length > 3 && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`text-xs px-2 py-1 rounded border transition-colors ${colors.border} ${colors.text} ${colors.hover}`}
+          >
+            {isExpanded ? 'Show Less' : `View All ${items.length}`}
+          </button>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        {displayItems.map((item, idx) => {
+          // Calculate what percentage of total strategy profit this item contributed
+          const totalStrategyProfit = items.reduce((sum, i) => sum + i.profit, 0);
+          const profitSharePercent = totalStrategyProfit !== 0 ? (item.profit / totalStrategyProfit) * 100 : 0;
+          const timeHours = item.timeMinutes / 60;
+          
+          return (
+            <div key={idx} className={`p-2 rounded border ${colors.border} ${colors.bg}`}>
+              <div className="flex justify-between items-start mb-1">
+                <span className="text-gray-300 text-xs font-medium truncate flex-1 mr-2">
+                  {item.name}
+                </span>
+                <span className={`${colors.text} font-mono text-xs font-bold`}>
+                  {item.timeMinutes > 0 ? `${formatGP(item.profitPerHour)}/hr` : 'instant'}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="text-center">
+                  <div className="text-white font-mono">{formatGP(item.profit)}</div>
+                  <div className="text-gray-500">profit</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-mono">
+                    {timeHours >= 0.1 ? `${timeHours.toFixed(1)}h` : 
+                     item.timeMinutes >= 1 ? `${Math.round(item.timeMinutes)}m` : 
+                     item.timeMinutes > 0 ? '<1m' : 'instant'}
+                  </div>
+                  <div className="text-gray-500">time</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-mono">{profitSharePercent.toFixed(1)}%</div>
+                  <div className="text-gray-500">profit share</div>
+                </div>
+              </div>
+              
+              {item.flips > 1 && (
+                <div className="text-center mt-1">
+                  <span className="text-gray-400 text-xs">{item.flips} flips</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      {isExpanded && items.length > 5 && (
+        <div className="mt-2 text-center">
+          <span className="text-xs text-gray-500">
+            Showing {items.length} items contributing to {strategyName} strategy
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function StrategyBattle() {
   // URL and navigation management (same pattern as FlipLogs)
@@ -174,7 +270,11 @@ export default function StrategyBattle() {
         if (flip.opened_time && flip.closed_time) {
           const open = new Date(flip.opened_time);
           const close = new Date(flip.closed_time);
-          item.timeMinutes += (close.getTime() - open.getTime()) / (1000 * 60);
+          const durationMinutes = (close.getTime() - open.getTime()) / (1000 * 60);
+          // Only add valid positive durations
+          if (durationMinutes > 0) {
+            item.timeMinutes += durationMinutes;
+          }
         }
       });
 
@@ -192,7 +292,7 @@ export default function StrategyBattle() {
         totalTimeMinutes,
         profitPerHour,
         avgProfitPerFlip,
-        items: items.slice(0, 5) // Top 5 contributing items
+        items: items // All contributing items
       };
     };
 
@@ -392,19 +492,12 @@ export default function StrategyBattle() {
                   </div>
 
                   {strategyAnalysis.volume.items.length > 0 && (
-                    <div className="border-t border-gray-600 pt-3">
-                      <div className="text-sm font-medium text-gray-300 mb-2">Top Items:</div>
-                      <div className="space-y-1">
-                        {strategyAnalysis.volume.items.slice(0, 3).map((item, idx) => (
-                          <div key={idx} className="flex justify-between text-xs">
-                            <span className="text-gray-300 truncate">{item.name}</span>
-                            <span className="text-green-400 font-mono">
-                              {formatGP(item.profit)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <ItemBreakdown 
+                      items={strategyAnalysis.volume.items} 
+                      totalProfitPerHour={strategyAnalysis.volume.profitPerHour}
+                      color="green"
+                      strategyName="High Volume"
+                    />
                   )}
                 </div>
               </div>
@@ -446,19 +539,12 @@ export default function StrategyBattle() {
                   </div>
 
                   {strategyAnalysis.value.items.length > 0 && (
-                    <div className="border-t border-gray-600 pt-3">
-                      <div className="text-sm font-medium text-gray-300 mb-2">Top Items:</div>
-                      <div className="space-y-1">
-                        {strategyAnalysis.value.items.slice(0, 3).map((item, idx) => (
-                          <div key={idx} className="flex justify-between text-xs">
-                            <span className="text-gray-300 truncate">{item.name}</span>
-                            <span className="text-blue-400 font-mono">
-                              {formatGP(item.profit)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <ItemBreakdown 
+                      items={strategyAnalysis.value.items} 
+                      totalProfitPerHour={strategyAnalysis.value.profitPerHour}
+                      color="blue"
+                      strategyName="High Value"
+                    />
                   )}
                 </div>
               </div>
@@ -506,21 +592,37 @@ export default function StrategyBattle() {
               </div>
             </div>
 
-            {/* Future Enhancement Note */}
+            {/* About This Analysis */}
             <div className="bg-gradient-to-r from-purple-800/30 to-blue-800/30 border border-purple-500/30 rounded-xl p-4">
-              <h4 className="text-lg font-bold text-white mb-3">💡 About This Analysis</h4>
-              <div className="text-sm text-gray-300 space-y-2">
-                <p>
-                  <strong>Accurate Daily Analysis:</strong> The strategy battle above uses your actual flip quantities 
-                  to determine whether High Volume (1000+ items) or High Value (&lt;100 items) trades dominated that day.
-                </p>
-                <p>
-                  <strong>Perfect for Debates:</strong> Use this page to settle arguments about whether blocking 
-                  high-volume items is smart. The data speaks for itself - see which strategy actually generates 
-                  better profit per hour on any given day.
-                </p>
-                <p className="text-xs text-gray-400">
-                  * Each day's battle is calculated using real flip quantities and durations for maximum accuracy.
+              <h4 className="text-lg font-bold text-white mb-3">💡 How This Analysis Works</h4>
+              <div className="text-sm text-gray-300 space-y-3">
+                <div>
+                  <strong className="text-white">Strategy Classification:</strong> Each flip is automatically categorized based on quantity traded:
+                  <ul className="mt-1 ml-4 space-y-1 text-xs">
+                    <li>• <span className="text-green-400">High Volume</span>: 1,000+ items per flip (bulk commodities, runes, arrows)</li>
+                    <li>• <span className="text-blue-400">High Value</span>: &lt;100 items per flip (expensive gear, rare items)</li>
+                    <li>• <span className="text-gray-400">Unclassified</span>: 100-999 items (medium-value trades)</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <strong className="text-white">Profit Per Hour Calculation:</strong> For each strategy, we calculate:
+                  <ul className="mt-1 ml-4 space-y-1 text-xs">
+                    <li>• Total profit from all flips in that category</li>
+                    <li>• Total time spent (from flip open to close times)</li>
+                    <li>• Individual item contributions and percentages</li>
+                    <li>• Final GP/hour rate that determines the winner</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <strong className="text-white">What the Data Shows:</strong> The detailed breakdown reveals which specific items 
+                  drive each strategy's performance, how much time was invested in each, and their individual hourly rates. 
+                  This transparency helps you understand exactly what makes each strategy profitable on any given day.
+                </div>
+                
+                <p className="text-xs text-gray-400 pt-1 border-t border-gray-600">
+                  * Analysis uses actual flip durations and post-tax profits for maximum accuracy
                 </p>
               </div>
             </div>
