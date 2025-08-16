@@ -1,6 +1,7 @@
 # Architecture Guide 🏗️
 
-This document provides a comprehensive overview of the OSRS Flip Dashboard architecture, design patterns, and technical decisions.
+This document provides a comprehensive overview of the OSRS Flip Dashboard
+architecture, design patterns, and technical decisions.
 
 ## 📋 Table of Contents
 
@@ -15,7 +16,8 @@ This document provides a comprehensive overview of the OSRS Flip Dashboard archi
 
 ## 🎯 System Overview
 
-The OSRS Flip Dashboard is a **client-side React application** built with modern web technologies, designed for high performance and excellent user experience.
+The OSRS Flip Dashboard is a **client-side React application** built with modern
+web technologies, designed for high performance and excellent user experience.
 
 ### Core Principles
 
@@ -29,19 +31,19 @@ The OSRS Flip Dashboard is a **client-side React application** built with modern
 
 ```mermaid
 graph TB
-    A[React 19.1.0] --> B[Vite 7.0.6]
-    A --> C[TanStack Query v5]
-    A --> D[React Router v6]
-    
-    B --> E[TypeScript 5.3+]
+    A[React 18.3.1] --> B[Vite 7.1.2]
+    A --> C[Custom Hooks]
+    A --> D[React Router v7]
+
+    B --> E[TypeScript 5.9+]
     B --> F[TailwindCSS 4.x]
-    
+
     C --> G[Advanced Caching]
     C --> H[Data Fetching]
-    
+
     I[PWA] --> J[Service Worker]
     I --> K[Workbox]
-    
+
     L[Testing] --> M[Jest + RTL]
     L --> N[Test Utils]
 ```
@@ -74,7 +76,7 @@ App
 │   ├── SEO
 │   └── Pages
 │       ├── Home
-│       ├── Items  
+│       ├── Items
 │       ├── FlipLogs
 │       ├── Charts
 │       └── Performance
@@ -94,14 +96,14 @@ Business logic is encapsulated in **custom hooks**:
 
 ```typescript
 // Data fetching hooks
-useApiData()     // Generic data fetching with caching
-useCsvData()     // CSV file processing
-useJsonData()    // JSON data loading
+useApiData(); // Generic data fetching with caching
+useCsvData(); // CSV file processing
+useJsonData(); // JSON data loading
 
 // Business logic hooks
-useAllFlips()    // Load all trading data
-useStrategyAnalysis() // Trading strategy analysis
-useDailySummaries()   // Daily summary calculations
+useAllFlips(); // Load all trading data
+useStrategyAnalysis(); // Trading strategy analysis
+useDailySummaries(); // Daily summary calculations
 ```
 
 ## 🔄 Data Flow
@@ -113,11 +115,11 @@ graph LR
     A[CSV Files] --> B[Data Processing Scripts]
     B --> C[Processed Data]
     C --> D[Public Directory]
-    
+
     E[React App] --> F[useApiData Hook]
     F --> G[Cache Manager]
     G --> H[Service Worker]
-    
+
     D --> F
     F --> I[TanStack Query]
     I --> J[Component State]
@@ -170,11 +172,11 @@ Pages focus on **composition** rather than business logic:
 export default function ItemsPage() {
   // Data fetching (delegated to hooks)
   const { data, loading, error } = useCsvData('/data/item-stats.csv');
-  
+
   // Loading/error states (delegated to layouts)
   if (loading) return <LoadingLayout />;
   if (error) return <ErrorLayout error={error} />;
-  
+
   // Main render (composition of components)
   return (
     <PageContainer>
@@ -193,7 +195,7 @@ export default function ItemsPage() {
 Domain-specific components handle complex functionality:
 
 - **Charts** - Recharts-based visualizations
-- **Tables** - Sortable, searchable data tables  
+- **Tables** - Sortable, searchable data tables
 - **Navigation** - Responsive navigation with active states
 - **DatePickers** - Calendar navigation for time-series data
 
@@ -243,7 +245,7 @@ graph TD
     D -->|Miss| F{Service Worker?}
     F -->|Hit| G[Promote to Memory]
     F -->|Miss| H[Fetch from Network]
-    
+
     E --> C
     G --> C
     H --> I[Cache Data]
@@ -254,10 +256,10 @@ graph TD
 
 ```typescript
 // Specialized cache instances
-flipDataCache     // Trading data (1 hour TTL)
-summaryCache      // Summary data (30 min TTL)
-chartCache        // Chart data (15 min TTL, memory only)
-itemStatsCache    // Item statistics (2 hours TTL)
+flipDataCache; // Trading data (1 hour TTL)
+summaryCache; // Summary data (30 min TTL)
+chartCache; // Chart data (15 min TTL, memory only)
+itemStatsCache; // Item statistics (2 hours TTL)
 ```
 
 ### Cache Warming
@@ -281,13 +283,13 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router'],
-          'charts': ['recharts'],
-          'tanstack': ['@tanstack/react-query'],
-          'utils': ['papaparse', 'html2canvas'],
-        }
-      }
-    }
-  }
+          charts: ['recharts'],
+          tanstack: ['@tanstack/react-query'],
+          utils: ['papaparse', 'html2canvas'],
+        },
+      },
+    },
+  },
 });
 ```
 
@@ -338,7 +340,7 @@ const Charts = lazy(() => import('./pages/Charts'));
 {
   rules: {
     'no-eval': 'error',
-    'no-implied-eval': 'error', 
+    'no-implied-eval': 'error',
     'no-new-func': 'error',
     'no-script-url': 'error',
   }
@@ -371,7 +373,7 @@ export default defineConfig({
 ```bash
 # Development pipeline
 npm run dev          # Start with HMR
-npm run lint         # Code quality checks  
+npm run lint         # Code quality checks
 npm run test         # Run test suite
 npm run typecheck    # TypeScript validation
 npm run build        # Production build
@@ -408,7 +410,7 @@ npm run build        # Production build
 // Current: Mixed JS/TS codebase
 src/
 ├── components/     # 70% TypeScript
-├── hooks/         # 90% TypeScript  
+├── hooks/         # 90% TypeScript
 ├── utils/         # 95% TypeScript
 ├── pages/         # 30% TypeScript
 └── types/         # 100% TypeScript
@@ -450,4 +452,7 @@ src/
 
 ---
 
-This architecture provides a solid foundation for continued development while maintaining high performance and excellent developer experience. The modular design allows for easy feature additions and modifications without affecting existing functionality.
+This architecture provides a solid foundation for continued development while
+maintaining high performance and excellent developer experience. The modular
+design allows for easy feature additions and modifications without affecting
+existing functionality.

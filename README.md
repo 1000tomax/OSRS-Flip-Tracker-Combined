@@ -1,16 +1,20 @@
 # OSRS Flip Dashboard 📈
 
-A professional Old School RuneScape trading analytics dashboard built with React and modern web technologies. Track your flipping performance, analyze profit trends, and optimize your trading strategies with comprehensive data visualization and advanced caching.
+A professional Old School RuneScape trading analytics dashboard built with React
+and modern web technologies. Track your flipping performance, analyze profit
+trends, and optimize your trading strategies with comprehensive data
+visualization and advanced caching.
 
 ![OSRS Flip Dashboard](https://img.shields.io/badge/OSRS-Flip%20Dashboard-blue)
-![React](https://img.shields.io/badge/React-19.1.0-blue)
+![React](https://img.shields.io/badge/React-18.3.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Enabled-blue)
-![Vite](https://img.shields.io/badge/Vite-7.0.6-purple)
+![Vite](https://img.shields.io/badge/Vite-7.1.2-purple)
 ![PWA](https://img.shields.io/badge/PWA-Ready-green)
 
 ## ✨ Features
 
 ### 📊 **Trading Analytics**
+
 - **Daily Trading Logs** - Detailed flip-by-flip analysis with profit tracking
 - **Item Statistics** - Comprehensive ROI and performance metrics per item
 - **Performance Charts** - Visual trends and velocity analysis
@@ -18,6 +22,7 @@ A professional Old School RuneScape trading analytics dashboard built with React
 - **Profit Velocity** - Track GP/hour and trading efficiency over time
 
 ### 🚀 **Technical Excellence**
+
 - **Progressive Web App** - Install on mobile/desktop with offline support
 - **Advanced Caching** - Multi-layer caching for lightning-fast performance
 - **Responsive Design** - Optimized for all screen sizes and devices
@@ -25,6 +30,7 @@ A professional Old School RuneScape trading analytics dashboard built with React
 - **Bundle Optimization** - Code splitting and optimized chunks for fast loading
 
 ### 🎯 **User Experience**
+
 - **Real-time Data** - Auto-refreshing trading information
 - **Search & Filtering** - Find specific items and trading days instantly
 - **Accessibility** - WCAG compliant with keyboard navigation and screen readers
@@ -34,6 +40,7 @@ A professional Old School RuneScape trading analytics dashboard built with React
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - **Node.js** 18+ (LTS recommended)
 - **npm** 9+ or **yarn** 1.22+
 - **Git** for version control
@@ -42,8 +49,8 @@ A professional Old School RuneScape trading analytics dashboard built with React
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/osrs-flip-dashboard.git
-cd osrs-flip-dashboard
+git clone https://github.com/1000tomax/OSRS-Flip-Tracker-Combined.git
+cd OSRS-Flip-Tracker-Combined
 
 # Install dependencies
 npm install
@@ -59,7 +66,6 @@ npm run dev
 ```bash
 # Development
 npm run dev              # Start dev server with HMR
-npm run dev:host         # Start dev server accessible on network
 
 # Building
 npm run build            # Production build
@@ -84,7 +90,7 @@ npm run build:data       # Build embeddings and summary index
 ## 📁 Project Structure
 
 ```
-osrs-flip-dashboard/
+OSRS-Flip-Tracker-Combined/
 ├── public/                     # Static assets
 │   ├── data/                  # Trading data files
 │   │   ├── processed-flips/   # Daily flip CSV files
@@ -135,9 +141,9 @@ The application uses a sophisticated multi-layer caching system:
 // Adjust cache settings in src/utils/cacheManager.ts
 export const flipDataCache = new CacheManager({
   namespace: 'flip-data',
-  ttl: 60 * 60 * 1000,        // 1 hour
+  ttl: 60 * 60 * 1000, // 1 hour
   maxEntries: 50,
-  storage: 'localStorage',     // 'memory' | 'localStorage' | 'indexedDB'
+  storage: 'localStorage', // 'memory' | 'localStorage' | 'indexedDB'
 });
 ```
 
@@ -146,12 +152,14 @@ export const flipDataCache = new CacheManager({
 ### CSV Data Structure
 
 **Daily Flip Files** (`/data/processed-flips/YYYY/MM/DD/flips.csv`):
+
 ```csv
 item_name,opened_time,closed_time,spent,received_post_tax,closed_quantity,status
 Abyssal whip,2025-01-15T10:30:00Z,2025-01-15T11:45:00Z,2500000,2750000,1,FINISHED
 ```
 
 **Item Statistics** (`/data/item-stats.csv`):
+
 ```csv
 item_name,flips,total_profit,total_spent,roi_percent,avg_profit_per_flip,last_flipped
 Abyssal whip,25,1250000,62500000,2.0,50000,2025-01-15
@@ -167,8 +175,9 @@ Abyssal whip,25,1250000,62500000,2.0,50000,2025-01-15
 ## 🧪 Testing
 
 ### Test Structure
+
 - **Unit Tests**: Component and utility function tests
-- **Integration Tests**: Hook and data flow tests  
+- **Integration Tests**: Hook and data flow tests
 - **E2E Tests**: Complete user journey tests (planned)
 
 ### Running Tests
@@ -199,6 +208,7 @@ npm run preview
 ### Deployment Platforms
 
 **Vercel (Recommended)**:
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -208,6 +218,7 @@ vercel --prod
 ```
 
 **Netlify**:
+
 ```bash
 # Build command: npm run build
 # Publish directory: dist
@@ -216,6 +227,7 @@ vercel --prod
 ### PWA Installation
 
 After deployment, users can install the dashboard as a Progressive Web App:
+
 - **Desktop**: Click install button in address bar
 - **Mobile**: Add to Home Screen from browser menu
 - **Offline**: Cached data available without internet connection
@@ -231,6 +243,7 @@ After deployment, users can install the dashboard as a Progressive Web App:
 ### Privacy-Focused Analytics
 
 The dashboard includes privacy-conscious analytics:
+
 - No personal data collection
 - Local-only tracking in development
 - Aggregated performance metrics only
@@ -241,6 +254,7 @@ The dashboard includes privacy-conscious analytics:
 ### Common Issues
 
 **Build Errors**:
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -248,6 +262,7 @@ npm install
 ```
 
 **Data Loading Issues**:
+
 ```bash
 # Rebuild data index
 npm run build:data
@@ -256,6 +271,7 @@ npm run build:data
 ```
 
 **Performance Issues**:
+
 - Enable cache monitor to identify bottlenecks
 - Check network tab for large data files
 - Verify service worker is active
@@ -263,6 +279,7 @@ npm run build:data
 ### Debug Mode
 
 Enable detailed logging:
+
 ```typescript
 // Set in localStorage
 localStorage.setItem('debug', 'osrs:*');
@@ -275,12 +292,8 @@ localStorage.setItem('debug', 'osrs:*');
 - **[API Reference](./docs/API.md)** - Component and hook documentation
 - **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment details
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 
 **Happy Flipping! 🪙✨**
 
-*Built with ❤️ for the OSRS trading community*
+_Built with ❤️ for the OSRS trading community_
