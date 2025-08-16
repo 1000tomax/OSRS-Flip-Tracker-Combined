@@ -1,0 +1,3 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Runite bolts,FINISHED,2627,415066,2627,428201,7881,13135,2025-08-16T05:18:44Z,2025-08-16T05:23:57Z,2025-08-16T05:23:57Z,50ac40b7dac7a4d0420af1a2ccd246f94cccf0d3561be6deeb7c812376fb604e
+1000tomax,Soul rune,FINISHED,6616,2434688,6616,2533928,46312,99240,2025-08-16T05:10:10Z,2025-08-16T05:20:19Z,2025-08-16T05:20:19Z,57734bad502480bdb0e3bc3d2333147ee46c05fe99f96d90131e3bf906140a40
