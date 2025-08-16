@@ -16,7 +16,7 @@ const formatTime = (minutes) => {
 
 export default function ProfitVelocity() {
   const { data: allFlips, loading, error, totalDays } = useAllFlips();
-  
+  const [showDates, setShowDates] = React.useState(false); // false = show days (default)
 
   const velocityData = useMemo(() => {
     if (!allFlips?.length) return [];
@@ -44,12 +44,13 @@ export default function ProfitVelocity() {
           return null;
         }
         
-        // Convert to Chicago timezone for consistent date grouping
+        // Convert to Chicago timezone for consistent date grouping (matches data processing logic)
         const chicagoDate = new Date(openTime.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+        const dateString = `${String(chicagoDate.getMonth() + 1).padStart(2, '0')}-${String(chicagoDate.getDate()).padStart(2, '0')}-${chicagoDate.getFullYear()}`;
         
         return {
           ...flip,
-          date: `${chicagoDate.getFullYear()}-${String(chicagoDate.getMonth() + 1).padStart(2, '0')}-${String(chicagoDate.getDate()).padStart(2, '0')}`,
+          date: dateString,
           durationMinutes,
           profit
         };
@@ -85,25 +86,37 @@ export default function ProfitVelocity() {
     });
 
 
-    return Object.values(dailyData).map(day => {
+    // Get today's date in Chicago timezone for comparison
+    const today = new Date();
+    const todayChicago = new Date(today.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+    const todayString = `${String(todayChicago.getMonth() + 1).padStart(2, '0')}-${String(todayChicago.getDate()).padStart(2, '0')}-${todayChicago.getFullYear()}`;
+
+    const sortedDays = Object.values(dailyData)
+      .filter(day => day.date !== todayString) // Skip today's incomplete data
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return sortedDays.map((day, index) => {
       try {
         const date = new Date(day.date);
         const displayDate = isNaN(date.getTime()) ? day.date : date.toLocaleDateString();
+        const dayNumber = index + 1;
         
         return {
           ...day,
+          dayNumber,
           gpPerHour: day.totalMinutes > 0 ? (day.totalProfit / day.totalMinutes) * 60 : 0,
           avgFlipDuration: day.totalMinutes / day.flipCount,
           winRate: (day.profitableFlips / day.flipCount) * 100,
           avgInvestment: day.totalInvestment / day.flipCount,
-          displayDate
+          displayDate,
+          displayLabel: showDates ? displayDate : `Day ${dayNumber}`
         };
       } catch (error) {
         console.warn('Error processing daily data:', day, error);
         return null;
       }
-    }).filter(day => day).sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [allFlips]);
+    }).filter(day => day);
+  }, [allFlips, showDates]);
 
   const velocityStats = useMemo(() => {
     if (!velocityData.length) return {};
@@ -127,10 +140,37 @@ export default function ProfitVelocity() {
     <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
       <div className="max-w-7xl mx-auto">
         <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-lg mb-6">
-          <h1 className="text-3xl font-bold text-center mb-2">Profit Velocity Analysis</h1>
-          <p className="text-center text-gray-400 mb-6">
-            Analyzing {velocityData.length} days of trading data ({allFlips.length} total flips)
-          </p>
+          <h1 className="text-3xl font-bold text-center mb-2">Performance Analysis</h1>
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
+            <p className="text-center text-gray-400 mb-4 sm:mb-0">
+              Analyzing {velocityData.length} days of trading data ({allFlips.length} total flips)
+            </p>
+            
+            {/* Day/Date Toggle */}
+            <div className="flex items-center space-x-3">
+              <span className="text-sm text-gray-400">Display:</span>
+              <button
+                onClick={() => setShowDates(!showDates)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  !showDates 
+                    ? 'bg-yellow-600 text-black' 
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                Days
+              </button>
+              <button
+                onClick={() => setShowDates(!showDates)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  showDates 
+                    ? 'bg-yellow-600 text-black' 
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                Dates
+              </button>
+            </div>
+          </div>
           
 
           {/* Stats Cards */}
@@ -144,13 +184,13 @@ export default function ProfitVelocity() {
               <p className="text-2xl font-bold text-blue-400">{formatGP(velocityStats.maxGpPerHour || 0)}</p>
             </div>
             <div className="bg-gray-800 border border-gray-600 rounded-lg p-4">
-              <h3 className="text-sm text-gray-400 mb-1">Avg Win Rate</h3>
+              <h3 className="text-sm text-gray-400 mb-1">Avg Profitable %</h3>
               <p className="text-2xl font-bold text-yellow-400">{(velocityStats.avgWinRate || 0).toFixed(1)}%</p>
             </div>
             <div className="bg-gray-800 border border-gray-600 rounded-lg p-4">
-              <h3 className="text-sm text-gray-400 mb-1">Active Trading</h3>
-              <p className="text-2xl font-bold text-purple-400">{formatTime((velocityStats.totalActiveHours || 0) * 60)}</p>
-              <p className="text-sm text-gray-400">Total time</p>
+              <h3 className="text-sm text-gray-400 mb-1">Avg Offer Time</h3>
+              <p className="text-2xl font-bold text-purple-400">{formatTime((velocityStats.totalActiveHours || 0) * 60 / 8)}</p>
+              <p className="text-sm text-gray-400">Per slot</p>
             </div>
           </div>
         </div>
@@ -164,7 +204,7 @@ export default function ProfitVelocity() {
               <LineChart data={velocityData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis 
-                  dataKey="displayDate" 
+                  dataKey="displayLabel" 
                   stroke="#9CA3AF"
                   angle={-45}
                   textAnchor="end"
@@ -180,16 +220,20 @@ export default function ProfitVelocity() {
                     border: '1px solid #374151',
                     borderRadius: '8px'
                   }}
-                  formatter={(value, name) => [
-                    name === 'gpPerHour' ? formatGP(value) : 
-                    name === 'winRate' ? `${value.toFixed(1)}%` :
-                    name === 'flipCount' ? value :
-                    formatGP(value), 
-                    name === 'gpPerHour' ? 'GP/Hour' : 
-                    name === 'winRate' ? 'Win Rate' :
-                    name === 'flipCount' ? 'Flips' :
-                    name
-                  ]}
+                  formatter={(value, name, props) => {
+                    if (name === 'gpPerHour') {
+                      const avgHours = (props.payload.totalMinutes / 60 / 8).toFixed(1);
+                      return [`${formatGP(value)}/hr (~${avgHours}h avg offer time)`, 'GP/Hour']
+                    }
+                    return [
+                      name === 'winRate' ? `${value.toFixed(1)}%` :
+                      name === 'flipCount' ? value :
+                      formatGP(value), 
+                      name === 'winRate' ? 'Profitable %' :
+                      name === 'flipCount' ? 'Flips' :
+                      name
+                    ]
+                  }}
                   labelFormatter={(label) => `Date: ${label}`}
                 />
                 <Line 
@@ -208,13 +252,13 @@ export default function ProfitVelocity() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Win Rate Trend */}
           <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Win Rate Trend</h2>
+            <h2 className="text-xl font-bold mb-4">% of Profitable Trades</h2>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={velocityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis 
-                    dataKey="displayDate" 
+                    dataKey="displayLabel" 
                     stroke="#9CA3AF"
                     angle={-45}
                     textAnchor="end"
@@ -222,8 +266,8 @@ export default function ProfitVelocity() {
                   />
                   <YAxis 
                     stroke="#9CA3AF"
-                    domain={[0, 100]}
-                    tickFormatter={(value) => `${value}%`}
+                    domain={['dataMin - 5', 100]}
+                    tickFormatter={(value) => `${value.toFixed(0)}%`}
                   />
                   <Tooltip 
                     contentStyle={{ 
@@ -231,7 +275,7 @@ export default function ProfitVelocity() {
                       border: '1px solid #374151',
                       borderRadius: '8px'
                     }}
-                    formatter={(value) => [`${value.toFixed(1)}%`, 'Win Rate']}
+                    formatter={(value) => [`${value.toFixed(1)}%`, 'Profitable Trades']}
                   />
                   <Line 
                     type="monotone" 
@@ -253,7 +297,7 @@ export default function ProfitVelocity() {
                 <BarChart data={velocityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis 
-                    dataKey="displayDate" 
+                    dataKey="displayLabel" 
                     stroke="#9CA3AF"
                     angle={-45}
                     textAnchor="end"

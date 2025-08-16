@@ -32,6 +32,7 @@ function App() {
                 <Route path="/items" element={<Items />} />
                 <Route path="/flip-logs" element={<FlipLogs />} />
                 <Route path="/charts" element={<Charts />} />
+                <Route path="/performance" element={<ProfitVelocity />} />
                 <Route path="/volume" element={<StrategyBattle />} />
                 <Route path="/profit-velocity" element={<ProfitVelocity />} />
                 <Route path="*" element={<Home />} />

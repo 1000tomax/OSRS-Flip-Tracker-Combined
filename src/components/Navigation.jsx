@@ -27,6 +27,7 @@ const Navigation = React.memo(function Navigation() {
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/items', label: 'Items', icon: '📦' },
     { path: '/charts', label: 'Charts', icon: '📈' },
+    { path: '/performance', label: 'Performance', icon: '⚡' },
     { path: `/volume?date=${getYesterdayFormatted()}`, label: 'Volume', icon: '⚔️' },
     { path: `/flip-logs?date=${getCurrentDateFormatted()}`, label: 'Flip Logs', icon: '📋' }
   ], []);
