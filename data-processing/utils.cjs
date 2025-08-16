@@ -94,17 +94,17 @@ function parseNumber(value) {
 
 /**
  * Formats a Date object as MM-DD-YYYY with zero padding.
- * Uses UTC to avoid timezone issues.
+ * Uses local time to group flips by the trader's actual day.
  *
  * @param {Date|string|number} dateVal
  * @returns {string}
  */
 function formatDate(dateVal) {
   const date = (dateVal instanceof Date) ? dateVal : new Date(dateVal);
-  // Use UTC to avoid timezone issues
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const year = String(date.getUTCFullYear());
+  // Use local time so flips are grouped by trader's actual day
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = String(date.getFullYear());
   return `${month}-${day}-${year}`;
 }
 
