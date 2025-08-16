@@ -1,4 +1,5 @@
 // src/hooks/useAllFlips.js - Load all historical flip data efficiently
+import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useJsonData } from './useJsonData'
 import Papa from 'papaparse'
@@ -59,6 +60,25 @@ export function useAllFlips() {
   // First, get the list of available dates
   const { data: summaryIndex, loading: indexLoading, error: indexError } = useJsonData('/data/summary-index.json')
   
+  // Debug logging
+  React.useEffect(() => {
+    console.log('useAllFlips - Summary index state:', {
+      summaryIndex,
+      indexLoading,
+      indexError
+    });
+  }, [summaryIndex, indexLoading, indexError]);
+  
+  // Extract dates from the new summary-index.json format
+  const dateStrings = React.useMemo(() => {
+    if (!summaryIndex?.days?.length) return []
+    return summaryIndex.days.map(day => {
+      // Convert from YYYY-MM-DD to MM-DD-YYYY format
+      const [year, month, dayNum] = day.date.split('-')
+      return `${month}-${dayNum}-${year}`
+    })
+  }, [summaryIndex])
+
   // Then fetch all the flip data
   const {
     data: allFlips = [],
@@ -66,9 +86,9 @@ export function useAllFlips() {
     error: flipsError,
     refetch
   } = useQuery({
-    queryKey: ['all-flips', summaryIndex],
-    queryFn: () => fetchAllFlips(summaryIndex),
-    enabled: !!summaryIndex?.length,
+    queryKey: ['all-flips', dateStrings],
+    queryFn: () => fetchAllFlips(dateStrings),
+    enabled: !!dateStrings?.length,
     staleTime: 10 * 60 * 1000, // 10 minutes
   })
 
@@ -77,6 +97,6 @@ export function useAllFlips() {
     loading: indexLoading || flipsLoading,
     error: indexError || flipsError?.message,
     refetch,
-    totalDays: summaryIndex?.length || 0
+    totalDays: dateStrings?.length || 0
   }
 }
