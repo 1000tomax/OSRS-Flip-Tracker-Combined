@@ -130,7 +130,7 @@ export default defineConfig({
           }
         },
 
-        // Optimize chunk file names
+        // Optimize chunk file names - cache bust
         chunkFileNames: chunkInfo => {
           const facadeModuleId = chunkInfo.facadeModuleId;
           if (facadeModuleId) {
