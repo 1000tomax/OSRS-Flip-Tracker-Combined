@@ -6,7 +6,7 @@ import { formatGP, formatPercent } from '../lib/utils';
 
 export default function ItemLeaderboard() {
   const { data: items, loading, error } = useCsvData('/data/item-stats.csv');
-  const [mode, setMode] = useState('profit');       // default = profit
+  const [mode, setMode] = useState('profit'); // default = profit
   const [filter, setFilter] = useState('positive'); // default = positive
 
   if (loading) {
@@ -20,7 +20,7 @@ export default function ItemLeaderboard() {
   if (error) {
     return (
       <div className="flex flex-col justify-start w-full xl:pt-[10px] pt-4 px-2 sm:px-0">
-        <ErrorMessage 
+        <ErrorMessage
           title="Failed to load item stats"
           error={error}
           onRetry={() => window.location.reload()}
@@ -33,11 +33,7 @@ export default function ItemLeaderboard() {
     .filter(item => {
       const value = mode === 'roi' ? Number(item.roi_percent) : Number(item.total_profit);
       const flips = Number(item.flips);
-      return isFinite(value) && (
-        filter === 'positive'
-          ? flips >= 5 && value > 0
-          : value < 0
-      );
+      return isFinite(value) && (filter === 'positive' ? flips >= 5 && value > 0 : value < 0);
     })
     .sort((a, b) => {
       const aVal = mode === 'roi' ? Number(a.roi_percent) : Number(a.total_profit);
@@ -46,7 +42,6 @@ export default function ItemLeaderboard() {
     })
     .slice(0, 10);
 
-
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
       {/* Flipping Copilot Attribution - Prominent */}
@@ -54,7 +49,7 @@ export default function ItemLeaderboard() {
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg shadow-lg">
           <div className="flex items-center gap-3 mb-3">
             <img
-              src="https://flippingcopilot.com/static/logo.png"
+              src="/flipping-copilot-logo.png"
               alt="Flipping Copilot Logo"
               className="w-10 h-10 bg-white rounded-lg p-1 flex-shrink-0"
             />
@@ -66,7 +61,9 @@ export default function ItemLeaderboard() {
           <div className="text-sm text-blue-100 space-y-1">
             <p>
               All trades were executed using{' '}
-              <span className="font-semibold text-white">Flipping Copilot's 5-minute offer setting</span>{' '}
+              <span className="font-semibold text-white">
+                Flipping Copilot's 5-minute offer setting
+              </span>{' '}
               for recommendations, with completed flips exported automatically from the plugin.
             </p>
             <p>
@@ -82,7 +79,7 @@ export default function ItemLeaderboard() {
             </p>
           </div>
         </div>
-        
+
         <div className="bg-yellow-600 text-black p-3 rounded-lg text-center text-sm font-medium">
           <div>
             Join the 🔗{' '}
@@ -117,46 +114,82 @@ export default function ItemLeaderboard() {
         {/* Mobile-optimized controls - POLISHED VERSION */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           {/* Mode Toggle - Refined */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs text-gray-400 font-medium">Sort by:</span>
-            <div className="bg-gray-700 rounded-lg p-0.5 flex gap-0.5">
+          <fieldset className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <legend className="text-xs text-gray-400 font-medium">Sort by:</legend>
+            <div
+              className="bg-gray-700 rounded-lg p-0.5 flex gap-0.5"
+              role="radiogroup"
+              aria-label="Sort mode selection"
+            >
               {['roi', 'profit'].map(option => (
                 <button
                   key={option}
+                  role="radio"
+                  aria-checked={mode === option}
                   onClick={() => setMode(option)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none ${
-                    mode === option
-                      ? 'bg-yellow-500 text-black'
-                      : 'text-white hover:bg-gray-600'
+                  onKeyDown={e => {
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                      e.preventDefault();
+                      const options = ['roi', 'profit'];
+                      const currentIndex = options.indexOf(mode);
+                      const nextIndex =
+                        e.key === 'ArrowRight'
+                          ? (currentIndex + 1) % options.length
+                          : (currentIndex - 1 + options.length) % options.length;
+                      setMode(options[nextIndex]);
+                    }
+                  }}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-700 ${
+                    mode === option ? 'bg-yellow-500 text-black' : 'text-white hover:bg-gray-600'
                   }`}
+                  aria-label={`Sort by ${option === 'roi' ? 'Return on Investment' : 'Total Profit'}`}
                 >
                   {option.toUpperCase()}
                 </button>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Direction Toggle - Refined */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs text-gray-400 font-medium">Direction:</span>
-            <div className="bg-gray-700 rounded-lg p-0.5 flex gap-0.5">
+          <fieldset className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <legend className="text-xs text-gray-400 font-medium">Direction:</legend>
+            <div
+              className="bg-gray-700 rounded-lg p-0.5 flex gap-0.5"
+              role="radiogroup"
+              aria-label="Profit direction filter"
+            >
               {['positive', 'negative'].map(option => (
                 <button
                   key={option}
+                  role="radio"
+                  aria-checked={filter === option}
                   onClick={() => setFilter(option)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none ${
+                  onKeyDown={e => {
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                      e.preventDefault();
+                      const options = ['positive', 'negative'];
+                      const currentIndex = options.indexOf(filter);
+                      const nextIndex =
+                        e.key === 'ArrowRight'
+                          ? (currentIndex + 1) % options.length
+                          : (currentIndex - 1 + options.length) % options.length;
+                      setFilter(options[nextIndex]);
+                    }
+                  }}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition min-h-[32px] flex-1 sm:flex-none focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-700 ${
                     filter === option
-                      ? (option === 'positive'
+                      ? option === 'positive'
                         ? 'bg-green-500 text-black'
-                        : 'bg-red-500 text-white')
+                        : 'bg-red-500 text-white'
                       : 'text-white hover:bg-gray-600'
                   }`}
+                  aria-label={`Show ${option === 'positive' ? 'profitable' : 'losing'} trades`}
                 >
                   {option === 'positive' ? '▲ Winners' : '▼ Losers'}
                 </button>
               ))}
             </div>
-          </div>
+          </fieldset>
         </div>
       </div>
 
@@ -165,33 +198,35 @@ export default function ItemLeaderboard() {
         {sorted.map(item => (
           <div
             key={item.item_name}
-            className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow p-3 sm:p-4 hover:ring-2 hover:ring-yellow-500 transition duration-150"
+            className="bg-gray-800 border border-gray-700 rounded-xl shadow p-3 sm:p-4 hover:ring-2 hover:ring-yellow-500 transition duration-150"
           >
             {/* Mobile: Stack vertically, Desktop: Grid */}
             <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-center text-sm gap-x-4">
               <div className="font-semibold text-base sm:text-sm truncate" title={item.item_name}>
                 {item.item_name}
               </div>
-              
+
               <div className="flex justify-between sm:block">
-                <span className="text-gray-600 sm:hidden">ROI:</span>
-                <span className={`font-mono ${Number(item.roi_percent) >= 0 ? 'text-green-500' : 'text-red-400'}`}>
+                <span className="text-gray-400 sm:hidden">ROI:</span>
+                <span
+                  className={`font-mono ${Number(item.roi_percent) >= 0 ? 'text-green-500' : 'text-red-400'}`}
+                >
                   {formatPercent(Number(item.roi_percent))}
                 </span>
               </div>
-              
+
               <div className="flex justify-between sm:block">
-                <span className="text-gray-600 sm:hidden">Profit:</span>
-                <span className={`font-mono ${Number(item.total_profit) >= 0 ? 'text-yellow-400' : 'text-yellow-600'}`}>
+                <span className="text-gray-400 sm:hidden">Profit:</span>
+                <span
+                  className={`font-mono ${Number(item.total_profit) >= 0 ? 'text-yellow-400' : 'text-yellow-600'}`}
+                >
                   {formatGP(Number(item.total_profit))} GP
                 </span>
               </div>
-              
+
               <div className="flex justify-between sm:block sm:text-right">
-                <span className="text-gray-600 sm:hidden">Flips:</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 leading-none">
-                  {item.flips} flips
-                </span>
+                <span className="text-gray-400 sm:hidden">Flips:</span>
+                <span className="text-xs text-gray-400 leading-none">{item.flips} flips</span>
               </div>
             </div>
           </div>
