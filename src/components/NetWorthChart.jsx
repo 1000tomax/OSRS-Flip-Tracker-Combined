@@ -1,26 +1,26 @@
 /**
  * NET WORTH CHART COMPONENT
- * 
+ *
  * This component creates a line chart showing your net worth progression over time.
  * It's one of the most important visual indicators of your flipping journey progress.
- * 
+ *
  * What it shows:
  * - X-axis: Trading days (Day 1, Day 2, etc.)
  * - Y-axis: Total net worth in GP (formatted as K, M, B)
  * - Line: Your progression from starting capital (1K) toward max cash
- * 
+ *
  * Key features:
  * - Only shows complete days (excludes today if still trading)
  * - Interactive tooltip shows exact net worth and date
  * - Responsive design that works on mobile and desktop
  * - Smooth line animation with hover effects
- * 
+ *
  * How it works:
  * 1. Fetches daily summary data using the useDailySummaries hook
  * 2. Filters out incomplete days using isIncompleteDay utility
  * 3. Transforms data into format needed by Recharts library
  * 4. Renders as a LineChart with custom styling and tooltip
- * 
+ *
  * Educational notes:
  * - This uses the Recharts library for data visualization
  * - ResponsiveContainer makes the chart resize automatically
@@ -29,12 +29,18 @@
  */
 // src/components/NetWorthChart.jsx
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatGP, isIncompleteDay } from '../lib/utils';
-
-
 
 export default function NetWorthChart() {
   const { summaries, loading, error } = useDailySummaries();
@@ -50,16 +56,15 @@ export default function NetWorthChart() {
   if (error) {
     return (
       <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 sm:p-6">
-        <ErrorMessage
-          title="Failed to load net worth data"
-          error={error}
-        />
+        <ErrorMessage title="Failed to load net worth data" error={error} />
       </div>
     );
   }
 
   // Filter out incomplete days (same logic as ETA and screenshots)
-  const completeSummaries = summaries ? summaries.filter(day => !isIncompleteDay(day, summaries)) : [];
+  const completeSummaries = summaries
+    ? summaries.filter(day => !isIncompleteDay(day, summaries))
+    : [];
 
   // Prepare data for chart
   const chartData = completeSummaries.map(day => {
@@ -68,14 +73,14 @@ export default function NetWorthChart() {
     const fullDate = new Date(yyyy, mm - 1, dd).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
 
     return {
       dayLabel: `Day ${day.day}`,
       netWorth: day.net_worth,
       day: day.day || 0,
-      fullDate
+      fullDate,
     };
   });
 
@@ -109,18 +114,8 @@ export default function NetWorthChart() {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis
-              dataKey="dayLabel"
-              stroke="#9CA3AF"
-              fontSize={12}
-              tickLine={false}
-            />
-            <YAxis
-              stroke="#9CA3AF"
-              fontSize={12}
-              tickLine={false}
-              tickFormatter={formatGP}
-            />
+            <XAxis dataKey="dayLabel" stroke="#9CA3AF" fontSize={12} tickLine={false} />
+            <YAxis stroke="#9CA3AF" fontSize={12} tickLine={false} tickFormatter={formatGP} />
             <Tooltip content={<CustomTooltip />} />
             <Line
               type="monotone"

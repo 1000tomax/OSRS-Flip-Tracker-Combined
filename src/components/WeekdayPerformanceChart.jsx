@@ -1,27 +1,27 @@
 /**
  * WEEKDAY PERFORMANCE CHART COMPONENT
- * 
+ *
  * This component analyzes your trading performance by day of the week to identify patterns.
  * It helps answer questions like "Do I trade better on weekends?" or "Are Mondays my worst days?"
- * 
+ *
  * What it shows:
  * - X-axis: Days of the week (Mon, Tue, Wed, etc.)
  * - Y-axis: Average ROI percentage for that day of the week
  * - Bars: Height represents average ROI performance
- * 
+ *
  * Key features:
  * - Excludes first week (days 1-7) to avoid early learning curve skewing data
  * - Shows best and worst performing days in summary cards
  * - Calculates averages across all instances of each weekday
  * - Interactive tooltip shows detailed statistics
- * 
+ *
  * How it works:
  * 1. Fetches daily summary data and filters out first week
  * 2. Groups data by weekday using JavaScript Date methods
  * 3. Calculates average ROI, profit, and flips for each weekday
  * 4. Identifies best and worst performing days
  * 5. Renders as bar chart with summary statistics
- * 
+ *
  * Educational notes:
  * - Date parsing: MM-DD-YYYY string -> Date object -> weekday name
  * - JavaScript months are 0-indexed (0=January, 11=December)
@@ -50,10 +50,7 @@ export default function WeekdayPerformanceChart() {
   if (error) {
     return (
       <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 sm:p-6">
-        <ErrorMessage 
-          title="Failed to load weekday analysis"
-          error={error}
-        />
+        <ErrorMessage title="Failed to load weekday analysis" error={error} />
       </div>
     );
   }
@@ -69,22 +66,22 @@ export default function WeekdayPerformanceChart() {
       const [mm, dd, yyyy] = day.date.split('-');
       const date = new Date(yyyy, mm - 1, dd); // Month is 0-indexed
       const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-      
+
       // Use the existing ROI calculation from daily summaries
       const dailyROI = day.roi_percent;
-      
+
       if (!weekdayData[dayName]) {
         weekdayData[dayName] = [];
         weekdayStats[dayName] = { totalDays: 0, totalROI: 0, totalFlips: 0, totalProfit: 0 };
       }
-      
+
       weekdayData[dayName].push({
         roi: dailyROI,
         profit: day.profit,
         flips: day.flips,
-        date: day.date
+        date: day.date,
       });
-      
+
       weekdayStats[dayName].totalDays++;
       weekdayStats[dayName].totalROI += dailyROI;
       weekdayStats[dayName].totalFlips += day.flips;
@@ -101,26 +98,30 @@ export default function WeekdayPerformanceChart() {
           avgReturn: 0,
           avgProfit: 0,
           avgFlips: 0,
-          sampleSize: 0
+          sampleSize: 0,
         };
       }
-      
+
       return {
         day: dayName.slice(0, 3),
         avgROI: stats.totalROI / stats.totalDays,
         avgProfit: stats.totalProfit / stats.totalDays,
         avgFlips: stats.totalFlips / stats.totalDays,
         sampleSize: stats.totalDays,
-        fullDay: dayName
+        fullDay: dayName,
       };
     })
     .filter(day => day.sampleSize > 0); // Only show days with data
 
   // Find best/worst days
-  const bestDay = chartData.reduce((best, current) => 
-    current.avgROI > best.avgROI ? current : best, chartData[0] || {});
-  const worstDay = chartData.reduce((worst, current) => 
-    current.avgROI < worst.avgROI ? current : worst, chartData[0] || {});
+  const bestDay = chartData.reduce(
+    (best, current) => (current.avgROI > best.avgROI ? current : best),
+    chartData[0] || {}
+  );
+  const worstDay = chartData.reduce(
+    (worst, current) => (current.avgROI < worst.avgROI ? current : worst),
+    chartData[0] || {}
+  );
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload }) => {
@@ -151,50 +152,47 @@ export default function WeekdayPerformanceChart() {
     <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 sm:p-6">
       <div className="mb-4">
         <h2 className="text-xl font-bold text-white mb-1">📅 Weekday Performance Analysis</h2>
-        <p className="text-sm text-gray-400">Average daily ROI by day of the week (excludes first week of challenge)</p>
+        <p className="text-sm text-gray-400">
+          Average daily ROI by day of the week (excludes first week of challenge)
+        </p>
       </div>
-      
+
       {/* Stats Summary */}
       {chartData.length > 0 && (
         <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div className="bg-gray-700 rounded-lg p-2">
             <div className="text-green-400 font-medium">🏆 Best Day</div>
-            <div className="text-white">{bestDay.fullDay}: {bestDay.avgROI.toFixed(2)}% avg ROI</div>
+            <div className="text-white">
+              {bestDay.fullDay}: {bestDay.avgROI.toFixed(2)}% avg ROI
+            </div>
           </div>
           <div className="bg-gray-700 rounded-lg p-2">
             <div className="text-red-400 font-medium">📉 Worst Day</div>
-            <div className="text-white">{worstDay.fullDay}: {worstDay.avgROI.toFixed(2)}% avg ROI</div>
+            <div className="text-white">
+              {worstDay.fullDay}: {worstDay.avgROI.toFixed(2)}% avg ROI
+            </div>
           </div>
         </div>
       )}
-      
+
       <div className="h-64 sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis 
-              dataKey="day" 
+            <XAxis dataKey="day" stroke="#9CA3AF" fontSize={12} tickLine={false} />
+            <YAxis
               stroke="#9CA3AF"
               fontSize={12}
               tickLine={false}
-            />
-            <YAxis 
-              stroke="#9CA3AF"
-              fontSize={12}
-              tickLine={false}
-              tickFormatter={(value) => `${value.toFixed(1)}%`}
+              tickFormatter={value => `${value.toFixed(1)}%`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Bar 
-              dataKey="avgROI" 
-              fill="#F59E0B"
-              radius={[4, 4, 0, 0]}
-            />
+            <Bar dataKey="avgROI" fill="#F59E0B" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
-      
-        <div className="text-sm text-gray-500">
+
+      <div className="text-sm text-gray-500">
         💡 Shows average daily ROI percentage. Higher bars = more efficient flipping days!
       </div>
     </div>

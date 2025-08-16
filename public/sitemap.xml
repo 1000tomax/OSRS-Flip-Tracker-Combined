@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://osrs-flip-dashboard.vercel.app/</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://osrs-flip-dashboard.vercel.app/og-image.png</image:loc>
+      <image:title>OSRS Flip Dashboard</image:title>
+      <image:caption>Advanced trading analytics dashboard for Old School RuneScape</image:caption>
+    </image:image>
+  </url>
+  
+  <!-- Daily View -->
+  <url>
+    <loc>https://osrs-flip-dashboard.vercel.app/daily</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Full Stats -->
+  <url>
+    <loc>https://osrs-flip-dashboard.vercel.app/stats</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Charts -->
+  <url>
+    <loc>https://osrs-flip-dashboard.vercel.app/charts</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Volume Analysis -->
+  <url>
+    <loc>https://osrs-flip-dashboard.vercel.app/volume</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Performance -->
+  <url>
+    <loc>https://osrs-flip-dashboard.vercel.app/performance</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+</urlset>

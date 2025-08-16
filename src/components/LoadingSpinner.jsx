@@ -5,7 +5,7 @@ export default function LoadingSpinner({ size = 'medium', text = 'Loading...' })
   const sizeClasses = {
     small: 'w-4 h-4',
     medium: 'w-8 h-8',
-    large: 'w-12 h-12'
+    large: 'w-12 h-12',
   };
 
   return (
@@ -13,11 +13,7 @@ export default function LoadingSpinner({ size = 'medium', text = 'Loading...' })
       <div className={`${sizeClasses[size]} animate-spin`}>
         <div className="w-full h-full border-4 border-gray-300 dark:border-gray-600 border-t-yellow-600 rounded-full"></div>
       </div>
-      {text && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">
-          {text}
-        </p>
-      )}
+      {text && <p className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">{text}</p>}
     </div>
   );
 }
@@ -34,7 +30,7 @@ export function ErrorMessage({ error, onRetry, title = 'Something went wrong' })
         </p>
       </div>
       {onRetry && (
-        <button 
+        <button
           onClick={onRetry}
           className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-black font-medium rounded transition-colors"
         >

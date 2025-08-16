@@ -1,9 +1,11 @@
-// src/App.jsx
+// src/App.jsx - Enhanced with cache monitoring
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navigation from './components/Navigation';
 import LoadingSpinner from './components/LoadingSpinner';
+import SEO from './components/SEO';
+import CacheMonitor from './components/CacheMonitor';
 
 // Lazy load all page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -17,16 +19,19 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
+        <SEO />
         <div className="min-h-screen bg-white dark:bg-black">
           <Navigation />
-          <main>
-            <Suspense fallback={
-              <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
-                <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
-                  <LoadingSpinner size="large" text="Loading page..." />
+          <main id="main-content" role="main">
+            <Suspense
+              fallback={
+                <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
+                  <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+                    <LoadingSpinner size="large" text="Loading page..." />
+                  </div>
                 </div>
-              </div>
-            }>
+              }
+            >
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/items" element={<Items />} />
@@ -40,6 +45,9 @@ function App() {
             </Suspense>
           </main>
         </div>
+        
+        {/* Cache monitoring for development */}
+        <CacheMonitor />
       </Router>
     </ErrorBoundary>
   );

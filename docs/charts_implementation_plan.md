@@ -2,11 +2,14 @@
 
 ## 🎯 Overview
 
-Implementation plan for data visualization dashboard for the OSRS 1K to Max Cash flipping challenge. Focus on actionable insights and motivational progress tracking using existing data structure.
+Implementation plan for data visualization dashboard for the OSRS 1K to Max Cash
+flipping challenge. Focus on actionable insights and motivational progress
+tracking using existing data structure.
 
 ## 📊 Chart Priorities & Phases
 
 ### Phase 1: Core Dashboard (Weekend Priority)
+
 **Essential charts for immediate impact:**
 
 1. **Net Worth Progress Line Chart** ⭐
@@ -65,29 +68,36 @@ Implementation plan for data visualization dashboard for the OSRS 1K to Max Cash
 ## 🛠 Technical Implementation
 
 ### Chart Library: Recharts
+
 **Why Recharts:**
+
 - React-native integration
 - Responsive by default
 - Good documentation and examples
 - Simpler than D3, more powerful than basic charts
 
 **Installation:**
+
 ```bash
 npm install recharts
 ```
 
 ### Data Flow Architecture
+
 ```
 Daily Summary JSON → React Query → Chart Component → Recharts
 ```
 
 ### Page Structure: `/charts`
+
 **Layout:**
+
 - **Desktop:** 2-column grid with featured chart spanning full width
 - **Mobile:** Single column stack
 - **Navigation:** Add "📈 Charts" to main navigation
 
 ### Chart Layout Plan
+
 ```
 ┌─────────────────────────────────────┐
 │     Net Worth Progress (Full)       │
@@ -99,12 +109,15 @@ Daily Summary JSON → React Query → Chart Component → Recharts
 ```
 
 ### Responsive Design
+
 **Breakpoints:**
+
 - **Mobile (< 640px):** Single column, smaller charts
 - **Tablet (640px - 1024px):** 2-column grid
 - **Desktop (> 1024px):** Full layout with optimal spacing
 
 **Mobile Considerations:**
+
 - Touch-friendly tooltips
 - Larger text sizes
 - Horizontal scroll for wide data
@@ -113,49 +126,59 @@ Daily Summary JSON → React Query → Chart Component → Recharts
 ### Data Transformations
 
 #### Net Worth Progress
+
 ```javascript
 const netWorthData = summaries.map(day => ({
   date: day.date,
   netWorth: day.net_worth,
-  progress: (day.net_worth / 2147483647) * 100
+  progress: (day.net_worth / 2147483647) * 100,
 }));
 ```
 
 #### Daily Profit
+
 ```javascript
 const profitData = summaries.map(day => ({
   date: day.date,
   profit: day.profit,
-  color: day.profit >= 0 ? '#22c55e' : '#ef4444'
+  color: day.profit >= 0 ? '#22c55e' : '#ef4444',
 }));
 ```
 
 #### Weekday Analysis
+
 ```javascript
-const weekdayData = summaries.map(day => {
-  const dayOfWeek = new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' });
-  const efficiency = (day.profit / day.starting_net_worth) * 1000000; // Per 1M GP
-  return { day: dayOfWeek, efficiency };
-}).reduce((acc, curr) => {
-  // Group by day and average
-});
+const weekdayData = summaries
+  .map(day => {
+    const dayOfWeek = new Date(day.date).toLocaleDateString('en-US', {
+      weekday: 'long',
+    });
+    const efficiency = (day.profit / day.starting_net_worth) * 1000000; // Per 1M GP
+    return { day: dayOfWeek, efficiency };
+  })
+  .reduce((acc, curr) => {
+    // Group by day and average
+  });
 ```
 
 ## 🎨 Design System
 
 ### Color Palette
+
 - **Primary:** Gold/Yellow theme (`#fbbf24`, `#f59e0b`)
 - **Success:** Green (`#22c55e`)
 - **Danger:** Red (`#ef4444`)
 - **Neutral:** Gray scale (`#6b7280`, `#374151`)
 
 ### Chart Styling
+
 - **Consistent margins:** 20px all around
 - **Grid lines:** Subtle gray (`#374151`)
 - **Tooltips:** Dark background with white text
 - **Responsive text:** Scale with container size
 
 ### Animation
+
 - **Smooth transitions:** 300ms ease-in-out
 - **Loading states:** Skeleton screens while data loads
 - **Hover effects:** Highlight data points and bars
@@ -163,12 +186,14 @@ const weekdayData = summaries.map(day => {
 ## 📱 Mobile Optimization
 
 ### Chart Adaptations
+
 - **Simplified legends:** Icons instead of text where possible
 - **Touch targets:** Minimum 44px for interactive elements
 - **Scroll hints:** Indicate when charts are horizontally scrollable
 - **Reduced data density:** Show fewer data points on small screens
 
 ### Performance
+
 - **Lazy loading:** Load charts as user scrolls
 - **Data sampling:** Reduce data points for complex charts on mobile
 - **Image fallbacks:** Static chart images for very small screens
@@ -176,19 +201,23 @@ const weekdayData = summaries.map(day => {
 ## 🚀 Implementation Strategy
 
 ### Weekend Sprint Plan
+
 **Day 1:**
+
 1. Install Recharts
 2. Create `/charts` page structure
 3. Implement Net Worth Progress chart
 4. Add basic responsive layout
 
 **Day 2:**
+
 1. Daily Profit bar chart
 2. Top Items horizontal bars
 3. Polish responsive design
 4. Add to main navigation
 
 ### Future Enhancements
+
 - **Interactive filtering:** Date ranges, item categories
 - **Export functionality:** Download charts as images
 - **Comparison tools:** Compare time periods
@@ -197,16 +226,19 @@ const weekdayData = summaries.map(day => {
 ## 🎯 Success Metrics
 
 ### User Engagement
+
 - Time spent on charts page
 - Most viewed charts
 - Mobile vs desktop usage patterns
 
 ### Functionality
+
 - Chart load times
 - Responsive breakpoint effectiveness
 - Data accuracy validation
 
 ### Community Impact
+
 - Screenshot sharing frequency
 - Community discussion of insights
 - Strategy optimization based on charts
@@ -214,12 +246,14 @@ const weekdayData = summaries.map(day => {
 ## 💡 Future Chart Ideas
 
 ### Advanced Visualizations
+
 - **Heat maps:** Profit by day of week + time of day
 - **Sankey diagrams:** Cash flow through different items
 - **Candlestick charts:** Daily high/low profit ranges
 - **Geographic maps:** If server location data becomes available
 
 ### Interactive Features
+
 - **Drill-down capability:** Click day to see individual flips
 - **Comparison mode:** Overlay multiple time periods
 - **Annotation system:** Mark important events/strategy changes
@@ -227,16 +261,19 @@ const weekdayData = summaries.map(day => {
 ## 📋 Technical Debt Considerations
 
 ### Performance
+
 - **Chart rendering optimization** for large datasets
 - **Memory management** for real-time updates
 - **Bundle size** monitoring with chart library
 
 ### Accessibility
+
 - **Screen reader support** for chart data
 - **Keyboard navigation** for interactive elements
 - **High contrast mode** compatibility
 
 ### Browser Support
+
 - **Fallback handling** for older browsers
 - **Canvas vs SVG** performance testing
 - **Mobile browser** compatibility verification
@@ -245,9 +282,10 @@ const weekdayData = summaries.map(day => {
 
 ## 📝 Implementation Notes
 
-**Created:** Chart planning session
-**Priority:** Phase 1 charts for weekend implementation
-**Dependencies:** Recharts library, existing React Query setup
+**Created:** Chart planning session **Priority:** Phase 1 charts for weekend
+implementation **Dependencies:** Recharts library, existing React Query setup
 **Estimated Time:** 2-3 development sessions
 
-**Key Insight:** Focus on motivation and actionable insights rather than complex analytics. Start with simple, impactful charts that enhance the flipping experience and provide clear value to users.
+**Key Insight:** Focus on motivation and actionable insights rather than complex
+analytics. Start with simple, impactful charts that enhance the flipping
+experience and provide clear value to users.

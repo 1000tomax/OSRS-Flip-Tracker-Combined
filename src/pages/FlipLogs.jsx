@@ -1,10 +1,10 @@
 /**
  * FLIP LOGS PAGE COMPONENT
- * 
+ *
  * This page displays detailed transaction logs for a specific trading day.
  * It's one of the most data-rich pages in the application, showing individual
  * flip transactions with comprehensive analysis.
- * 
+ *
  * Key features:
  * - Date-based navigation to view any trading day
  * - Heat map visualization showing hourly trading activity
@@ -12,13 +12,13 @@
  * - Summary statistics (total flips, profit)
  * - Responsive design for mobile and desktop viewing
  * - Advanced sorting and filtering capabilities
- * 
+ *
  * Data flow:
  * 1. Read date from URL query parameter
  * 2. Load corresponding CSV file with flip data
  * 3. Process and filter data for display
  * 4. Render visualizations and tables
- * 
+ *
  * This page helps traders analyze their daily performance and identify
  * patterns in their trading behavior.
  */
@@ -27,36 +27,40 @@ import React, { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCsvData } from '../hooks/useCsvData';
 import { useJsonData } from '../hooks/useJsonData';
-import LoadingSpinner, { ErrorMessage } from '../components/LoadingSpinner';
 import DateNavigation from '../components/DateNavigation';
 import HeatMap from '../components/HeatMap';
 import SortableTable from '../components/SortableTable';
 import { parseDateParts, formatDuration, formatGP } from '../lib/utils';
+import { PageContainer, CardContainer, PageHeader, LoadingLayout, ErrorLayout, ResponsiveGrid } from '../components/layouts';
 
 /**
  * FlipLogs Component - Detailed daily trading analysis page
- * 
+ *
  * This component manages the complex state and data flow required to display
  * comprehensive trading information for a specific day.
- * 
+ *
  * @returns {JSX.Element} - Complete flip logs page with navigation, visualizations, and data tables
  */
 export default function FlipLogs() {
   // URL and navigation management
-  const location = useLocation();                          // Current URL location
+  const location = useLocation(); // Current URL location
   const queryParams = new URLSearchParams(location.search); // Parse URL query parameters
-  const date = queryParams.get('date');                    // Get selected date from URL (?date=MM-DD-YYYY)
+  const date = queryParams.get('date'); // Get selected date from URL (?date=MM-DD-YYYY)
 
   // Data loading hooks
   // Load the summary index to know which dates have data available
-  const { data: summaryDates, loading: summaryLoading, error: summaryError } = useJsonData("/data/summary-index.json");
+  const {
+    data: summaryDates,
+    loading: summaryLoading,
+    error: summaryError,
+  } = useJsonData('/data/summary-index.json');
 
   // Parse the selected date into components for building file path
   const { month, day, year } = date ? parseDateParts(date) : {};
-  
+
   // Build path to the specific day's flip data CSV file
   const csvPath = date ? `/data/processed-flips/${year}/${month}/${day}/flips.csv` : null;
-  
+
   // Load the flip data for the selected date
   const { data: flips, loading: flipsLoading, error: flipsError } = useCsvData(csvPath);
 
@@ -70,89 +74,90 @@ export default function FlipLogs() {
 
     // Filter out incomplete or invalid flips
     // Only count flips that actually completed successfully
-    const validFlips = flips.filter(f =>
-      f.closed_quantity > 0 &&     // Actually sold something
-      f.received_post_tax > 0 &&   // Received money
-      f.status === 'FINISHED'      // Transaction completed
+    const validFlips = flips.filter(
+      f =>
+        f.closed_quantity > 0 && // Actually sold something
+        f.received_post_tax > 0 && // Received money
+        f.status === 'FINISHED' // Transaction completed
     );
-    
+
     const totalFlips = validFlips.length;
-    
+
     // Calculate total profit across all valid flips
     const totalProfit = validFlips.reduce((sum, flip) => {
       return sum + (flip.received_post_tax - flip.spent);
     }, 0);
 
     return { totalFlips, totalProfit };
-  }, [flips]);  // Recalculate when flips data changes
-
+  }, [flips]); // Recalculate when flips data changes
 
   /**
    * Table Column Definitions
-   * 
+   *
    * These define how each column in the flip logs table should be displayed.
    * Each column has properties for styling, sorting, and custom rendering.
    */
   const flipColumns = [
     // Item Name Column - Always visible, shows what was traded
     {
-      key: 'item_name',                                    // Data field name
-      label: 'Item',                                       // Column header text
-      headerClass: 'text-left',                           // Header cell styling
-      cellClass: 'text-left',                             // Data cell styling
-      render: (value) => <span className="text-white font-medium">{value || 'Unknown Item'}</span>
+      key: 'item_name', // Data field name
+      label: 'Item', // Column header text
+      headerClass: 'text-left', // Header cell styling
+      cellClass: 'text-left', // Data cell styling
+      render: value => <span className="text-white font-medium">{value || 'Unknown Item'}</span>,
     },
-    
+
     // Quantity Column - Hidden on mobile to save space
     {
       key: 'closed_quantity',
       label: 'Qty',
-      headerClass: 'text-center hidden sm:table-cell',    // Hidden on small screens
-      cellClass: 'text-center text-gray-300 hidden sm:table-cell'
+      headerClass: 'text-center hidden sm:table-cell', // Hidden on small screens
+      cellClass: 'text-center text-gray-300 hidden sm:table-cell',
     },
-    
+
     // Profit Column - Most important metric, always visible
     {
-      key: 'profit',                                       // Virtual field (calculated in render)
+      key: 'profit', // Virtual field (calculated in render)
       label: 'Profit',
       headerClass: 'text-right',
       cellClass: 'text-right font-mono',
-      sortValue: (row) => row.received_post_tax - row.spent,  // Custom sorting logic
+      sortValue: row => row.received_post_tax - row.spent, // Custom sorting logic
       render: (_, row) => {
         const profit = row.received_post_tax - row.spent;
         const isProfit = profit >= 0;
         return (
           <span className={`font-semibold ${isProfit ? 'text-green-400' : 'text-red-400'}`}>
-            {isProfit ? '+' : ''}{formatGP(profit)}
+            {isProfit ? '+' : ''}
+            {formatGP(profit)}
           </span>
         );
-      }
+      },
     },
     // Spent Column - Shows investment amount, hidden on medium screens
     {
       key: 'spent',
       label: 'Spent',
-      headerClass: 'text-right hidden md:table-cell',        // Hidden on medium and smaller screens
+      headerClass: 'text-right hidden md:table-cell', // Hidden on medium and smaller screens
       cellClass: 'text-right text-gray-300 font-mono hidden md:table-cell',
-      render: (value) => formatGP(value)                      // Format as GP amount
+      render: value => formatGP(value), // Format as GP amount
     },
-    
+
     // Received Column - Shows total received after tax, hidden on medium screens
     {
       key: 'received_post_tax',
       label: 'Received',
       headerClass: 'text-right hidden md:table-cell',
       cellClass: 'text-right text-gray-300 font-mono hidden md:table-cell',
-      render: (value) => formatGP(value)
+      render: value => formatGP(value),
     },
-    
+
     // Duration Column - Shows how long the flip took, hidden on large screens and smaller
     {
-      key: 'duration',                                        // Virtual field (calculated in render)
+      key: 'duration', // Virtual field (calculated in render)
       label: 'Duration',
-      headerClass: 'text-center hidden lg:table-cell',       // Only visible on large screens
+      headerClass: 'text-center hidden lg:table-cell', // Only visible on large screens
       cellClass: 'text-center text-gray-300 hidden lg:table-cell',
-      sortValue: (row) => {
+      sortValue: row => {
         // Custom sorting: sort by milliseconds between open and close
         if (!row.opened_time || !row.closed_time) return 0;
         return new Date(row.closed_time).getTime() - new Date(row.opened_time).getTime();
@@ -161,87 +166,79 @@ export default function FlipLogs() {
         const open = row.opened_time ? new Date(row.opened_time) : null;
         const close = row.closed_time ? new Date(row.closed_time) : null;
         const duration = open && close ? close.getTime() - open.getTime() : null;
-        return duration ? formatDuration(duration) : '—';     // Show "—" if no duration data
-      }
+        return duration ? formatDuration(duration) : '—'; // Show "—" if no duration data
+      },
     },
-    
+
     // Time Column - Shows when the flip completed, hidden on large screens and smaller
     {
       key: 'closed_time',
       label: 'Time',
       headerClass: 'text-center hidden lg:table-cell',
       cellClass: 'text-center text-gray-300 hidden lg:table-cell',
-      sortValue: (row) => row.closed_time ? new Date(row.closed_time).getTime() : 0,  // Sort by timestamp
-      render: (value) => {
+      sortValue: row => (row.closed_time ? new Date(row.closed_time).getTime() : 0), // Sort by timestamp
+      render: value => {
         const close = value ? new Date(value) : null;
-        return close ? close.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "—";
-      }
-    }
+        return close
+          ? close.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+          : '—';
+      },
+    },
   ];
 
   /**
    * Processed Flip Data for Table Display
-   * 
+   *
    * This filters the raw flip data to only include valid, completed transactions
    * and adds unique IDs for React rendering optimization.
    */
   const validFlips = useMemo(() => {
     if (!flips) return [];
-    
+
     return flips
-      .filter(f =>
-        f.closed_quantity > 0 &&    // Actually sold something
-        f.received_post_tax > 0 &&  // Received money
-        f.status === 'FINISHED'     // Transaction completed
+      .filter(
+        f =>
+          f.closed_quantity > 0 && // Actually sold something
+          f.received_post_tax > 0 && // Received money
+          f.status === 'FINISHED' // Transaction completed
       )
-      .map((flip, index) => ({ 
-        ...flip, 
+      .map((flip, index) => ({
+        ...flip,
         // Create unique ID for React keys (combines multiple fields to ensure uniqueness)
-        id: `${flip.item_name}_${flip.closed_time}_${flip.spent}_${flip.received_post_tax}_${index}`
+        id: `${flip.item_name}_${flip.closed_time}_${flip.spent}_${flip.received_post_tax}_${index}`,
       }));
-  }, [flips]);  // Recalculate when flip data changes
+  }, [flips]); // Recalculate when flip data changes
 
   // Loading State - Show spinner while data is being fetched
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
-        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
-          <LoadingSpinner size="large" text="Loading flip logs..." />
-        </div>
-      </div>
-    );
+    return <LoadingLayout text="Loading flip logs..." />;
   }
 
   // Error State - Show error message if data loading failed
   if (hasError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
-        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
-          <ErrorMessage
-            title="Failed to load flip logs"
-            error={flipsError || summaryError}           // Show whichever error occurred
-            onRetry={() => window.location.reload()}     // Simple retry mechanism
-          />
-        </div>
-      </div>
+      <ErrorLayout
+        title="Failed to load flip logs"
+        error={flipsError || summaryError}
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 
   // Main Render - Show the complete flip logs interface
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-2 sm:p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-3 sm:p-6 shadow-lg max-w-full overflow-hidden">
-        
-        {/* Page Header */}
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-white">📋 Flip Log Viewer</h1>
+    <PageContainer padding="compact">
+      <CardContainer>
+        <PageHeader 
+          title="Flip Log Viewer"
+          icon="📋"
+        />
 
         {/* Date Navigation Controls */}
-        {summaryDates && (
-          <DateNavigation currentDate={date} />
-        )}
+        {summaryDates && <DateNavigation currentDate={date} />}
 
         {/* Empty States - Show helpful messages when no data to display */}
-        
+
         {/* State 1: No date selected */}
         {!date && (
           <div className="text-center py-12">
@@ -262,23 +259,27 @@ export default function FlipLogs() {
         {date && summary && (
           <div className="mb-6">
             <div className="text-xl font-bold text-white mb-4">Trading Timeline for {date}</div>
-            
+
             {/* Key Metrics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+            <ResponsiveGrid variant="equal" gap="normal" className="mb-6">
               {/* Total Flips Card */}
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-400">{summary.totalFlips}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-blue-400">
+                  {summary.totalFlips}
+                </div>
                 <div className="text-sm text-gray-400">flips</div>
               </div>
-              
+
               {/* Total Profit Card */}
               <div className="text-center">
-                <div className={`text-2xl sm:text-3xl font-bold ${summary.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <div
+                  className={`text-2xl sm:text-3xl font-bold ${summary.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                >
                   {formatGP(summary.totalProfit)} GP
                 </div>
                 <div className="text-sm text-gray-400">total</div>
               </div>
-            </div>
+            </ResponsiveGrid>
 
             {/* Hourly Activity Heat Map */}
             {/* This visualizes trading activity throughout the day */}
@@ -291,73 +292,74 @@ export default function FlipLogs() {
           <div className="space-y-4">
             {/* Table Header */}
             <div className="flex items-center justify-between border-b border-gray-700 pb-3">
-              <h2 className="text-xl font-bold text-white">Individual Flips ({validFlips.length})</h2>
+              <h2 className="text-xl font-bold text-white">
+                Individual Flips ({validFlips.length})
+              </h2>
             </div>
 
             {/* Sortable Data Table */}
-            <SortableTable 
-              data={validFlips}                    // Processed flip data
-              columns={flipColumns}               // Column definitions
-              initialSortField="closed_time"      // Sort by completion time initially
-              initialSortDirection="desc"         // Newest first
+            <SortableTable
+              data={validFlips} // Processed flip data
+              columns={flipColumns} // Column definitions
+              initialSortField="closed_time" // Sort by completion time initially
+              initialSortDirection="desc" // Newest first
             />
           </div>
-
         )}
-      </div>
-    </div>
+      </CardContainer>
+    </PageContainer>
   );
 }
 
 /**
  * FLIP LOGS PAGE PATTERNS - LEARNING NOTES
- * 
+ *
  * 1. **URL-Based State Management**:
  *    - Page state (selected date) stored in URL query parameters
  *    - Enables direct linking to specific dates
  *    - Browser back/forward navigation works correctly
  *    - Shareable URLs for specific trading days
- * 
+ *
  * 2. **Complex Data Loading**:
  *    - Multiple data sources (summary index + daily CSV files)
  *    - Conditional loading based on selected date
  *    - Proper loading and error state management
  *    - Custom hooks for data fetching abstraction
- * 
+ *
  * 3. **Performance Optimizations**:
  *    - useMemo for expensive calculations (summary stats, filtered data)
  *    - Proper dependency arrays to prevent unnecessary recalculations
  *    - Efficient table rendering with unique keys
- * 
+ *
  * 4. **Responsive Table Design**:
  *    - Progressive disclosure: show fewer columns on smaller screens
  *    - Mobile-first approach with hidden classes
  *    - Essential information (item, profit) always visible
  *    - Details (spent, received, duration) shown on larger screens
- * 
+ *
  * 5. **User Experience Patterns**:
  *    - Clear empty states with helpful messages
  *    - Consistent loading and error state handling
  *    - Visual hierarchy with proper headings and sections
  *    - Color-coded profit/loss indicators
- * 
+ *
  * 6. **Data Visualization**:
  *    - Heat map for temporal pattern recognition
  *    - Summary cards for quick overview
  *    - Detailed table for transaction-level analysis
  *    - Multiple views of the same data for different insights
- * 
+ *
  * 7. **Component Architecture**:
  *    - Page component handles state and data orchestration
  *    - Specialized components for UI elements (HeatMap, SortableTable)
  *    - Clear separation between data management and presentation
- * 
+ *
  * 8. **Advanced Table Features**:
  *    - Custom column definitions with flexible rendering
  *    - Virtual fields calculated during rendering
  *    - Custom sorting logic for complex data types
  *    - Responsive column visibility
- * 
+ *
  * 9. **React Patterns Demonstrated**:
  *    - Custom hooks for data fetching
  *    - useMemo for performance optimization

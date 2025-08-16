@@ -1,0 +1,73 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#111827;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Grid pattern for dashboard feel -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#374151" stroke-width="1" opacity="0.3"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)" />
+  
+  <!-- Main title -->
+  <text x="600" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="bold" text-anchor="middle" fill="#ffffff">
+    OSRS Flip Dashboard
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="28" text-anchor="middle" fill="#9CA3AF">
+    Advanced Trading Analytics &amp; Performance Tracking
+  </text>
+  
+  <!-- Feature highlights -->
+  <g transform="translate(200, 320)">
+    <!-- Feature 1 -->
+    <circle cx="30" cy="30" r="8" fill="#10B981"/>
+    <text x="60" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#D1FAE5">Real-time Flip Tracking</text>
+    
+    <!-- Feature 2 -->
+    <circle cx="30" cy="80" r="8" fill="#3B82F6"/>
+    <text x="60" y="88" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#DBEAFE">Profit &amp; ROI Analysis</text>
+    
+    <!-- Feature 3 -->
+    <circle cx="30" cy="130" r="8" fill="#F59E0B"/>
+    <text x="60" y="138" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#FEF3C7">Strategy Comparison</text>
+  </g>
+  
+  <g transform="translate(600, 320)">
+    <!-- Feature 4 -->
+    <circle cx="30" cy="30" r="8" fill="#8B5CF6"/>
+    <text x="60" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#EDE9FE">Performance Charts</text>
+    
+    <!-- Feature 5 -->
+    <circle cx="30" cy="80" r="8" fill="#EF4444"/>
+    <text x="60" y="88" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#FEE2E2">Historical Analytics</text>
+    
+    <!-- Feature 6 -->
+    <circle cx="30" cy="130" r="8" fill="#06B6D4"/>
+    <text x="60" y="138" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#CFFAFE">GP/Hour Tracking</text>
+  </g>
+  
+  <!-- Chart visualization mockup -->
+  <g transform="translate(900, 300)" opacity="0.6">
+    <rect x="0" y="0" width="250" height="150" fill="#374151" rx="8"/>
+    <path d="M 20 130 L 50 110 L 80 90 L 110 70 L 140 50 L 170 40 L 200 30 L 230 20" 
+          stroke="#10B981" stroke-width="3" fill="none"/>
+    <circle cx="230" cy="20" r="4" fill="#10B981"/>
+    <text x="125" y="20" font-family="system-ui, -apple-system, sans-serif" font-size="14" text-anchor="middle" fill="#9CA3AF">Profit Trend</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="600" y="580" font-family="system-ui, -apple-system, sans-serif" font-size="18" text-anchor="middle" fill="#6B7280">
+    Track • Analyze • Optimize Your OSRS Trading
+  </text>
+</svg>

@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Disallow access to data processing files
+Disallow: /data-processing/
+Disallow: /scripts/
+
+# Allow access to public data files
+Allow: /data/
+
+# Sitemap location
+Sitemap: https://osrs-flip-dashboard.vercel.app/sitemap.xml
+
+# Crawl delay for polite bots (optional)
+Crawl-delay: 1

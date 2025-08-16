@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+build/
+
+# Generated files
+coverage/
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Data files
+data-processing/
+public/data/
+
+# Temporary files
+.vite/
+.cache/
+
+# Legacy files
+*.min.js
+*.min.css
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
