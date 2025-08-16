@@ -105,4 +105,5 @@ echo.
 echo Your OSRS flip dashboard is now up to date!
 echo Vercel will automatically deploy the changes.
 echo.
-pause
+echo Press any key to close this window...
+pause >nul
