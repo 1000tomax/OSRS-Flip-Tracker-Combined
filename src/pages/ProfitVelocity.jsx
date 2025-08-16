@@ -17,6 +17,16 @@ const formatTime = (minutes) => {
 export default function ProfitVelocity() {
   const { data: allFlips, loading, error, totalDays } = useAllFlips();
   const [showDates, setShowDates] = React.useState(false); // false = show days (default)
+  
+  // Debug logging for production
+  React.useEffect(() => {
+    console.log('Performance page - Data state:', {
+      allFlipsLength: allFlips?.length,
+      loading,
+      error,
+      totalDays
+    });
+  }, [allFlips, loading, error, totalDays]);
 
   const velocityData = useMemo(() => {
     if (!allFlips?.length) return [];
@@ -117,6 +127,15 @@ export default function ProfitVelocity() {
       }
     }).filter(day => day);
   }, [allFlips, showDates]);
+
+  // Debug velocityData
+  React.useEffect(() => {
+    console.log('Performance page - Velocity data:', {
+      velocityDataLength: velocityData?.length,
+      firstDay: velocityData?.[0],
+      lastDay: velocityData?.[velocityData.length - 1]
+    });
+  }, [velocityData]);
 
   const velocityStats = useMemo(() => {
     if (!velocityData.length) return {};
