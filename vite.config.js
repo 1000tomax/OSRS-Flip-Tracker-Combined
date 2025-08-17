@@ -22,9 +22,12 @@ export default defineConfig({
     // PWA capabilities for offline support
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['flipping-copilot-logo.png'],
+      includeAssets: ['flipping-copilot-logo.png', 'icon-192.png', 'icon-512.png'],
       manifest: false, // use the static /public/manifest.json
       workbox: {
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
@@ -81,22 +84,19 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Improved chunking strategy for better bundle splitting
+        // Simplified chunking strategy to avoid circular dependencies
         manualChunks: id => {
-          // Split large vendor libraries into separate chunks
+          // Split vendor libraries
           if (id.includes('node_modules')) {
             if (id.includes('recharts')) return 'charts';
             if (id.includes('react-router')) return 'router';
             if (id.includes('papaparse')) return 'csv-parser';
-            if (id.includes('react') || id.includes('react-dom')) return 'react';
+            // Don't split react separately to avoid initialization issues
             return 'vendor';
           }
 
-          // Split pages into separate chunks
-          if (id.includes('/pages/')) return 'pages';
-
-          // Split utilities and hooks
-          if (id.includes('/utils/') || id.includes('/hooks/')) return 'utils';
+          // Don't split pages/utils to avoid circular dependencies
+          // Let Vite handle automatic chunking for app code
         },
 
         // Optimize chunk file names - cache bust
