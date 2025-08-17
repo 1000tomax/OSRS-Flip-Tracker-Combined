@@ -1,5 +1,28 @@
 @import 'tailwindcss';
 
+/* Mobile viewport fix */
+html,
+body {
+  min-height: 100%;
+  height: 100%;
+}
+
+#root {
+  min-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix for mobile viewport with dynamic browser UI */
+@supports (height: 100dvh) {
+  html,
+  body,
+  #root {
+    min-height: 100dvh;
+  }
+}
+
 /* Dark mode styling - Fixed to be less aggressive */
 html.dark {
   background-color: #000;

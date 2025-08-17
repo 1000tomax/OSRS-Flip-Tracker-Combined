@@ -15,20 +15,22 @@ function WorkingApp() {
   return (
     <ErrorBoundary>
       <Router>
-        <Navigation />
-        <main id="main-content" role="main">
-          <Suspense fallback={<LoadingLayout text="Loading page..." />}>
-            <Routes>
-              <Route path="/" element={<HomeSimple />} />
-              <Route path="/items" element={<ItemsSimple />} />
-              <Route path="/charts" element={<ChartsSimple />} />
-              <Route path="/performance" element={<PerformanceSimple />} />
-              <Route path="/volume" element={<VolumeSimple />} />
-              <Route path="/flip-logs" element={<FlipLogsSimple />} />
-              <Route path="*" element={<HomeSimple />} />
-            </Routes>
-          </Suspense>
-        </main>
+        <div className="flex flex-col min-h-full">
+          <Navigation />
+          <main id="main-content" role="main" className="flex-1">
+            <Suspense fallback={<LoadingLayout text="Loading page..." />}>
+              <Routes>
+                <Route path="/" element={<HomeSimple />} />
+                <Route path="/items" element={<ItemsSimple />} />
+                <Route path="/charts" element={<ChartsSimple />} />
+                <Route path="/performance" element={<PerformanceSimple />} />
+                <Route path="/volume" element={<VolumeSimple />} />
+                <Route path="/flip-logs" element={<FlipLogsSimple />} />
+                <Route path="*" element={<HomeSimple />} />
+              </Routes>
+            </Suspense>
+          </main>
+        </div>
       </Router>
     </ErrorBoundary>
   );

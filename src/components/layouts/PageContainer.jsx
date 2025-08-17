@@ -38,9 +38,10 @@ const PageContainer = ({ children, className = '', padding = 'normal' }) => {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans ${
+      className={`min-h-full bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans ${
         paddingClasses[padding]
       } ${className}`}
+      style={{ minHeight: '100dvh' }}
     >
       {children}
     </div>
