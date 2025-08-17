@@ -24,10 +24,12 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['flipping-copilot-logo.png', 'icon-192.png', 'icon-512.png'],
       manifest: false, // use the static /public/manifest.json
+      injectRegister: 'auto',
       workbox: {
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
+        navigateFallback: null, // Disable navigate fallback to prevent caching issues
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
@@ -72,31 +74,17 @@ export default defineConfig({
     // Target modern browsers for better optimization
     target: 'es2020',
 
-    // Optimize output
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
-      },
-    },
+    // Use esbuild for minification instead of terser to avoid TDZ issues
+    minify: 'esbuild',
+
+    // Enable sourcemaps temporarily for debugging
+    sourcemap: true,
 
     rollupOptions: {
       output: {
-        // Simplified chunking strategy to avoid circular dependencies
-        manualChunks: id => {
-          // Split vendor libraries
-          if (id.includes('node_modules')) {
-            if (id.includes('recharts')) return 'charts';
-            if (id.includes('react-router')) return 'router';
-            if (id.includes('papaparse')) return 'csv-parser';
-            // Don't split react separately to avoid initialization issues
-            return 'vendor';
-          }
-
-          // Don't split pages/utils to avoid circular dependencies
-          // Let Vite handle automatic chunking for app code
+        // Ultra-simplified chunking - just one vendor chunk to avoid all TDZ issues
+        manualChunks(id) {
+          return id.includes('node_modules') ? 'vendor' : undefined;
         },
 
         // Optimize chunk file names - cache bust
@@ -114,8 +102,7 @@ export default defineConfig({
     // Optimize chunk sizes - increased limit since we're splitting intelligently
     chunkSizeWarningLimit: 800,
 
-    // Source maps only in development
-    sourcemap: process.env.NODE_ENV === 'development',
+    // Source maps enabled temporarily for debugging (will be disabled after testing)
 
     // CSS code splitting
     cssCodeSplit: true,
