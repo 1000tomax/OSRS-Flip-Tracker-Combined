@@ -1,20 +1,16 @@
 #!/usr/bin/env sh
 # Skip validation if the commit ONLY touches public/data/*
 if git diff --cached --name-only | grep -qv '^public/data/'; then
-  # Prefer commitlint if available…
-  if command -v npx >/dev/null 2>&1 && npx --yes commitlint --version >/dev/null 2>&1; then
-    npx --yes commitlint --edit "$1"
-  else
-    # Fallback: minimal Conventional Commits gate
-    msg="$(cat "$1")"
-    case "$msg" in
-      feat:*|fix:*|docs:*|style:*|refactor:*|test:*|chore:*|perf:*|ci:*|build:*|revert:*)
-        ;;
-      *)
-        echo "❌ Invalid commit message format (Conventional Commits required)."
-        echo "   Examples: feat: add X | fix(ui): Y | chore(data): refresh"
-        exit 1
-        ;;
-    esac
-  fi
+  # Simple Conventional Commits check (no commitlint needed)
+  msg="$(cat "$1")"
+  case "$msg" in
+    feat:*|fix:*|docs:*|style:*|refactor:*|test:*|chore:*|perf:*|ci:*|build:*|revert:*|wip:*|data:*)
+      ;;
+    *)
+      echo "❌ Invalid commit message format (Conventional Commits required)."
+      echo "   Examples: feat: add X | fix: bug Y | chore: update Z | wip: testing"
+      echo "   Allowed types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert, wip, data"
+      exit 1
+      ;;
+  esac
 fi
