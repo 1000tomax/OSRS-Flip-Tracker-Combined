@@ -86,16 +86,16 @@ async function runSummaryBuilder() {
       const rowObj = parseProcessedLine(lines[i], header);
       if (!rowObj) continue;
 
-      // 🔧 FIX: Use opened_time instead of closed_time for consistency with parser.js
-      // This ensures summary dates match the CSV file organization
-      const openedTime = rowObj['opened_time'];
-      const openedDate = formatDate(new Date(openedTime));
+      // 🔧 FIX: Use closed_time for consistency with parser.js
+      // This ensures summary dates match the CSV file organization based on completion time
+      const closedTime = rowObj['closed_time'];
+      const closedDate = formatDate(new Date(closedTime));
       const itemName = rowObj['item_name']?.trim();
       const profit = parseNumber(rowObj['profit']);
       const spent = parseNumber(rowObj['spent']);
 
-      if (!summaryByDate.hasOwnProperty(openedDate)) {
-        summaryByDate[openedDate] = {
+      if (!summaryByDate.hasOwnProperty(closedDate)) {
+        summaryByDate[closedDate] = {
           flips: 0,
           totalProfit: 0,
           totalSpent: 0,
@@ -103,7 +103,7 @@ async function runSummaryBuilder() {
         };
       }
 
-      const summary = summaryByDate[openedDate];
+      const summary = summaryByDate[closedDate];
       summary.flips += 1;
       summary.totalProfit += profit;
       summary.totalSpent += spent;

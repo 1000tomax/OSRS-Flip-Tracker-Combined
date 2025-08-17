@@ -90,8 +90,6 @@
     "*.{json,css,md}": [
       "prettier --write"
     ],
-    "*.{js,jsx,ts,tsx,json,css,md}": [
-      "git add"
-    ]
+    "*.{js,jsx,ts,tsx,json,css,md}": []
   }
 }

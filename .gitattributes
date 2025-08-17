@@ -19,3 +19,4 @@
 *.gif  binary
 *.zip  binary
 *.gz   binary
+*.sh text eol=lf

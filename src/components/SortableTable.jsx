@@ -104,7 +104,15 @@ export default function SortableTable({
                   }
                   aria-label={isSortable ? getSortLabel(column.key, column.label) : column.label}
                 >
-                  <div className="flex items-center justify-between">
+                  <div
+                    className={`flex items-center ${
+                      column.headerClass?.includes('text-right')
+                        ? 'justify-end'
+                        : column.headerClass?.includes('text-center')
+                          ? 'justify-center'
+                          : 'justify-start'
+                    }`}
+                  >
                     <span>{column.label}</span>
                     {isSortable && (
                       <span

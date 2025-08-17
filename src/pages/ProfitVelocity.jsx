@@ -11,10 +11,18 @@ import {
   Bar,
 } from 'recharts';
 import { useAllFlips } from '../hooks/useAllFlips';
-import { ChartErrorBoundary, DataErrorBoundary } from '../components/ErrorBoundary';
+import { ChartErrorBoundary } from '../components/ErrorBoundary';
 import { DateUtils } from '../utils/dateUtils';
-import { PageContainer, CardContainer, PageHeader, LoadingLayout, ErrorLayout } from '../components/layouts';
+import {
+  PageContainer,
+  CardContainer,
+  PageHeader,
+  LoadingLayout,
+  ErrorLayout,
+} from '../components/layouts';
 import logger from '../utils/logger';
+
+const GE_SLOTS = 8; // Number of Grand Exchange slots
 
 const formatGP = value => {
   if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
@@ -69,7 +77,8 @@ export default function ProfitVelocity() {
           }
 
           // Convert to Chicago timezone for consistent date grouping (matches data processing logic)
-          const chicagoDate = DateUtils.toChicagoTime(openTime);
+          // Group by close time to track when profits were realized
+          const chicagoDate = DateUtils.toChicagoTime(closeTime);
           const dateString = DateUtils.toApiFormat(chicagoDate);
 
           return {
@@ -167,7 +176,7 @@ export default function ProfitVelocity() {
   if (loading) {
     return <LoadingLayout text={`Loading ${totalDays || 'all'} days of flip data...`} />;
   }
-  
+
   if (error) {
     return <ErrorLayout title="Failed to load performance data" error={error} />;
   }
@@ -231,7 +240,7 @@ export default function ProfitVelocity() {
             <div className="bg-gray-800 border border-gray-600 rounded-lg p-4">
               <h3 className="text-sm text-gray-400 mb-1">Avg Offer Time</h3>
               <p className="text-2xl font-bold text-purple-400">
-                {formatTime(((velocityStats.totalActiveHours || 0) * 60) / 8)}
+                {formatTime(((velocityStats.totalActiveHours || 0) * 60) / GE_SLOTS)}
               </p>
               <p className="text-sm text-gray-400">Per slot</p>
             </div>
@@ -263,7 +272,7 @@ export default function ProfitVelocity() {
                     }}
                     formatter={(value, name, props) => {
                       if (name === 'gpPerHour') {
-                        const avgHours = (props.payload.totalMinutes / 60 / 8).toFixed(1);
+                        const avgHours = (props.payload.totalMinutes / 60 / GE_SLOTS).toFixed(1);
                         return [`${formatGP(value)}/hr (~${avgHours}h avg offer time)`, 'GP/Hour'];
                       }
                       return [

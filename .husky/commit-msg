@@ -1,23 +1,20 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-# Validate commit message format
-commit_regex='^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,50}'
-
-if ! grep -qE "$commit_regex" "$1"; then
-    echo "❌ Invalid commit message format!"
-    echo ""
-    echo "Commit message should follow conventional commits format:"
-    echo "  <type>[optional scope]: <description>"
-    echo ""
-    echo "Examples:"
-    echo "  feat: add new trading strategy analysis"
-    echo "  fix(charts): resolve performance issue with large datasets"
-    echo "  docs: update README with installation instructions"
-    echo ""
-    echo "Valid types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
-    echo ""
-    exit 1
+# Skip validation if the commit ONLY touches public/data/*
+if git diff --cached --name-only | grep -qv '^public/data/'; then
+  # Prefer commitlint if available…
+  if command -v npx >/dev/null 2>&1 && npx --yes commitlint --version >/dev/null 2>&1; then
+    npx --yes commitlint --edit "$1"
+  else
+    # Fallback: minimal Conventional Commits gate
+    msg="$(cat "$1")"
+    case "$msg" in
+      feat:*|fix:*|docs:*|style:*|refactor:*|test:*|chore:*|perf:*|ci:*|build:*|revert:*)
+        ;;
+      *)
+        echo "❌ Invalid commit message format (Conventional Commits required)."
+        echo "   Examples: feat: add X | fix(ui): Y | chore(data): refresh"
+        exit 1
+        ;;
+    esac
+  fi
 fi
-
-echo "✅ Commit message format is valid"

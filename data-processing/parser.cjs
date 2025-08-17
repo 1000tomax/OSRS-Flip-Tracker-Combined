@@ -65,9 +65,9 @@ async function runParser() {
 
     const flipHash = crypto.createHash('sha256').update(`${accountId}|${itemName}|${status}|${closedQuantity}|${receivedPostTax}|${taxPaid}|${profit}|${closedTimeRaw}`).digest('hex');
 
-    // 🔧 FIX: Use opened_time for date grouping to avoid timezone issues
-    // This ensures flips are grouped by when they were started, not when they ended
-    const openedDate = formatDate(new Date(openedTimeRaw));
+    // 🔧 FIX: Use closed_time for date grouping to track when flips were completed
+    // This ensures flips are grouped by when profit was realized, not when they started
+    const closedDate = formatDate(new Date(closedTimeRaw));
 
     const recordOut = {
       account_id: accountId,
@@ -85,10 +85,10 @@ async function runParser() {
       flip_hash: flipHash,
     };
 
-    if (!flipsByDate.hasOwnProperty(openedDate)) {
-      flipsByDate[openedDate] = [];
+    if (!flipsByDate.hasOwnProperty(closedDate)) {
+      flipsByDate[closedDate] = [];
     }
-    flipsByDate[openedDate].push(recordOut);
+    flipsByDate[closedDate].push(recordOut);
   }
 
   const processedBase = path.join(__dirname, '..', 'public', 'data', 'processed-flips');

@@ -83,18 +83,27 @@ export function useAllFlips() {
 
   // Extract dates from the summary-index.json format
   const dateStrings = useMemo(() => {
-    if (!summaryIndex?.days?.length) return [];
-    return summaryIndex.days
-      .map(day => {
-        // Convert from YYYY-MM-DD to MM-DD-YYYY format
-        const isoDate = day.date; // "2025-07-27"
-        if (isoDate && isoDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          const [year, month, dayNum] = isoDate.split('-');
-          return `${month}-${dayNum}-${year}`; // "07-27-2025"
-        }
-        return day.date; // fallback to original
-      })
-      .filter(Boolean); // Remove any invalid conversions
+    if (!summaryIndex) return [];
+
+    // Handle both old format (array) and new format (object with days)
+    if (Array.isArray(summaryIndex)) {
+      // Old format: ["07-27-2025", "07-28-2025", ...]
+      return summaryIndex;
+    } else if (summaryIndex.days && Array.isArray(summaryIndex.days)) {
+      // New format: { days: [{ date: "2025-07-27", ... }, ...] }
+      return summaryIndex.days
+        .map(day => {
+          // Convert from YYYY-MM-DD to MM-DD-YYYY format
+          const isoDate = day.date; // "2025-07-27"
+          if (isoDate && isoDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            const [year, month, dayNum] = isoDate.split('-');
+            return `${month}-${dayNum}-${year}`; // "07-27-2025"
+          }
+          return day.date; // fallback to original
+        })
+        .filter(Boolean); // Remove any invalid conversions
+    }
+    return [];
   }, [summaryIndex]);
 
   // Load flip data when dates are available

@@ -31,7 +31,14 @@ import DateNavigation from '../components/DateNavigation';
 import HeatMap from '../components/HeatMap';
 import SortableTable from '../components/SortableTable';
 import { parseDateParts, formatDuration, formatGP } from '../lib/utils';
-import { PageContainer, CardContainer, PageHeader, LoadingLayout, ErrorLayout, ResponsiveGrid } from '../components/layouts';
+import {
+  PageContainer,
+  CardContainer,
+  PageHeader,
+  LoadingLayout,
+  ErrorLayout,
+  ResponsiveGrid,
+} from '../components/layouts';
 
 /**
  * FlipLogs Component - Detailed daily trading analysis page
@@ -111,8 +118,8 @@ export default function FlipLogs() {
     {
       key: 'closed_quantity',
       label: 'Qty',
-      headerClass: 'text-center hidden sm:table-cell', // Hidden on small screens
-      cellClass: 'text-center text-gray-300 hidden sm:table-cell',
+      headerClass: 'text-right hidden sm:table-cell', // Hidden on small screens
+      cellClass: 'text-right text-gray-300 hidden sm:table-cell',
     },
 
     // Profit Column - Most important metric, always visible
@@ -151,12 +158,21 @@ export default function FlipLogs() {
       render: value => formatGP(value),
     },
 
+    // Tax Column - Shows GE tax paid, hidden on large screens and smaller
+    {
+      key: 'tax_paid',
+      label: 'Tax',
+      headerClass: 'text-right hidden lg:table-cell',
+      cellClass: 'text-right text-gray-300 font-mono hidden lg:table-cell',
+      render: value => formatGP(value || 0),
+    },
+
     // Duration Column - Shows how long the flip took, hidden on large screens and smaller
     {
       key: 'duration', // Virtual field (calculated in render)
       label: 'Duration',
-      headerClass: 'text-center hidden lg:table-cell', // Only visible on large screens
-      cellClass: 'text-center text-gray-300 hidden lg:table-cell',
+      headerClass: 'text-right hidden lg:table-cell', // Only visible on large screens
+      cellClass: 'text-right text-gray-300 hidden lg:table-cell',
       sortValue: row => {
         // Custom sorting: sort by milliseconds between open and close
         if (!row.opened_time || !row.closed_time) return 0;
@@ -174,8 +190,8 @@ export default function FlipLogs() {
     {
       key: 'closed_time',
       label: 'Time',
-      headerClass: 'text-center hidden lg:table-cell',
-      cellClass: 'text-center text-gray-300 hidden lg:table-cell',
+      headerClass: 'text-right hidden lg:table-cell',
+      cellClass: 'text-right text-gray-300 hidden lg:table-cell',
       sortValue: row => (row.closed_time ? new Date(row.closed_time).getTime() : 0), // Sort by timestamp
       render: value => {
         const close = value ? new Date(value) : null;
@@ -229,10 +245,7 @@ export default function FlipLogs() {
   return (
     <PageContainer padding="compact">
       <CardContainer>
-        <PageHeader 
-          title="Flip Log Viewer"
-          icon="📋"
-        />
+        <PageHeader title="Flip Log Viewer" icon="📋" />
 
         {/* Date Navigation Controls */}
         {summaryDates && <DateNavigation currentDate={date} />}
@@ -263,7 +276,7 @@ export default function FlipLogs() {
             {/* Key Metrics Grid */}
             <ResponsiveGrid variant="equal" gap="normal" className="mb-6">
               {/* Total Flips Card */}
-              <div className="text-center">
+              <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 text-center">
                 <div className="text-2xl sm:text-3xl font-bold text-blue-400">
                   {summary.totalFlips}
                 </div>
@@ -271,7 +284,7 @@ export default function FlipLogs() {
               </div>
 
               {/* Total Profit Card */}
-              <div className="text-center">
+              <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 text-center">
                 <div
                   className={`text-2xl sm:text-3xl font-bold ${summary.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}
                 >
