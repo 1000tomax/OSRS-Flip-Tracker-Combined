@@ -86,6 +86,8 @@ export default function ProfitVelocity() {
             date: dateString,
             durationMinutes,
             profit,
+            openTime,
+            closeTime,
           };
         } catch (error) {
           logger.warn('Error processing flip:', flip, error);
@@ -106,6 +108,7 @@ export default function ProfitVelocity() {
           flipCount: 0,
           profitableFlips: 0,
           totalInvestment: 0,
+          flips: [],
         };
       }
 
@@ -113,6 +116,7 @@ export default function ProfitVelocity() {
       dailyData[flip.date].totalMinutes += flip.durationMinutes;
       dailyData[flip.date].flipCount += 1;
       dailyData[flip.date].totalInvestment += parseFloat(flip.spent) || 0;
+      dailyData[flip.date].flips.push(flip);
       if (flip.profit > 0) {
         dailyData[flip.date].profitableFlips += 1;
       }
@@ -131,15 +135,22 @@ export default function ProfitVelocity() {
           const displayDate = DateUtils.toDisplayFormat(day.date);
           const dayNumber = index + 1;
 
+          // Calculate effective trading time accounting for parallel slots
+          // Divide total flip minutes by number of GE slots to get effective time
+          // This assumes flips are distributed across available slots
+          const effectiveTradingMinutes = day.totalMinutes / GE_SLOTS;
+
           return {
             ...day,
             dayNumber,
-            gpPerHour: day.totalMinutes > 0 ? (day.totalProfit / day.totalMinutes) * 60 : 0,
+            gpPerHour:
+              effectiveTradingMinutes > 0 ? (day.totalProfit / effectiveTradingMinutes) * 60 : 0,
             avgFlipDuration: day.totalMinutes / day.flipCount,
             winRate: (day.profitableFlips / day.flipCount) * 100,
             avgInvestment: day.totalInvestment / day.flipCount,
             displayDate,
             displayLabel: showDates ? displayDate : `Day ${dayNumber}`,
+            effectiveTradingHours: effectiveTradingMinutes / 60,
           };
         } catch (error) {
           logger.warn('Error processing daily data:', day, error);
@@ -272,8 +283,9 @@ export default function ProfitVelocity() {
                     }}
                     formatter={(value, name, props) => {
                       if (name === 'gpPerHour') {
-                        const avgHours = (props.payload.totalMinutes / 60 / GE_SLOTS).toFixed(1);
-                        return [`${formatGP(value)}/hr (~${avgHours}h avg offer time)`, 'GP/Hour'];
+                        const effectiveHours =
+                          props.payload.effectiveTradingHours?.toFixed(1) || '0';
+                        return [`${formatGP(value)}/hr (${effectiveHours}h effective)`, 'GP/Hour'];
                       }
                       return [
                         name === 'winRate'
