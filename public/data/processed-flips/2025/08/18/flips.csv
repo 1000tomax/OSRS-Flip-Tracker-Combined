@@ -1,0 +1,2 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Rune arrow,FINISHED,11000,1969000,11000,2013000,33000,44000,2025-08-18T04:57:57Z,2025-08-18T05:00:06Z,2025-08-18T05:00:06Z,36870ac28d14e9f576cdf033ec159575e02824d1d84892fbb1d62d7f4b4b0c11
