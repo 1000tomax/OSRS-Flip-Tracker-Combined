@@ -18,7 +18,6 @@ const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
 // Import analytics pages directly to debug routing issue
 import TradingHeatMap from './pages/TradingHeatMap';
 import CapitalEfficiency from './pages/CapitalEfficiency';
-import TestRoute from './pages/TestRoute';
 
 function App() {
   return (
@@ -45,7 +44,6 @@ function App() {
                 <Route path="/performance" element={<ProfitVelocity />} />
                 <Route path="/volume" element={<StrategyBattle />} />
                 <Route path="/profit-velocity" element={<ProfitVelocity />} />
-                <Route path="/test" element={<TestRoute />} />
                 <Route path="/heatmap" element={<TradingHeatMap />} />
                 <Route path="/efficiency" element={<CapitalEfficiency />} />
                 <Route path="*" element={<Home />} />
