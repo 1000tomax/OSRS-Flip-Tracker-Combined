@@ -1,0 +1,4 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Runite bolts,SELLING,10589,1757774,4882,834822,14646,24410,2025-08-19T04:59:05Z,2025-08-19T05:02:05Z,2025-08-19T05:02:05Z,50e8de1905870aee0f27c1f0a63eea61fddbd7cb1eef8771d0d6d8c772f905d2
+1000tomax,Molten glass,SELLING,13000,1105000,1,87,1,2,2025-08-19T04:59:02Z,2025-08-19T05:01:47Z,2025-08-19T05:01:47Z,587c5e732c2dec542c8c3dfbd6ccc59d8a80f4f9e57ccad1665a7b7f8eea29a9
+1000tomax,Extended super antifire(4),FINISHED,14,289380,14,284088,5796,-5292,2025-08-19T04:46:05Z,2025-08-19T05:01:14Z,2025-08-19T05:01:14Z,622f51e57ba9ffeb1d9a3f346ef199e3561c8bbcff9d60a115d2e54ca8247aa7
