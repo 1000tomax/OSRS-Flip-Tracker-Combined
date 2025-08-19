@@ -7,13 +7,18 @@ import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
 import CacheMonitor from './components/CacheMonitor';
 
-// Lazy load all page components for code splitting
+// Lazy load most page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
 const Items = lazy(() => import('./pages/Items'));
 const FlipLogs = lazy(() => import('./pages/FlipLogs'));
 const Charts = lazy(() => import('./pages/Charts'));
 const StrategyBattle = lazy(() => import('./pages/StrategyBattle'));
 const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
+
+// Import analytics pages directly to debug routing issue
+import TradingHeatMap from './pages/TradingHeatMap';
+import CapitalEfficiency from './pages/CapitalEfficiency';
+import TestRoute from './pages/TestRoute';
 
 function App() {
   return (
@@ -40,12 +45,15 @@ function App() {
                 <Route path="/performance" element={<ProfitVelocity />} />
                 <Route path="/volume" element={<StrategyBattle />} />
                 <Route path="/profit-velocity" element={<ProfitVelocity />} />
+                <Route path="/test" element={<TestRoute />} />
+                <Route path="/heatmap" element={<TradingHeatMap />} />
+                <Route path="/efficiency" element={<CapitalEfficiency />} />
                 <Route path="*" element={<Home />} />
               </Routes>
             </Suspense>
           </main>
         </div>
-        
+
         {/* Cache monitoring for development */}
         <CacheMonitor />
       </Router>

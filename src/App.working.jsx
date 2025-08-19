@@ -9,6 +9,8 @@ import ChartsSimple from './pages/Charts';
 import FlipLogsSimple from './pages/FlipLogs';
 import PerformanceSimple from './pages/ProfitVelocity';
 import VolumeSimple from './pages/StrategyBattle';
+import TradingHeatMap from './pages/TradingHeatMap';
+import CapitalEfficiency from './pages/CapitalEfficiency';
 import { LoadingLayout } from './components/layouts';
 
 function WorkingApp() {
@@ -26,6 +28,8 @@ function WorkingApp() {
                 <Route path="/performance" element={<PerformanceSimple />} />
                 <Route path="/volume" element={<VolumeSimple />} />
                 <Route path="/flip-logs" element={<FlipLogsSimple />} />
+                <Route path="/heatmap" element={<TradingHeatMap />} />
+                <Route path="/efficiency" element={<CapitalEfficiency />} />
                 <Route path="*" element={<HomeSimple />} />
               </Routes>
             </Suspense>
