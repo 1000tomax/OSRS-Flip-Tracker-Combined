@@ -1,0 +1,3 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Vial of blood,FINISHED,164,1818432,164,1780876,36244,-37556,2025-08-22T04:56:18Z,2025-08-22T05:01:02Z,2025-08-22T05:01:02Z,16154a9e04ea935dd8f9b3dcf93f6d9f86b536d09740b6458569687360d38bac
+1000tomax,Lantadyme,SELLING,2427,6870837,677,1988349,39943,71762,2025-08-22T04:37:37Z,2025-08-22T05:00:58Z,2025-08-22T05:00:58Z,3e488a6472b55d495c7dfa5f52df854fa131f4a90ca391e7e176f58e285a351c
