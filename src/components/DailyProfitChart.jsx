@@ -29,7 +29,7 @@
  * - formatDate utility converts MM-DD-YYYY to MM/DD for tooltip
  */
 // src/components/DailyProfitChart.jsx
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -43,9 +43,12 @@ import {
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatGP, isIncompleteDay } from '../lib/utils';
+import { exportToImage, generateImageFilename } from '../lib/imageExport';
 
 export default function DailyProfitChart() {
   const { summaries, loading, error } = useDailySummaries();
+  const chartRef = useRef(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   if (loading) {
     return (
@@ -88,6 +91,22 @@ export default function DailyProfitChart() {
     };
   });
 
+  // Handle image export
+  const handleExport = async () => {
+    if (!chartRef.current) return;
+    
+    setIsExporting(true);
+    try {
+      const filename = generateImageFilename('osrs-daily-profit-chart');
+      await exportToImage(chartRef.current, filename);
+    } catch (error) {
+      console.error('Failed to export chart:', error);
+      alert('Failed to export chart. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Custom tooltip
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -107,12 +126,24 @@ export default function DailyProfitChart() {
   };
 
   return (
-    <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 sm:p-6">
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-white mb-1">📊 Daily Profit Breakdown</h2>
-        <p className="text-sm text-gray-400">
-          Track your best and worst performing days ({completeSummaries.length} complete days)
-        </p>
+    <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 sm:p-6" ref={chartRef}>
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-white mb-1">📊 Daily Profit Breakdown</h2>
+          <p className="text-sm text-gray-400">
+            Track your best and worst performing days ({completeSummaries.length} complete days)
+          </p>
+        </div>
+        <button
+          onClick={handleExport}
+          disabled={isExporting}
+          className="ml-4 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-700 disabled:opacity-50 text-white rounded-lg transition flex items-center gap-2 text-sm font-medium"
+          title="Export chart as image"
+          data-html2canvas-ignore="true"
+        >
+          <span>📸</span>
+          <span className="hidden sm:inline">{isExporting ? 'Exporting...' : 'Export'}</span>
+        </button>
       </div>
 
       <div className="h-64 sm:h-80">

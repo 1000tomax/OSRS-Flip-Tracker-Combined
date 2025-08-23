@@ -39,6 +39,7 @@ import {
   ErrorLayout,
   ResponsiveGrid,
 } from '../components/layouts';
+import { exportToCsv, generateCsvFilename } from '../lib/csvExport';
 
 /**
  * FlipLogs Component - Detailed daily trading analysis page
@@ -225,6 +226,24 @@ export default function FlipLogs() {
       }));
   }, [flips]); // Recalculate when flip data changes
 
+  // Handle CSV export
+  const handleExport = () => {
+    if (validFlips.length === 0) {
+      alert('No data to export');
+      return;
+    }
+    
+    // Use the flip columns for export (excluding render functions)
+    const exportColumns = flipColumns.map(col => ({
+      key: col.key,
+      label: col.label,
+      sortValue: col.sortValue
+    }));
+    
+    const filename = date ? `osrs-flip-logs-${date}.csv` : generateCsvFilename('osrs-flip-logs');
+    exportToCsv(validFlips, exportColumns, filename);
+  };
+
   // Loading State - Show spinner while data is being fetched
   if (isLoading) {
     return <LoadingLayout text="Loading flip logs..." />;
@@ -308,6 +327,15 @@ export default function FlipLogs() {
               <h2 className="text-xl font-bold text-white">
                 Individual Flips ({validFlips.length})
               </h2>
+              <button
+                onClick={handleExport}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition flex items-center gap-2 text-sm font-medium"
+                title="Export flip logs to CSV"
+                data-html2canvas-ignore="true"
+              >
+                <span>📥</span>
+                <span>Export CSV</span>
+              </button>
             </div>
 
             {/* Sortable Data Table */}

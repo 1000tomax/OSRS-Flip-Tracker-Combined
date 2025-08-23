@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import useDailySummaries from '../hooks/useDailySummaries';
 import { useJsonData } from '../hooks/useJsonData';
 import { useETACalculator } from './ETACalculator';
@@ -58,7 +58,7 @@ export default function DailySummaryLog() {
     refetchMeta();
   };
 
-  // Screenshot generator
+  // Screenshot generator - now with html2canvas-pro for better CSS support
   const generateScreenshot = async () => {
     if (screenshotRef.current && completeSummaries.length > 0) {
       try {
@@ -67,6 +67,13 @@ export default function DailySummaryLog() {
           scale: 2,
           width: 800,
           height: completeSummaries.length * 35 + 200,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          ignoreElements: (element) => {
+            // Exclude elements with data-html2canvas-ignore attribute
+            return element.hasAttribute('data-html2canvas-ignore');
+          },
         });
 
         const link = document.createElement('a');
@@ -422,7 +429,7 @@ export default function DailySummaryLog() {
           <p
             style={{
               color: '#d1d5db',
-              margin: '0',
+              margin: '0 0 4px 0',
               fontSize: '14px',
             }}
           >
@@ -435,67 +442,76 @@ export default function DailySummaryLog() {
             ).toFixed(2)}
             %)
           </p>
+          <p
+            style={{
+              color: '#60a5fa',
+              margin: '8px 0 0 0',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              letterSpacing: '0.5px',
+            }}
+          >
+            🌐 MREEDON.COM
+          </p>
         </div>
 
         {/* Compact Table */}
-        <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+        <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse', border: '2px solid #000000' }}>
           <thead>
-            <tr style={{ backgroundColor: '#374151' }}>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
+            <tr style={{ backgroundColor: '#374151', borderTop: '2px solid #000000', borderBottom: '2px solid #000000' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold', borderLeft: '2px solid #000000' }}>
                 Day
               </th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
                 Flips
               </th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
                 Items
               </th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
                 Profit
               </th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
                 Net Worth
               </th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
                 Growth
               </th>
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold', borderRight: '2px solid #000000' }}>
                 Progress
               </th>
             </tr>
           </thead>
           <tbody>
             {completeSummaries.map((s, i) => (
-              <tr key={s.date} style={{ backgroundColor: i % 2 === 0 ? '#1f2937' : '#374151' }}>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>{s.day}</td>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>
+              <tr key={s.date} style={{ backgroundColor: i % 2 === 0 ? '#1f2937' : '#374151', borderBottom: '1px solid #000000' }}>
+                <td style={{ padding: '6px 8px', borderLeft: '2px solid #000000' }}>{s.day}</td>
+                <td style={{ padding: '6px 8px' }}>
                   {s.flips || 0}
                 </td>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>
+                <td style={{ padding: '6px 8px' }}>
                   {s.items_flipped || 0}
                 </td>
                 <td
                   style={{
                     padding: '6px 8px',
-                    borderBottom: '1px solid #4b5563',
                     color: (s.profit || 0) >= 0 ? '#10b981' : '#ef4444',
                   }}
                 >
                   {formatGP(s.profit || 0)}
                 </td>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>
+                <td style={{ padding: '6px 8px' }}>
                   {formatGP(s.net_worth || 0)}
                 </td>
                 <td
                   style={{
                     padding: '6px 8px',
-                    borderBottom: '1px solid #4b5563',
                     color: (s.percent_change || 0) >= 0 ? '#10b981' : '#ef4444',
                   }}
                 >
                   +{(s.percent_change || 0).toFixed(2)}%
                 </td>
-                <td style={{ padding: '6px 8px', borderBottom: '1px solid #4b5563' }}>
+                <td style={{ padding: '6px 8px', borderRight: '2px solid #000000' }}>
                   {(s.percent_to_goal || 0).toFixed(2)}%
                 </td>
               </tr>

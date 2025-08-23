@@ -32,6 +32,7 @@ import { itemStatsColumns } from '../lib/columnConfigs.jsx';
 import SortableTable from '../components/SortableTable';
 import { formatGP, formatPercent } from '../lib/utils';
 import { PageContainer, CardContainer, PageHeader, LoadingLayout, ErrorLayout } from '../components/layouts';
+import { exportToCsv, generateCsvFilename } from '../lib/csvExport';
 
 /**
  * Items Component - Item statistics and analysis page
@@ -67,6 +68,24 @@ export default function Items() {
   const filtered = items.filter(
     item => item.item_name.toLowerCase().includes(query.toLowerCase()) // Case-insensitive search
   );
+
+  // Handle CSV export
+  const handleExport = () => {
+    if (filtered.length === 0) {
+      alert('No data to export');
+      return;
+    }
+    
+    // Use the table columns for export (excluding render functions)
+    const exportColumns = tableColumns.map(col => ({
+      key: col.key,
+      label: col.label,
+      sortValue: col.sortValue
+    }));
+    
+    const filename = generateCsvFilename('osrs-items');
+    exportToCsv(filtered, exportColumns, filename);
+  };
 
   /**
    * Table Column Definitions for Items Statistics
@@ -159,6 +178,17 @@ export default function Items() {
           viewMode={viewMode} // Current view mode (table/cards)
           onViewModeChange={setViewMode} // Switch between view modes
           showViewToggle={true} // Show the view mode toggle
+          extraControls={
+            <button
+              onClick={handleExport}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition flex items-center gap-2 text-sm font-medium"
+              title="Export filtered results to CSV"
+              data-html2canvas-ignore="true"
+            >
+              <span>📥</span>
+              <span>Export CSV</span>
+            </button>
+          }
         />
 
         {/* Results Count - Shows how many items match the current search */}
