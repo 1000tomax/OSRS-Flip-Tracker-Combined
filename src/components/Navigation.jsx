@@ -7,12 +7,6 @@ function getCurrentDateFormatted() {
   return DateUtils.getTodayChicago();
 }
 
-function getYesterdayFormatted() {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return DateUtils.toApiFormat(yesterday);
-}
-
 const Navigation = React.memo(function Navigation() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -26,8 +20,6 @@ const Navigation = React.memo(function Navigation() {
       { path: '/charts', label: 'Charts', icon: '📈' },
       { path: '/performance', label: 'Performance', icon: '⚡' },
       { path: '/heatmap', label: 'Heat Map', icon: '🔥' },
-      { path: '/efficiency', label: 'Efficiency', icon: '💎' },
-      { path: `/volume?date=${getYesterdayFormatted()}`, label: 'Volume', icon: '⚔️' },
       { path: `/flip-logs?date=${getCurrentDateFormatted()}`, label: 'Flip Logs', icon: '📋' },
     ],
     []

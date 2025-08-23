@@ -1,4 +1,4 @@
-# OSRS Flip Dashboard 📈
+claude# OSRS Flip Dashboard 📈
 
 A professional Old School RuneScape trading analytics dashboard built with React
 and modern web technologies. Track your flipping performance, analyze profit
