@@ -1,13 +1,2 @@
-const colors = require('tailwindcss/colors');
-
-module.exports = {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
-  theme: {
-    colors: {
-      ...colors,
-    },
-    extend: {},
-  },
-  plugins: [],
-};
+// Root config that points to the actual config in config folder
+export { default } from './config/tailwind.config.js';
