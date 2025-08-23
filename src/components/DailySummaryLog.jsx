@@ -518,31 +518,6 @@ export default function DailySummaryLog() {
             ))}
           </tbody>
         </table>
-
-        {/* Footer */}
-        <div
-          style={{
-            marginTop: '16px',
-            paddingTop: '16px',
-            borderTop: '1px solid #4b5563',
-            textAlign: 'center',
-            fontSize: '12px',
-            color: '#9ca3af',
-          }}
-        >
-          <p style={{ margin: '0' }}>
-            Total Profit:{' '}
-            {formatGP((completeSummaries[completeSummaries.length - 1]?.net_worth || 1000) - 1000)}{' '}
-            GP • Average Daily Growth:{' '}
-            {completeSummaries.length > 0
-              ? (
-                  completeSummaries.reduce((sum, day) => sum + (day.percent_change || 0), 0) /
-                  completeSummaries.length
-                ).toFixed(2)
-              : 0}
-            %
-          </p>
-        </div>
       </div>
     </div>
   );
