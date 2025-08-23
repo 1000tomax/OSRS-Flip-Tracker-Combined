@@ -118,14 +118,7 @@ export default defineConfig({
 
   // Optimize dependencies
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      '@tanstack/react-query',
-      'recharts',
-      'papaparse',
-    ],
+    include: ['react', 'react-dom', 'react-router-dom', 'recharts', 'papaparse'],
     exclude: ['@vite/client', '@vite/env'],
   },
 

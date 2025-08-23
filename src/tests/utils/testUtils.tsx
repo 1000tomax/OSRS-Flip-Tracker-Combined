@@ -1,45 +1,29 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ReactElement } from 'react';
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { FlipData, ItemStats, DailySummary } from '../../types';
 
 // Test wrapper with all providers
 interface AllProvidersProps {
   children: React.ReactNode;
-  queryClient?: QueryClient;
 }
 
-const AllProviders: React.FC<AllProvidersProps> = ({ children, queryClient }) => {
-  const testQueryClient =
-    queryClient ||
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-          gcTime: 0,
-        },
-      },
-    });
-
-  return (
-    <QueryClientProvider client={testQueryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
-    </QueryClientProvider>
-  );
+const AllProviders: React.FC<AllProvidersProps> = ({ children }) => {
+  return <BrowserRouter>{children}</BrowserRouter>;
 };
 
 // Custom render function
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
-  queryClient?: QueryClient;
   initialEntries?: string[];
 }
 
 const customRender = (ui: ReactElement, options: CustomRenderOptions = {}): RenderResult => {
-  const { queryClient, ...renderOptions } = options;
+  const { ...renderOptions } = options;
 
   return render(ui, {
-    wrapper: ({ children }) => <AllProviders queryClient={queryClient}>{children}</AllProviders>,
+    wrapper: ({ children }) => <AllProviders>{children}</AllProviders>,
     ...renderOptions,
   });
 };
@@ -124,17 +108,6 @@ export const waitForLoadingToFinish = async () => {
   } catch {
     // Loading finished
   }
-};
-
-export const createQueryClient = () => {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: 0,
-      },
-    },
-  });
 };
 
 // Re-export everything from React Testing Library

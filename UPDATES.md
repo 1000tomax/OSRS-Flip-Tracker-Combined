@@ -37,13 +37,13 @@ export default {
 };
 ```
 
-### 2. Resolve React Query Dependency
+### 2. ~~Resolve React Query Dependency~~ ✅ FIXED
 
-- [ ] **Decision Required**: Choose one approach
-  - **Option A (Keep)**: `npm i @tanstack/react-query` and wrap app in
-    `QueryClientProvider` in `src/main.jsx`
-  - **Option B (Remove)**: Delete unused React Query hooks/imports, consolidate
-    on existing fetch hooks
+- [x] **Decision Required**: Choose one approach
+  - ~~**Option A (Keep)**: `npm i @tanstack/react-query` and wrap app in
+    `QueryClientProvider` in `src/main.jsx`~~
+  - **Option B (Remove)**: ✅ Deleted unused React Query hooks/imports,
+    consolidated on existing fetch hooks
 
 ### 3. Replace Alert() with Toast Notifications
 
@@ -112,9 +112,10 @@ build: {
 
 - [ ] Build with `SOURCEMAP=true` only when debugging
 
-### 7. Remove Stray File
+### 7. ~~Remove Stray File~~ ✅ FIXED
 
-- [ ] Delete: `Users18159osrs-flip-dashboardpublicflipping-copilot-logo.png`
+- [x] Delete: `Users18159osrs-flip-dashboardpublicflipping-copilot-logo.png` ✅
+      Removed
 
 ### 8. Add Circular Dependency Check
 
@@ -169,10 +170,10 @@ build: {
 - [ ] Start with `noImplicitAny: false`, then progressively enable
 - [ ] Standardize extensions: `.tsx` for components, `.ts` for utilities
 
-### 2. Clean Unused Code
+### 2. ~~Clean Unused Code~~ ✅ PARTIALLY FIXED
 
 - [ ] Run `npm run lint -- --fix`
-- [ ] Remove `src/App.working.jsx` if unused
+- [x] Remove `src/App.working.jsx` if unused ✅ Removed
 - [ ] Clean up unused imports in all components
 
 ### 3. Add High-Value Tests
