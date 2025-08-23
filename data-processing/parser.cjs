@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const config = require('./config.cjs');
 const {
   parseCSV,
   ensureDir,
@@ -51,9 +52,9 @@ async function runParser() {
 	
 
 	// ✅ Skip any flips before the official challenge start date
-	const challengeStart = new Date("2025-07-28T05:00:00Z")
-	const closedDateObj = new Date(closedTimeRaw);
-	if (closedDateObj < challengeStart) continue;
+	const challengeStart = new Date(config.CHALLENGE_START_ISO);
+	const openedDateObj = new Date(openedTimeRaw);  // Check OPENED time, not closed
+	if (openedDateObj < challengeStart) continue;
 
 	// 🛡️ Safety Check: Ensure item name and timestamps exist
 	if (!itemName || (!openedTimeRaw && !closedTimeRaw)) {

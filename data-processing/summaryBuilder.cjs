@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const config = require('./config.cjs');
 const {
   ensureDir,
   formatDate,
@@ -68,7 +69,7 @@ async function runSummaryBuilder() {
   const summaryByDate = {};
 
   // Inject Day 0 baseline (start of challenge)
-  summaryByDate["07-27-2025"] = {
+  summaryByDate[config.DAY0_BASELINE] = {
     flips: 0,
     totalProfit: 0,
     totalSpent: 0,
@@ -113,6 +114,13 @@ async function runSummaryBuilder() {
 
   const dailySummaryDir = path.join(__dirname, '..', 'public', 'data', 'daily-summary');
   await ensureDir(dailySummaryDir);
+  
+  // Clean old files to avoid stale days
+  for (const name of await fs.promises.readdir(dailySummaryDir)) {
+    if (name.toLowerCase().endsWith('.json')) {
+      await fs.promises.unlink(path.join(dailySummaryDir, name));
+    }
+  }
 
   const sortedDates = Object.keys(summaryByDate).sort((a, b) => {
     const [am, ad, ay] = a.split('-');

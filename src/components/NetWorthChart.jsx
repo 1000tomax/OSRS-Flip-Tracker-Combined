@@ -42,6 +42,7 @@ import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatGP, isIncompleteDay } from '../lib/utils';
 import { exportToImage, generateImageFilename } from '../lib/imageExport';
+import { toast } from 'sonner';
 
 export default function NetWorthChart() {
   const { summaries, loading, error } = useDailySummaries();
@@ -90,14 +91,14 @@ export default function NetWorthChart() {
   // Handle image export
   const handleExport = async () => {
     if (!chartRef.current) return;
-    
+
     setIsExporting(true);
     try {
       const filename = generateImageFilename('osrs-networth-chart');
       await exportToImage(chartRef.current, filename);
     } catch (error) {
       console.error('Failed to export chart:', error);
-      alert('Failed to export chart. Please try again.');
+      toast.error('Failed to export chart. Please try again.');
     } finally {
       setIsExporting(false);
     }

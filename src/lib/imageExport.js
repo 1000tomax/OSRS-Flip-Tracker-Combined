@@ -1,6 +1,6 @@
 /**
  * Image Export Utility
- * 
+ *
  * Provides functionality to export chart components as PNG images using html2canvas-pro.
  * Handles chart capture, image generation, and download triggering.
  * html2canvas-pro supports modern CSS including oklch() colors from Tailwind CSS v4.
@@ -8,6 +8,7 @@
 
 import html2canvas from 'html2canvas-pro';
 import React from 'react';
+import { toast } from 'sonner';
 
 /**
  * Exports a DOM element as a PNG image
@@ -30,19 +31,21 @@ export async function exportToImage(element, filename, options = {}) {
       useCORS: true,
       allowTaint: true,
       width: Math.max(element.scrollWidth, 800), // Minimum 800px width
-      ignoreElements: (element) => {
+      ignoreElements: element => {
         // Ignore export buttons and any elements with data-html2canvas-ignore attribute
-        return element.classList?.contains('export-button') || 
-               element.hasAttribute('data-html2canvas-ignore');
+        return (
+          element.classList?.contains('export-button') ||
+          element.hasAttribute('data-html2canvas-ignore')
+        );
       },
-      ...options
+      ...options,
     };
 
     // Generate canvas from element
     const canvas = await html2canvas(element, defaultOptions);
-    
+
     // Convert canvas to blob
-    canvas.toBlob((blob) => {
+    canvas.toBlob(blob => {
       if (!blob) {
         console.error('Failed to generate image blob');
         return;
@@ -54,12 +57,12 @@ export async function exportToImage(element, filename, options = {}) {
       link.href = url;
       link.download = filename;
       link.style.visibility = 'hidden';
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up
       URL.revokeObjectURL(url);
     }, 'image/png');
@@ -79,7 +82,7 @@ export function generateImageFilename(prefix) {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
-  
+
   return `${prefix}-${year}-${month}-${day}.png`;
 }
 
@@ -99,13 +102,13 @@ export function useImageExport(chartRef, chartName) {
     }
 
     setIsExporting(true);
-    
+
     try {
       const filename = generateImageFilename(chartName);
       await exportToImage(chartRef.current, filename);
     } catch (error) {
       console.error('Failed to export chart:', error);
-      alert('Failed to export chart. Please try again.');
+      toast.error('Failed to export chart. Please try again.');
     } finally {
       setIsExporting(false);
     }

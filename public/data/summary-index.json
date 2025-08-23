@@ -184,17 +184,17 @@
     },
     {
       "date": "2025-08-22",
-      "netWorth": 148895005,
-      "profit": 9296757,
-      "percentChange": 6.659651631158008,
-      "roi_decimal": 0.06659651631158008
+      "netWorth": 148973339,
+      "profit": 9375091,
+      "percentChange": 6.71576551591106,
+      "roi_decimal": 0.0671576551591106
     },
     {
       "date": "2025-08-23",
-      "netWorth": 148971788,
-      "profit": 76783,
-      "percentChange": 0.051568553290286666,
-      "roi_decimal": 0.051568553290286666
+      "netWorth": 155070572,
+      "profit": 6097233,
+      "percentChange": 4.092835027346739,
+      "roi_decimal": 0.04092835027346739
     }
   ]
 }

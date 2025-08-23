@@ -36,6 +36,7 @@ import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatGP } from '../lib/utils';
 import { exportToImage, generateImageFilename } from '../lib/imageExport';
+import { toast } from 'sonner';
 
 export default function WeekdayPerformanceChart() {
   const { summaries, loading, error } = useDailySummaries();
@@ -129,14 +130,14 @@ export default function WeekdayPerformanceChart() {
   // Handle image export
   const handleExport = async () => {
     if (!chartRef.current) return;
-    
+
     setIsExporting(true);
     try {
       const filename = generateImageFilename('osrs-weekday-performance-chart');
       await exportToImage(chartRef.current, filename);
     } catch (error) {
       console.error('Failed to export chart:', error);
-      alert('Failed to export chart. Please try again.');
+      toast.error('Failed to export chart. Please try again.');
     } finally {
       setIsExporting(false);
     }

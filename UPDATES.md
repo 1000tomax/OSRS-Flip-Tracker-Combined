@@ -6,11 +6,11 @@
 
 ## 🔴 Critical Fixes (Immediate)
 
-### 1. Fix Jest Configuration
+### 1. ~~Fix Jest Configuration~~ ✅ FIXED
 
-- [ ] **File**: `jest.config.js`
-- [ ] Fix `moduleNameMapping` → `moduleNameMapper`
-- [ ] Add proper transform configuration:
+- [x] **File**: `config/jest.config.js`
+- [x] Fix `moduleNameMapping` → `moduleNameMapper` (was already correct)
+- [x] Add proper transform configuration:
 
 ```js
 export default {
@@ -45,28 +45,28 @@ export default {
   - **Option B (Remove)**: ✅ Deleted unused React Query hooks/imports,
     consolidated on existing fetch hooks
 
-### 3. Replace Alert() with Toast Notifications
+### 3. ~~Replace Alert() with Toast Notifications~~ ✅ FIXED
 
-- [ ] Install toast library: `npm i sonner`
-- [ ] Add toaster to root (`src/App.jsx` or `src/main.jsx`):
+- [x] Install toast library: `npm i sonner`
+- [x] Add toaster to root (`src/main.jsx`):
 
 ```jsx
 import { Toaster } from 'sonner';
 // in JSX: <Toaster richColors closeButton />
 ```
 
-- [ ] Replace all `alert()` calls with `toast.info/success/error()`
-- [ ] **Files to update**:
-  - `src/lib/imageExport.js:108`
-  - `src/components/DailyProfitChart.jsx:104`
-  - `src/pages/FlipLogs.jsx:232`
-  - `src/components/NetWorthChart.jsx:100`
-  - `src/pages/Items.jsx:75`
-  - `src/components/WeekdayPerformanceChart.jsx:139`
+- [x] Replace all `alert()` calls with `toast.info/success/error()`
+- [x] **Files to update**:
+  - `src/lib/imageExport.js:108` ✅
+  - `src/components/DailyProfitChart.jsx:104` ✅
+  - `src/pages/FlipLogs.jsx:232` ✅
+  - `src/components/NetWorthChart.jsx:100` ✅
+  - `src/pages/Items.jsx:75` ✅
+  - `src/components/WeekdayPerformanceChart.jsx:139` ✅
 
-### 4. Unified Challenge Date Configuration
+### 4. ~~Unified Challenge Date Configuration~~ ✅ FIXED
 
-- [ ] Create `data-processing/config.cjs`:
+- [x] Create `data-processing/config.cjs`:
 
 ```js
 module.exports = {
@@ -75,11 +75,11 @@ module.exports = {
 };
 ```
 
-- [ ] Import in `parser.cjs` and `summaryBuilder.cjs` instead of hard-coding
+- [x] Import in `parser.cjs` and `summaryBuilder.cjs` instead of hard-coding
 
-### 5. Fresh Data by Default (PWA)
+### 5. ~~Fresh Data by Default (PWA)~~ ✅ FIXED
 
-- [ ] Update `vite.config.js` to use NetworkFirst for data:
+- [x] Update `config/vite.config.js` to use NetworkFirst for data:
 
 ```js
 workbox: {
@@ -100,9 +100,9 @@ workbox: {
 - [ ] Append `?v=${meta.lastUpdated}` from `/data/meta.json` to all data fetches
 - [ ] Use `{ cache: 'reload' }` for fetch calls
 
-### 6. Disable Production Sourcemaps
+### 6. ~~Disable Production Sourcemaps~~ ✅ FIXED
 
-- [ ] Update `vite.config.js`:
+- [x] Update `config/vite.config.js`:
 
 ```js
 build: {
@@ -117,9 +117,9 @@ build: {
 - [x] Delete: `Users18159osrs-flip-dashboardpublicflipping-copilot-logo.png` ✅
       Removed
 
-### 8. Add Circular Dependency Check
+### 8. ~~Add Circular Dependency Check~~ ✅ FIXED
 
-- [ ] Add to `package.json` scripts:
+- [x] Add to `package.json` scripts:
 
 ```json
 "deps:check": "npx madge --circular --extensions js,jsx,ts,tsx src"
@@ -194,9 +194,9 @@ build: {
 
 ## 🛡️ Security & Accessibility
 
-### 1. CSV Formula Injection Protection
+### 1. ~~CSV Formula Injection Protection~~ ✅ FIXED
 
-- [ ] Add to `data-processing/utils.cjs`:
+- [x] Add to `data-processing/utils.cjs`:
 
 ```js
 function toCSVCell(val) {
@@ -240,10 +240,10 @@ document.documentElement.classList.remove('capture-mode');
 
 ## 🧰 Repository Hygiene
 
-### 1. Update .gitignore
+### 1. ~~Update .gitignore~~ ✅ FIXED
 
-- [ ] Add `coverage/`
-- [ ] Ensure `dist/` isn't committed
+- [x] Add `coverage/` (already present)
+- [x] Ensure `dist/` isn't committed (already present)
 
 ### 2. Configurable Input Paths
 

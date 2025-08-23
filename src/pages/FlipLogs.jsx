@@ -40,6 +40,7 @@ import {
   ResponsiveGrid,
 } from '../components/layouts';
 import { exportToCsv, generateCsvFilename } from '../lib/csvExport';
+import { toast } from 'sonner';
 
 /**
  * FlipLogs Component - Detailed daily trading analysis page
@@ -229,17 +230,17 @@ export default function FlipLogs() {
   // Handle CSV export
   const handleExport = () => {
     if (validFlips.length === 0) {
-      alert('No data to export');
+      toast.error('No data to export');
       return;
     }
-    
+
     // Use the flip columns for export (excluding render functions)
     const exportColumns = flipColumns.map(col => ({
       key: col.key,
       label: col.label,
-      sortValue: col.sortValue
+      sortValue: col.sortValue,
     }));
-    
+
     const filename = date ? `osrs-flip-logs-${date}.csv` : generateCsvFilename('osrs-flip-logs');
     exportToCsv(validFlips, exportColumns, filename);
   };

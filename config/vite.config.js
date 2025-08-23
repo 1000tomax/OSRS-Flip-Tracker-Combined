@@ -36,24 +36,14 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
-            urlPattern: /^\/data\/.*\.csv$/,
-            handler: 'CacheFirst',
+            urlPattern: /\/data\/.*\.(json|csv)$/,
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'csv-cache',
+              cacheName: 'data-cache',
+              networkTimeoutSeconds: 3,
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24, // 1 day
-              },
-            },
-          },
-          {
-            urlPattern: /^\/data\/.*\.json$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'json-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60, // 1 hour
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 30, // 30 minutes
               },
             },
           },
@@ -80,14 +70,17 @@ export default defineConfig({
     // Use esbuild for minification instead of terser to avoid TDZ issues
     minify: 'esbuild',
 
-    // Enable sourcemaps temporarily for debugging
-    sourcemap: true,
+    // Only enable sourcemaps when explicitly requested
+    // eslint-disable-next-line no-undef
+    sourcemap: process.env.SOURCEMAP === 'true',
 
     rollupOptions: {
       output: {
-        // Ultra-simplified chunking - just one vendor chunk to avoid all TDZ issues
-        manualChunks(id) {
-          return id.includes('node_modules') ? 'vendor' : undefined;
+        // Better chunking strategy to avoid React initialization issues
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'chart-vendor': ['recharts'],
+          'utils-vendor': ['papaparse', 'html2canvas-pro', 'sonner'],
         },
 
         // Optimize chunk file names - cache bust

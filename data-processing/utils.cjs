@@ -87,8 +87,21 @@ async function ensureDir(dirPath) {
 function parseNumber(value) {
   if (value === null || value === undefined) return 0;
   if (typeof value === 'number') return value;
-  const cleaned = value.replace(/,/g, '');
-  const num = parseFloat(cleaned);
+
+  // Normalize to string
+  let s = String(value).trim();
+
+  // Strip a single leading apostrophe used for CSV formula-injection protection
+  if (s.startsWith("'")) s = s.slice(1);
+
+  // Optional: handle parentheses accounting, e.g. "(123)" -> -123
+  const parenMatch = s.match(/^\(([\d,]+(\.\d+)?)\)$/);
+  if (parenMatch) s = '-' + parenMatch[1];
+
+  // Remove thousands separators
+  s = s.replace(/,/g, '');
+
+  const num = parseFloat(s);
   return Number.isNaN(num) ? 0 : num;
 }
 
@@ -138,12 +151,17 @@ function formatTimestampWithOffset() {
  * Converts arbitrary value to a CSV-safe string. If the value
  * contains a comma, newline or double quote, it will be wrapped
  * in double quotes and any existing quotes will be doubled.
+ * Also prevents CSV formula injection by prefixing formula characters.
  *
  * @param {any} val
  * @returns {string}
  */
 function toCSVCell(val) {
-  const str = val === null || val === undefined ? '' : String(val);
+  let str = val === null || val === undefined ? '' : String(val);
+  // Prevent CSV formula injection
+  if (/^[=+\-@]/.test(str)) {
+    str = "'" + str;
+  }
   if (/[,\"\n]/.test(str)) {
     return '"' + str.replace(/"/g, '""') + '"';
   }

@@ -31,8 +31,15 @@ import ItemCards from '../components/ItemCards';
 import { itemStatsColumns } from '../lib/columnConfigs.jsx';
 import SortableTable from '../components/SortableTable';
 import { formatGP, formatPercent } from '../lib/utils';
-import { PageContainer, CardContainer, PageHeader, LoadingLayout, ErrorLayout } from '../components/layouts';
+import {
+  PageContainer,
+  CardContainer,
+  PageHeader,
+  LoadingLayout,
+  ErrorLayout,
+} from '../components/layouts';
 import { exportToCsv, generateCsvFilename } from '../lib/csvExport';
+import { toast } from 'sonner';
 
 /**
  * Items Component - Item statistics and analysis page
@@ -72,17 +79,17 @@ export default function Items() {
   // Handle CSV export
   const handleExport = () => {
     if (filtered.length === 0) {
-      alert('No data to export');
+      toast.error('No data to export');
       return;
     }
-    
+
     // Use the table columns for export (excluding render functions)
     const exportColumns = tableColumns.map(col => ({
       key: col.key,
       label: col.label,
-      sortValue: col.sortValue
+      sortValue: col.sortValue,
     }));
-    
+
     const filename = generateCsvFilename('osrs-items');
     exportToCsv(filtered, exportColumns, filename);
   };
@@ -165,10 +172,7 @@ export default function Items() {
   return (
     <PageContainer>
       <CardContainer>
-        <PageHeader 
-          title="Full Item Stats" 
-          icon="📊"
-        />
+        <PageHeader title="Full Item Stats" icon="📊" />
 
         {/* Search and View Controls */}
         <SearchControls
