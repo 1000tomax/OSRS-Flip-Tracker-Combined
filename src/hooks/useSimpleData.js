@@ -29,6 +29,46 @@ export function useSimpleData(url) {
             result = [];
           } else {
             const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+
+            // Normalize number-like strings WITHOUT stripping minus signs.
+            // Handles standard minus '-' and Unicode minus '\u2212', and removes commas.
+            const toNumber = v => {
+              if (typeof v === 'number') return v;
+              if (v == null) return 0;
+              let s = String(v).trim();
+
+              // Strip leading apostrophe used for CSV formula-injection protection
+              if (s.startsWith("'")) s = s.slice(1);
+
+              // Handle parentheses accounting notation, e.g. "(123)" → -123
+              const parenMatch = s.match(/^\(([\d,]+(\.\d+)?)\)$/);
+              if (parenMatch) s = `-${parenMatch[1]}`;
+
+              // Normalize minus variants and remove formatting
+              s = s
+                .replace(/[\u2212\u2012\u2013\u2014]/g, '-') // normalize dash variants (minus/figure/en/em dash)
+                .replace(/,/g, '') // remove thousands separators
+                .replace(/\s+/g, '') // remove whitespace
+                .replace(/(?!^)-/g, ''); // collapse any extra '-' beyond the leading one
+
+              const n = Number(s);
+              return Number.isFinite(n) ? n : 0;
+            };
+
+            // List of numeric columns in /data/item-stats.csv
+            // (Expand if you add new numeric fields later)
+            const ITEM_STATS_NUMERIC_KEYS = new Set([
+              'flips',
+              'total_profit',
+              'total_spent',
+              'roi_percent',
+              'avg_profit_per_flip',
+              'total_items', // if present now or in future
+              'net_items', // if present now or in future
+              'bought_qty', // if present now or in future
+              'sold_qty', // if present now or in future
+            ]);
+
             result = lines
               .slice(1)
               .map(line => {
@@ -51,12 +91,9 @@ export function useSimpleData(url) {
 
                 const obj = {};
                 headers.forEach((header, index) => {
-                  let value = values[index] || '';
-                  // Convert numeric strings to numbers
-                  if (value && !isNaN(value) && value !== '') {
-                    value = parseFloat(value);
-                  }
-                  obj[header] = value;
+                  const raw = values[index] || '';
+                  // Use toNumber() for numeric columns, preserve raw value otherwise
+                  obj[header] = ITEM_STATS_NUMERIC_KEYS.has(header) ? toNumber(raw) : raw;
                 });
                 return obj;
               })

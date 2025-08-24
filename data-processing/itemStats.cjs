@@ -129,13 +129,13 @@ async function runItemStats() {
     const avgProfit = stat.flips === 0 ? 0 : (stat.totalProfit / stat.flips);
     const lastFlippedDate = stat.lastFlipped ? formatDate(stat.lastFlipped) : '';
     const row = [
-      toCSVCell(stat.item_name),
-      toCSVCell(stat.flips),
-      toCSVCell(stat.totalProfit),
-      toCSVCell(stat.totalSpent),
-      toCSVCell(roiPercent),
-      toCSVCell(avgProfit),
-      toCSVCell(lastFlippedDate),
+      toCSVCell(stat.item_name),      // Keep toCSVCell for text (might have commas)
+      String(stat.flips),              // Numeric - use String()
+      String(stat.totalProfit),        // Numeric - use String()
+      String(stat.totalSpent),         // Numeric - use String()
+      String(roiPercent),              // Numeric - use String()
+      String(avgProfit),               // Numeric - use String()
+      toCSVCell(lastFlippedDate),     // Keep toCSVCell for dates
     ];
     output += row.join(',') + '\n';
   }

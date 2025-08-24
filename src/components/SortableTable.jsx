@@ -37,7 +37,7 @@ export default function SortableTable({
       }
 
       // Handle different data types
-      if (typeof aVal === 'string') {
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
         aVal = aVal.toLowerCase();
         bVal = bVal.toLowerCase();
         return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);

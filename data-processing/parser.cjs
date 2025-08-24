@@ -118,8 +118,21 @@ async function runParser() {
     ];
 
     let output = headerCols.join(',') + '\n';
+    
+    // Numeric fields that should use String() instead of toCSVCell
+    const numericFields = new Set([
+      'opened_quantity',
+      'spent',
+      'closed_quantity',
+      'received_post_tax',
+      'tax_paid',
+      'profit'
+    ]);
+    
     for (const rec of recordsForDate) {
-      const row = headerCols.map(key => toCSVCell(rec[key]));
+      const row = headerCols.map(key => 
+        numericFields.has(key) ? String(rec[key]) : toCSVCell(rec[key])
+      );
       output += row.join(',') + '\n';
     }
 

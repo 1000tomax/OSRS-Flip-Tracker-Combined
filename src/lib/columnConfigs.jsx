@@ -19,33 +19,59 @@ export const itemStatsColumns = [
     key: 'total_profit',
     label: 'Profit',
     cellClass: 'font-medium font-mono',
-    render: value => (
+    render: value => {
+      const numValue = Number(value);
+      // Handle invalid numeric values
+      if (isNaN(numValue)) {
+        return <span className="font-medium font-mono text-gray-400">0 GP</span>;
+      }
       // Color code profit: green for positive, red for negative
-      <span
-        className={`font-medium font-mono ${Number(value) >= 0 ? 'text-green-400' : 'text-red-400'}`}
-      >
-        {formatGP(Number(value))} GP
-      </span>
-    ),
+      return (
+        <span
+          className={`font-medium font-mono ${numValue >= 0 ? 'text-green-400' : 'text-red-400'}`}
+        >
+          {formatGP(numValue)} GP
+        </span>
+      );
+    },
   },
   {
     key: 'roi_percent',
     label: 'ROI',
     cellClass: 'font-medium font-mono',
-    render: value => (
+    render: value => {
+      const numValue = Number(value);
+      // Handle invalid numeric values
+      if (isNaN(numValue)) {
+        return <span className="font-medium font-mono text-gray-400">0.00%</span>;
+      }
       // Color code ROI: green for positive, red for negative
-      <span
-        className={`font-medium font-mono ${Number(value) >= 0 ? 'text-green-400' : 'text-red-400'}`}
-      >
-        {formatPercent(Number(value))}
-      </span>
-    ),
+      return (
+        <span
+          className={`font-medium font-mono ${numValue >= 0 ? 'text-green-400' : 'text-red-400'}`}
+        >
+          {formatPercent(numValue)}
+        </span>
+      );
+    },
   },
   {
     key: 'avg_profit_per_flip',
     label: 'Avg/Flip',
-    render: value => (
-      <span className="text-white font-medium font-mono">{formatGP(Number(value))} GP</span>
-    ),
+    render: value => {
+      const numValue = Number(value);
+      // Handle invalid numeric values
+      if (!Number.isFinite(numValue)) {
+        return <span className="text-gray-400 font-medium font-mono">0 GP</span>;
+      }
+      // Color code avg profit: green for positive, red for negative
+      return (
+        <span
+          className={`font-medium font-mono ${numValue >= 0 ? 'text-green-400' : 'text-red-400'}`}
+        >
+          {formatGP(numValue)} GP
+        </span>
+      );
+    },
   },
 ];

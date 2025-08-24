@@ -72,9 +72,15 @@ export default function Items() {
   }
 
   // Filter items based on search query
-  const filtered = items.filter(
-    item => item.item_name.toLowerCase().includes(query.toLowerCase()) // Case-insensitive search
-  );
+  const filtered = items.filter(item => {
+    // Ensure item_name exists and is a string
+    const itemName = item?.item_name;
+    if (typeof itemName !== 'string') {
+      console.warn('Invalid item_name:', item);
+      return false;
+    }
+    return itemName.toLowerCase().includes(query.toLowerCase()); // Case-insensitive search
+  });
 
   // Handle CSV export
   const handleExport = () => {
@@ -124,11 +130,18 @@ export default function Items() {
       key: 'total_profit',
       label: 'Total Profit',
       cellClass: 'font-mono font-medium',
-      render: value => (
-        <span className={Number(value) >= 0 ? 'text-green-400' : 'text-red-400'}>
-          {formatGP(Number(value))} GP
-        </span>
-      ),
+      render: value => {
+        const numValue = Number(value);
+        if (isNaN(numValue)) {
+          console.warn('Invalid total_profit value:', value);
+          return <span className="text-gray-400">0 GP</span>;
+        }
+        return (
+          <span className={numValue >= 0 ? 'text-green-400' : 'text-red-400'}>
+            {formatGP(numValue)} GP
+          </span>
+        );
+      },
     },
 
     // Total amount invested in this item
@@ -136,7 +149,14 @@ export default function Items() {
       key: 'total_spent',
       label: 'Total Spent',
       cellClass: 'text-gray-300 font-mono',
-      render: value => formatGP(Number(value)),
+      render: value => {
+        const numValue = Number(value);
+        if (isNaN(numValue)) {
+          console.warn('Invalid total_spent value:', value);
+          return '0';
+        }
+        return formatGP(numValue);
+      },
     },
 
     // Return on Investment percentage (color-coded)
@@ -144,19 +164,37 @@ export default function Items() {
       key: 'roi_percent',
       label: 'ROI %',
       cellClass: 'font-mono font-medium',
-      render: value => (
-        <span className={Number(value) >= 0 ? 'text-green-400' : 'text-red-400'}>
-          {formatPercent(Number(value))}
-        </span>
-      ),
+      render: value => {
+        const numValue = Number(value);
+        if (isNaN(numValue)) {
+          console.warn('Invalid roi_percent value:', value);
+          return <span className="text-gray-400">0.00%</span>;
+        }
+        return (
+          <span className={numValue >= 0 ? 'text-green-400' : 'text-red-400'}>
+            {formatPercent(numValue)}
+          </span>
+        );
+      },
     },
 
-    // Average profit per individual flip
+    // Average profit per individual flip (color-coded)
     {
       key: 'avg_profit_per_flip',
       label: 'Avg/Flip',
-      cellClass: 'text-gray-300 font-mono',
-      render: value => `${formatGP(Number(value))} GP`,
+      cellClass: 'font-mono',
+      render: value => {
+        const numValue = Number(value);
+        if (!Number.isFinite(numValue)) {
+          console.warn('Invalid avg_profit_per_flip value:', value);
+          return <span className="text-gray-400">0 GP</span>;
+        }
+        return (
+          <span className={numValue >= 0 ? 'text-green-400' : 'text-red-400'}>
+            {formatGP(numValue)} GP
+          </span>
+        );
+      },
     },
 
     // When this item was last traded

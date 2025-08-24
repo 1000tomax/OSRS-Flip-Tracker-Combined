@@ -32,9 +32,13 @@
  * 4. Otherwise, just add commas for readability
  */
 export function formatGP(value) {
-  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(2)}B`;
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`;
+  // Handle negative values by preserving the sign
+  const absValue = Math.abs(value);
+  const sign = value < 0 ? '-' : '';
+
+  if (absValue >= 1_000_000_000) return `${sign}${(absValue / 1_000_000_000).toFixed(2)}B`;
+  if (absValue >= 1_000_000) return `${sign}${(absValue / 1_000_000).toFixed(2)}M`;
+  if (absValue >= 1_000) return `${sign}${(absValue / 1_000).toFixed(0)}K`;
   return value?.toLocaleString?.() ?? value;
 }
 
@@ -49,8 +53,9 @@ export function formatGP(value) {
  * Example: 0.25 becomes "+25.00%", -0.1 becomes "-10.00%"
  */
 export function formatPercent(value) {
+  if (!Number.isFinite(value)) return '0.00%'; // Handle NaN, Infinity, etc.
   const prefix = value > 0 ? '+' : ''; // Add + sign for positive numbers
-  return `${prefix + value.toFixed(2)}%`;
+  return `${prefix}${value.toFixed(2)}%`;
 }
 
 /**

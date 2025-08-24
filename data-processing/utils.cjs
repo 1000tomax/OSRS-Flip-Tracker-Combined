@@ -98,8 +98,14 @@ function parseNumber(value) {
   const parenMatch = s.match(/^\(([\d,]+(\.\d+)?)\)$/);
   if (parenMatch) s = '-' + parenMatch[1];
 
-  // Remove thousands separators
-  s = s.replace(/,/g, '');
+  // Normalize minus variants and strip noise while preserving a single leading '-'
+  s = s
+    .replace(/[\u2212\u2012\u2013\u2014]/g, '-') // Unicode minus / figure dash / en/em dash -> ASCII '-'
+    .replace(/,/g, '')                           // drop thousands separators
+    .replace(/\s+/g, '');                        // drop stray whitespace
+  
+  // If there are multiple '-' signs, keep only the first (leading) one
+  s = s.replace(/(?!^)-/g, '');
 
   const num = parseFloat(s);
   return Number.isNaN(num) ? 0 : num;
