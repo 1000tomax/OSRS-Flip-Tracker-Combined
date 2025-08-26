@@ -14,6 +14,7 @@ const FlipLogs = lazy(() => import('./pages/FlipLogs'));
 const Charts = lazy(() => import('./pages/Charts'));
 const StrategyBattle = lazy(() => import('./pages/StrategyBattle'));
 const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
+const QueryPage = lazy(() => import('./pages/QueryPage'));
 
 // Import analytics pages directly to debug routing issue
 import TradingHeatMap from './pages/TradingHeatMap';
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/items" element={<Items />} />
                 <Route path="/flip-logs" element={<FlipLogs />} />
                 <Route path="/charts" element={<Charts />} />
+                <Route path="/query" element={<QueryPage />} />
                 <Route path="/performance" element={<ProfitVelocity />} />
                 <Route path="/volume" element={<StrategyBattle />} />
                 <Route path="/profit-velocity" element={<ProfitVelocity />} />
