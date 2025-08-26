@@ -34,10 +34,35 @@ const loadFlipData = async (dateFrom, dateTo) => {
   let datesToLoad = formattedDates;
   if (dateFrom || dateTo) {
     console.log('Filtering dates - From:', dateFrom, 'To:', dateTo);
+
+    // Handle year mismatch - if user searches for 2024 dates but data is in 2025
+    let adjustedFrom = dateFrom;
+    let adjustedTo = dateTo;
+
+    // Check if the user is searching for 2024 dates but our data is in 2025
+    if (
+      dateFrom &&
+      dateFrom.includes('2024') &&
+      formattedDates.length > 0 &&
+      formattedDates[0].includes('2025')
+    ) {
+      adjustedFrom = dateFrom.replace('2024', '2025');
+      console.log('Adjusted dateFrom from 2024 to 2025:', adjustedFrom);
+    }
+    if (
+      dateTo &&
+      dateTo.includes('2024') &&
+      formattedDates.length > 0 &&
+      formattedDates[0].includes('2025')
+    ) {
+      adjustedTo = dateTo.replace('2024', '2025');
+      console.log('Adjusted dateTo from 2024 to 2025:', adjustedTo);
+    }
+
     datesToLoad = formattedDates.filter(date => {
       const d = new Date(date);
-      const from = dateFrom ? new Date(dateFrom) : new Date('1900-01-01');
-      const to = dateTo ? new Date(dateTo) : new Date('2100-01-01');
+      const from = adjustedFrom ? new Date(adjustedFrom) : new Date('1900-01-01');
+      const to = adjustedTo ? new Date(adjustedTo) : new Date('2100-01-01');
       return d >= from && d <= to;
     });
     console.log('Dates after filtering:', datesToLoad.length, 'dates');
