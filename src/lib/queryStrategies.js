@@ -4,11 +4,25 @@ import { queryCache } from './queryCache';
 const loadFlipData = async (dateFrom, dateTo) => {
   const summaryIndex = await queryCache.getCachedSummaryData('summary-index', async () => {
     const response = await fetch('/data/summary-index.json');
+    if (!response.ok) {
+      console.error('Failed to fetch summary-index.json:', response.status);
+      throw new Error(`Failed to fetch summary-index.json: ${response.status}`);
+    }
     return response.json();
   });
 
   // Extract dates - the summary-index.json is just an array of date strings in MM-DD-YYYY format
   const availableDates = Array.isArray(summaryIndex) ? summaryIndex : [];
+
+  console.log('Available dates from summary-index:', availableDates.length, 'dates');
+  if (availableDates.length > 0) {
+    console.log(
+      'First date:',
+      availableDates[0],
+      'Last date:',
+      availableDates[availableDates.length - 1]
+    );
+  }
 
   // Convert MM-DD-YYYY to YYYY-MM-DD for proper date comparison and file paths
   const formattedDates = availableDates.map(dateStr => {
@@ -19,12 +33,16 @@ const loadFlipData = async (dateFrom, dateTo) => {
   // Filter dates within range
   let datesToLoad = formattedDates;
   if (dateFrom || dateTo) {
+    console.log('Filtering dates - From:', dateFrom, 'To:', dateTo);
     datesToLoad = formattedDates.filter(date => {
       const d = new Date(date);
       const from = dateFrom ? new Date(dateFrom) : new Date('1900-01-01');
       const to = dateTo ? new Date(dateTo) : new Date('2100-01-01');
       return d >= from && d <= to;
     });
+    console.log('Dates after filtering:', datesToLoad.length, 'dates');
+  } else {
+    console.log('No date filter applied, loading all', datesToLoad.length, 'dates');
   }
 
   if (datesToLoad.length === 0) {
@@ -41,16 +59,21 @@ const loadFlipData = async (dateFrom, dateTo) => {
 
     try {
       const csvData = await queryCache.getCachedFlipData(`flips-${date}`, async () => {
+        console.log('Fetching flip data from:', url);
         const response = await fetch(url);
         if (!response.ok) {
+          console.error(`Failed to load data for ${date}, status:`, response.status, 'URL:', url);
           throw new Error(`Failed to load data for ${date}`);
         }
         const text = await response.text();
-        return parseCSV(text);
+        const parsed = parseCSV(text);
+        console.log(`Loaded ${parsed.length} flips for ${date}`);
+        return parsed;
       });
 
       allFlips.push(...csvData);
-    } catch {
+    } catch (error) {
+      console.error(`Error loading flips for ${date}:`, error.message);
       warnings.push(`Missing data for ${date}`);
     }
   }
