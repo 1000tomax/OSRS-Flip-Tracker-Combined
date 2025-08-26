@@ -37,7 +37,13 @@ const loadFlipData = async (dateFrom, dateTo) => {
     // If it's an object with a days property, use that (production format)
     else if (data && typeof data === 'object' && Array.isArray(data.days)) {
       console.log('Found dates in data.days property');
-      dates = data.days;
+      // Extract date strings from objects if needed
+      if (data.days.length > 0 && typeof data.days[0] === 'object' && data.days[0].date) {
+        dates = data.days.map(day => day.date);
+        console.log('Extracted dates from day objects:', dates.slice(0, 3));
+      } else {
+        dates = data.days;
+      }
     }
     // If it's an object with numeric keys (like converted array), extract values
     else if (data && typeof data === 'object') {
@@ -62,7 +68,16 @@ const loadFlipData = async (dateFrom, dateTo) => {
       } else if (directData?.dates) {
         dates = directData.dates;
       } else if (directData?.days) {
-        dates = directData.days;
+        // Extract date strings from objects if needed
+        if (
+          directData.days.length > 0 &&
+          typeof directData.days[0] === 'object' &&
+          directData.days[0].date
+        ) {
+          dates = directData.days.map(day => day.date);
+        } else {
+          dates = directData.days;
+        }
       } else if (directData && typeof directData === 'object') {
         const keys = Object.keys(directData);
         if (keys.every(k => !isNaN(parseInt(k)))) {
@@ -91,10 +106,21 @@ const loadFlipData = async (dateFrom, dateTo) => {
     );
   }
 
-  // Convert MM-DD-YYYY to YYYY-MM-DD for proper date comparison and file paths
+  // Convert date format for proper date comparison and file paths
   const formattedDates = availableDates.map(dateStr => {
-    const [month, day, year] = dateStr.split('-');
-    return `${year}-${month}-${day}`;
+    // Check if date is already in YYYY-MM-DD format
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateStr;
+    }
+    // Otherwise convert MM-DD-YYYY to YYYY-MM-DD
+    const parts = dateStr.split('-');
+    if (parts.length === 3 && parts[0].length <= 2) {
+      const [month, day, year] = parts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    // Return as-is if format is unexpected
+    console.warn('Unexpected date format:', dateStr);
+    return dateStr;
   });
 
   // Filter dates within range
