@@ -34,6 +34,11 @@ const loadFlipData = async (dateFrom, dateTo) => {
       console.log('Found dates in data.dates property');
       dates = data.dates;
     }
+    // If it's an object with a days property, use that (production format)
+    else if (data && typeof data === 'object' && Array.isArray(data.days)) {
+      console.log('Found dates in data.days property');
+      dates = data.days;
+    }
     // If it's an object with numeric keys (like converted array), extract values
     else if (data && typeof data === 'object') {
       const keys = Object.keys(data);
@@ -56,6 +61,8 @@ const loadFlipData = async (dateFrom, dateTo) => {
         dates = directData;
       } else if (directData?.dates) {
         dates = directData.dates;
+      } else if (directData?.days) {
+        dates = directData.days;
       } else if (directData && typeof directData === 'object') {
         const keys = Object.keys(directData);
         if (keys.every(k => !isNaN(parseInt(k)))) {
