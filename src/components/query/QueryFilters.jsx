@@ -4,11 +4,13 @@ export default function QueryFilters({ queryType, formData, onFieldChange }) {
   const renderItemFlipsFilters = () => (
     <>
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Item Name</label>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Item Name <span className="text-red-400">*</span>
+        </label>
         <ItemSearchInput
           value={formData.itemSearch || ''}
           onChange={value => onFieldChange('itemSearch', value)}
-          placeholder="Type to search items..."
+          placeholder="Type to search items... (required)"
         />
       </div>
 

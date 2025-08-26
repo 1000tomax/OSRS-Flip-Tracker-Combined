@@ -24,6 +24,14 @@ export default function QueryForm({
   };
 
   const validateForm = () => {
+    // Item name validation for ITEM_FLIPS
+    if (queryType === 'ITEM_FLIPS') {
+      if (!formData.itemSearch || formData.itemSearch.trim() === '') {
+        setValidationError('Please select an item to search for');
+        return false;
+      }
+    }
+
     // Date range validation for relevant query types
     if (
       queryType === 'ITEM_FLIPS' ||

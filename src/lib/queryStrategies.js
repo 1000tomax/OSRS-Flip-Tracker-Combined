@@ -337,16 +337,30 @@ const loadItemStats = async () => {
 
 // Strategy: Individual flips for specific items
 export const itemFlipStrategy = async queryObj => {
+  // Require item name for this query type
+  if (!queryObj.itemName) {
+    return {
+      type: 'FLIP_LIST',
+      data: [],
+      warnings: ['Please select an item to search for flips'],
+      meta: { daysScanned: 0, ms: 0 },
+      summary: {
+        totalFlips: 0,
+        totalProfit: 0,
+        averageProfit: 0,
+        totalSpent: 0,
+      },
+    };
+  }
+
   const { flips, warnings, meta } = await loadFlipData(queryObj.dateFrom, queryObj.dateTo);
 
-  // Filter by item name if specified (case-insensitive)
-  const filteredFlips = queryObj.itemName
-    ? flips.filter(flip => {
-        // Ensure item_name exists before calling toLowerCase
-        if (!flip.item_name) return false;
-        return flip.item_name.toLowerCase() === queryObj.itemName.toLowerCase();
-      })
-    : flips;
+  // Filter by item name (case-insensitive)
+  const filteredFlips = flips.filter(flip => {
+    // Ensure item_name exists before calling toLowerCase
+    if (!flip.item_name) return false;
+    return flip.item_name.toLowerCase() === queryObj.itemName.toLowerCase();
+  });
 
   return {
     type: 'FLIP_LIST',
