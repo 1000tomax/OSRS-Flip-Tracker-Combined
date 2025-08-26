@@ -4,6 +4,7 @@ import { queryCache } from '../lib/queryCache';
 export const useItemSearch = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const debounceTimer = useRef(null);
 
   // Load all unique item names from item-stats
@@ -35,6 +36,7 @@ export const useItemSearch = () => {
     // Debounce the search
     debounceTimer.current = setTimeout(async () => {
       setLoading(true);
+      setHasSearched(true);
 
       try {
         const allItems = await getAllItemNames();
@@ -66,9 +68,19 @@ export const useItemSearch = () => {
     }, 300); // eslint-disable-line no-magic-numbers
   }, []);
 
+  const clearSearch = useCallback(() => {
+    setSuggestions([]);
+    setHasSearched(false);
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+  }, []);
+
   return {
     suggestions,
     loading,
+    hasSearched,
     searchItems,
+    clearSearch,
   };
 };

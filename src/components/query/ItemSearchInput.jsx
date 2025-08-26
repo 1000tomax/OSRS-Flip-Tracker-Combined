@@ -5,7 +5,7 @@ export default function ItemSearchInput({ value, onChange, placeholder }) {
   const [inputValue, setInputValue] = useState(value || '');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const { suggestions, loading, searchItems } = useItemSearch();
+  const { suggestions, loading, hasSearched, searchItems, clearSearch } = useItemSearch();
   const inputRef = useRef(null);
   const wrapperRef = useRef(null);
 
@@ -37,6 +37,7 @@ export default function ItemSearchInput({ value, onChange, placeholder }) {
       setSelectedIndex(-1);
     } else {
       setShowSuggestions(false);
+      clearSearch();
     }
   };
 
@@ -111,7 +112,7 @@ export default function ItemSearchInput({ value, onChange, placeholder }) {
         )}
       </div>
 
-      {showSuggestions && (
+      {showSuggestions && inputValue.trim() && (
         <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg max-h-64 overflow-auto">
           {loading ? (
             <div className="px-3 py-2 text-gray-400">Searching...</div>
@@ -130,9 +131,9 @@ export default function ItemSearchInput({ value, onChange, placeholder }) {
                 </div>
               </button>
             ))
-          ) : (
+          ) : hasSearched ? (
             <div className="px-3 py-2 text-gray-400">No items found</div>
-          )}
+          ) : null}
         </div>
       )}
     </div>
