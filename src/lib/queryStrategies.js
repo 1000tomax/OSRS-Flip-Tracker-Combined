@@ -1,4 +1,64 @@
 import { queryCache } from './queryCache';
+import Papa from 'papaparse';
+
+// Configurable pool size
+const QUERY_POOL_SIZE = Number(import.meta.env.VITE_QUERY_POOL || 8);
+
+// Helper for retrying on transient errors
+const fetchWithRetry = async (url, retries = 2) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) return response;
+
+      // Retry on 5xx errors
+      if (response.status >= 500 && i + 1 < retries) {
+        await new Promise(resolve => setTimeout(resolve, 200 + 200 * i));
+        continue;
+      }
+
+      // Don't retry on 4xx errors
+      return response;
+    } catch (error) {
+      // Network errors - retry if we have attempts left
+      if (i + 1 < retries) {
+        await new Promise(resolve => setTimeout(resolve, 200 + 200 * i));
+        continue;
+      }
+      throw error;
+    }
+  }
+};
+
+// Helper to safely handle numeric values
+const safe = n => (Number.isFinite(n) ? n : 0);
+
+// Helper for bounded concurrency
+const runPool = async (tasks, limit = QUERY_POOL_SIZE) => {
+  const results = [];
+  let currentIndex = 0;
+
+  const executeNext = async () => {
+    const localResults = [];
+    while (currentIndex < tasks.length) {
+      const taskIndex = currentIndex++;
+      const result = await tasks[taskIndex]();
+      if (Array.isArray(result)) {
+        localResults.push(...result);
+      }
+    }
+    return localResults;
+  };
+
+  const workers = Array.from({ length: Math.min(limit, tasks.length) }, () => executeNext());
+  const workerResults = await Promise.all(workers);
+
+  for (const workerResult of workerResults) {
+    results.push(...workerResult);
+  }
+
+  return results;
+};
 
 // Helper to load flip data from CSV files
 const loadFlipData = async (dateFrom, dateTo) => {
@@ -9,18 +69,21 @@ const loadFlipData = async (dateFrom, dateTo) => {
       throw new Error(`Failed to fetch summary-index.json: ${response.status}`);
     }
     const data = await response.json();
-    console.log(
-      'Raw summary-index data:',
-      typeof data,
-      'isArray:',
-      Array.isArray(data),
-      'length:',
-      data?.length,
-      'sample:',
-      data?.slice?.(0, 3),
-      'keys:',
-      typeof data === 'object' ? Object.keys(data).slice(0, 5) : 'N/A'
-    );
+    const DEBUG_QUERY = false;
+    if (DEBUG_QUERY) {
+      console.log(
+        'Raw summary-index data:',
+        typeof data,
+        'isArray:',
+        Array.isArray(data),
+        'length:',
+        data?.length,
+        'sample:',
+        data?.slice?.(0, 3),
+        'keys:',
+        typeof data === 'object' ? Object.keys(data).slice(0, 5) : 'N/A'
+      );
+    }
 
     // Handle different data formats
     let dates = [];
@@ -31,16 +94,16 @@ const loadFlipData = async (dateFrom, dateTo) => {
     }
     // If it's an object with a dates property, use that
     else if (data && typeof data === 'object' && Array.isArray(data.dates)) {
-      console.log('Found dates in data.dates property');
+      if (DEBUG_QUERY) console.log('Found dates in data.dates property');
       dates = data.dates;
     }
     // If it's an object with a days property, use that (production format)
     else if (data && typeof data === 'object' && Array.isArray(data.days)) {
-      console.log('Found dates in data.days property');
+      if (DEBUG_QUERY) console.log('Found dates in data.days property');
       // Extract date strings from objects if needed
       if (data.days.length > 0 && typeof data.days[0] === 'object' && data.days[0].date) {
         dates = data.days.map(day => day.date);
-        console.log('Extracted dates from day objects:', dates.slice(0, 3));
+        if (DEBUG_QUERY) console.log('Extracted dates from day objects:', dates.slice(0, 3));
       } else {
         dates = data.days;
       }
@@ -49,7 +112,7 @@ const loadFlipData = async (dateFrom, dateTo) => {
     else if (data && typeof data === 'object') {
       const keys = Object.keys(data);
       if (keys.every(k => !isNaN(parseInt(k)))) {
-        console.log('Converting object with numeric keys to array');
+        if (DEBUG_QUERY) console.log('Converting object with numeric keys to array');
         dates = keys.map(k => data[k]);
       }
     }
@@ -96,14 +159,17 @@ const loadFlipData = async (dateFrom, dateTo) => {
   // Extract dates - the summary-index.json is just an array of date strings in MM-DD-YYYY format
   const availableDates = Array.isArray(summaryIndex) ? summaryIndex : [];
 
-  console.log('Available dates from summary-index:', availableDates.length, 'dates');
-  if (availableDates.length > 0) {
-    console.log(
-      'First date:',
-      availableDates[0],
-      'Last date:',
-      availableDates[availableDates.length - 1]
-    );
+  const DEBUG_QUERY = false;
+  if (DEBUG_QUERY) {
+    console.log('Available dates from summary-index:', availableDates.length, 'dates');
+    if (availableDates.length > 0) {
+      console.log(
+        'First date:',
+        availableDates[0],
+        'Last date:',
+        availableDates[availableDates.length - 1]
+      );
+    }
   }
 
   // Convert date format for proper date comparison and file paths
@@ -123,133 +189,141 @@ const loadFlipData = async (dateFrom, dateTo) => {
     return dateStr;
   });
 
-  // Filter dates within range
+  // Filter dates within range using lexicographic comparison
+  const warnings = [];
+
+  // Helper for lexicographic date range check
+  const inRange = (d, from, to) => (!from || d >= from) && (!to || d <= to);
+
+  // Normalize to YYYY-MM-DD format (expect already in this format or handle edge cases)
+  const norm = s => (s ? s.slice(0, 10) : s);
+  const reqFrom = norm(dateFrom);
+  const reqTo = norm(dateTo);
+
   let datesToLoad = formattedDates;
-  if (dateFrom || dateTo) {
-    console.log('Filtering dates - From:', dateFrom, 'To:', dateTo);
 
-    // Handle year mismatch - if user searches for 2024 dates but data is in 2025
-    let adjustedFrom = dateFrom;
-    let adjustedTo = dateTo;
+  if (reqFrom || reqTo) {
+    const DEBUG_QUERY = false;
+    if (DEBUG_QUERY) console.log('Filtering dates - From:', reqFrom, 'To:', reqTo);
 
-    // Check if the user is searching for 2024 dates but our data is in 2025
-    if (
-      dateFrom &&
-      dateFrom.includes('2024') &&
-      formattedDates.length > 0 &&
-      formattedDates[0].includes('2025')
-    ) {
-      adjustedFrom = dateFrom.replace('2024', '2025');
-      console.log('Adjusted dateFrom from 2024 to 2025:', adjustedFrom);
+    datesToLoad = formattedDates.filter(d => inRange(d, reqFrom, reqTo));
+
+    // Get available date range
+    const minAvail = formattedDates[0];
+    const maxAvail = formattedDates[formattedDates.length - 1];
+
+    // Check for no overlap
+    const noOverlap = (reqTo && reqTo < minAvail) || (reqFrom && reqFrom > maxAvail);
+
+    if (datesToLoad.length === 0 && formattedDates.length > 0 && noOverlap) {
+      // Convert YYYY-MM-DD to MM-DD-YYYY for display
+      const fmt = ymd => ymd.replace(/(\d{4})-(\d{2})-(\d{2})/, '$2-$3-$1');
+      warnings.push(
+        `No data available for the selected range. Available data: ${fmt(minAvail)} to ${fmt(maxAvail)}`
+      );
     }
-    if (
-      dateTo &&
-      dateTo.includes('2024') &&
-      formattedDates.length > 0 &&
-      formattedDates[0].includes('2025')
+    // Check if we clipped the range
+    else if (
+      datesToLoad.length > 0 &&
+      ((reqFrom && reqFrom < minAvail) || (reqTo && reqTo > maxAvail))
     ) {
-      adjustedTo = dateTo.replace('2024', '2025');
-      console.log('Adjusted dateTo from 2024 to 2025:', adjustedTo);
+      const fmt = ymd => ymd.replace(/(\d{4})-(\d{2})-(\d{2})/, '$2-$3-$1');
+      warnings.push(
+        `Date range clipped to available data: ${fmt(datesToLoad[0])} to ${fmt(datesToLoad[datesToLoad.length - 1])}`
+      );
     }
 
-    datesToLoad = formattedDates.filter(date => {
-      const d = new Date(date);
-      const from = adjustedFrom ? new Date(adjustedFrom) : new Date('1900-01-01');
-      const to = adjustedTo ? new Date(adjustedTo) : new Date('2100-01-01');
-      return d >= from && d <= to;
-    });
-    console.log('Dates after filtering:', datesToLoad.length, 'dates');
+    if (DEBUG_QUERY) console.log('Dates after filtering:', datesToLoad.length, 'dates');
   } else {
-    console.log('No date filter applied, loading all', datesToLoad.length, 'dates');
+    const DEBUG_QUERY = false;
+    if (DEBUG_QUERY)
+      console.log('No date filter applied, loading all', datesToLoad.length, 'dates');
   }
 
   if (datesToLoad.length === 0) {
-    return { flips: [], warnings: ['No data files found for the specified date range'] };
+    return {
+      flips: [],
+      warnings:
+        warnings.length > 0 ? warnings : ['No data files found for the specified date range'],
+      meta: { daysScanned: 0, ms: 0 },
+    };
   }
 
-  // Load all flip data for selected dates
-  const allFlips = [];
-  const warnings = [];
-
-  for (const date of datesToLoad) {
+  // Create tasks for parallel loading
+  const loadWarnings = [];
+  const tasks = datesToLoad.map(date => async () => {
     const [year, month, day] = date.split('-');
     const url = `/data/processed-flips/${year}/${month}/${day}/flips.csv`;
 
     try {
       const csvData = await queryCache.getCachedFlipData(`flips-${date}`, async () => {
-        console.log('Fetching flip data from:', url);
-        const response = await fetch(url);
+        const DEBUG_QUERY = false;
+        if (DEBUG_QUERY) console.log('Fetching flip data from:', url);
+
+        const response = await fetchWithRetry(url);
         if (!response.ok) {
-          console.error(`Failed to load data for ${date}, status:`, response.status, 'URL:', url);
-          throw new Error(`Failed to load data for ${date}`);
+          if (DEBUG_QUERY) console.log(`Missing data for ${date}, status:`, response.status);
+          // Cache the miss to avoid repeated 404s
+          return { __MISS__: true, date, status: response.status };
         }
+
         const text = await response.text();
         const parsed = parseCSV(text);
-        console.log(`Loaded ${parsed.length} flips for ${date}`);
+        if (DEBUG_QUERY) console.log(`Loaded ${parsed.length} flips for ${date}`);
         return parsed;
       });
 
-      allFlips.push(...csvData);
+      // Check if this is a cached miss
+      if (csvData?.__MISS__) {
+        loadWarnings.push(`Missing data for ${date}`);
+        return [];
+      }
+
+      return csvData;
     } catch (error) {
       console.error(`Error loading flips for ${date}:`, error.message);
-      warnings.push(`Missing data for ${date}`);
-    }
-  }
-
-  if (warnings.length > 0 && allFlips.length === 0) {
-    throw new Error('No data available for the selected date range');
-  }
-
-  return { flips: allFlips, warnings };
-};
-
-// Helper to parse CSV text
-const parseCSV = text => {
-  try {
-    const lines = text.trim().split('\n');
-    if (lines.length === 0) {
+      loadWarnings.push(`Error loading data for ${date}`);
       return [];
     }
+  });
 
-    const headers = lines[0].split(',');
-    if (headers.length === 0) {
-      throw new Error('Invalid CSV format: No headers found');
-    }
+  // Load all flip data in parallel with bounded concurrency
+  const startTime = performance.now();
+  const allFlips = await runPool(tasks, QUERY_POOL_SIZE);
+  const endTime = performance.now();
 
-    return lines
-      .slice(1)
-      .map(line => {
-        const values = line.split(',');
-        if (values.length !== headers.length) {
-          // Skip malformed lines but don't throw error
-          return null;
-        }
+  const meta = {
+    daysScanned: datesToLoad.length,
+    ms: endTime - startTime,
+  };
 
-        const obj = {};
-        headers.forEach((header, index) => {
-          const value = values[index];
-          // Parse numbers for specific fields
-          if (
-            [
-              'opened_quantity',
-              'spent',
-              'closed_quantity',
-              'received_post_tax',
-              'tax_paid',
-              'profit',
-            ].includes(header)
-          ) {
-            obj[header] = parseFloat(value) || 0;
-          } else {
-            obj[header] = value || '';
-          }
-        });
-        return obj;
-      })
-      .filter(obj => obj !== null); // Remove any malformed lines
-  } catch (error) {
-    throw new Error(`Failed to parse CSV: ${error.message}`);
+  // Combine all warnings
+  const allWarnings = [...warnings, ...loadWarnings];
+
+  // Return empty result with warnings instead of throwing error
+  if (allWarnings.length > 0 && allFlips.length === 0) {
+    return { flips: [], warnings: allWarnings, meta };
   }
+
+  return { flips: allFlips, warnings: allWarnings, meta };
+};
+
+// Helper to parse CSV text using PapaParse
+const parseCSV = text => {
+  const { data, errors } = Papa.parse(text, {
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true,
+  });
+
+  const DEBUG_QUERY = false;
+  if (errors?.length && DEBUG_QUERY) {
+    console.warn('CSV parse warnings:', errors.slice(0, 3));
+  }
+
+  // PapaParse's dynamicTyping already handles numeric conversion
+  // Just filter out any null rows
+  return (Array.isArray(data) ? data : []).filter(row => row !== null);
 };
 
 // Helper to load item stats
@@ -261,38 +335,12 @@ const loadItemStats = async () => {
   });
 };
 
-// Helper to sort data
-const sortData = (data, sortBy, direction = 'desc') => {
-  return [...data].sort((a, b) => {
-    let aVal = a[sortBy];
-    let bVal = b[sortBy];
-
-    // Handle date strings
-    if (sortBy.includes('time') || sortBy.includes('date')) {
-      aVal = new Date(aVal).getTime();
-      bVal = new Date(bVal).getTime();
-    }
-
-    // Handle numeric values
-    if (typeof aVal === 'string' && !isNaN(aVal)) {
-      aVal = parseFloat(aVal);
-      bVal = parseFloat(bVal);
-    }
-
-    if (direction === 'desc') {
-      return bVal > aVal ? 1 : -1;
-    } else {
-      return aVal > bVal ? 1 : -1;
-    }
-  });
-};
-
 // Strategy: Individual flips for specific items
 export const itemFlipStrategy = async queryObj => {
-  const { flips, warnings } = await loadFlipData(queryObj.dateFrom, queryObj.dateTo);
+  const { flips, warnings, meta } = await loadFlipData(queryObj.dateFrom, queryObj.dateTo);
 
   // Filter by item name if specified (case-insensitive)
-  let filteredFlips = queryObj.itemName
+  const filteredFlips = queryObj.itemName
     ? flips.filter(flip => {
         // Ensure item_name exists before calling toLowerCase
         if (!flip.item_name) return false;
@@ -300,38 +348,33 @@ export const itemFlipStrategy = async queryObj => {
       })
     : flips;
 
-  // Sort results
-  filteredFlips = sortData(filteredFlips, queryObj.sortBy, queryObj.sortDirection);
-
   return {
     type: 'FLIP_LIST',
     data: filteredFlips,
     warnings,
+    meta,
     summary: {
       totalFlips: filteredFlips.length,
-      totalProfit: filteredFlips.reduce((sum, flip) => sum + flip.profit, 0),
+      totalProfit: filteredFlips.reduce((sum, flip) => sum + safe(flip.profit), 0),
       averageProfit: filteredFlips.length
-        ? filteredFlips.reduce((sum, flip) => sum + flip.profit, 0) / filteredFlips.length
+        ? filteredFlips.reduce((sum, flip) => sum + safe(flip.profit), 0) / filteredFlips.length
         : 0,
-      totalSpent: filteredFlips.reduce((sum, flip) => sum + flip.spent, 0),
+      totalSpent: filteredFlips.reduce((sum, flip) => sum + safe(flip.spent), 0),
     },
   };
 };
 
 // Strategy: Flips filtered by profit thresholds
 export const flipsByProfitStrategy = async queryObj => {
-  const { flips, warnings } = await loadFlipData(queryObj.dateFrom, queryObj.dateTo);
+  const { flips, warnings, meta } = await loadFlipData(queryObj.dateFrom, queryObj.dateTo);
 
   // Filter by profit thresholds
-  let filteredFlips = flips.filter(flip => {
+  const filteredFlips = flips.filter(flip => {
     return (
       flip.profit >= queryObj.minProfit &&
       (queryObj.maxProfit === null || flip.profit <= queryObj.maxProfit)
     );
   });
-
-  // Sort results
-  filteredFlips = sortData(filteredFlips, queryObj.sortBy, queryObj.sortDirection);
 
   // Group by item for summary
   const itemGroups = {};
@@ -344,18 +387,19 @@ export const flipsByProfitStrategy = async queryObj => {
       };
     }
     itemGroups[flip.item_name].count++;
-    itemGroups[flip.item_name].totalProfit += flip.profit;
+    itemGroups[flip.item_name].totalProfit += safe(flip.profit);
   });
 
   return {
     type: 'FLIP_LIST',
     data: filteredFlips,
     warnings,
+    meta,
     summary: {
       totalFlips: filteredFlips.length,
-      totalProfit: filteredFlips.reduce((sum, flip) => sum + flip.profit, 0),
+      totalProfit: filteredFlips.reduce((sum, flip) => sum + safe(flip.profit), 0),
       averageProfit: filteredFlips.length
-        ? filteredFlips.reduce((sum, flip) => sum + flip.profit, 0) / filteredFlips.length
+        ? filteredFlips.reduce((sum, flip) => sum + safe(flip.profit), 0) / filteredFlips.length
         : 0,
       uniqueItems: Object.keys(itemGroups).length,
       topItem:
@@ -368,6 +412,8 @@ export const flipsByProfitStrategy = async queryObj => {
 // Strategy: Items filtered by ROI
 export const itemsByROIStrategy = async queryObj => {
   const itemStats = await loadItemStats();
+  let meta = { daysScanned: 0, ms: 0 };
+  let warnings = [];
 
   // Filter by ROI and flip count
   let filteredItems = itemStats.filter(item => {
@@ -376,7 +422,10 @@ export const itemsByROIStrategy = async queryObj => {
 
   // If date range specified, we need to calculate ROI for that specific period
   if (queryObj.dateFrom || queryObj.dateTo) {
-    const { flips } = await loadFlipData(queryObj.dateFrom, queryObj.dateTo);
+    const result = await loadFlipData(queryObj.dateFrom, queryObj.dateTo);
+    const { flips } = result;
+    meta = result.meta || meta;
+    warnings = result.warnings || [];
 
     // Group flips by item
     const itemFlipsMap = {};
@@ -395,8 +444,8 @@ export const itemsByROIStrategy = async queryObj => {
       const itemFlips = itemFlipsMap[item.item_name.toLowerCase()];
       if (!itemFlips) return false;
 
-      const totalProfit = itemFlips.reduce((sum, flip) => sum + flip.profit, 0);
-      const totalSpent = itemFlips.reduce((sum, flip) => sum + flip.spent, 0);
+      const totalProfit = itemFlips.reduce((sum, flip) => sum + safe(flip.profit), 0);
+      const totalSpent = itemFlips.reduce((sum, flip) => sum + safe(flip.spent), 0);
       const roi = totalSpent > 0 ? (totalProfit / totalSpent) * 100 : 0;
 
       item.period_roi = roi;
@@ -407,16 +456,15 @@ export const itemsByROIStrategy = async queryObj => {
     });
   }
 
-  // Sort results
-  filteredItems = sortData(filteredItems, queryObj.sortBy, queryObj.sortDirection);
-
   return {
     type: 'ITEM_LIST',
     data: filteredItems,
+    warnings,
+    meta,
     summary: {
       totalItems: filteredItems.length,
       averageROI: filteredItems.length
-        ? filteredItems.reduce((sum, item) => sum + parseFloat(item.roi_percent), 0) /
+        ? filteredItems.reduce((sum, item) => sum + safe(parseFloat(item.roi_percent)), 0) /
           filteredItems.length
         : 0,
     },

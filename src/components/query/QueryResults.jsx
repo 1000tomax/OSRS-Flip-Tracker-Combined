@@ -98,6 +98,25 @@ export default function QueryResults({ queryType, results, loading }) {
     return [];
   }, [results?.type]);
 
+  // Determine default sort based on query type
+  const getDefaultSort = () => {
+    if (results?.type === 'FLIP_LIST') {
+      // For flip queries, default to newest first or highest profit
+      if (queryType === 'FLIPS_BY_PROFIT') {
+        return { field: 'profit', direction: 'desc' };
+      }
+      return { field: 'closed_time', direction: 'desc' };
+    } else if (results?.type === 'ITEM_LIST') {
+      // For ROI queries, check if we have period data
+      if (results?.data?.[0]?.period_roi !== undefined) {
+        return { field: 'period_roi', direction: 'desc' };
+      }
+      return { field: 'roi_percent', direction: 'desc' };
+    }
+    // Fallback to first column
+    return { field: columns[0]?.key || 'profit', direction: 'desc' };
+  };
+
   // Paginate data
   const paginatedData = useMemo(() => {
     if (!results?.data) return [];
@@ -135,6 +154,14 @@ export default function QueryResults({ queryType, results, loading }) {
 
   return (
     <div className="mt-6 space-y-4">
+      {/* Performance Metrics */}
+      {results?.meta && (
+        <div className="text-sm text-gray-400 mb-2">
+          Scanned {results.meta.daysScanned} day{results.meta.daysScanned === 1 ? '' : 's'} in{' '}
+          {(results.meta.ms / 1000).toFixed(2)}s
+        </div>
+      )}
+
       {/* Warnings */}
       {warnings.length > 0 && (
         <div className="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4">
@@ -229,8 +256,8 @@ export default function QueryResults({ queryType, results, loading }) {
         <SortableTable
           columns={columns}
           data={paginatedData}
-          defaultSortColumn={columns[0]?.key}
-          defaultSortDirection="desc"
+          initialSortField={getDefaultSort().field}
+          initialSortDirection={getDefaultSort().direction}
         />
       </div>
 

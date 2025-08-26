@@ -41,34 +41,6 @@ export default function QueryFilters({ queryType, formData, onFieldChange }) {
       <p className="text-xs text-gray-400 mt-2">
         Leave date fields empty to search all available data
       </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
-          <select
-            value={formData.sortBy || 'closed_time'}
-            onChange={e => onFieldChange('sortBy', e.target.value)}
-            className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-          >
-            <option value="closed_time">Date</option>
-            <option value="profit">Profit</option>
-            <option value="spent">Amount Spent</option>
-            <option value="received_post_tax">Amount Received</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">Sort Direction</label>
-          <select
-            value={formData.sortDirection || 'desc'}
-            onChange={e => onFieldChange('sortDirection', e.target.value)}
-            className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-          >
-            <option value="desc">Descending</option>
-            <option value="asc">Ascending</option>
-          </select>
-        </div>
-      </div>
     </>
   );
 
@@ -131,21 +103,6 @@ export default function QueryFilters({ queryType, formData, onFieldChange }) {
       <p className="text-xs text-gray-400 mt-2">
         Leave date fields empty to search all available data
       </p>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
-        <select
-          value={formData.sortBy || 'profit'}
-          onChange={e => onFieldChange('sortBy', e.target.value)}
-          className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-        >
-          <option value="profit">Profit</option>
-          <option value="closed_time">Date Closed</option>
-          <option value="item_name">Item Name</option>
-          <option value="spent">Amount Spent</option>
-          <option value="received_post_tax">Amount Received</option>
-        </select>
-      </div>
     </>
   );
 

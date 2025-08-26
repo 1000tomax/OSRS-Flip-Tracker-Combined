@@ -13,8 +13,6 @@ export const parseQueryInputs = (queryType, formData) => {
         itemName: formData.itemSearch?.trim() || null,
         dateFrom: formData.dateFrom || null,
         dateTo: formData.dateTo || null,
-        sortBy: formData.sortBy || 'closed_time',
-        sortDirection: formData.sortDirection || 'desc',
       };
 
     case 'FLIPS_BY_PROFIT':
@@ -24,8 +22,6 @@ export const parseQueryInputs = (queryType, formData) => {
         maxProfit: parseShorthandNumber(formData.maxProfit),
         dateFrom: formData.dateFrom || null,
         dateTo: formData.dateTo || null,
-        sortBy: formData.sortBy || 'profit',
-        sortDirection: formData.sortDirection || 'desc',
       };
 
     case 'ITEMS_BY_ROI':
@@ -35,8 +31,6 @@ export const parseQueryInputs = (queryType, formData) => {
         minFlipCount: parseInt(formData.minFlipCount) || 5,
         dateFrom: formData.dateFrom || null,
         dateTo: formData.dateTo || null,
-        sortBy: formData.sortBy || 'roi_percent',
-        sortDirection: formData.sortDirection || 'desc',
       };
 
     default:
