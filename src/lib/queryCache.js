@@ -8,14 +8,24 @@ async function getCachedData(cacheInstance, key, loader) {
   // Try to get from cache first
   const cached = await cacheInstance.get(key);
   if (cached !== null) {
-    return cached;
+    // Don't return empty cached arrays
+    if (Array.isArray(cached) && cached.length === 0) {
+      console.log('Skipping empty cached array for key:', key);
+      await cacheInstance.invalidate(key);
+    } else {
+      return cached;
+    }
   }
 
   // Load fresh data
   const freshData = await loader();
 
-  // Store in cache for next time
-  await cacheInstance.set(key, freshData);
+  // Only cache non-empty data
+  if (freshData !== null && freshData !== undefined) {
+    if (!Array.isArray(freshData) || freshData.length > 0) {
+      await cacheInstance.set(key, freshData);
+    }
+  }
 
   return freshData;
 }
@@ -32,5 +42,15 @@ export const queryCache = {
 
   async getCachedItemStats(key, loader) {
     return getCachedData(itemStatsCache, key, loader);
+  },
+
+  async clearSummaryCache() {
+    await summaryCache.invalidate('summary-index');
+  },
+
+  async clearAllCaches() {
+    await summaryCache.invalidatePattern('*');
+    await flipDataCache.invalidatePattern('*');
+    await itemStatsCache.invalidatePattern('*');
   },
 };

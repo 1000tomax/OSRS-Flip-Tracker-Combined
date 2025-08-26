@@ -5,10 +5,35 @@ const loadFlipData = async (dateFrom, dateTo) => {
   const summaryIndex = await queryCache.getCachedSummaryData('summary-index', async () => {
     const response = await fetch('/data/summary-index.json');
     if (!response.ok) {
-      console.error('Failed to fetch summary-index.json:', response.status);
+      console.error('Failed to fetch summary-index.json:', response.status, response.statusText);
       throw new Error(`Failed to fetch summary-index.json: ${response.status}`);
     }
-    return response.json();
+    const data = await response.json();
+    console.log(
+      'Raw summary-index data:',
+      typeof data,
+      'isArray:',
+      Array.isArray(data),
+      'length:',
+      data?.length,
+      'sample:',
+      data?.slice?.(0, 3)
+    );
+
+    // Don't cache empty data
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error('Summary-index data is empty or invalid:', data);
+      // Try to invalidate cache and fetch directly
+      const directResponse = await fetch(`/data/summary-index.json?t=${Date.now()}`);
+      const directData = await directResponse.json();
+      console.log('Direct fetch attempt:', directData);
+      if (!Array.isArray(directData) || directData.length === 0) {
+        throw new Error('Summary-index.json is empty or invalid');
+      }
+      return directData;
+    }
+
+    return data;
   });
 
   // Extract dates - the summary-index.json is just an array of date strings in MM-DD-YYYY format
