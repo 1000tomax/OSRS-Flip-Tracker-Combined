@@ -17,23 +17,58 @@ const loadFlipData = async (dateFrom, dateTo) => {
       'length:',
       data?.length,
       'sample:',
-      data?.slice?.(0, 3)
+      data?.slice?.(0, 3),
+      'keys:',
+      typeof data === 'object' ? Object.keys(data).slice(0, 5) : 'N/A'
     );
 
-    // Don't cache empty data
-    if (!Array.isArray(data) || data.length === 0) {
-      console.error('Summary-index data is empty or invalid:', data);
+    // Handle different data formats
+    let dates = [];
+
+    // If it's already an array, use it
+    if (Array.isArray(data)) {
+      dates = data;
+    }
+    // If it's an object with a dates property, use that
+    else if (data && typeof data === 'object' && Array.isArray(data.dates)) {
+      console.log('Found dates in data.dates property');
+      dates = data.dates;
+    }
+    // If it's an object with numeric keys (like converted array), extract values
+    else if (data && typeof data === 'object') {
+      const keys = Object.keys(data);
+      if (keys.every(k => !isNaN(parseInt(k)))) {
+        console.log('Converting object with numeric keys to array');
+        dates = keys.map(k => data[k]);
+      }
+    }
+
+    // Validate we got valid dates
+    if (!Array.isArray(dates) || dates.length === 0) {
+      console.error('Summary-index data is empty or invalid. Data:', data);
       // Try to invalidate cache and fetch directly
       const directResponse = await fetch(`/data/summary-index.json?t=${Date.now()}`);
       const directData = await directResponse.json();
       console.log('Direct fetch attempt:', directData);
-      if (!Array.isArray(directData) || directData.length === 0) {
-        throw new Error('Summary-index.json is empty or invalid');
+
+      // Try same conversion logic on direct fetch
+      if (Array.isArray(directData)) {
+        dates = directData;
+      } else if (directData?.dates) {
+        dates = directData.dates;
+      } else if (directData && typeof directData === 'object') {
+        const keys = Object.keys(directData);
+        if (keys.every(k => !isNaN(parseInt(k)))) {
+          dates = keys.map(k => directData[k]);
+        }
       }
-      return directData;
+
+      if (!Array.isArray(dates) || dates.length === 0) {
+        throw new Error('Summary-index.json is in unexpected format');
+      }
     }
 
-    return data;
+    return dates;
   });
 
   // Extract dates - the summary-index.json is just an array of date strings in MM-DD-YYYY format
