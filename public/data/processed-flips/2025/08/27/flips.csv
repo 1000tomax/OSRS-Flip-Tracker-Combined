@@ -1,0 +1,3 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Abyssal whip,SELLING,15,25108245,8,13457704,274640,66640,2025-08-27T04:48:24Z,2025-08-27T05:03:06Z,2025-08-27T05:03:06Z,69ae9681e99d4b641e733e6aa43f570d2aa3af1d9fb8c870f7756c9e4eebeda6
+1000tomax,Feather,FINISHED,1,3,1,2,0,-1,2025-08-27T05:02:24Z,2025-08-27T05:02:35Z,2025-08-27T05:02:35Z,cae415191bdbbb2a5fb39eaee5dc5f5a61d7867a006df01a459ae24bffadbca7
