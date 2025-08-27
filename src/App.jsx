@@ -1,5 +1,5 @@
 // src/App.jsx - Enhanced with cache monitoring
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navigation from './components/Navigation';
@@ -16,44 +16,73 @@ const StrategyBattle = lazy(() => import('./pages/StrategyBattle'));
 const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
 const QueryPage = lazy(() => import('./pages/QueryPage'));
 
+// Lazy load the entire guest mode - it's a separate "app"
+const GuestModeApp = lazy(() => import('./guest/GuestModeApp'));
+
 // Import analytics pages directly to debug routing issue
 import TradingHeatMap from './pages/TradingHeatMap';
 import CapitalEfficiency from './pages/CapitalEfficiency';
+
+// Component to conditionally show navigation
+function AppContent() {
+  const location = useLocation();
+  const isGuestMode = location.pathname.startsWith('/guest');
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-black">
+      {!isGuestMode && <Navigation />}
+      <main id="main-content" role="main">
+        <Suspense
+          fallback={
+            <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
+              <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
+                <LoadingSpinner size="large" text="Loading page..." />
+              </div>
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/items" element={<Items />} />
+            <Route path="/flip-logs" element={<FlipLogs />} />
+            <Route path="/charts" element={<Charts />} />
+            <Route path="/query" element={<QueryPage />} />
+            <Route path="/performance" element={<ProfitVelocity />} />
+            <Route path="/volume" element={<StrategyBattle />} />
+            <Route path="/profit-velocity" element={<ProfitVelocity />} />
+            <Route path="/heatmap" element={<TradingHeatMap />} />
+            <Route path="/efficiency" element={<CapitalEfficiency />} />
+
+            {/* Guest mode - completely separate, lazy loaded */}
+            <Route
+              path="/guest/*"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-gray-900 to-purple-900 flex items-center justify-center">
+                      <div className="text-white text-xl">Loading Guest Mode...</div>
+                    </div>
+                  }
+                >
+                  <GuestModeApp />
+                </Suspense>
+              }
+            />
+
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Suspense>
+      </main>
+    </div>
+  );
+}
 
 function App() {
   return (
     <ErrorBoundary>
       <Router>
         <SEO />
-        <div className="min-h-screen bg-white dark:bg-black">
-          <Navigation />
-          <main id="main-content" role="main">
-            <Suspense
-              fallback={
-                <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
-                  <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
-                    <LoadingSpinner size="large" text="Loading page..." />
-                  </div>
-                </div>
-              }
-            >
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/items" element={<Items />} />
-                <Route path="/flip-logs" element={<FlipLogs />} />
-                <Route path="/charts" element={<Charts />} />
-                <Route path="/query" element={<QueryPage />} />
-                <Route path="/performance" element={<ProfitVelocity />} />
-                <Route path="/volume" element={<StrategyBattle />} />
-                <Route path="/profit-velocity" element={<ProfitVelocity />} />
-                <Route path="/heatmap" element={<TradingHeatMap />} />
-                <Route path="/efficiency" element={<CapitalEfficiency />} />
-                <Route path="*" element={<Home />} />
-              </Routes>
-            </Suspense>
-          </main>
-        </div>
-
+        <AppContent />
         {/* Cache monitoring for development */}
         <CacheMonitor />
       </Router>
