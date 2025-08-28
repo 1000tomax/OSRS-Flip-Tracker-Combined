@@ -1,7 +1,9 @@
 import { useGuestData } from '../contexts/GuestDataContext';
 import { useNavigate } from 'react-router-dom';
+import { useState, useRef } from 'react';
 import JSZip from 'jszip';
 import { formatGP } from '../../utils/formatGP';
+import html2canvas from 'html2canvas-pro';
 import {
   LineChart,
   Line,
@@ -14,6 +16,7 @@ import {
 
 // Import existing components
 import SortableTable from '../../components/SortableTable';
+import ItemSearch from '../components/ItemSearch';
 
 // Helper function to convert array of objects to CSV
 function arrayToCSV(data) {
@@ -129,9 +132,612 @@ Accounts: ${guestData.metadata.accounts.join(', ')}
 export default function GuestDashboard() {
   const { guestData } = useGuestData();
   const navigate = useNavigate();
+  const [searchTerms, setSearchTerms] = useState([]);
+  const [isCapturingItems, setIsCapturingItems] = useState(false);
+  const [isCapturingChart, setIsCapturingChart] = useState(false);
+  const [isCapturingDaily, setIsCapturingDaily] = useState(false);
+  const itemsTableRef = useRef(null);
+  const chartRef = useRef(null);
+  const dailyTableRef = useRef(null);
 
   // Note: We don't need to check for data here because RequireGuestData handles it
   const userTimezone = guestData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Generate shareable image of filtered items data
+  const captureItemsTable = async () => {
+    if (isCapturingItems) return;
+
+    setIsCapturingItems(true);
+    try {
+      const itemsToRender = searchTerms.length > 0 ? filteredItems : allItems;
+      console.log(`Attempting to capture ${itemsToRender.length} items`);
+
+      // Smart pagination for Discord readability
+      const itemsPerPage = 60;
+      const totalPages = Math.ceil(itemsToRender.length / itemsPerPage);
+
+      if (totalPages > 1) {
+        // eslint-disable-next-line no-alert
+        const choice = window.prompt(
+          `You have ${itemsToRender.length} items. Choose format:\n\n1 = Multiple Discord-friendly images (${totalPages} files)\n2 = Single long image (Twitter/Reddit)\n\nEnter 1 or 2 (or cancel to abort):`
+        );
+
+        if (choice === null) {
+          // User clicked cancel or hit escape
+          return;
+        } else if (choice === '2') {
+          // Generate single long image
+          await generateItemsPage(itemsToRender, 0, 1, itemsToRender.length);
+          return;
+        } else if (choice !== '1') {
+          // Invalid input
+          // eslint-disable-next-line no-alert
+          alert('Invalid choice. Screenshot cancelled.');
+          return;
+        }
+        // If choice === '1', continue with pagination
+
+        // Discord tip for multiple files
+        // eslint-disable-next-line no-alert
+        alert(
+          `💡 Discord Tip: Files will download in order (01of${totalPages}, 02of${totalPages}...) but Discord may reorder them when uploading multiple files at once. For best results, upload images one at a time in order.`
+        );
+      }
+
+      // Generate each page sequentially with proper delays
+      for (let page = 0; page < totalPages; page++) {
+        await generateItemsPage(itemsToRender, page, totalPages, itemsPerPage);
+
+        // Longer delay between pages to ensure sequential download
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    } catch (error) {
+      console.error('Screenshot failed:', error);
+      // eslint-disable-next-line no-alert
+      alert('Screenshot failed. Please try again.');
+    } finally {
+      setIsCapturingItems(false);
+    }
+  };
+
+  // Generate a single page of items
+  const generateItemsPage = async (allItems, pageIndex, totalPages, itemsPerPage) => {
+    const startIdx = pageIndex * itemsPerPage;
+    const endIdx = Math.min(startIdx + itemsPerPage, allItems.length);
+    const pageItems = allItems.slice(startIdx, endIdx);
+
+    try {
+      // Create a temporary div to render the page data
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '1000px';
+      tempDiv.style.padding = '30px';
+      tempDiv.style.backgroundColor = '#0f172a'; // Darker blue instead of gray
+      tempDiv.style.color = 'white';
+      tempDiv.style.fontFamily = 'Arial, sans-serif';
+
+      // Compact horizontal header
+      const headerDiv = document.createElement('div');
+      headerDiv.style.marginBottom = '20px';
+      headerDiv.style.display = 'flex';
+      headerDiv.style.justifyContent = 'space-between';
+      headerDiv.style.alignItems = 'center';
+      headerDiv.style.padding = '15px 20px';
+      headerDiv.style.backgroundColor = '#1e293b'; // Slate blue instead of gray
+      headerDiv.style.borderRadius = '8px';
+      headerDiv.style.border = '2px solid #3b82f6'; // Blue border
+
+      // Left side - Title and item info
+      const leftInfo = document.createElement('div');
+
+      const title = document.createElement('h1');
+      title.textContent = 'OSRS Flip Analysis - Items Report';
+      title.style.fontSize = '20px';
+      title.style.fontWeight = 'bold';
+      title.style.margin = '0';
+      title.style.color = 'white';
+
+      const subtitle = document.createElement('p');
+      const isFiltered = searchTerms.length > 0;
+      const subtitleText =
+        totalPages > 1
+          ? `Page ${pageIndex + 1} of ${totalPages} • Items ${startIdx + 1}-${endIdx} of ${allItems.length}`
+          : isFiltered
+            ? `Filtered Results: ${pageItems.length} of ${allItems.length} items`
+            : `All Items: ${pageItems.length} items`;
+      const searchText = isFiltered ? ` • Search: ${searchTerms.join(', ')}` : '';
+      subtitle.textContent = subtitleText + searchText;
+      subtitle.style.fontSize = '14px';
+      subtitle.style.color = '#9CA3AF';
+      subtitle.style.margin = '2px 0 0 0';
+
+      leftInfo.appendChild(title);
+      leftInfo.appendChild(subtitle);
+
+      // Center - empty for now since search moved to left
+      const centerInfo = document.createElement('div');
+
+      // Right side - Brand and date on same line
+      const rightInfo = document.createElement('div');
+      rightInfo.style.textAlign = 'right';
+
+      const brandDateText = document.createElement('p');
+      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      brandDateText.style.margin = '0';
+      brandDateText.style.lineHeight = '1.3';
+
+      rightInfo.appendChild(brandDateText);
+
+      headerDiv.appendChild(leftInfo);
+      headerDiv.appendChild(centerInfo);
+      headerDiv.appendChild(rightInfo);
+
+      // Table
+      const table = document.createElement('table');
+      table.style.width = '100%';
+      table.style.borderCollapse = 'collapse';
+      table.style.fontSize = '14px';
+
+      // Table header
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      headerRow.style.backgroundColor = '#1e40af'; // Blue header instead of gray
+
+      ['Item', 'Total Profit', 'Flips', 'Quantity'].forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        th.style.padding = '12px 8px';
+        th.style.textAlign = 'left';
+        th.style.color = 'white';
+        th.style.fontWeight = 'bold';
+        th.style.borderBottom = '2px solid #3b82f6';
+        headerRow.appendChild(th);
+      });
+
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Table body - use page items
+      const tbody = document.createElement('tbody');
+      pageItems.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.style.backgroundColor = index % 2 === 0 ? '#0f172a' : '#1e293b'; // Blue alternating rows
+
+        // Item name
+        const itemCell = document.createElement('td');
+        itemCell.textContent = item.item;
+        itemCell.style.padding = '10px 8px';
+        itemCell.style.borderBottom = '1px solid #334155';
+
+        // Profit
+        const profitCell = document.createElement('td');
+        profitCell.textContent = formatGP(item.totalProfit);
+        profitCell.style.padding = '10px 8px';
+        profitCell.style.borderBottom = '1px solid #334155';
+        profitCell.style.color = item.totalProfit >= 0 ? '#10b981' : '#f59e0b'; // Emerald green and amber instead of red
+        profitCell.style.fontWeight = 'bold';
+
+        // Flips
+        const flipsCell = document.createElement('td');
+        flipsCell.textContent = item.flipCount.toLocaleString();
+        flipsCell.style.padding = '10px 8px';
+        flipsCell.style.borderBottom = '1px solid #334155';
+
+        // Quantity
+        const quantityCell = document.createElement('td');
+        quantityCell.textContent = item.totalQuantity.toLocaleString();
+        quantityCell.style.padding = '10px 8px';
+        quantityCell.style.borderBottom = '1px solid #334155';
+
+        row.appendChild(itemCell);
+        row.appendChild(profitCell);
+        row.appendChild(flipsCell);
+        row.appendChild(quantityCell);
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      tempDiv.appendChild(headerDiv);
+      tempDiv.appendChild(table);
+      document.body.appendChild(tempDiv);
+
+      console.log(`Temp div dimensions: ${tempDiv.scrollWidth}x${tempDiv.scrollHeight}`);
+
+      // Capture the temporary div with more conservative settings
+      const canvas = await html2canvas(tempDiv, {
+        backgroundColor: '#0f172a', // Match the new blue background
+        scale: 2, // Reduced from 3 to 2 for better memory usage
+        useCORS: true,
+        allowTaint: false,
+        removeContainer: true,
+        height: Math.min(tempDiv.scrollHeight, 20000), // Cap max height
+        width: 1000,
+        logging: false,
+        pixelRatio: 1, // Fixed at 1 for consistency
+      });
+
+      console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
+
+      // Clean up
+      document.body.removeChild(tempDiv);
+
+      // Convert to blob with error handling
+      const dataUrl = canvas.toDataURL('image/png');
+
+      if (dataUrl === 'data:,') {
+        throw new Error('Canvas generation failed - empty data URL');
+      }
+
+      console.log(`Data URL length: ${dataUrl.length} characters`);
+
+      // Download the image
+      const link = document.createElement('a');
+      const searchSuffix = searchTerms.length > 0 ? 'filtered-' : '';
+      const pagePrefix =
+        totalPages > 1
+          ? `${String(pageIndex + 1).padStart(2, '0')}of${String(totalPages).padStart(2, '0')}-`
+          : '';
+      link.download = `${pagePrefix}${searchSuffix}items-analysis-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Screenshot failed:', error);
+      throw error; // Re-throw so main function can handle it
+    }
+  };
+
+  // Generate shareable image of profit chart
+  const captureChart = async () => {
+    if (isCapturingChart) return;
+
+    setIsCapturingChart(true);
+    try {
+      // Create a temporary div to render the chart
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '1000px';
+      tempDiv.style.height = '600px';
+      tempDiv.style.padding = '30px';
+      tempDiv.style.backgroundColor = '#0f172a';
+      tempDiv.style.color = 'white';
+      tempDiv.style.fontFamily = 'Arial, sans-serif';
+
+      // Header
+      const headerDiv = document.createElement('div');
+      headerDiv.style.marginBottom = '20px';
+      headerDiv.style.display = 'flex';
+      headerDiv.style.justifyContent = 'space-between';
+      headerDiv.style.alignItems = 'center';
+      headerDiv.style.padding = '15px 20px';
+      headerDiv.style.backgroundColor = '#1e293b';
+      headerDiv.style.borderRadius = '8px';
+      headerDiv.style.border = '2px solid #3b82f6';
+
+      // Left side - Title and stats
+      const leftInfo = document.createElement('div');
+
+      const title = document.createElement('h1');
+      title.textContent = 'OSRS Flip Analysis - Profit Chart';
+      title.style.fontSize = '20px';
+      title.style.fontWeight = 'bold';
+      title.style.margin = '0';
+      title.style.color = 'white';
+
+      const subtitle = document.createElement('p');
+      subtitle.textContent = `${guestData.dailySummaries.length} Trading Days • Total Profit: ${guestData.totalProfit.toLocaleString()} GP`;
+      subtitle.style.fontSize = '14px';
+      subtitle.style.color = '#9CA3AF';
+      subtitle.style.margin = '2px 0 0 0';
+
+      leftInfo.appendChild(title);
+      leftInfo.appendChild(subtitle);
+
+      // Right side - Brand and date
+      const rightInfo = document.createElement('div');
+      rightInfo.style.textAlign = 'right';
+
+      const brandDateText = document.createElement('p');
+      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      brandDateText.style.margin = '0';
+      brandDateText.style.lineHeight = '1.3';
+
+      rightInfo.appendChild(brandDateText);
+
+      headerDiv.appendChild(leftInfo);
+      headerDiv.appendChild(document.createElement('div')); // empty center
+      headerDiv.appendChild(rightInfo);
+
+      // Clone the actual chart
+      const originalChart = chartRef.current;
+      const chartClone = originalChart.cloneNode(true);
+      chartClone.style.height = '400px';
+      chartClone.style.backgroundColor = '#0f172a';
+      chartClone.style.borderRadius = '8px';
+      chartClone.style.padding = '20px';
+
+      tempDiv.appendChild(headerDiv);
+      tempDiv.appendChild(chartClone);
+      document.body.appendChild(tempDiv);
+
+      // Wait a bit for the chart to render
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Capture
+      const canvas = await html2canvas(tempDiv, {
+        backgroundColor: '#0f172a',
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        removeContainer: true,
+        height: 600,
+        width: 1000,
+        logging: false,
+        pixelRatio: 1,
+      });
+
+      // Clean up
+      document.body.removeChild(tempDiv);
+
+      // Download
+      const dataUrl = canvas.toDataURL('image/png');
+      if (dataUrl === 'data:,') {
+        throw new Error('Chart capture failed - empty data URL');
+      }
+
+      const link = document.createElement('a');
+      link.download = `profit-chart-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Chart screenshot failed:', error);
+      // eslint-disable-next-line no-alert
+      alert('Chart screenshot failed. Please try again.');
+    } finally {
+      setIsCapturingChart(false);
+    }
+  };
+
+  // Generate shareable image of daily summaries table
+  const captureDailySummaries = async () => {
+    if (isCapturingDaily) return;
+
+    setIsCapturingDaily(true);
+    try {
+      // Smart pagination for Discord readability
+      const daysPerPage = 50;
+      const totalPages = Math.ceil(guestData.dailySummaries.length / daysPerPage);
+
+      if (totalPages > 1) {
+        // eslint-disable-next-line no-alert
+        const choice = window.prompt(
+          `You have ${guestData.dailySummaries.length} trading days. Choose format:\n\n1 = Multiple Discord-friendly images (${totalPages} files)\n2 = Single long image (Twitter/Reddit)\n\nEnter 1 or 2 (or cancel to abort):`
+        );
+
+        if (choice === null) {
+          // User clicked cancel or hit escape
+          return;
+        } else if (choice === '2') {
+          // Generate single long image
+          await generateDailySummaryPage(
+            guestData.dailySummaries,
+            0,
+            1,
+            guestData.dailySummaries.length
+          );
+          return;
+        } else if (choice !== '1') {
+          // Invalid input
+          // eslint-disable-next-line no-alert
+          alert('Invalid choice. Screenshot cancelled.');
+          return;
+        }
+        // If choice === '1', continue with pagination
+
+        // Discord tip for multiple files
+        // eslint-disable-next-line no-alert
+        alert(
+          `💡 Discord Tip: Files will download in order (01of${totalPages}, 02of${totalPages}...) but Discord may reorder them when uploading multiple files at once. For best results, upload images one at a time in order.`
+        );
+      }
+
+      // Generate each page sequentially with proper delays
+      for (let page = 0; page < totalPages; page++) {
+        await generateDailySummaryPage(guestData.dailySummaries, page, totalPages, daysPerPage);
+
+        // Longer delay between pages to ensure sequential download
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    } catch (error) {
+      console.error('Daily summaries screenshot failed:', error);
+      // eslint-disable-next-line no-alert
+      alert('Daily summaries screenshot failed. Please try again.');
+    } finally {
+      setIsCapturingDaily(false);
+    }
+  };
+
+  // Generate a single page of daily summaries
+  const generateDailySummaryPage = async (allDays, pageIndex, totalPages, daysPerPage) => {
+    const startIdx = pageIndex * daysPerPage;
+    const endIdx = Math.min(startIdx + daysPerPage, allDays.length);
+    const pageDays = allDays.slice(startIdx, endIdx);
+
+    try {
+      // Create a temporary div to render all the daily data
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '800px';
+      tempDiv.style.padding = '30px';
+      tempDiv.style.backgroundColor = '#0f172a';
+      tempDiv.style.color = 'white';
+      tempDiv.style.fontFamily = 'Arial, sans-serif';
+
+      // Header
+      const headerDiv = document.createElement('div');
+      headerDiv.style.marginBottom = '20px';
+      headerDiv.style.display = 'flex';
+      headerDiv.style.justifyContent = 'space-between';
+      headerDiv.style.alignItems = 'center';
+      headerDiv.style.padding = '15px 20px';
+      headerDiv.style.backgroundColor = '#1e293b';
+      headerDiv.style.borderRadius = '8px';
+      headerDiv.style.border = '2px solid #3b82f6';
+
+      // Left side - Title and stats
+      const leftInfo = document.createElement('div');
+
+      const title = document.createElement('h1');
+      title.textContent = 'OSRS Flip Analysis - Daily Summary';
+      title.style.fontSize = '20px';
+      title.style.fontWeight = 'bold';
+      title.style.margin = '0';
+      title.style.color = 'white';
+
+      const subtitle = document.createElement('p');
+      const subtitleText =
+        totalPages > 1
+          ? `Page ${pageIndex + 1} of ${totalPages} • Days ${startIdx + 1}-${endIdx} of ${allDays.length}`
+          : `${pageDays.length} Trading Days • Avg: ${Math.round(guestData.totalProfit / allDays.length).toLocaleString()} GP/day`;
+      subtitle.textContent = subtitleText;
+      subtitle.style.fontSize = '14px';
+      subtitle.style.color = '#9CA3AF';
+      subtitle.style.margin = '2px 0 0 0';
+
+      leftInfo.appendChild(title);
+      leftInfo.appendChild(subtitle);
+
+      // Right side - Brand and date
+      const rightInfo = document.createElement('div');
+      rightInfo.style.textAlign = 'right';
+
+      const brandDateText = document.createElement('p');
+      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      brandDateText.style.margin = '0';
+      brandDateText.style.lineHeight = '1.3';
+
+      rightInfo.appendChild(brandDateText);
+
+      headerDiv.appendChild(leftInfo);
+      headerDiv.appendChild(document.createElement('div')); // empty center
+      headerDiv.appendChild(rightInfo);
+
+      // Table
+      const table = document.createElement('table');
+      table.style.width = '100%';
+      table.style.borderCollapse = 'collapse';
+      table.style.fontSize = '14px';
+
+      // Table header
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      headerRow.style.backgroundColor = '#1e40af';
+
+      ['Date', 'Profit', 'Flips', 'Items'].forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        th.style.padding = '12px 8px';
+        th.style.textAlign = 'left';
+        th.style.color = 'white';
+        th.style.fontWeight = 'bold';
+        th.style.borderBottom = '2px solid #3b82f6';
+        headerRow.appendChild(th);
+      });
+
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Table body - page of daily summaries
+      const tbody = document.createElement('tbody');
+      pageDays.forEach((day, index) => {
+        const row = document.createElement('tr');
+        row.style.backgroundColor = index % 2 === 0 ? '#0f172a' : '#1e293b';
+
+        // Date
+        const dateCell = document.createElement('td');
+        dateCell.textContent = day.date;
+        dateCell.style.padding = '10px 8px';
+        dateCell.style.borderBottom = '1px solid #334155';
+
+        // Profit
+        const profitCell = document.createElement('td');
+        profitCell.textContent = formatGP(day.totalProfit);
+        profitCell.style.padding = '10px 8px';
+        profitCell.style.borderBottom = '1px solid #334155';
+        profitCell.style.color = day.totalProfit >= 0 ? '#10b981' : '#f59e0b';
+        profitCell.style.fontWeight = 'bold';
+
+        // Flips
+        const flipsCell = document.createElement('td');
+        flipsCell.textContent = day.flipCount.toLocaleString();
+        flipsCell.style.padding = '10px 8px';
+        flipsCell.style.borderBottom = '1px solid #334155';
+
+        // Items
+        const itemsCell = document.createElement('td');
+        itemsCell.textContent = day.uniqueItems.toString();
+        itemsCell.style.padding = '10px 8px';
+        itemsCell.style.borderBottom = '1px solid #334155';
+
+        row.appendChild(dateCell);
+        row.appendChild(profitCell);
+        row.appendChild(flipsCell);
+        row.appendChild(itemsCell);
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      tempDiv.appendChild(headerDiv);
+      tempDiv.appendChild(table);
+      document.body.appendChild(tempDiv);
+
+      console.log(
+        `Daily summary temp div dimensions: ${tempDiv.scrollWidth}x${tempDiv.scrollHeight}`
+      );
+
+      // Capture
+      const canvas = await html2canvas(tempDiv, {
+        backgroundColor: '#0f172a',
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        removeContainer: true,
+        height: Math.min(tempDiv.scrollHeight, 15000),
+        width: 800,
+        logging: false,
+        pixelRatio: 1,
+      });
+
+      // Clean up
+      document.body.removeChild(tempDiv);
+
+      // Download
+      const dataUrl = canvas.toDataURL('image/png');
+      if (dataUrl === 'data:,') {
+        throw new Error('Daily summaries capture failed - empty data URL');
+      }
+
+      const link = document.createElement('a');
+      const pagePrefix =
+        totalPages > 1
+          ? `${String(pageIndex + 1).padStart(2, '0')}of${String(totalPages).padStart(2, '0')}-`
+          : '';
+      link.download = `${pagePrefix}daily-summary-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Daily summaries screenshot failed:', error);
+      // eslint-disable-next-line no-alert
+      alert('Daily summaries screenshot failed. Please try again.');
+    } finally {
+      setIsCapturingDaily(false);
+    }
+  };
 
   // Prepare data for daily summaries table
   const dailyTableColumns = [
@@ -148,8 +754,19 @@ export default function GuestDashboard() {
     { key: 'uniqueItems', label: 'Items', sortable: true },
   ];
 
+  // Filter items based on search
+  const filterItems = (items, searchTerms) => {
+    if (searchTerms.length === 0) return items;
+
+    return items.filter(item => {
+      const itemName = item.item.toLowerCase();
+      return searchTerms.some(term => itemName.includes(term));
+    });
+  };
+
   // Show all items - this is their personal analysis, let them see everything
   const allItems = guestData.itemStats;
+  const filteredItems = filterItems(allItems, searchTerms);
   const itemTableColumns = [
     { key: 'item', label: 'Item', sortable: true },
     {
@@ -244,8 +861,17 @@ export default function GuestDashboard() {
       </div>
 
       {/* Cumulative Profit Chart */}
-      <div className="bg-gray-800 p-6 rounded-lg mb-8">
-        <h3 className="text-xl font-bold mb-4 text-white">📈 Cumulative Profit Over Time</h3>
+      <div className="bg-gray-800 p-6 rounded-lg mb-8" ref={chartRef}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-white">📈 Cumulative Profit Over Time</h3>
+          <button
+            onClick={captureChart}
+            disabled={isCapturingChart}
+            className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50"
+          >
+            {isCapturingChart ? '📸 Capturing...' : '📸 Screenshot'}
+          </button>
+        </div>
         <div className="h-64 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
@@ -319,10 +945,19 @@ export default function GuestDashboard() {
 
       {/* Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <h3 className="text-xl font-bold mb-4 text-white">
-            Daily Summary ({guestData.dailySummaries.length} days)
-          </h3>
+        <div className="bg-gray-800 p-6 rounded-lg" ref={dailyTableRef}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-white">
+              Daily Summary ({guestData.dailySummaries.length} days)
+            </h3>
+            <button
+              onClick={captureDailySummaries}
+              disabled={isCapturingDaily}
+              className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-500 disabled:opacity-50"
+            >
+              {isCapturingDaily ? '📸 Capturing...' : '📸 Screenshot'}
+            </button>
+          </div>
           <div className="max-h-96 overflow-y-auto">
             <SortableTable
               data={guestData.dailySummaries}
@@ -332,11 +967,41 @@ export default function GuestDashboard() {
           </div>
         </div>
 
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <h3 className="text-xl font-bold mb-4 text-white">All Items ({allItems.length})</h3>
-          <div className="max-h-96 overflow-y-auto">
-            <SortableTable data={allItems} columns={itemTableColumns} className="text-sm" />
+        <div className="bg-gray-800 p-6 rounded-lg" ref={itemsTableRef}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-white">
+              All Items (
+              {searchTerms.length > 0
+                ? `${filteredItems.length} of ${allItems.length}`
+                : allItems.length}
+              )
+            </h3>
+            <button
+              onClick={captureItemsTable}
+              disabled={isCapturingItems}
+              className="px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-500 disabled:opacity-50"
+            >
+              {isCapturingItems ? '📸 Capturing...' : '📸 Screenshot'}
+            </button>
           </div>
+
+          <ItemSearch
+            onSearch={setSearchTerms}
+            placeholder="Search items... (e.g., 'Dragon bones' or 'Rune sword, Magic logs, Whip')"
+          />
+
+          <div className="max-h-96 overflow-y-auto">
+            <SortableTable data={filteredItems} columns={itemTableColumns} className="text-sm" />
+          </div>
+
+          {searchTerms.length > 0 && filteredItems.length === 0 && (
+            <div className="text-center text-gray-400 py-8">
+              <p>No items found matching your search.</p>
+              <p className="text-sm mt-2">
+                Try searching for partial names like "dragon" or "rune"
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
