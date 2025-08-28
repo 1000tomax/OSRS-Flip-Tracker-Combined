@@ -18,6 +18,8 @@ import {
 import SortableTable from '../../components/SortableTable';
 import ItemSearch from '../components/ItemSearch';
 import GuestHeatMap from '../components/GuestHeatMap';
+import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
+import GuestDatePicker from '../components/GuestDatePicker';
 
 // Helper function to convert array of objects to CSV
 function arrayToCSV(data) {
@@ -138,6 +140,12 @@ export default function GuestDashboard() {
   const [isCapturingChart, setIsCapturingChart] = useState(false);
   const [isCapturingDaily, setIsCapturingDaily] = useState(false);
   const [isCapturingHeatmap, setIsCapturingHeatmap] = useState(false);
+
+  // Tab navigation state
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'fliplogs'
+  const [selectedDate, setSelectedDate] = useState(null); // For flip log viewer
+  const [selectedDayHour, setSelectedDayHour] = useState(null); // For heatmap cell clicks
+
   const itemsTableRef = useRef(null);
   const chartRef = useRef(null);
   const dailyTableRef = useRef(null);
@@ -145,6 +153,27 @@ export default function GuestDashboard() {
 
   // Note: We don't need to check for data here because RequireGuestData handles it
   const userTimezone = guestData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Handle heatmap cell clicks
+  const handleHeatmapCellClick = cellData => {
+    setSelectedDayHour({ day: cellData.day, hour: cellData.hour });
+    setSelectedDate(null); // Clear date selection
+    setActiveTab('fliplogs');
+  };
+
+  // Handle date selection from date picker
+  const handleDateSelect = date => {
+    setSelectedDate(date);
+    setSelectedDayHour(null); // Clear day/hour selection
+    setActiveTab('fliplogs');
+  };
+
+  // Handle clearing selections and returning to overview
+  const handleBackToOverview = () => {
+    setActiveTab('overview');
+    setSelectedDate(null);
+    setSelectedDayHour(null);
+  };
 
   // Generate shareable image of filtered items data
   const captureItemsTable = async () => {
@@ -868,7 +897,20 @@ export default function GuestDashboard() {
 
   // Prepare data for daily summaries table
   const dailyTableColumns = [
-    { key: 'date', label: 'Date', sortable: true },
+    {
+      key: 'date',
+      label: 'Date',
+      sortable: true,
+      render: value => (
+        <button
+          onClick={() => handleDateSelect(value)}
+          className="text-blue-400 hover:text-blue-300 hover:underline font-medium transition-colors cursor-pointer"
+          title="Click to view transactions for this date"
+        >
+          {value}
+        </button>
+      ),
+    },
     {
       key: 'totalProfit',
       label: 'Profit',
@@ -932,7 +974,7 @@ export default function GuestDashboard() {
       )}
 
       {/* Header with clear indication this is guest mode */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-4xl font-bold text-white">Your Flip Analysis</h1>
           <p className="text-gray-400 mt-2">
@@ -965,188 +1007,296 @@ export default function GuestDashboard() {
         </div>
       </div>
 
-      {/* Summary Cards - No challenge metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <div className="text-gray-400 text-sm">Total Profit</div>
-          <div className="text-2xl font-bold text-green-400">
-            {guestData.totalProfit.toLocaleString()} GP
-          </div>
-        </div>
-
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <div className="text-gray-400 text-sm">Total Flips</div>
-          <div className="text-2xl font-bold text-white">
-            {guestData.totalFlips.toLocaleString()}
-          </div>
-        </div>
-
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <div className="text-gray-400 text-sm">Unique Items</div>
-          <div className="text-2xl font-bold text-white">{guestData.uniqueItems}</div>
-        </div>
-      </div>
-
-      {/* Cumulative Profit Chart */}
-      <div className="bg-gray-800 p-6 rounded-lg mb-8" ref={chartRef}>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-white">📈 Cumulative Profit Over Time</h3>
-          <button
-            onClick={captureChart}
-            disabled={isCapturingChart}
-            className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50 screenshot-button"
-          >
-            {isCapturingChart ? '📸 Capturing...' : '📸 Screenshot'}
-          </button>
-        </div>
-        <div className="h-64 sm:h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={(() => {
-                // Calculate cumulative profit
-                let cumulativeProfit = 0;
-                return guestData.dailySummaries.map((day, index) => {
-                  cumulativeProfit += day.totalProfit;
-                  return {
-                    date: day.date,
-                    day: index + 1,
-                    dailyProfit: day.totalProfit,
-                    cumulativeProfit,
-                    flips: day.flipCount,
-                  };
-                });
-              })()}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis
-                dataKey="day"
-                stroke="#9CA3AF"
-                fontSize={12}
-                tickLine={false}
-                label={{
-                  value: 'Day',
-                  position: 'insideBottom',
-                  offset: -5,
-                  style: { textAnchor: 'middle', fill: '#9CA3AF' },
-                }}
-              />
-              <YAxis
-                stroke="#9CA3AF"
-                fontSize={12}
-                tickLine={false}
-                tickFormatter={value => formatGP(value)}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1F2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: 'white',
-                }}
-                formatter={(value, name) => [
-                  name === 'cumulativeProfit' ? `${value.toLocaleString()} GP` : formatGP(value),
-                  name === 'cumulativeProfit'
-                    ? 'Total Profit'
-                    : name === 'dailyProfit'
-                      ? 'Daily Profit'
-                      : name,
-                ]}
-                labelFormatter={day => `Day ${day}`}
-              />
-              <Line
-                type="monotone"
-                dataKey="cumulativeProfit"
-                stroke="#22c55e"
-                strokeWidth={3}
-                dot={false}
-                activeDot={{ r: 6, fill: '#22c55e' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <p className="text-sm text-gray-400 mt-2">
-          Shows your total accumulated profit over {guestData.dailySummaries.length} trading days
-        </p>
-      </div>
-
-      {/* Trading Heat Map */}
-      <div ref={heatmapRef} className="mb-8">
-        <div className="flex justify-end mb-2">
-          <button
-            onClick={captureHeatmap}
-            disabled={isCapturingHeatmap}
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-500 disabled:opacity-50 screenshot-button"
-          >
-            {isCapturingHeatmap ? '📸 Capturing...' : '📸 Screenshot'}
-          </button>
-        </div>
-        <GuestHeatMap guestData={guestData} />
-      </div>
-
-      {/* Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-gray-800 p-6 rounded-lg" ref={dailyTableRef}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-white">
-              Daily Summary ({guestData.dailySummaries.length} days)
-            </h3>
+      {/* Tab Navigation */}
+      <div className="mb-8">
+        <div className="border-b border-gray-700">
+          <nav className="flex space-x-8">
             <button
-              onClick={captureDailySummaries}
-              disabled={isCapturingDaily}
-              className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-500 disabled:opacity-50"
+              onClick={() => setActiveTab('overview')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'overview'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+              }`}
             >
-              {isCapturingDaily ? '📸 Capturing...' : '📸 Screenshot'}
+              📊 Overview
             </button>
-          </div>
-          <div className="max-h-96 overflow-y-auto">
-            <SortableTable
-              data={guestData.dailySummaries}
-              columns={dailyTableColumns}
-              initialSortField="date"
-              initialSortDirection="desc"
-              className="text-sm"
-            />
-          </div>
-        </div>
-
-        <div className="bg-gray-800 p-6 rounded-lg" ref={itemsTableRef}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-white">
-              All Items (
-              {searchTerms.length > 0
-                ? `${filteredItems.length} of ${allItems.length}`
-                : allItems.length}
-              )
-            </h3>
             <button
-              onClick={captureItemsTable}
-              disabled={isCapturingItems}
-              className="px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-500 disabled:opacity-50"
+              onClick={() => {
+                setActiveTab('fliplogs');
+                // Reset selections when clicking tab directly
+                if (activeTab !== 'fliplogs') {
+                  setSelectedDate(null);
+                  setSelectedDayHour(null);
+                }
+              }}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'fliplogs'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+              }`}
             >
-              {isCapturingItems ? '📸 Capturing...' : '📸 Screenshot'}
+              📋 Transaction Logs
             </button>
+          </nav>
+        </div>
+      </div>
+
+      {activeTab === 'overview' && (
+        <>
+          {/* Summary Cards - No challenge metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <div className="text-gray-400 text-sm">Total Profit</div>
+              <div className="text-2xl font-bold text-green-400">
+                {guestData.totalProfit.toLocaleString()} GP
+              </div>
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <div className="text-gray-400 text-sm">Total Flips</div>
+              <div className="text-2xl font-bold text-white">
+                {guestData.totalFlips.toLocaleString()}
+              </div>
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <div className="text-gray-400 text-sm">Unique Items</div>
+              <div className="text-2xl font-bold text-white">{guestData.uniqueItems}</div>
+            </div>
           </div>
 
-          <ItemSearch
-            onSearch={setSearchTerms}
-            placeholder="Search items... (e.g., 'Dragon bones' or 'Rune sword, Magic logs, Whip')"
-          />
-
-          <div className="max-h-96 overflow-y-auto">
-            <SortableTable data={filteredItems} columns={itemTableColumns} className="text-sm" />
+          {/* Cumulative Profit Chart */}
+          <div className="bg-gray-800 p-6 rounded-lg mb-8" ref={chartRef}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white">📈 Cumulative Profit Over Time</h3>
+              <button
+                onClick={captureChart}
+                disabled={isCapturingChart}
+                className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50 screenshot-button"
+              >
+                {isCapturingChart ? '📸 Capturing...' : '📸 Screenshot'}
+              </button>
+            </div>
+            <div className="h-64 sm:h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={(() => {
+                    // Calculate cumulative profit
+                    let cumulativeProfit = 0;
+                    return guestData.dailySummaries.map((day, index) => {
+                      cumulativeProfit += day.totalProfit;
+                      return {
+                        date: day.date,
+                        day: index + 1,
+                        dailyProfit: day.totalProfit,
+                        cumulativeProfit,
+                        flips: day.flipCount,
+                      };
+                    });
+                  })()}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis
+                    dataKey="day"
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                    tickLine={false}
+                    label={{
+                      value: 'Day',
+                      position: 'insideBottom',
+                      offset: -5,
+                      style: { textAnchor: 'middle', fill: '#9CA3AF' },
+                    }}
+                  />
+                  <YAxis
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                    tickLine={false}
+                    tickFormatter={value => formatGP(value)}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      color: 'white',
+                    }}
+                    formatter={(value, name) => [
+                      name === 'cumulativeProfit'
+                        ? `${value.toLocaleString()} GP`
+                        : formatGP(value),
+                      name === 'cumulativeProfit'
+                        ? 'Total Profit'
+                        : name === 'dailyProfit'
+                          ? 'Daily Profit'
+                          : name,
+                    ]}
+                    labelFormatter={day => `Day ${day}`}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="cumulativeProfit"
+                    stroke="#22c55e"
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 6, fill: '#22c55e' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-sm text-gray-400 mt-2">
+              Shows your total accumulated profit over {guestData.dailySummaries.length} trading
+              days
+            </p>
           </div>
 
-          {searchTerms.length > 0 && filteredItems.length === 0 && (
-            <div className="text-center text-gray-400 py-8">
-              <p>No items found matching your search.</p>
-              <p className="text-sm mt-2">
-                Try searching for partial names like "dragon" or "rune"
+          {/* Trading Heat Map */}
+          <div ref={heatmapRef} className="mb-8">
+            <div className="flex justify-end mb-2">
+              <button
+                onClick={captureHeatmap}
+                disabled={isCapturingHeatmap}
+                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-500 disabled:opacity-50 screenshot-button"
+              >
+                {isCapturingHeatmap ? '📸 Capturing...' : '📸 Screenshot'}
+              </button>
+            </div>
+            <GuestHeatMap guestData={guestData} onCellClick={handleHeatmapCellClick} />
+          </div>
+
+          {/* Tables */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-gray-800 p-6 rounded-lg" ref={dailyTableRef}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">
+                  Daily Summary ({guestData.dailySummaries.length} days)
+                </h3>
+                <button
+                  onClick={captureDailySummaries}
+                  disabled={isCapturingDaily}
+                  className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-500 disabled:opacity-50"
+                >
+                  {isCapturingDaily ? '📸 Capturing...' : '📸 Screenshot'}
+                </button>
+              </div>
+              <div className="max-h-96 overflow-y-auto">
+                <SortableTable
+                  data={guestData.dailySummaries}
+                  columns={dailyTableColumns}
+                  initialSortField="date"
+                  initialSortDirection="desc"
+                  className="text-sm"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-3">
+                💡 Click any date to view detailed transactions for that day
               </p>
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-lg" ref={itemsTableRef}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">
+                  All Items (
+                  {searchTerms.length > 0
+                    ? `${filteredItems.length} of ${allItems.length}`
+                    : allItems.length}
+                  )
+                </h3>
+                <button
+                  onClick={captureItemsTable}
+                  disabled={isCapturingItems}
+                  className="px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-500 disabled:opacity-50"
+                >
+                  {isCapturingItems ? '📸 Capturing...' : '📸 Screenshot'}
+                </button>
+              </div>
+
+              <ItemSearch
+                onSearch={setSearchTerms}
+                placeholder="Search items... (e.g., 'Dragon bones' or 'Rune sword, Magic logs, Whip')"
+              />
+
+              <div className="max-h-96 overflow-y-auto">
+                <SortableTable
+                  data={filteredItems}
+                  columns={itemTableColumns}
+                  className="text-sm"
+                />
+              </div>
+
+              {searchTerms.length > 0 && filteredItems.length === 0 && (
+                <div className="text-center text-gray-400 py-8">
+                  <p>No items found matching your search.</p>
+                  <p className="text-sm mt-2">
+                    Try searching for partial names like "dragon" or "rune"
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'fliplogs' && (
+        <div className="space-y-8">
+          {/* Show flip logs based on selection */}
+          {selectedDate || selectedDayHour ? (
+            <GuestFlipLogViewer
+              guestData={guestData}
+              selectedDate={selectedDate}
+              selectedDayHour={selectedDayHour}
+              onClose={handleBackToOverview}
+            />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Date picker for daily logs */}
+              <GuestDatePicker
+                guestData={guestData}
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+              />
+
+              {/* Instructions */}
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <h3 className="text-xl font-bold text-white mb-4">🔍 How to View Transactions</h3>
+                <div className="space-y-4 text-gray-300">
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-400 font-bold">1.</span>
+                    <div>
+                      <p className="font-medium">By Date</p>
+                      <p className="text-sm text-gray-400">
+                        Select a trading day from the list to view all transactions from that date
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-400 font-bold">2.</span>
+                    <div>
+                      <p className="font-medium">By Time Pattern</p>
+                      <p className="text-sm text-gray-400">
+                        Go back to the Overview tab and click on any colored cell in the heatmap to
+                        view transactions for that specific day-of-week and hour
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-400 font-bold">💡</span>
+                    <div>
+                      <p className="font-medium">Pro Tip</p>
+                      <p className="text-sm text-gray-400">
+                        Use the heatmap to identify your most profitable hours, then click those
+                        cells to analyze what items performed best during those times
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

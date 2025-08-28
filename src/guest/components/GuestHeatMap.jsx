@@ -33,7 +33,7 @@ const formatHour = hour => {
   return `${hour - 12}pm`;
 };
 
-export default function GuestHeatMap({ guestData }) {
+export default function GuestHeatMap({ guestData, onCellClick = null }) {
   // Metric toggle state: 'profit', 'transactions', 'profitPerFlip'
   const [selectedMetric, setSelectedMetric] = useState('profit');
 
@@ -234,9 +234,12 @@ export default function GuestHeatMap({ guestData }) {
               min="1"
               max="20"
               value={minFlipsThreshold}
-              onChange={e =>
-                setMinFlipsThreshold(Math.max(1, Math.min(20, parseInt(e.target.value, 10) || 1)))
-              }
+              onChange={e => {
+                const maxThreshold = 20;
+                setMinFlipsThreshold(
+                  Math.max(1, Math.min(maxThreshold, parseInt(e.target.value, 10) || 1))
+                );
+              }}
               className="w-12 px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
             />
           </div>
@@ -270,8 +273,29 @@ export default function GuestHeatMap({ guestData }) {
                 return (
                   <div
                     key={`${day}-${hour}`}
-                    className={`h-7 ${cellData.color} rounded-sm relative group cursor-pointer transition-all duration-200 hover:ring-1 hover:ring-green-400 hover:z-10`}
-                    title={`${dayName} ${formatHour(hour)}`}
+                    className={`h-7 ${cellData.color} rounded-sm relative group cursor-pointer transition-all duration-200 hover:ring-1 hover:ring-green-400 hover:z-10 ${
+                      onCellClick && cellData.cell?.transactions > 0
+                        ? 'hover:ring-2 hover:ring-blue-400'
+                        : ''
+                    }`}
+                    title={`${dayName} ${formatHour(hour)}${onCellClick && cellData.cell?.transactions > 0 ? ' - Click to view transactions' : ''}`}
+                    onClick={() => {
+                      if (onCellClick && cellData.cell?.transactions > 0) {
+                        onCellClick({ day, hour, dayName, formattedHour: formatHour(hour) });
+                      }
+                    }}
+                    onKeyDown={e => {
+                      if (
+                        (e.key === 'Enter' || e.key === ' ') &&
+                        onCellClick &&
+                        cellData.cell?.transactions > 0
+                      ) {
+                        e.preventDefault();
+                        onCellClick({ day, hour, dayName, formattedHour: formatHour(hour) });
+                      }
+                    }}
+                    role={onCellClick && cellData.cell?.transactions > 0 ? 'button' : undefined}
+                    tabIndex={onCellClick && cellData.cell?.transactions > 0 ? 0 : undefined}
                   >
                     {/* Detailed tooltip */}
                     {cellData.cell && cellData.value !== 0 && (
@@ -296,6 +320,11 @@ export default function GuestHeatMap({ guestData }) {
                         <div className="text-gray-400">
                           % of Total: {cellData.cell.percentage.toFixed(2)}%
                         </div>
+                        {onCellClick && cellData.cell?.transactions > 0 && (
+                          <div className="text-blue-300 text-xs mt-1 border-t border-gray-600 pt-1">
+                            Click to view transactions
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
