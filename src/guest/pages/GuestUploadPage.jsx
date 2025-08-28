@@ -4,6 +4,7 @@ import { useGuestData } from '../contexts/GuestDataContext';
 import CsvDropzone from '../components/CsvDropzone';
 import ProcessingStatus from '../components/ProcessingStatus';
 import { guestAnalytics } from '../../utils/guestAnalytics';
+import * as Sentry from '@sentry/react';
 
 export default function GuestUploadPage() {
   const [step, setStep] = useState('upload'); // 'upload' | 'processing' | 'complete'
@@ -14,6 +15,13 @@ export default function GuestUploadPage() {
   useEffect(() => {
     if (guestData) {
       guestAnalytics.returnedToUpload(true);
+
+      // Add breadcrumb for debugging
+      Sentry.addBreadcrumb({
+        category: 'navigation',
+        message: 'User returned to upload with existing data',
+        level: 'info',
+      });
     }
   }, [guestData]);
 
@@ -21,12 +29,37 @@ export default function GuestUploadPage() {
   const hasExistingData = !!guestData;
 
   const handleFileSelect = async file => {
+    // Add breadcrumb for file upload
+    Sentry.addBreadcrumb({
+      category: 'upload',
+      message: `File selected: ${file.size} bytes`,
+      level: 'info',
+      data: {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+      },
+    });
+
     try {
       // If they have existing data, confirm replacement
       if (hasExistingData) {
         // eslint-disable-next-line no-alert
         const confirmed = window.confirm('This will replace your current data. Continue?');
-        if (!confirmed) return;
+        if (!confirmed) {
+          Sentry.addBreadcrumb({
+            category: 'action',
+            message: 'User cancelled file replacement',
+            level: 'info',
+          });
+          return;
+        }
+
+        Sentry.addBreadcrumb({
+          category: 'action',
+          message: 'User confirmed data replacement',
+          level: 'info',
+        });
       }
 
       // Track upload started
@@ -53,6 +86,15 @@ export default function GuestUploadPage() {
             rowsProcessed: e.data.rowsProcessed,
             totalRows: e.data.totalRows,
           });
+
+          // Add breadcrumb for processing progress
+          if (e.data.rowsProcessed % 10000 === 0) {
+            Sentry.addBreadcrumb({
+              category: 'processing',
+              message: `Processed ${e.data.rowsProcessed} rows`,
+              level: 'info',
+            });
+          }
         } else if (e.data.type === 'COMPLETE') {
           const processingTime = Date.now() - startTime;
 
@@ -62,6 +104,20 @@ export default function GuestUploadPage() {
             processingTime,
             e.data.meta?.accountCount || 1
           );
+
+          // Add success context to Sentry
+          Sentry.setContext('upload_success', {
+            totalFlips: e.data.stats?.totalFlips || e.data.result.totalFlips || 0,
+            processingTime: `${processingTime}ms`,
+            accountCount: e.data.meta?.accountCount || 1,
+            uniqueItems: e.data.stats?.uniqueItems || 0,
+          });
+
+          Sentry.addBreadcrumb({
+            category: 'upload',
+            message: 'File processing completed successfully',
+            level: 'info',
+          });
 
           setGuestData(e.data.result);
           setStep('complete');
@@ -78,6 +134,21 @@ export default function GuestUploadPage() {
               ? 'invalid_format'
               : 'processing_error';
 
+          // Capture error with context
+          Sentry.captureException(new Error(e.data.message), {
+            tags: {
+              error_type: errorType,
+              component: 'csv_processor',
+            },
+            contexts: {
+              upload_attempt: {
+                fileSize: file.size,
+                fileName: file.name,
+                error: e.data.message,
+              },
+            },
+          });
+
           guestAnalytics.uploadFailed(errorType);
 
           // eslint-disable-next-line no-alert
@@ -89,6 +160,20 @@ export default function GuestUploadPage() {
 
       // Handle worker errors
       worker.onerror = error => {
+        // Capture worker crash
+        Sentry.captureException(error, {
+          tags: {
+            error_type: 'worker_crash',
+            component: 'web_worker',
+          },
+          contexts: {
+            file_info: {
+              size: file.size,
+              name: file.name,
+            },
+          },
+        });
+
         guestAnalytics.uploadFailed('worker_error');
         // eslint-disable-next-line no-alert
         window.alert(`Processing error: ${error.message}`);
@@ -98,6 +183,21 @@ export default function GuestUploadPage() {
 
       // Handle message errors (malformed messages)
       worker.onmessageerror = event => {
+        // Capture message error
+        Sentry.captureException(new Error('Worker message error'), {
+          tags: {
+            error_type: 'worker_message_error',
+            component: 'web_worker',
+          },
+          contexts: {
+            file_info: {
+              size: file.size,
+              name: file.name,
+            },
+            event_data: event.data,
+          },
+        });
+
         guestAnalytics.uploadFailed('message_error');
         console.error('Worker message error:', event);
         // eslint-disable-next-line no-alert
@@ -109,6 +209,19 @@ export default function GuestUploadPage() {
       // Start processing with timezone
       worker.postMessage({ type: 'START', file, timezone });
     } catch (error) {
+      // Capture any other errors
+      Sentry.captureException(error, {
+        tags: {
+          component: 'upload_handler',
+        },
+        contexts: {
+          file_info: {
+            size: file.size,
+            name: file.name,
+          },
+        },
+      });
+
       // Track general error
       guestAnalytics.uploadFailed(error.message || 'unknown_error');
       setStep('upload');

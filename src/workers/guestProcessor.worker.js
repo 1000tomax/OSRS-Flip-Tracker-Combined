@@ -1,5 +1,17 @@
 import Papa from 'papaparse';
 
+// Global error handler for worker crashes
+self.onerror = function (error) {
+  // Send error details back to main thread
+  self.postMessage({
+    type: 'ERROR',
+    message: `Worker crashed: ${error.message}`,
+    stack: error.stack,
+    line: error.lineno,
+    column: error.colno,
+  });
+};
+
 // Expected Flipping Copilot column names (lowercase for comparison)
 const EXPECTED_COLUMNS = [
   'first buy time',
@@ -38,23 +50,23 @@ function toDateKey(iso, timezone) {
 }
 
 self.onmessage = async e => {
-  if (e.data.type !== 'START') return;
-
-  const { file, timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } = e.data;
-
-  // Stream processing - maintain state as we parse
-  let headers = null;
-  const headerMap = {}; // Maps normalized names to actual column names
-  let parser = null; // Store parser reference so we can abort if needed
-  let rowsProcessed = 0;
-  const accounts = new Set();
-  const seen = new Set(); // For deduplication
-  const flipsByDate = {}; // Plain object, not Map (for serialization)
-  const itemStatsMap = {}; // Accumulate item stats on the fly
-  const allFlips = []; // Keep all flips for potential re-bucketing
-  let hasShowBuyingError = false;
-
   try {
+    if (e.data.type !== 'START') return;
+
+    const { file, timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } = e.data;
+
+    // Stream processing - maintain state as we parse
+    let headers = null;
+    const headerMap = {}; // Maps normalized names to actual column names
+    let parser = null; // Store parser reference so we can abort if needed
+    let rowsProcessed = 0;
+    let lastProgressUpdate = 0;
+    const accounts = new Set();
+    const seen = new Set(); // For deduplication
+    const flipsByDate = {}; // Plain object, not Map (for serialization)
+    const itemStatsMap = {}; // Accumulate item stats on the fly
+    const allFlips = []; // Keep all flips for potential re-bucketing
+    let hasShowBuyingError = false;
     await new Promise((resolve, reject) => {
       parser = Papa.parse(file, {
         header: true,
@@ -185,12 +197,15 @@ self.onmessage = async e => {
             rowsProcessed++;
           }
 
-          // Send progress update
-          self.postMessage({
-            type: 'PROGRESS',
-            rowsProcessed,
-            totalRows: rowsProcessed, // We don't know total until complete
-          });
+          // Send progress update every 5000 rows
+          if (rowsProcessed - lastProgressUpdate >= 5000) {
+            self.postMessage({
+              type: 'PROGRESS',
+              rowsProcessed,
+              totalRows: rowsProcessed, // We don't know total until complete
+            });
+            lastProgressUpdate = rowsProcessed;
+          }
         },
         complete: () => {
           // Check if we should throw "Show Buying" error
@@ -276,9 +291,12 @@ self.onmessage = async e => {
       },
     });
   } catch (error) {
+    // Send detailed error back to main thread
     self.postMessage({
       type: 'ERROR',
       message: error.message,
+      stack: error.stack,
+      context: 'processing_failed',
     });
   }
 };

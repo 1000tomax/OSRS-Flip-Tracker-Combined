@@ -3,6 +3,11 @@ import { GuestDataProvider, useGuestData } from './contexts/GuestDataContext';
 import GuestUploadPage from './pages/GuestUploadPage';
 import GuestDashboard from './pages/GuestDashboard';
 import AnalyticsDisclosure from './components/AnalyticsDisclosure';
+import GuestErrorBoundary from './components/GuestErrorBoundary';
+import * as Sentry from '@sentry/react';
+
+// Wrap routes with Sentry
+const SentryRoutes = Sentry.withSentryRouting(Routes);
 
 // Protected route component - redirects to upload if no data
 function RequireGuestData({ children }) {
@@ -20,34 +25,36 @@ function RequireGuestData({ children }) {
 export default function GuestModeApp() {
   return (
     <GuestDataProvider>
-      {/* Different background color to make it visually distinct */}
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-gray-900 to-purple-900">
-        {/* Persistent banner across all guest pages */}
-        <div className="bg-yellow-500 text-black p-2 text-center font-bold sticky top-0 z-50">
-          🔒 GUEST MODE - Your data never leaves this browser
+      <GuestErrorBoundary>
+        {/* Different background color to make it visually distinct */}
+        <div className="min-h-screen bg-gradient-to-br from-purple-900 via-gray-900 to-purple-900">
+          {/* Persistent banner across all guest pages */}
+          <div className="bg-yellow-500 text-black p-2 text-center font-bold sticky top-0 z-50">
+            🔒 GUEST MODE - Your data never leaves this browser
+          </div>
+
+          <SentryRoutes>
+            {/* Upload is always accessible */}
+            <Route path="/" element={<GuestUploadPage />} />
+
+            {/* Dashboard requires data to be uploaded first */}
+            <Route
+              path="/dashboard"
+              element={
+                <RequireGuestData>
+                  <GuestDashboard />
+                </RequireGuestData>
+              }
+            />
+
+            {/* Any other guest routes redirect to upload */}
+            <Route path="/*" element={<Navigate to="/guest" replace />} />
+          </SentryRoutes>
+
+          {/* Analytics disclosure component */}
+          <AnalyticsDisclosure />
         </div>
-
-        <Routes>
-          {/* Upload is always accessible */}
-          <Route path="/" element={<GuestUploadPage />} />
-
-          {/* Dashboard requires data to be uploaded first */}
-          <Route
-            path="/dashboard"
-            element={
-              <RequireGuestData>
-                <GuestDashboard />
-              </RequireGuestData>
-            }
-          />
-
-          {/* Any other guest routes redirect to upload */}
-          <Route path="/*" element={<Navigate to="/guest" replace />} />
-        </Routes>
-
-        {/* Analytics disclosure component */}
-        <AnalyticsDisclosure />
-      </div>
+      </GuestErrorBoundary>
     </GuestDataProvider>
   );
 }

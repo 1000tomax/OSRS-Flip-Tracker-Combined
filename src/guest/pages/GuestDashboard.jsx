@@ -2,6 +2,7 @@ import { useGuestData } from '../contexts/GuestDataContext';
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { guestAnalytics } from '../../utils/guestAnalytics';
+import * as Sentry from '@sentry/react';
 import JSZip from 'jszip';
 import { formatGP } from '../../utils/formatGP';
 import html2canvas from 'html2canvas-pro';
@@ -46,64 +47,71 @@ function arrayToCSV(data) {
 
 // Export function - creates a ZIP with both JSON and CSV data
 async function exportGuestData(guestData) {
-  // Import the analytics at function level since this is outside the component
-  const { guestAnalytics } = await import('../../utils/guestAnalytics');
+  try {
+    // Import the analytics at function level since this is outside the component
+    const { guestAnalytics } = await import('../../utils/guestAnalytics');
 
-  // Track data export
-  guestAnalytics.dataExported();
-
-  const zip = new JSZip();
-
-  // Create metadata
-  const metadata = {
-    version: '1.0',
-    exportDate: new Date().toISOString(),
-    source: 'guest-mode',
-    accounts: guestData.metadata.accounts,
-    dateRange: guestData.metadata.dateRange,
-    timezone: guestData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-    stats: {
-      totalProfit: guestData.totalProfit,
-      totalFlips: guestData.totalFlips,
-      uniqueItems: guestData.uniqueItems,
-    },
-  };
-
-  // Add JSON files
-  zip.file('meta.json', JSON.stringify(metadata, null, 2));
-  zip.file('json/daily-summaries.json', JSON.stringify(guestData.dailySummaries, null, 2));
-  zip.file('json/item-stats.json', JSON.stringify(guestData.itemStats, null, 2));
-
-  // Add CSV files (more user-friendly)
-  zip.file('csv/daily-summaries.csv', arrayToCSV(guestData.dailySummaries));
-  zip.file('csv/item-stats.csv', arrayToCSV(guestData.itemStats));
-
-  // Add all individual flips as CSV (flatten the flipsByDate object)
-  if (guestData.flipsByDate) {
-    const allFlipsFlat = [];
-    Object.entries(guestData.flipsByDate).forEach(([date, flips]) => {
-      flips.forEach(flip => {
-        allFlipsFlat.push({
-          date,
-          item: flip.item,
-          quantity: flip.quantity,
-          avgBuyPrice: flip.avgBuyPrice,
-          avgSellPrice: flip.avgSellPrice,
-          profit: flip.profit,
-          sellerTax: flip.sellerTax,
-          firstBuyTime: flip.firstBuyTime,
-          lastSellTime: flip.lastSellTime,
-          accountId: flip.accountId,
-        });
-      });
+    Sentry.addBreadcrumb({
+      category: 'action',
+      message: 'Export started',
+      level: 'info',
     });
 
-    zip.file('csv/all-flips.csv', arrayToCSV(allFlipsFlat));
-    zip.file('json/flips-by-date.json', JSON.stringify(guestData.flipsByDate, null, 2));
-  }
+    // Track data export
+    guestAnalytics.dataExported();
 
-  // Add a README explaining the files
-  const readme = `# OSRS Flip Analysis Export
+    const zip = new JSZip();
+
+    // Create metadata
+    const metadata = {
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      source: 'guest-mode',
+      accounts: guestData.metadata.accounts,
+      dateRange: guestData.metadata.dateRange,
+      timezone: guestData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      stats: {
+        totalProfit: guestData.totalProfit,
+        totalFlips: guestData.totalFlips,
+        uniqueItems: guestData.uniqueItems,
+      },
+    };
+
+    // Add JSON files
+    zip.file('meta.json', JSON.stringify(metadata, null, 2));
+    zip.file('json/daily-summaries.json', JSON.stringify(guestData.dailySummaries, null, 2));
+    zip.file('json/item-stats.json', JSON.stringify(guestData.itemStats, null, 2));
+
+    // Add CSV files (more user-friendly)
+    zip.file('csv/daily-summaries.csv', arrayToCSV(guestData.dailySummaries));
+    zip.file('csv/item-stats.csv', arrayToCSV(guestData.itemStats));
+
+    // Add all individual flips as CSV (flatten the flipsByDate object)
+    if (guestData.flipsByDate) {
+      const allFlipsFlat = [];
+      Object.entries(guestData.flipsByDate).forEach(([date, flips]) => {
+        flips.forEach(flip => {
+          allFlipsFlat.push({
+            date,
+            item: flip.item,
+            quantity: flip.quantity,
+            avgBuyPrice: flip.avgBuyPrice,
+            avgSellPrice: flip.avgSellPrice,
+            profit: flip.profit,
+            sellerTax: flip.sellerTax,
+            firstBuyTime: flip.firstBuyTime,
+            lastSellTime: flip.lastSellTime,
+            accountId: flip.accountId,
+          });
+        });
+      });
+
+      zip.file('csv/all-flips.csv', arrayToCSV(allFlipsFlat));
+      zip.file('json/flips-by-date.json', JSON.stringify(guestData.flipsByDate, null, 2));
+    }
+
+    // Add a README explaining the files
+    const readme = `# OSRS Flip Analysis Export
 
 ## Files Included
 
@@ -127,16 +135,30 @@ Unique Items: ${guestData.uniqueItems}
 Accounts: ${guestData.metadata.accounts.join(', ')}
 `;
 
-  zip.file('README.txt', readme);
+    zip.file('README.txt', readme);
 
-  // Generate and download ZIP
-  const blob = await zip.generateAsync({ type: 'blob' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `osrs-flips-export-${new Date().toISOString().split('T')[0]}.zip`;
-  a.click();
-  URL.revokeObjectURL(url);
+    // Generate and download ZIP
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `osrs-flips-export-${new Date().toISOString().split('T')[0]}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    Sentry.addBreadcrumb({
+      category: 'action',
+      message: 'Export completed successfully',
+      level: 'info',
+    });
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: {
+        component: 'export_function',
+      },
+    });
+    throw error; // Re-throw so the calling code can handle it
+  }
 }
 
 export default function GuestDashboard() {
@@ -161,7 +183,21 @@ export default function GuestDashboard() {
   // Track dashboard view on mount
   useEffect(() => {
     guestAnalytics.dashboardViewed();
-  }, []);
+
+    // Add context about loaded data
+    Sentry.setContext('dashboard_data', {
+      totalFlips: guestData.totalFlips,
+      uniqueItems: guestData.uniqueItems,
+      dateRange: guestData.metadata?.dateRange,
+      accountCount: guestData.metadata?.accountCount || 1,
+    });
+
+    Sentry.addBreadcrumb({
+      category: 'navigation',
+      message: 'Dashboard loaded successfully',
+      level: 'info',
+    });
+  }, [guestData]);
 
   // Note: We don't need to check for data here because RequireGuestData handles it
   const userTimezone = guestData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -191,11 +227,17 @@ export default function GuestDashboard() {
   const captureItemsTable = async () => {
     if (isCapturingItems) return;
 
-    // Track screenshot capture
-    guestAnalytics.screenshotCaptured('items_table');
-
-    setIsCapturingItems(true);
     try {
+      Sentry.addBreadcrumb({
+        category: 'action',
+        message: 'Screenshot capture started: items_table',
+        level: 'info',
+      });
+
+      // Track screenshot capture
+      guestAnalytics.screenshotCaptured('items_table');
+
+      setIsCapturingItems(true);
       const itemsToRender = searchTerms.length > 0 ? filteredItems : allItems;
       console.log(`Attempting to capture ${itemsToRender.length} items`);
 
@@ -239,6 +281,12 @@ export default function GuestDashboard() {
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
     } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'screenshot',
+          type: 'items_table',
+        },
+      });
       console.error('Screenshot failed:', error);
       // eslint-disable-next-line no-alert
       alert('Screenshot failed. Please try again.');
@@ -439,11 +487,17 @@ export default function GuestDashboard() {
   const captureChart = async () => {
     if (isCapturingChart) return;
 
-    // Track screenshot capture
-    guestAnalytics.screenshotCaptured('profit_chart');
-
-    setIsCapturingChart(true);
     try {
+      Sentry.addBreadcrumb({
+        category: 'action',
+        message: 'Screenshot capture started: profit_chart',
+        level: 'info',
+      });
+
+      // Track screenshot capture
+      guestAnalytics.screenshotCaptured('profit_chart');
+
+      setIsCapturingChart(true);
       // Create a temporary div to render the chart
       const tempDiv = document.createElement('div');
       tempDiv.style.position = 'absolute';
@@ -549,6 +603,12 @@ export default function GuestDashboard() {
       link.href = dataUrl;
       link.click();
     } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'screenshot',
+          type: 'profit_chart',
+        },
+      });
       console.error('Chart screenshot failed:', error);
       // eslint-disable-next-line no-alert
       alert('Chart screenshot failed. Please try again.');
@@ -561,11 +621,17 @@ export default function GuestDashboard() {
   const captureDailySummaries = async () => {
     if (isCapturingDaily) return;
 
-    // Track screenshot capture
-    guestAnalytics.screenshotCaptured('daily_summary');
-
-    setIsCapturingDaily(true);
     try {
+      Sentry.addBreadcrumb({
+        category: 'action',
+        message: 'Screenshot capture started: daily_summary',
+        level: 'info',
+      });
+
+      // Track screenshot capture
+      guestAnalytics.screenshotCaptured('daily_summary');
+
+      setIsCapturingDaily(true);
       // Smart pagination for Discord readability
       const daysPerPage = 50;
       const totalPages = Math.ceil(guestData.dailySummaries.length / daysPerPage);
@@ -611,6 +677,12 @@ export default function GuestDashboard() {
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
     } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'screenshot',
+          type: 'daily_summary',
+        },
+      });
       console.error('Daily summaries screenshot failed:', error);
       // eslint-disable-next-line no-alert
       alert('Daily summaries screenshot failed. Please try again.');
@@ -790,6 +862,12 @@ export default function GuestDashboard() {
       link.href = dataUrl;
       link.click();
     } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'screenshot',
+          type: 'daily_summary',
+        },
+      });
       console.error('Daily summaries screenshot failed:', error);
       // eslint-disable-next-line no-alert
       alert('Daily summaries screenshot failed. Please try again.');
@@ -802,11 +880,17 @@ export default function GuestDashboard() {
   const captureHeatmap = async () => {
     if (isCapturingHeatmap) return;
 
-    // Track screenshot capture
-    guestAnalytics.screenshotCaptured('trading_heatmap');
-
-    setIsCapturingHeatmap(true);
     try {
+      Sentry.addBreadcrumb({
+        category: 'action',
+        message: 'Screenshot capture started: trading_heatmap',
+        level: 'info',
+      });
+
+      // Track screenshot capture
+      guestAnalytics.screenshotCaptured('trading_heatmap');
+
+      setIsCapturingHeatmap(true);
       // Create a temporary div to render the heatmap
       const tempDiv = document.createElement('div');
       tempDiv.style.position = 'absolute';
@@ -911,6 +995,12 @@ export default function GuestDashboard() {
       link.href = dataUrl;
       link.click();
     } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'screenshot',
+          type: 'trading_heatmap',
+        },
+      });
       console.error('Heatmap screenshot failed:', error);
       // eslint-disable-next-line no-alert
       alert('Heatmap screenshot failed. Please try again.');
