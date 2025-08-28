@@ -459,6 +459,12 @@ export default function GuestDashboard() {
       chartClone.style.borderRadius = '8px';
       chartClone.style.padding = '20px';
 
+      // Hide screenshot button in the cloned version
+      const screenshotButton = chartClone.querySelector('.screenshot-button');
+      if (screenshotButton) {
+        screenshotButton.style.display = 'none';
+      }
+
       tempDiv.appendChild(headerDiv);
       tempDiv.appendChild(chartClone);
       document.body.appendChild(tempDiv);
@@ -867,7 +873,7 @@ export default function GuestDashboard() {
           <button
             onClick={captureChart}
             disabled={isCapturingChart}
-            className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50"
+            className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50 screenshot-button"
           >
             {isCapturingChart ? '📸 Capturing...' : '📸 Screenshot'}
           </button>
@@ -962,6 +968,8 @@ export default function GuestDashboard() {
             <SortableTable
               data={guestData.dailySummaries}
               columns={dailyTableColumns}
+              initialSortField="date"
+              initialSortDirection="desc"
               className="text-sm"
             />
           </div>

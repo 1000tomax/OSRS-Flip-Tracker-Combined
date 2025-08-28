@@ -71,7 +71,7 @@ export default function Items() {
     );
   }
 
-  // Filter items based on search query
+  // Filter items based on search query (supports comma-separated searches)
   const filtered = items.filter(item => {
     // Ensure item_name exists and is a string
     const itemName = item?.item_name;
@@ -79,7 +79,20 @@ export default function Items() {
       console.warn('Invalid item_name:', item);
       return false;
     }
-    return itemName.toLowerCase().includes(query.toLowerCase()); // Case-insensitive search
+
+    // If no query, show all items
+    if (!query.trim()) return true;
+
+    // Split by comma and check if any search term matches
+    const searchTerms = query
+      .split(',')
+      .map(term => term.trim().toLowerCase())
+      .filter(term => term.length > 0);
+
+    if (searchTerms.length === 0) return true;
+
+    const itemNameLower = itemName.toLowerCase();
+    return searchTerms.some(term => itemNameLower.includes(term));
   });
 
   // Handle CSV export
@@ -216,7 +229,7 @@ export default function Items() {
         <SearchControls
           query={query} // Current search query
           onQueryChange={setQuery} // Update search when user types
-          placeholder="Search items..." // Helpful placeholder text
+          placeholder="Search items... (e.g., 'Dragon bones' or 'Rune sword, Magic logs, Whip')" // Helpful placeholder text
           viewMode={viewMode} // Current view mode (table/cards)
           onViewModeChange={setViewMode} // Switch between view modes
           showViewToggle={true} // Show the view mode toggle
