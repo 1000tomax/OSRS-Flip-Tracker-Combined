@@ -17,6 +17,7 @@ import {
 // Import existing components
 import SortableTable from '../../components/SortableTable';
 import ItemSearch from '../components/ItemSearch';
+import GuestHeatMap from '../components/GuestHeatMap';
 
 // Helper function to convert array of objects to CSV
 function arrayToCSV(data) {
@@ -136,9 +137,11 @@ export default function GuestDashboard() {
   const [isCapturingItems, setIsCapturingItems] = useState(false);
   const [isCapturingChart, setIsCapturingChart] = useState(false);
   const [isCapturingDaily, setIsCapturingDaily] = useState(false);
+  const [isCapturingHeatmap, setIsCapturingHeatmap] = useState(false);
   const itemsTableRef = useRef(null);
   const chartRef = useRef(null);
   const dailyTableRef = useRef(null);
+  const heatmapRef = useRef(null);
 
   // Note: We don't need to check for data here because RequireGuestData handles it
   const userTimezone = guestData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -745,6 +748,124 @@ export default function GuestDashboard() {
     }
   };
 
+  // Generate shareable image of heatmap
+  const captureHeatmap = async () => {
+    if (isCapturingHeatmap) return;
+
+    setIsCapturingHeatmap(true);
+    try {
+      // Create a temporary div to render the heatmap
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '1200px';
+      tempDiv.style.padding = '30px';
+      tempDiv.style.backgroundColor = '#0f172a';
+      tempDiv.style.color = 'white';
+      tempDiv.style.fontFamily = 'Arial, sans-serif';
+
+      // Header
+      const headerDiv = document.createElement('div');
+      headerDiv.style.marginBottom = '20px';
+      headerDiv.style.display = 'flex';
+      headerDiv.style.justifyContent = 'space-between';
+      headerDiv.style.alignItems = 'center';
+      headerDiv.style.padding = '15px 20px';
+      headerDiv.style.backgroundColor = '#1e293b';
+      headerDiv.style.borderRadius = '8px';
+      headerDiv.style.border = '2px solid #3b82f6';
+
+      // Left side - Title and stats
+      const leftInfo = document.createElement('div');
+
+      const title = document.createElement('h1');
+      title.textContent = 'OSRS Flip Analysis - Trading Heat Map';
+      title.style.fontSize = '20px';
+      title.style.fontWeight = 'bold';
+      title.style.margin = '0';
+      title.style.color = 'white';
+
+      const subtitle = document.createElement('p');
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      subtitle.textContent = `${guestData.uniqueItems} Items • ${guestData.dailySummaries.length} Days • Total: ${guestData.totalProfit.toLocaleString()} GP • Hours in ${userTimezone}`;
+      subtitle.style.fontSize = '14px';
+      subtitle.style.color = '#9CA3AF';
+      subtitle.style.margin = '2px 0 0 0';
+
+      leftInfo.appendChild(title);
+      leftInfo.appendChild(subtitle);
+
+      // Right side - Brand and date
+      const rightInfo = document.createElement('div');
+      rightInfo.style.textAlign = 'right';
+
+      const brandDateText = document.createElement('p');
+      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      brandDateText.style.margin = '0';
+      brandDateText.style.lineHeight = '1.3';
+
+      rightInfo.appendChild(brandDateText);
+
+      headerDiv.appendChild(leftInfo);
+      headerDiv.appendChild(document.createElement('div')); // empty center
+      headerDiv.appendChild(rightInfo);
+
+      // Clone the heatmap
+      const originalHeatmap = heatmapRef.current;
+      if (!originalHeatmap) {
+        throw new Error('Heatmap element not found');
+      }
+
+      const heatmapClone = originalHeatmap.cloneNode(true);
+
+      // Hide any screenshot buttons in the clone
+      const screenshotButtons = heatmapClone.querySelectorAll('.screenshot-button');
+      screenshotButtons.forEach(btn => {
+        btn.style.display = 'none';
+      });
+
+      tempDiv.appendChild(headerDiv);
+      tempDiv.appendChild(heatmapClone);
+      document.body.appendChild(tempDiv);
+
+      // Wait a bit for rendering
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Capture
+      const canvas = await html2canvas(tempDiv, {
+        backgroundColor: '#0f172a',
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        removeContainer: true,
+        width: 1200,
+        logging: false,
+        pixelRatio: 1,
+      });
+
+      // Clean up
+      document.body.removeChild(tempDiv);
+
+      // Download
+      const dataUrl = canvas.toDataURL('image/png');
+      if (dataUrl === 'data:,') {
+        throw new Error('Heatmap capture failed - empty data URL');
+      }
+
+      const link = document.createElement('a');
+      link.download = `trading-heatmap-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Heatmap screenshot failed:', error);
+      // eslint-disable-next-line no-alert
+      alert('Heatmap screenshot failed. Please try again.');
+    } finally {
+      setIsCapturingHeatmap(false);
+    }
+  };
+
   // Prepare data for daily summaries table
   const dailyTableColumns = [
     { key: 'date', label: 'Date', sortable: true },
@@ -947,6 +1068,20 @@ export default function GuestDashboard() {
         <p className="text-sm text-gray-400 mt-2">
           Shows your total accumulated profit over {guestData.dailySummaries.length} trading days
         </p>
+      </div>
+
+      {/* Trading Heat Map */}
+      <div ref={heatmapRef} className="mb-8">
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={captureHeatmap}
+            disabled={isCapturingHeatmap}
+            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-500 disabled:opacity-50 screenshot-button"
+          >
+            {isCapturingHeatmap ? '📸 Capturing...' : '📸 Screenshot'}
+          </button>
+        </div>
+        <GuestHeatMap guestData={guestData} />
       </div>
 
       {/* Tables */}
