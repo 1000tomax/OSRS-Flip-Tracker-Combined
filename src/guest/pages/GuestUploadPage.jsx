@@ -1,77 +1,121 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuestData } from '../contexts/GuestDataContext';
 import CsvDropzone from '../components/CsvDropzone';
 import ProcessingStatus from '../components/ProcessingStatus';
+import { guestAnalytics } from '../../utils/guestAnalytics';
 
 export default function GuestUploadPage() {
   const [step, setStep] = useState('upload'); // 'upload' | 'processing' | 'complete'
   const { guestData, setGuestData, processingStats, setProcessingStats } = useGuestData();
   const navigate = useNavigate();
 
+  // Track if user returned with existing data
+  useEffect(() => {
+    if (guestData) {
+      guestAnalytics.returnedToUpload(true);
+    }
+  }, [guestData]);
+
   // If user already has data and came back to upload page
   const hasExistingData = !!guestData;
 
   const handleFileSelect = async file => {
-    // If they have existing data, confirm replacement
-    if (hasExistingData) {
-      // eslint-disable-next-line no-alert
-      const confirmed = window.confirm('This will replace your current data. Continue?');
-      if (!confirmed) return;
-    }
-
-    setStep('processing');
-
-    // Get browser timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-
-    // Create Web Worker
-    const worker = new Worker(new URL('../../workers/guestProcessor.worker.js', import.meta.url), {
-      type: 'module',
-    });
-
-    // Handle messages from worker
-    worker.onmessage = e => {
-      if (e.data.type === 'PROGRESS') {
-        setProcessingStats({
-          rowsProcessed: e.data.rowsProcessed,
-          totalRows: e.data.totalRows,
-        });
-      } else if (e.data.type === 'COMPLETE') {
-        setGuestData(e.data.result);
-        setStep('complete');
-        worker.terminate(); // Clean up worker
-
-        // Navigate to guest dashboard
-        // eslint-disable-next-line no-magic-numbers
-        setTimeout(() => navigate('/guest/dashboard'), 500);
-      } else if (e.data.type === 'ERROR') {
+    try {
+      // If they have existing data, confirm replacement
+      if (hasExistingData) {
         // eslint-disable-next-line no-alert
-        window.alert(`Error processing CSV: ${e.data.message}`);
-        setStep('upload');
-        worker.terminate(); // Clean up worker
+        const confirmed = window.confirm('This will replace your current data. Continue?');
+        if (!confirmed) return;
       }
-    };
 
-    // Handle worker errors
-    worker.onerror = error => {
-      // eslint-disable-next-line no-alert
-      window.alert(`Processing error: ${error.message}`);
+      // Track upload started
+      guestAnalytics.uploadStarted();
+
+      setStep('processing');
+      const startTime = Date.now();
+
+      // Get browser timezone
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
+      // Create Web Worker
+      const worker = new Worker(
+        new URL('../../workers/guestProcessor.worker.js', import.meta.url),
+        {
+          type: 'module',
+        }
+      );
+
+      // Handle messages from worker
+      worker.onmessage = e => {
+        if (e.data.type === 'PROGRESS') {
+          setProcessingStats({
+            rowsProcessed: e.data.rowsProcessed,
+            totalRows: e.data.totalRows,
+          });
+        } else if (e.data.type === 'COMPLETE') {
+          const processingTime = Date.now() - startTime;
+
+          // Track successful upload with anonymized stats
+          guestAnalytics.uploadCompleted(
+            e.data.stats?.totalFlips || e.data.result.totalFlips || 0,
+            processingTime,
+            e.data.meta?.accountCount || 1
+          );
+
+          setGuestData(e.data.result);
+          setStep('complete');
+          worker.terminate(); // Clean up worker
+
+          // Navigate to guest dashboard
+          // eslint-disable-next-line no-magic-numbers
+          setTimeout(() => navigate('/guest/dashboard'), 500);
+        } else if (e.data.type === 'ERROR') {
+          // Determine error type for analytics
+          const errorType = e.data.message.includes('Show Buying')
+            ? 'show_buying_enabled'
+            : e.data.message.includes('format')
+              ? 'invalid_format'
+              : 'processing_error';
+
+          guestAnalytics.uploadFailed(errorType);
+
+          // eslint-disable-next-line no-alert
+          window.alert(`Error processing CSV: ${e.data.message}`);
+          setStep('upload');
+          worker.terminate(); // Clean up worker
+        }
+      };
+
+      // Handle worker errors
+      worker.onerror = error => {
+        guestAnalytics.uploadFailed('worker_error');
+        // eslint-disable-next-line no-alert
+        window.alert(`Processing error: ${error.message}`);
+        setStep('upload');
+        worker.terminate();
+      };
+
+      // Handle message errors (malformed messages)
+      worker.onmessageerror = event => {
+        guestAnalytics.uploadFailed('message_error');
+        console.error('Worker message error:', event);
+        // eslint-disable-next-line no-alert
+        window.alert('An error occurred while processing. Please try again.');
+        setStep('upload');
+        worker.terminate();
+      };
+
+      // Start processing with timezone
+      worker.postMessage({ type: 'START', file, timezone });
+    } catch (error) {
+      // Track general error
+      guestAnalytics.uploadFailed(error.message || 'unknown_error');
       setStep('upload');
-      worker.terminate();
-    };
-
-    // Handle message errors (malformed messages)
-    worker.onmessageerror = event => {
-      console.error('Worker message error:', event);
+      console.error('Upload error:', error);
       // eslint-disable-next-line no-alert
-      window.alert('An error occurred while processing. Please try again.');
-      setStep('upload');
-      worker.terminate();
-    };
-
-    // Start processing with timezone
-    worker.postMessage({ type: 'START', file, timezone });
+      window.alert('An unexpected error occurred. Please try again.');
+    }
   };
 
   return (

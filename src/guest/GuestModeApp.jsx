@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { GuestDataProvider, useGuestData } from './contexts/GuestDataContext';
 import GuestUploadPage from './pages/GuestUploadPage';
 import GuestDashboard from './pages/GuestDashboard';
+import AnalyticsDisclosure from './components/AnalyticsDisclosure';
 
 // Protected route component - redirects to upload if no data
 function RequireGuestData({ children }) {
@@ -43,6 +44,9 @@ export default function GuestModeApp() {
           {/* Any other guest routes redirect to upload */}
           <Route path="/*" element={<Navigate to="/guest" replace />} />
         </Routes>
+
+        {/* Analytics disclosure component */}
+        <AnalyticsDisclosure />
       </div>
     </GuestDataProvider>
   );

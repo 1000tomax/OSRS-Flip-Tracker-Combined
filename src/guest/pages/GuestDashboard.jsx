@@ -1,6 +1,7 @@
 import { useGuestData } from '../contexts/GuestDataContext';
 import { useNavigate } from 'react-router-dom';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { guestAnalytics } from '../../utils/guestAnalytics';
 import JSZip from 'jszip';
 import { formatGP } from '../../utils/formatGP';
 import html2canvas from 'html2canvas-pro';
@@ -45,6 +46,12 @@ function arrayToCSV(data) {
 
 // Export function - creates a ZIP with both JSON and CSV data
 async function exportGuestData(guestData) {
+  // Import the analytics at function level since this is outside the component
+  const { guestAnalytics } = await import('../../utils/guestAnalytics');
+
+  // Track data export
+  guestAnalytics.dataExported();
+
   const zip = new JSZip();
 
   // Create metadata
@@ -151,6 +158,11 @@ export default function GuestDashboard() {
   const dailyTableRef = useRef(null);
   const heatmapRef = useRef(null);
 
+  // Track dashboard view on mount
+  useEffect(() => {
+    guestAnalytics.dashboardViewed();
+  }, []);
+
   // Note: We don't need to check for data here because RequireGuestData handles it
   const userTimezone = guestData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -178,6 +190,9 @@ export default function GuestDashboard() {
   // Generate shareable image of filtered items data
   const captureItemsTable = async () => {
     if (isCapturingItems) return;
+
+    // Track screenshot capture
+    guestAnalytics.screenshotCaptured('items_table');
 
     setIsCapturingItems(true);
     try {
@@ -424,6 +439,9 @@ export default function GuestDashboard() {
   const captureChart = async () => {
     if (isCapturingChart) return;
 
+    // Track screenshot capture
+    guestAnalytics.screenshotCaptured('profit_chart');
+
     setIsCapturingChart(true);
     try {
       // Create a temporary div to render the chart
@@ -542,6 +560,9 @@ export default function GuestDashboard() {
   // Generate shareable image of daily summaries table
   const captureDailySummaries = async () => {
     if (isCapturingDaily) return;
+
+    // Track screenshot capture
+    guestAnalytics.screenshotCaptured('daily_summary');
 
     setIsCapturingDaily(true);
     try {
@@ -780,6 +801,9 @@ export default function GuestDashboard() {
   // Generate shareable image of heatmap
   const captureHeatmap = async () => {
     if (isCapturingHeatmap) return;
+
+    // Track screenshot capture
+    guestAnalytics.screenshotCaptured('trading_heatmap');
 
     setIsCapturingHeatmap(true);
     try {

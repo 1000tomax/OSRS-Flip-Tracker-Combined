@@ -1,16 +1,17 @@
-// src/main.jsx - Simple and stable without React Query
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from 'sonner';
+import App from './App';
 import './index.css';
-import App from './App.jsx';
 
-// Simple main.jsx without React Query complexity
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
     <App />
     <Toaster richColors closeButton position="top-right" />
-  </StrictMode>
+    {/* Only load analytics in production */}
+    {import.meta.env.PROD && <Analytics />}
+  </React.StrictMode>
 );
 // Force rebuild Sat, Aug 16, 2025  1:54:50 PM
 // Cache bust: Sat, Aug 16, 2025  2:17:09 PM
