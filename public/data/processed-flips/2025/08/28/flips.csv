@@ -1,0 +1,2 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Adamantite ore,FINISHED,2449,1861240,2449,1922465,39184,61225,2025-08-28T04:55:24Z,2025-08-28T05:01:00Z,2025-08-28T05:01:00Z,ce8639821ad2e290e3779cd35f35aedd0d992b1a6eed6de2a1b88d6f9eb1d45f
