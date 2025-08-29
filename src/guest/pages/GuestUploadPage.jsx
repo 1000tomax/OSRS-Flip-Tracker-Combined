@@ -127,27 +127,72 @@ export default function GuestUploadPage() {
           // eslint-disable-next-line no-magic-numbers
           setTimeout(() => navigate('/guest/dashboard'), 500);
         } else if (e.data.type === 'ERROR') {
-          // Determine error type for analytics
+          // Determine error type for analytics and routing
           const errorType = e.data.message.includes('Show Buying')
             ? 'show_buying_enabled'
-            : e.data.message.includes('format')
+            : e.data.message.includes('format') || e.data.message.includes('Missing columns')
               ? 'invalid_format'
               : 'processing_error';
 
-          // Capture error with context
-          Sentry.captureException(new Error(e.data.message), {
-            tags: {
-              error_type: errorType,
-              component: 'csv_processor',
-            },
-            contexts: {
-              upload_attempt: {
-                fileSize: file.size,
-                fileName: file.name,
-                error: e.data.message,
+          // Enhanced error capturing with routing classification
+          if (e.data.message.includes('Show Buying')) {
+            Sentry.captureException(new Error(e.data.message), {
+              tags: {
+                error_type: 'show_buying_enabled',
+                severity: 'low',
+                user_error: true,
+                action_needed: 'none',
+                component: 'csv_processor',
               },
-            },
-          });
+              contexts: {
+                upload_attempt: {
+                  fileSize: file.size,
+                  fileName: file.name,
+                  error: e.data.message,
+                },
+              },
+              fingerprint: ['show-buying-error'],
+            });
+          } else if (
+            e.data.message.includes('Missing columns') ||
+            e.data.message.includes('format')
+          ) {
+            Sentry.captureException(new Error(e.data.message), {
+              tags: {
+                error_type: 'invalid_format',
+                severity: 'low',
+                user_error: true,
+                action_needed: 'none',
+                component: 'csv_processor',
+              },
+              contexts: {
+                upload_attempt: {
+                  fileSize: file.size,
+                  fileName: file.name,
+                  error: e.data.message,
+                },
+              },
+              fingerprint: ['wrong-csv-format'],
+            });
+          } else {
+            // Other processing errors
+            Sentry.captureException(new Error(e.data.message), {
+              tags: {
+                error_type: 'processing_error',
+                severity: 'medium',
+                user_error: false,
+                action_needed: 'investigate',
+                component: 'csv_processor',
+              },
+              contexts: {
+                upload_attempt: {
+                  fileSize: file.size,
+                  fileName: file.name,
+                  error: e.data.message,
+                },
+              },
+            });
+          }
 
           guestAnalytics.uploadFailed(errorType);
 
