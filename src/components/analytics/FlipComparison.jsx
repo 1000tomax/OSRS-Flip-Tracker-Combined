@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 
 export default function FlipComparison({ fastFlips, slowFlips }) {
   const ComparisonCard = ({ title, data, color }) => {

@@ -123,7 +123,7 @@ const loadFlipData = async (dateFrom, dateTo) => {
       // Try to invalidate cache and fetch directly
       const directResponse = await fetch(`/data/summary-index.json?t=${Date.now()}`);
       const directData = await directResponse.json();
-      console.log('Direct fetch attempt:', directData);
+      if (DEBUG_QUERY) console.log('Direct fetch attempt:', directData);
 
       // Try same conversion logic on direct fetch
       if (Array.isArray(directData)) {

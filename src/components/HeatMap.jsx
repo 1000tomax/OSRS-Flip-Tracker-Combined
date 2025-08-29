@@ -20,7 +20,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { formatGP } from '../lib/utils';
+import { formatGP } from '../utils/formatUtils';
 
 /**
  * HeatMap Component - Shows hourly trading activity for a specific day

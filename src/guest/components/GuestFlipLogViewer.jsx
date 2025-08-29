@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 import SortableTable from '../../components/SortableTable';
 
 // Helper function to format duration

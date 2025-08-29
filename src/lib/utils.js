@@ -14,33 +14,7 @@
 // These functions take raw data and make it human-readable
 // ============================================================================
 
-/**
- * Formats large numbers into readable GP (Gold Pieces) format
- *
- * In RuneScape, gold amounts can get very large, so we abbreviate them:
- * - 1,500 becomes "2K"
- * - 2,500,000 becomes "3M"
- * - 1,200,000,000 becomes "1.20B"
- *
- * @param {number} value - The raw GP amount (e.g., 1500000)
- * @returns {string} - Formatted string (e.g., "1.50M")
- *
- * How it works:
- * 1. Check if the number is >= 1 billion, format as "B"
- * 2. If >= 1 million, format as "M"
- * 3. If >= 1 thousand, format as "K"
- * 4. Otherwise, just add commas for readability
- */
-export function formatGP(value) {
-  // Handle negative values by preserving the sign
-  const absValue = Math.abs(value);
-  const sign = value < 0 ? '-' : '';
-
-  if (absValue >= 1_000_000_000) return `${sign}${(absValue / 1_000_000_000).toFixed(2)}B`;
-  if (absValue >= 1_000_000) return `${sign}${(absValue / 1_000_000).toFixed(2)}M`;
-  if (absValue >= 1_000) return `${sign}${(absValue / 1_000).toFixed(0)}K`;
-  return value?.toLocaleString?.() ?? value;
-}
+// formatGP function removed - now using FormatUtils.gp() from ../utils/formatUtils.ts
 
 /**
  * Formats a decimal number as a percentage with + or - sign

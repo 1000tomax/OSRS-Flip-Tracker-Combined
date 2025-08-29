@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { useCsvData } from '../hooks/useCsvData';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
-import { formatGP, formatPercent } from '../lib/utils';
+import { formatPercent } from '../lib/utils';
+import { formatGP } from '../utils/formatUtils';
 
 export default function ItemLeaderboard() {
   const { data: items, loading, error } = useCsvData('/data/item-stats.csv');

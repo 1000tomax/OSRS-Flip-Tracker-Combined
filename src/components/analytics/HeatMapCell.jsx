@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 import { dayNames, formatHour } from '../../utils/analyticsCalculations';
 
 export default function HeatMapCell({ day, hour, value, metric, color, onClick }) {

@@ -13,7 +13,8 @@
  */
 
 import React from 'react';
-import { formatGP, formatTime, getCategoryIcon } from '../lib/utils';
+import { formatTime, getCategoryIcon } from '../lib/utils';
+import { formatGP } from '../utils/formatUtils';
 
 /**
  * ChartTooltip Component - Creates hover tooltips for chart data points

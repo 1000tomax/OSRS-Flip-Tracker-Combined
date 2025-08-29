@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 
 // Color intensity function for green/red gradient
 const getIntensityColor = (value, maxValue) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 
 export default function PerformanceBreakdown({ categories }) {
   if (!categories || categories.length === 0) {

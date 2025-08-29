@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 
 export default function GuestDatePicker({ guestData, selectedDate, onDateSelect }) {
   // Get available dates and their stats

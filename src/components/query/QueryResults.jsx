@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import SortableTable from '../SortableTable';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 import { exportToCsv } from '../../lib/csvExport';
 
 export default function QueryResults({ queryType, results, loading }) {

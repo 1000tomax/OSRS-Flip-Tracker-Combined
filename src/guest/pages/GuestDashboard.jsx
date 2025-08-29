@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { guestAnalytics } from '../../utils/guestAnalytics';
 import * as Sentry from '@sentry/react';
 import JSZip from 'jszip';
-import { formatGP } from '../../utils/formatGP';
+import { formatGP } from '../../utils/formatUtils';
 import html2canvas from 'html2canvas-pro';
 import {
   LineChart,
@@ -239,7 +239,7 @@ export default function GuestDashboard() {
 
       setIsCapturingItems(true);
       const itemsToRender = searchTerms.length > 0 ? filteredItems : allItems;
-      console.log(`Attempting to capture ${itemsToRender.length} items`);
+      // Debug: Capturing ${itemsToRender.length} items
 
       // Smart pagination for Discord readability
       const itemsPerPage = 60;
@@ -359,7 +359,22 @@ export default function GuestDashboard() {
       rightInfo.style.textAlign = 'right';
 
       const brandDateText = document.createElement('p');
-      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      // Create brand span safely
+      const brandSpan = document.createElement('span');
+      brandSpan.textContent = 'mreedon.com/guest';
+      brandSpan.style.color = '#60a5fa';
+      brandSpan.style.fontWeight = 'bold';
+      brandSpan.style.fontSize = '16px';
+
+      // Create date span safely
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = `Generated: ${new Date().toLocaleDateString()}`;
+      dateSpan.style.color = '#94a3b8';
+      dateSpan.style.fontSize = '11px';
+
+      brandDateText.appendChild(brandSpan);
+      brandDateText.appendChild(document.createElement('br'));
+      brandDateText.appendChild(dateSpan);
       brandDateText.style.margin = '0';
       brandDateText.style.lineHeight = '1.3';
 
@@ -438,7 +453,7 @@ export default function GuestDashboard() {
       tempDiv.appendChild(table);
       document.body.appendChild(tempDiv);
 
-      console.log(`Temp div dimensions: ${tempDiv.scrollWidth}x${tempDiv.scrollHeight}`);
+      // Debug: Temp div dimensions: ${tempDiv.scrollWidth}x${tempDiv.scrollHeight}
 
       // Capture the temporary div with more conservative settings
       const canvas = await html2canvas(tempDiv, {
@@ -453,7 +468,7 @@ export default function GuestDashboard() {
         pixelRatio: 1, // Fixed at 1 for consistency
       });
 
-      console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
+      // Debug: Canvas dimensions: ${canvas.width}x${canvas.height}
 
       // Clean up
       document.body.removeChild(tempDiv);
@@ -465,7 +480,7 @@ export default function GuestDashboard() {
         throw new Error('Canvas generation failed - empty data URL');
       }
 
-      console.log(`Data URL length: ${dataUrl.length} characters`);
+      // Debug: Data URL length: ${dataUrl.length} characters
 
       // Download the image
       const link = document.createElement('a');
@@ -545,7 +560,22 @@ export default function GuestDashboard() {
       rightInfo.style.textAlign = 'right';
 
       const brandDateText = document.createElement('p');
-      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      // Create brand span safely
+      const brandSpan = document.createElement('span');
+      brandSpan.textContent = 'mreedon.com/guest';
+      brandSpan.style.color = '#60a5fa';
+      brandSpan.style.fontWeight = 'bold';
+      brandSpan.style.fontSize = '16px';
+
+      // Create date span safely
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = `Generated: ${new Date().toLocaleDateString()}`;
+      dateSpan.style.color = '#94a3b8';
+      dateSpan.style.fontSize = '11px';
+
+      brandDateText.appendChild(brandSpan);
+      brandDateText.appendChild(document.createElement('br'));
+      brandDateText.appendChild(dateSpan);
       brandDateText.style.margin = '0';
       brandDateText.style.lineHeight = '1.3';
 
@@ -748,7 +778,22 @@ export default function GuestDashboard() {
       rightInfo.style.textAlign = 'right';
 
       const brandDateText = document.createElement('p');
-      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      // Create brand span safely
+      const brandSpan = document.createElement('span');
+      brandSpan.textContent = 'mreedon.com/guest';
+      brandSpan.style.color = '#60a5fa';
+      brandSpan.style.fontWeight = 'bold';
+      brandSpan.style.fontSize = '16px';
+
+      // Create date span safely
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = `Generated: ${new Date().toLocaleDateString()}`;
+      dateSpan.style.color = '#94a3b8';
+      dateSpan.style.fontSize = '11px';
+
+      brandDateText.appendChild(brandSpan);
+      brandDateText.appendChild(document.createElement('br'));
+      brandDateText.appendChild(dateSpan);
       brandDateText.style.margin = '0';
       brandDateText.style.lineHeight = '1.3';
 
@@ -827,9 +872,7 @@ export default function GuestDashboard() {
       tempDiv.appendChild(table);
       document.body.appendChild(tempDiv);
 
-      console.log(
-        `Daily summary temp div dimensions: ${tempDiv.scrollWidth}x${tempDiv.scrollHeight}`
-      );
+      // Debug: Daily summary temp div dimensions: ${tempDiv.scrollWidth}x${tempDiv.scrollHeight}
 
       // Capture
       const canvas = await html2canvas(tempDiv, {
@@ -938,7 +981,22 @@ export default function GuestDashboard() {
       rightInfo.style.textAlign = 'right';
 
       const brandDateText = document.createElement('p');
-      brandDateText.innerHTML = `<span style="color: #60a5fa; font-weight: bold; font-size: 16px;">mreedon.com/guest</span><br><span style="color: #94a3b8; font-size: 11px;">Generated: ${new Date().toLocaleDateString()}</span>`;
+      // Create brand span safely
+      const brandSpan = document.createElement('span');
+      brandSpan.textContent = 'mreedon.com/guest';
+      brandSpan.style.color = '#60a5fa';
+      brandSpan.style.fontWeight = 'bold';
+      brandSpan.style.fontSize = '16px';
+
+      // Create date span safely
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = `Generated: ${new Date().toLocaleDateString()}`;
+      dateSpan.style.color = '#94a3b8';
+      dateSpan.style.fontSize = '11px';
+
+      brandDateText.appendChild(brandSpan);
+      brandDateText.appendChild(document.createElement('br'));
+      brandDateText.appendChild(dateSpan);
       brandDateText.style.margin = '0';
       brandDateText.style.lineHeight = '1.3';
 

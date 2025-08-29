@@ -10,7 +10,7 @@ async function getCachedData(cacheInstance, key, loader) {
   if (cached !== null) {
     // Don't return empty cached arrays
     if (Array.isArray(cached) && cached.length === 0) {
-      console.log('Skipping empty cached array for key:', key);
+      // Debug: Skipping empty cached array for key: ${key}
       await cacheInstance.invalidate(key);
     } else {
       return cached;

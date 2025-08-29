@@ -30,7 +30,8 @@ import { useJsonData } from '../hooks/useJsonData';
 import DateNavigation from '../components/DateNavigation';
 import HeatMap from '../components/HeatMap';
 import SortableTable from '../components/SortableTable';
-import { parseDateParts, formatDuration, formatGP } from '../lib/utils';
+import { parseDateParts, formatDuration } from '../lib/utils';
+import { formatGP } from '../utils/formatUtils';
 import {
   PageContainer,
   CardContainer,

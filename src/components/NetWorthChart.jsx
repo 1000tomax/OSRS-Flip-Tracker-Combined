@@ -40,7 +40,8 @@ import {
 } from 'recharts';
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
-import { formatGP, isIncompleteDay } from '../lib/utils';
+import { isIncompleteDay } from '../lib/utils';
+import { formatGP } from '../utils/formatUtils';
 import { exportToImage, generateImageFilename } from '../lib/imageExport';
 import { toast } from 'sonner';
 

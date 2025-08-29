@@ -34,7 +34,7 @@ import React, { useRef, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
-import { formatGP } from '../lib/utils';
+import { formatGP } from '../utils/formatUtils';
 import { exportToImage, generateImageFilename } from '../lib/imageExport';
 import { toast } from 'sonner';
 

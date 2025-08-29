@@ -6,7 +6,8 @@
  */
 
 import React from 'react';
-import { formatGP, formatPercent } from './utils';
+import { formatPercent } from './utils';
+import { formatGP } from '../utils/formatUtils';
 
 // Column configuration for item statistics (used on Items page)
 export const itemStatsColumns = [

@@ -30,7 +30,8 @@ import SearchControls, { ResultsCount } from '../components/SearchControls';
 import ItemCards from '../components/ItemCards';
 import { itemStatsColumns } from '../lib/columnConfigs.jsx';
 import SortableTable from '../components/SortableTable';
-import { formatGP, formatPercent } from '../lib/utils';
+import { formatPercent } from '../lib/utils';
+import { formatGP } from '../utils/formatUtils';
 import {
   PageContainer,
   CardContainer,
