@@ -1,6 +1,6 @@
 // src/App.jsx - Enhanced with cache monitoring
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navigation from './components/Navigation';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -78,6 +78,25 @@ function AppContent() {
 }
 
 function App() {
+  useEffect(() => {
+    // Keyboard shortcut to toggle analytics exclusion (Ctrl+Shift+A)
+    const handleKeyPress = e => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        const isExcluded = localStorage.getItem('exclude-analytics');
+        if (isExcluded) {
+          localStorage.removeItem('exclude-analytics');
+          console.log('📊 Analytics tracking re-enabled. Refresh to apply.');
+        } else {
+          localStorage.setItem('exclude-analytics', 'true');
+          console.log('🚫 You are now excluded from analytics. Refresh to apply.');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
   return (
     <ErrorBoundary>
       <Router>
