@@ -29,19 +29,57 @@ export default function GuestUploadPage() {
   const hasExistingData = !!guestData;
 
   const handleFileSelect = async file => {
-    // Add breadcrumb for file upload
-    Sentry.addBreadcrumb({
-      category: 'upload',
-      message: `File selected: ${file.size} bytes`,
-      level: 'info',
-      data: {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-      },
-    });
-
     try {
+      // VALIDATION 1: File size check (prevent worker crashes)
+      const maxFileSize = 2.5 * 1024 * 1024; // 2.5MB limit (conservative)
+      if (file.size > maxFileSize) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1);
+        
+        guestAnalytics.uploadFailed('file_too_large');
+        window.alert(
+          `File too large: ${fileSizeMB}MB\n` +
+          `Maximum allowed: ${maxSizeMB}MB\n\n` +
+          `Your file has ${Math.round(file.size / 112).toLocaleString()} estimated rows.\n` +
+          `Try exporting a shorter date range (3-6 months) from Flipping Copilot.`
+        );
+        return;
+      }
+
+      // VALIDATION 2: File type check
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        guestAnalytics.uploadFailed('invalid_file_type');
+        window.alert('Please upload a .csv file from Flipping Copilot');
+        return;
+      }
+
+      // VALIDATION 3: Basic CSV format check (quick peek)
+      const sampleSize = Math.min(file.size, 1024); // Read first 1KB
+      const sampleText = await file.slice(0, sampleSize).text();
+      const sampleLower = sampleText.toLowerCase();
+      
+      if (!sampleLower.includes('first buy time') || !sampleLower.includes('last sell time')) {
+        guestAnalytics.uploadFailed('not_copilot_csv');
+        window.alert(
+          'This doesn\'t appear to be a Flipping Copilot export.\n\n' +
+          'Make sure you\'re uploading the flips.csv file from the plugin.'
+        );
+        return;
+      }
+
+      // Add breadcrumb for file upload
+      Sentry.addBreadcrumb({
+        category: 'upload',
+        message: `File selected: ${file.size} bytes`,
+        level: 'info',
+        data: {
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+        },
+      });
+
+      // Continue with existing upload logic...
       // If they have existing data, confirm replacement
       if (hasExistingData) {
         // eslint-disable-next-line no-alert
@@ -64,9 +102,9 @@ export default function GuestUploadPage() {
 
       // Track upload started
       guestAnalytics.uploadStarted();
+      const uploadStartTime = Date.now(); // Store for error handling
 
       setStep('processing');
-      const startTime = Date.now();
 
       // Get browser timezone
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -81,125 +119,127 @@ export default function GuestUploadPage() {
 
       // Handle messages from worker
       worker.onmessage = e => {
+        // Handle memory warnings from worker
+        if (e.data.type === 'MEMORY_WARNING') {
+          console.warn('Worker memory warning:', e.data.message);
+          setProcessingStats(prev => ({ 
+            ...prev, 
+            message: `${prev.message || 'Processing'} (High memory usage - processing slowly)` 
+          }));
+          return;
+        }
+
+        // Handle progress updates
         if (e.data.type === 'PROGRESS') {
-          setProcessingStats({
+          setProcessingStats(e.data.progress || {
             rowsProcessed: e.data.rowsProcessed,
             totalRows: e.data.totalRows,
           });
 
           // Add breadcrumb for processing progress
-          if (e.data.rowsProcessed % 10000 === 0) {
+          if ((e.data.progress?.current || e.data.rowsProcessed) % 10000 === 0) {
             Sentry.addBreadcrumb({
               category: 'processing',
-              message: `Processed ${e.data.rowsProcessed} rows`,
+              message: `Processed ${e.data.progress?.current || e.data.rowsProcessed} rows`,
               level: 'info',
             });
           }
-        } else if (e.data.type === 'COMPLETE') {
-          const processingTime = Date.now() - startTime;
+          return;
+        }
 
-          // Track successful upload with anonymized stats
+        // Handle successful completion
+        if (e.data.type === 'SUCCESS' || e.data.type === 'COMPLETE') {
+          // Handle both new and old data structures
+          const rawData = e.data.data || e.data.result;
+          const flipsByDate = rawData.flipsByDate || {};
+          const itemStats = rawData.itemStats || [];
+          
+          // Calculate totals from the data
+          const totalProfit = itemStats.reduce((sum, item) => sum + (item.totalProfit || 0), 0);
+          const totalFlips = itemStats.reduce((sum, item) => sum + (item.flipCount || 0), 0);
+          const uniqueItems = itemStats.length;
+          
+          // Create daily summaries from flipsByDate
+          const dailySummaries = Object.entries(flipsByDate)
+            .map(([date, dayData]) => ({
+              date,
+              totalProfit: dayData.totalProfit || (dayData.flips?.reduce((sum, f) => sum + (f.profit || 0), 0) || 0),
+              flipCount: dayData.totalFlips || dayData.flips?.length || 0,
+              uniqueItems: new Set(dayData.flips?.map(f => f.item) || []).size,
+            }))
+            .sort((a, b) => a.date.localeCompare(b.date));
+
+          const processedData = {
+            flipsByDate,
+            itemStats,
+            dailySummaries,
+            totalProfit,
+            totalFlips,
+            uniqueItems,
+            timezone,
+            accounts: rawData.accounts || [],
+            allFlips: rawData.allFlips || [],
+            metadata: {
+              ...(rawData.metadata || {}),
+              processedAt: new Date().toISOString(),
+              userTimezone: timezone,
+              accounts: rawData.accounts || [],
+              accountCount: rawData.accounts?.length || rawData.metadata?.accountCount || 1,
+              dateRange: {
+                from: dailySummaries[0]?.date,
+                to: dailySummaries[dailySummaries.length - 1]?.date,
+              },
+            },
+          };
+
+          setGuestData(processedData);
           guestAnalytics.uploadCompleted(
-            e.data.stats?.totalFlips || e.data.result.totalFlips || 0,
-            processingTime,
-            e.data.meta?.accountCount || 1
+            e.data.data?.totalRows || e.data.result?.totalFlips || 0,
+            Date.now() - uploadStartTime,
+            e.data.data?.accounts?.length || 1
           );
 
-          // Add success context to Sentry
-          Sentry.setContext('upload_success', {
-            totalFlips: e.data.stats?.totalFlips || e.data.result.totalFlips || 0,
-            processingTime: `${processingTime}ms`,
-            accountCount: e.data.meta?.accountCount || 1,
-            uniqueItems: e.data.stats?.uniqueItems || 0,
-          });
-
-          Sentry.addBreadcrumb({
-            category: 'upload',
-            message: 'File processing completed successfully',
-            level: 'info',
-          });
-
-          setGuestData(e.data.result);
           setStep('complete');
-          worker.terminate(); // Clean up worker
-
+          worker.terminate();
+          
           // Navigate to guest dashboard
           // eslint-disable-next-line no-magic-numbers
           setTimeout(() => navigate('/guest/dashboard'), 500);
-        } else if (e.data.type === 'ERROR') {
-          // Determine error type for analytics and routing
-          const errorType = e.data.message.includes('Show Buying')
-            ? 'show_buying_enabled'
-            : e.data.message.includes('format') || e.data.message.includes('Missing columns')
-              ? 'invalid_format'
-              : 'processing_error';
+          return;
+        }
 
-          // Enhanced error capturing with routing classification
-          if (e.data.message.includes('Show Buying')) {
-            Sentry.captureException(new Error(e.data.message), {
-              tags: {
-                error_type: 'show_buying_enabled',
-                severity: 'low',
-                user_error: true,
-                action_needed: 'none',
-                component: 'csv_processor',
+        // Handle errors with enhanced context
+        if (e.data.type === 'ERROR') {
+          console.error('Worker error:', e.data);
+          
+          // Enhanced Sentry error reporting
+          Sentry.captureException(new Error(e.data.message), {
+            tags: {
+              error_type: 'worker_processing_error',
+              component: 'guest_csv_processor',
+              severity: 'high',
+            },
+            contexts: {
+              file_info: {
+                size: file.size,
+                name: file.name,
+                estimated_rows: Math.round(file.size / 112),
               },
-              contexts: {
-                upload_attempt: {
-                  fileSize: file.size,
-                  fileName: file.name,
-                  error: e.data.message,
-                },
+              error_details: {
+                message: e.data.message,
+                stack: e.data.stack,
+                line: e.data.line,
+                column: e.data.column,
               },
-              fingerprint: ['show-buying-error'],
-            });
-          } else if (
-            e.data.message.includes('Missing columns') ||
-            e.data.message.includes('format')
-          ) {
-            Sentry.captureException(new Error(e.data.message), {
-              tags: {
-                error_type: 'invalid_format',
-                severity: 'low',
-                user_error: true,
-                action_needed: 'none',
-                component: 'csv_processor',
-              },
-              contexts: {
-                upload_attempt: {
-                  fileSize: file.size,
-                  fileName: file.name,
-                  error: e.data.message,
-                },
-              },
-              fingerprint: ['wrong-csv-format'],
-            });
-          } else {
-            // Other processing errors
-            Sentry.captureException(new Error(e.data.message), {
-              tags: {
-                error_type: 'processing_error',
-                severity: 'medium',
-                user_error: false,
-                action_needed: 'investigate',
-                component: 'csv_processor',
-              },
-              contexts: {
-                upload_attempt: {
-                  fileSize: file.size,
-                  fileName: file.name,
-                  error: e.data.message,
-                },
-              },
-            });
-          }
+            },
+          });
 
-          guestAnalytics.uploadFailed(errorType);
+          guestAnalytics.uploadFailed('worker_error');
 
-          // eslint-disable-next-line no-alert
-          window.alert(`Error processing CSV: ${e.data.message}`);
+          window.alert(`Processing failed: ${e.data.message}`);
           setStep('upload');
-          worker.terminate(); // Clean up worker
+          worker.terminate();
+          return;
         }
       };
 

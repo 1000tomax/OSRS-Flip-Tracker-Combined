@@ -93,19 +93,26 @@ async function exportGuestData(guestData) {
     // Add all individual flips as CSV (flatten the flipsByDate object)
     if (guestData.flipsByDate) {
       const allFlipsFlat = [];
-      Object.entries(guestData.flipsByDate).forEach(([date, flips]) => {
+      Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
+        // Handle both old format (array) and new format (object with flips array)
+        const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
+        // Add safety check
+        if (!Array.isArray(flips)) {
+          console.error('Expected flips to be array, got:', typeof flips, flips);
+          return;
+        }
         flips.forEach(flip => {
           allFlipsFlat.push({
             date,
             item: flip.item,
-            quantity: flip.quantity,
-            avgBuyPrice: flip.avgBuyPrice,
-            avgSellPrice: flip.avgSellPrice,
+            quantity: flip.quantity || flip.bought || flip.sold,
+            avgBuyPrice: flip.avgBuyPrice || flip.avg_buy_price,
+            avgSellPrice: flip.avgSellPrice || flip.avg_sell_price,
             profit: flip.profit,
-            sellerTax: flip.sellerTax,
-            firstBuyTime: flip.firstBuyTime,
-            lastSellTime: flip.lastSellTime,
-            accountId: flip.accountId,
+            sellerTax: flip.sellerTax || flip.tax,
+            firstBuyTime: flip.firstBuyTime || flip.first_buy_time,
+            lastSellTime: flip.lastSellTime || flip.last_sell_time,
+            accountId: flip.accountId || flip.account,
           });
         });
       });

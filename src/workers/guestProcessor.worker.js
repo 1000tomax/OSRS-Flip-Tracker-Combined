@@ -49,292 +49,242 @@ function toDateKey(iso, timezone) {
   return `${mm}-${dd}-${yyyy}`; // MM-DD-YYYY in user's timezone
 }
 
-// Format date in YYYY-MM-DD format for sorting
-function toSortableDate(iso, timezone) {
-  const d = new Date(iso);
-  const fmt = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  const parts = fmt.formatToParts(d);
-  const mm = parts.find(p => p.type === 'month').value;
-  const dd = parts.find(p => p.type === 'day').value;
-  const yyyy = parts.find(p => p.type === 'year').value;
-  return `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD for proper sorting
-}
-
 self.onmessage = async e => {
   try {
     if (e.data.type !== 'START') return;
 
     const { file, timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } = e.data;
 
-    // Stream processing - maintain state as we parse
+    // EARLY EXIT: File size check to prevent crashes
+    if (file.size > 3 * 1024 * 1024) { // 3MB limit
+      self.postMessage({
+        type: 'ERROR',
+        message: `File too large: ${(file.size / (1024 * 1024)).toFixed(1)}MB. Maximum: 3MB. Try exporting a shorter date range.`,
+      });
+      return;
+    }
+
     let headers = null;
-    const headerMap = {}; // Maps normalized names to actual column names
-    let parser = null; // Store parser reference so we can abort if needed
+    const headerMap = {};
+    let parser = null;
     let rowsProcessed = 0;
     let lastProgressUpdate = 0;
     const accounts = new Set();
-    const seen = new Set(); // For deduplication
-    const flipsByDate = {}; // Plain object, not Map (for serialization)
-    const itemStatsMap = {}; // Accumulate item stats on the fly
-    const allFlips = []; // Keep all flips for potential re-bucketing
+    
+    // MEMORY MANAGEMENT: Process in batches and clean up
+    const flipsByDate = {};
+    const itemStatsMap = {};
+    const allFlips = []; // Keep flips but manage memory better
+    const seen = new Set();
     let hasShowBuyingError = false;
+    
+    // BATCH PROCESSING: Prevent memory spikes
+    const BATCH_SIZE = 2000;
+    let currentBatch = [];
+    
+    const processBatch = (batch) => {
+      for (const flipData of batch) {
+        // Deduplication
+        const flipHash = `${flipData.account}-${flipData.item}-${flipData.first_buy_time}-${flipData.last_sell_time}`;
+        if (seen.has(flipHash)) continue;
+        seen.add(flipHash);
+
+        // Add to final results
+        allFlips.push(flipData);
+        accounts.add(flipData.account);
+
+        // Update aggregates
+        const dateKey = toDateKey(flipData.last_sell_time, timezone);
+        
+        // Update date aggregates
+        if (!flipsByDate[dateKey]) {
+          flipsByDate[dateKey] = {
+            date: dateKey,
+            flips: [],
+            totalProfit: 0,
+            totalFlips: 0,
+          };
+        }
+        flipsByDate[dateKey].flips.push(flipData);
+        flipsByDate[dateKey].totalProfit += flipData.profit;
+        flipsByDate[dateKey].totalFlips++;
+
+        // Update item stats
+        if (!itemStatsMap[flipData.item]) {
+          itemStatsMap[flipData.item] = {
+            item: flipData.item,
+            totalProfit: 0,
+            flipCount: 0,
+            totalQuantity: 0,
+          };
+        }
+        itemStatsMap[flipData.item].totalProfit += flipData.profit;
+        itemStatsMap[flipData.item].flipCount++;
+        itemStatsMap[flipData.item].totalQuantity += flipData.bought;
+      }
+      
+      // MEMORY CLEANUP: Clear batch and force GC opportunity
+      batch.length = 0;
+      // Hint for garbage collection if available
+      // eslint-disable-next-line no-undef
+      if (typeof gc !== 'undefined') gc();
+    };
+
     await new Promise((resolve, reject) => {
       parser = Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        dynamicTyping: false, // We'll handle type conversion ourselves
+        dynamicTyping: false,
+        
+        // MEMORY OPTIMIZATION: Much smaller chunks
+        chunkSize: 32 * 1024, // 32KB chunks (very small)
+        
         chunk: results => {
-          // Build header lookup map on first chunk (case-insensitive)
-          if (!headers) {
-            headers = results.meta.fields;
-
-            // Build normalized → original header map
-            headers.forEach(header => {
-              const normalized = header.trim().toLowerCase();
-              headerMap[normalized] = header;
-            });
-
-            // Validate required columns exist (case-insensitive)
-            const normalizedHeaders = Object.keys(headerMap);
-            const missingColumns = EXPECTED_COLUMNS.filter(col => !normalizedHeaders.includes(col));
-
-            if (missingColumns.length > 0) {
-              if (parser) parser.abort(); // Stop parsing immediately
-              reject(
-                new Error(
-                  `Not a valid Flipping Copilot CSV. Missing columns: ${missingColumns.join(', ')}`
-                )
-              );
-              return;
+          try {
+            // MEMORY MONITORING
+            if (performance.memory) {
+              const used = performance.memory.usedJSHeapSize;
+              const limit = performance.memory.jsHeapSizeLimit;
+              if (used / limit > 0.85) { // Stop at 85% memory usage
+                if (parser) parser.abort();
+                reject(new Error(`Memory usage too high (${Math.round(used/limit*100)}%). File too large for processing.`));
+                return;
+              }
             }
 
-            // Check for "Show Buying" columns that shouldn't be there
-            if (
-              normalizedHeaders.includes('buy_state') ||
-              normalizedHeaders.includes('actively_buying') ||
-              normalizedHeaders.includes('buy_abort_time')
-            ) {
-              hasShowBuyingError = true;
-            }
-          }
+            // Build headers on first chunk
+            if (!headers) {
+              headers = results.meta.fields;
+              headers.forEach(header => {
+                const normalized = header.trim().toLowerCase();
+                headerMap[normalized] = header;
+              });
 
-          // Helper to get value by normalized column name
-          const getValue = (row, normalizedColName) => {
-            const actualColName = headerMap[normalizedColName];
-            return row[actualColName];
-          };
+              const normalizedHeaders = Object.keys(headerMap);
+              const missingColumns = EXPECTED_COLUMNS.filter(col => !normalizedHeaders.includes(col));
 
-          // Process each row immediately (streaming)
-          for (const row of results.data) {
-            // Skip rows without last sell time (incomplete flips)
-            const lastSellTime = getValue(row, 'last sell time');
-            if (!lastSellTime) {
-              hasShowBuyingError = true;
-              continue;
+              if (missingColumns.length > 0) {
+                if (parser) parser.abort();
+                reject(new Error(`Not a valid Flipping Copilot CSV. Missing columns: ${missingColumns.join(', ')}`));
+                return;
+              }
             }
 
-            // Track accounts
-            const accountId = getValue(row, 'account');
-            if (accountId) accounts.add(accountId);
+            // Process rows in smaller batches
+            for (const row of results.data) {
+              try {
+                const firstBuyTime = row[headerMap['first buy time']];
+                const lastSellTime = row[headerMap['last sell time']];
+                
+                if (!firstBuyTime || !lastSellTime) continue;
 
-            // Parse and clean the flip data using case-insensitive access
-            const flip = {
-              item: getValue(row, 'item'),
-              quantity: cleanNumeric(getValue(row, 'sold')), // "Sold" is the quantity
-              avgBuyPrice: cleanNumeric(getValue(row, 'avg. buy price')),
-              avgSellPrice: cleanNumeric(getValue(row, 'avg. sell price')),
-              sellerTax: cleanNumeric(getValue(row, 'tax')),
-              firstBuyTime: getValue(row, 'first buy time'),
-              lastSellTime,
-              accountId: accountId || 'Unknown',
-            };
+                const flipData = {
+                  account: row[headerMap.account] || 'Unknown',
+                  item: row[headerMap.item] || 'Unknown',
+                  first_buy_time: firstBuyTime,
+                  last_sell_time: lastSellTime,
+                  bought: cleanNumeric(row[headerMap.bought]),
+                  sold: cleanNumeric(row[headerMap.sold]),
+                  avg_buy_price: cleanNumeric(row[headerMap['avg. buy price']]),
+                  avg_sell_price: cleanNumeric(row[headerMap['avg. sell price']]),
+                  tax: cleanNumeric(row[headerMap.tax]),
+                  profit: cleanNumeric(row[headerMap.profit]) || 
+                          (cleanNumeric(row[headerMap.sold]) * cleanNumeric(row[headerMap['avg. sell price']]) - 
+                           cleanNumeric(row[headerMap.bought]) * cleanNumeric(row[headerMap['avg. buy price']]) - 
+                           cleanNumeric(row[headerMap.tax])),
+                };
 
-            // Calculate profit - use CSV value if present, otherwise compute
-            const profitCsv = cleanNumeric(getValue(row, 'profit'));
-            const computedProfit =
-              flip.avgSellPrice * flip.quantity - flip.avgBuyPrice * flip.quantity - flip.sellerTax;
-            flip.profit = profitCsv || computedProfit;
+                if (flipData.bought === 0 && flipData.sold === 0) {
+                  hasShowBuyingError = true;
+                  continue;
+                }
 
-            // Calculate ROI
-            const spent = flip.avgBuyPrice * flip.quantity;
-            flip.roi = spent > 0 ? (flip.profit / spent) * 100 : 0;
+                // Add to batch
+                currentBatch.push(flipData);
+                
+                // BATCH PROCESSING: Process when batch is full
+                if (currentBatch.length >= BATCH_SIZE) {
+                  processBatch(currentBatch);
+                  currentBatch = []; // Create new array instead of clearing
+                }
 
-            // Add formatted date (YYYY-MM-DD format from lastSellTime)
-            flip.date = toSortableDate(flip.lastSellTime, timezone);
+                rowsProcessed++;
 
-            // Calculate additional useful fields
-            flip.spent = spent;
-            flip.revenue = flip.avgSellPrice * flip.quantity;
+                // Progress updates
+                if (Date.now() - lastProgressUpdate > 500) {
+                  self.postMessage({
+                    type: 'PROGRESS',
+                    progress: {
+                      current: rowsProcessed,
+                      message: `Processing row ${rowsProcessed.toLocaleString()}...`,
+                    },
+                  });
+                  lastProgressUpdate = Date.now();
+                }
 
-            // Calculate hours held between first buy and last sell
-            if (flip.firstBuyTime && flip.lastSellTime) {
-              const buyTime = new Date(flip.firstBuyTime);
-              const sellTime = new Date(flip.lastSellTime);
-              const timeDiff = sellTime - buyTime; // milliseconds
-              flip.hoursHeld = timeDiff / (1000 * 60 * 60); // convert to hours
-              flip.hoursHeld = Math.round(flip.hoursHeld * 10) / 10; // round to 1 decimal place
-            } else {
-              flip.hoursHeld = 0;
+              } catch (rowError) {
+                console.warn('Error processing row:', rowError);
+                continue;
+              }
             }
 
-            // Validate the flip has required data
-            if (
-              !flip.item ||
-              flip.quantity <= 0 ||
-              flip.avgBuyPrice <= 0 ||
-              flip.avgSellPrice <= 0
-            ) {
-              continue;
-            }
-
-            // Create comprehensive hash for deduplication (with normalized ISO times)
-            const isoFirst = new Date(flip.firstBuyTime).toISOString();
-            const isoLast = new Date(flip.lastSellTime).toISOString();
-            const hash = [
-              flip.item,
-              flip.quantity,
-              flip.avgBuyPrice,
-              flip.avgSellPrice,
-              isoFirst,
-              isoLast,
-              flip.accountId,
-            ].join('|');
-
-            // Skip if duplicate
-            if (seen.has(hash)) continue;
-            seen.add(hash);
-
-            // Keep the flip for potential re-bucketing
-            allFlips.push(flip);
-
-            // Add to date bucket (stream processing - no accumulation phase)
-            const dateKey = toDateKey(flip.lastSellTime, timezone);
-            if (!flipsByDate[dateKey]) {
-              flipsByDate[dateKey] = [];
-            }
-            flipsByDate[dateKey].push(flip);
-
-            // Update item stats on the fly (streaming aggregation)
-            if (!itemStatsMap[flip.item]) {
-              itemStatsMap[flip.item] = {
-                item: flip.item,
-                totalProfit: 0,
-                flipCount: 0,
-                totalQuantity: 0,
-              };
-            }
-            itemStatsMap[flip.item].totalProfit += flip.profit;
-            itemStatsMap[flip.item].flipCount += 1;
-            itemStatsMap[flip.item].totalQuantity += flip.quantity;
-
-            rowsProcessed++;
-          }
-
-          // Send progress update every 5000 rows
-          if (rowsProcessed - lastProgressUpdate >= 5000) {
-            self.postMessage({
-              type: 'PROGRESS',
-              rowsProcessed,
-              totalRows: rowsProcessed, // We don't know total until complete
-            });
-            lastProgressUpdate = rowsProcessed;
+          } catch (chunkError) {
+            console.error('Chunk processing error:', chunkError);
+            if (parser) parser.abort();
+            reject(chunkError);
           }
         },
+
         complete: () => {
-          // Check if we should throw "Show Buying" error
-          if (hasShowBuyingError) {
-            reject(
-              new Error(
-                'Invalid export settings detected!\n\n' +
-                  'Please disable "Show Buying" in Flipping Copilot:\n' +
-                  '1. Open Flipping Copilot settings in RuneLite\n' +
-                  '2. Uncheck "Show Buying"\n' +
-                  '3. Export your flips.csv again\n\n' +
-                  'Only completed flips should be included in the export.'
-              )
-            );
-            return;
+          // Process final batch
+          if (currentBatch.length > 0) {
+            processBatch(currentBatch);
           }
-
-          // Check if we have any valid flips
-          if (rowsProcessed === 0) {
-            reject(new Error('No valid flips found in the CSV file.'));
-            return;
-          }
-
           resolve();
         },
+
         error: error => {
-          if (parser) parser.abort(); // Ensure parsing stops
-          reject(error);
-        },
+          console.error('Papa Parse error:', error);
+          reject(new Error(`CSV parsing failed: ${error.message}`));
+        }
       });
     });
 
-    // Process the accumulated data into final format
-    const dailySummaries = Object.entries(flipsByDate)
-      .map(([date, flips]) => ({
-        date,
-        totalProfit: flips.reduce((sum, f) => sum + f.profit, 0),
-        flipCount: flips.length,
-        uniqueItems: new Set(flips.map(f => f.item)).size,
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+    // MEMORY CHECK: Final validation before sending
+    if (performance.memory) {
+      const used = performance.memory.usedJSHeapSize;
+      const limit = performance.memory.jsHeapSizeLimit;
+      console.log(`Final memory usage: ${Math.round(used/(1024*1024))}MB (${Math.round(used/limit*100)}%)`);
+    }
 
-    // Convert item stats map to sorted array
-    const itemStats = Object.values(itemStatsMap).sort((a, b) => b.totalProfit - a.totalProfit);
-
-    // Calculate totals
-    const totalProfit = itemStats.reduce((sum, item) => sum + item.totalProfit, 0);
-    const totalFlips = itemStats.reduce((sum, item) => sum + item.flipCount, 0);
-    const uniqueItems = itemStats.length;
-
-    // Get date range
-    const dateRange =
-      dailySummaries.length > 0
-        ? {
-            from: dailySummaries[0].date,
-            to: dailySummaries[dailySummaries.length - 1].date,
-          }
-        : null;
-
-    // Send completion message with plain objects (not Maps)
+    // Send results with all flips (but processed efficiently)
     self.postMessage({
-      type: 'COMPLETE',
-      result: {
-        dailySummaries,
-        itemStats,
-        flipsByDate, // Plain object, will serialize fine
-        allFlips, // Keep for potential timezone changes
-        totalProfit,
-        totalFlips,
-        uniqueItems,
-        timezone,
+      type: 'SUCCESS',
+      data: {
+        flipsByDate,
+        itemStats: Object.values(itemStatsMap),
+        accounts: Array.from(accounts),
+        totalRows: rowsProcessed,
+        hasShowBuyingError,
+        allFlips, // Keep this for dashboard display
         metadata: {
-          accounts: Array.from(accounts).sort(),
+          originalFileSize: file.size,
+          processedFlips: allFlips.length,
+          accounts: Array.from(accounts),
           accountCount: accounts.size,
-          dateRange,
-          rowsProcessed,
-          timezone,
-          message:
-            accounts.size > 1
-              ? `Data includes ${accounts.size} accounts: ${Array.from(accounts).join(', ')}`
-              : `Data from account: ${Array.from(accounts)[0] || 'Unknown'}`,
         },
       },
     });
+
   } catch (error) {
-    // Send detailed error back to main thread
+    console.error('Worker processing error:', error);
     self.postMessage({
       type: 'ERROR',
-      message: error.message,
+      message: error.message || 'Unknown processing error',
       stack: error.stack,
-      context: 'processing_failed',
     });
+  } finally {
+    // Final cleanup
+    if (typeof gc !== 'undefined') gc();
   }
 };

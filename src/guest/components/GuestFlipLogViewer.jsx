@@ -43,20 +43,24 @@ export default function GuestFlipLogViewer({
 
     if (selectedDate) {
       // Show flips for a specific date
-      const flips = guestData.flipsByDate[selectedDate] || [];
+      const dayData = guestData.flipsByDate[selectedDate];
+      const flips = Array.isArray(dayData) ? dayData : (dayData?.flips || []);
       allFlips = flips.map((flip, index) => ({
         ...flip,
         date: selectedDate,
-        id: `${selectedDate}_${flip.item}_${flip.lastSellTime}_${flip.profit}_${index}`,
+        id: `${selectedDate}_${flip.item}_${flip.lastSellTime || flip.last_sell_time}_${flip.profit}_${index}`,
       }));
     } else if (selectedDayHour) {
       // Show flips for a specific day of week and hour (from heatmap)
 
       let flipIndex = 0; // Global counter for unique IDs
-      Object.entries(guestData.flipsByDate).forEach(([date, flips]) => {
+      Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
+        // Handle both old format (array) and new format (object with flips array)
+        const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
         flips.forEach(flip => {
-          if (flip.lastSellTime) {
-            const sellDate = new Date(flip.lastSellTime);
+          const lastSellTime = flip.lastSellTime || flip.last_sell_time;
+          if (lastSellTime) {
+            const sellDate = new Date(lastSellTime);
             const dayOfWeek = sellDate.getDay();
             const hour = sellDate.getHours();
 
@@ -64,7 +68,7 @@ export default function GuestFlipLogViewer({
               allFlips.push({
                 ...flip,
                 date,
-                id: `${date}_${flip.item}_${flip.lastSellTime}_${flip.profit}_${flipIndex}`,
+                id: `${date}_${flip.item}_${lastSellTime}_${flip.profit}_${flipIndex}`,
               });
               flipIndex++;
             }
@@ -74,12 +78,14 @@ export default function GuestFlipLogViewer({
     } else {
       // Show all flips from all dates
       let flipIndex = 0; // Global counter for unique IDs
-      Object.entries(guestData.flipsByDate).forEach(([date, flips]) => {
+      Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
+        // Handle both old format (array) and new format (object with flips array)
+        const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
         flips.forEach(flip => {
           allFlips.push({
             ...flip,
             date,
-            id: `${date}_${flip.item}_${flip.lastSellTime}_${flip.profit}_${flipIndex}`,
+            id: `${date}_${flip.item}_${flip.lastSellTime || flip.last_sell_time}_${flip.profit}_${flipIndex}`,
           });
           flipIndex++;
         });
@@ -114,6 +120,7 @@ export default function GuestFlipLogViewer({
       label: 'Qty',
       headerClass: 'text-right hidden sm:table-cell',
       cellClass: 'text-right text-gray-300 hidden sm:table-cell',
+      render: (value, row) => row.quantity || row.bought || row.sold || 0,
     },
     {
       key: 'profit',
@@ -137,21 +144,21 @@ export default function GuestFlipLogViewer({
       label: 'Buy Price',
       headerClass: 'text-right hidden md:table-cell',
       cellClass: 'text-right text-gray-300 font-mono hidden md:table-cell',
-      render: value => formatGP(value || 0),
+      render: (value, row) => formatGP(value || row.avg_buy_price || 0),
     },
     {
       key: 'avgSellPrice',
       label: 'Sell Price',
       headerClass: 'text-right hidden md:table-cell',
       cellClass: 'text-right text-gray-300 font-mono hidden md:table-cell',
-      render: value => formatGP(value || 0),
+      render: (value, row) => formatGP(value || row.avg_sell_price || 0),
     },
     {
       key: 'sellerTax',
       label: 'Tax',
       headerClass: 'text-right hidden lg:table-cell',
       cellClass: 'text-right text-gray-300 font-mono hidden lg:table-cell',
-      render: value => formatGP(value || 0),
+      render: (value, row) => formatGP(value || row.tax || 0),
     },
     {
       key: 'duration',
@@ -159,12 +166,16 @@ export default function GuestFlipLogViewer({
       headerClass: 'text-right hidden lg:table-cell',
       cellClass: 'text-right text-gray-300 hidden lg:table-cell',
       sortValue: row => {
-        if (!row.firstBuyTime || !row.lastSellTime) return 0;
-        return new Date(row.lastSellTime).getTime() - new Date(row.firstBuyTime).getTime();
+        const firstBuyTime = row.firstBuyTime || row.first_buy_time;
+        const lastSellTime = row.lastSellTime || row.last_sell_time;
+        if (!firstBuyTime || !lastSellTime) return 0;
+        return new Date(lastSellTime).getTime() - new Date(firstBuyTime).getTime();
       },
       render: (_, row) => {
-        const buy = row.firstBuyTime ? new Date(row.firstBuyTime) : null;
-        const sell = row.lastSellTime ? new Date(row.lastSellTime) : null;
+        const firstBuyTime = row.firstBuyTime || row.first_buy_time;
+        const lastSellTime = row.lastSellTime || row.last_sell_time;
+        const buy = firstBuyTime ? new Date(firstBuyTime) : null;
+        const sell = lastSellTime ? new Date(lastSellTime) : null;
         const duration = buy && sell ? sell.getTime() - buy.getTime() : null;
         return duration ? formatDuration(duration) : '—';
       },
@@ -174,8 +185,11 @@ export default function GuestFlipLogViewer({
       label: 'Time',
       headerClass: 'text-right hidden lg:table-cell',
       cellClass: 'text-right text-gray-300 hidden lg:table-cell',
-      sortValue: row => (row.lastSellTime ? new Date(row.lastSellTime).getTime() : 0),
-      render: value => formatTime(value),
+      sortValue: row => {
+        const lastSellTime = row.lastSellTime || row.last_sell_time;
+        return lastSellTime ? new Date(lastSellTime).getTime() : 0;
+      },
+      render: (value, row) => formatTime(value || row.last_sell_time),
     },
     {
       key: 'date',

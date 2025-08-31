@@ -64,11 +64,14 @@ export default function GuestHeatMap({ guestData, onCellClick = null }) {
     let totalTransactions = 0;
 
     // Process all flips
-    Object.entries(guestData.flipsByDate).forEach(([, flips]) => {
+    Object.entries(guestData.flipsByDate).forEach(([, dayData]) => {
+      // Handle both old format (array) and new format (object with flips array)
+      const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
       flips.forEach(flip => {
         // Parse the sell time to get day of week and hour
-        if (flip.lastSellTime) {
-          const sellDate = new Date(flip.lastSellTime);
+        const lastSellTime = flip.lastSellTime || flip.last_sell_time;
+        if (lastSellTime) {
+          const sellDate = new Date(lastSellTime);
           const dayOfWeek = sellDate.getDay(); // 0 = Sunday, 6 = Saturday
           const hour = sellDate.getHours(); // 0-23
 
