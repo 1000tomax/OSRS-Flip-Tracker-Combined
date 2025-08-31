@@ -49,6 +49,22 @@ function toDateKey(iso, timezone) {
   return `${mm}-${dd}-${yyyy}`; // MM-DD-YYYY in user's timezone
 }
 
+// Format date in YYYY-MM-DD format for sorting
+function toSortableDate(iso, timezone) {
+  const d = new Date(iso);
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const parts = fmt.formatToParts(d);
+  const mm = parts.find(p => p.type === 'month').value;
+  const dd = parts.find(p => p.type === 'day').value;
+  const yyyy = parts.find(p => p.type === 'year').value;
+  return `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD for proper sorting
+}
+
 self.onmessage = async e => {
   try {
     if (e.data.type !== 'START') return;
@@ -143,6 +159,28 @@ self.onmessage = async e => {
             const computedProfit =
               flip.avgSellPrice * flip.quantity - flip.avgBuyPrice * flip.quantity - flip.sellerTax;
             flip.profit = profitCsv || computedProfit;
+
+            // Calculate ROI
+            const spent = flip.avgBuyPrice * flip.quantity;
+            flip.roi = spent > 0 ? (flip.profit / spent) * 100 : 0;
+
+            // Add formatted date (YYYY-MM-DD format from lastSellTime)
+            flip.date = toSortableDate(flip.lastSellTime, timezone);
+
+            // Calculate additional useful fields
+            flip.spent = spent;
+            flip.revenue = flip.avgSellPrice * flip.quantity;
+
+            // Calculate hours held between first buy and last sell
+            if (flip.firstBuyTime && flip.lastSellTime) {
+              const buyTime = new Date(flip.firstBuyTime);
+              const sellTime = new Date(flip.lastSellTime);
+              const timeDiff = sellTime - buyTime; // milliseconds
+              flip.hoursHeld = timeDiff / (1000 * 60 * 60); // convert to hours
+              flip.hoursHeld = Math.round(flip.hoursHeld * 10) / 10; // round to 1 decimal place
+            } else {
+              flip.hoursHeld = 0;
+            }
 
             // Validate the flip has required data
             if (

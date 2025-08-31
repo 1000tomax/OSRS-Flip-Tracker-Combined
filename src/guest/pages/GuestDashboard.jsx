@@ -22,6 +22,10 @@ import ItemSearch from '../components/ItemSearch';
 import GuestHeatMap from '../components/GuestHeatMap';
 import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
 import GuestDatePicker from '../components/GuestDatePicker';
+// Comment out the old complex version:
+// import { QueryBuilder } from '../components/QueryBuilder';
+// Use the new simple version:
+import { QueryBuilderSimple as QueryBuilder } from '../components/QueryBuilder/QueryBuilderSimple';
 
 // Helper function to convert array of objects to CSV
 function arrayToCSV(data) {
@@ -171,7 +175,7 @@ export default function GuestDashboard() {
   const [isCapturingHeatmap, setIsCapturingHeatmap] = useState(false);
 
   // Tab navigation state
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'fliplogs'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'fliplogs', 'ai'
   const [selectedDate, setSelectedDate] = useState(null); // For flip log viewer
   const [selectedDayHour, setSelectedDayHour] = useState(null); // For heatmap cell clicks
 
@@ -1174,7 +1178,7 @@ export default function GuestDashboard() {
             onClick={() => exportGuestData(guestData)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
           >
-            📥 Export Results
+            Export Results
           </button>
         </div>
       </div>
@@ -1191,7 +1195,7 @@ export default function GuestDashboard() {
                   : 'border-transparent text-gray-400 hover:text-gray-300'
               }`}
             >
-              📊 Overview
+              Overview
             </button>
             <button
               onClick={() => {
@@ -1208,7 +1212,17 @@ export default function GuestDashboard() {
                   : 'border-transparent text-gray-400 hover:text-gray-300'
               }`}
             >
-              📋 Transaction Logs
+              Transaction Logs
+            </button>
+            <button
+              onClick={() => setActiveTab('ai')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'ai'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              Data Query
             </button>
           </nav>
         </div>
@@ -1241,13 +1255,13 @@ export default function GuestDashboard() {
           {/* Cumulative Profit Chart */}
           <div className="bg-gray-800 p-6 rounded-lg mb-8" ref={chartRef}>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-white">📈 Cumulative Profit Over Time</h3>
+              <h3 className="text-xl font-bold text-white">Cumulative Profit Over Time</h3>
               <button
                 onClick={captureChart}
                 disabled={isCapturingChart}
                 className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50 screenshot-button"
               >
-                {isCapturingChart ? '📸 Capturing...' : '📸 Screenshot'}
+                {isCapturingChart ? 'Capturing...' : 'Screenshot'}
               </button>
             </div>
             <div className="h-64 sm:h-80">
@@ -1332,7 +1346,7 @@ export default function GuestDashboard() {
                 disabled={isCapturingHeatmap}
                 className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-500 disabled:opacity-50 screenshot-button"
               >
-                {isCapturingHeatmap ? '📸 Capturing...' : '📸 Screenshot'}
+                {isCapturingHeatmap ? 'Capturing...' : 'Screenshot'}
               </button>
             </div>
             <GuestHeatMap guestData={guestData} onCellClick={handleHeatmapCellClick} />
@@ -1350,7 +1364,7 @@ export default function GuestDashboard() {
                   disabled={isCapturingDaily}
                   className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-500 disabled:opacity-50"
                 >
-                  {isCapturingDaily ? '📸 Capturing...' : '📸 Screenshot'}
+                  {isCapturingDaily ? 'Capturing...' : 'Screenshot'}
                 </button>
               </div>
               <div className="max-h-96 overflow-y-auto">
@@ -1381,7 +1395,7 @@ export default function GuestDashboard() {
                   disabled={isCapturingItems}
                   className="px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-500 disabled:opacity-50"
                 >
-                  {isCapturingItems ? '📸 Capturing...' : '📸 Screenshot'}
+                  {isCapturingItems ? 'Capturing...' : 'Screenshot'}
                 </button>
               </div>
 
@@ -1469,6 +1483,8 @@ export default function GuestDashboard() {
           )}
         </div>
       )}
+
+      {activeTab === 'ai' && <QueryBuilder data={guestData} />}
     </div>
   );
 }
