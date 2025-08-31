@@ -1,0 +1,2 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Huasca seed,FINISHED,200,2619800,200,2660375,54225,40725,2025-08-31T04:43:35Z,2025-08-31T05:01:22Z,2025-08-31T05:01:22Z,a1bb3df840d923510dd97b9bfc01b3ca86f232c04065b468373b168b0028abe6
