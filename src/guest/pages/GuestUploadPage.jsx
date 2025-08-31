@@ -169,6 +169,35 @@ export default function GuestUploadPage() {
             }))
             .sort((a, b) => a.date.localeCompare(b.date));
 
+          // Map allFlips to have consistent field names for query builder
+          const allFlips = (rawData.allFlips || []).map(flip => ({
+            ...flip,
+            // Map field names to what the query builder expects
+            quantity: flip.quantity || flip.bought || flip.sold || 0,
+            avgBuyPrice: flip.avgBuyPrice || flip.avg_buy_price || 0,
+            avgSellPrice: flip.avgSellPrice || flip.avg_sell_price || 0,
+            firstBuyTime: flip.firstBuyTime || flip.first_buy_time,
+            lastSellTime: flip.lastSellTime || flip.last_sell_time,
+            sellerTax: flip.sellerTax || flip.tax || 0,
+            // Calculate derived fields
+            spent: (flip.avgBuyPrice || flip.avg_buy_price || 0) * (flip.quantity || flip.bought || 0),
+            revenue: (flip.avgSellPrice || flip.avg_sell_price || 0) * (flip.quantity || flip.sold || 0),
+            hoursHeld: (() => {
+              const buyTime = flip.firstBuyTime || flip.first_buy_time;
+              const sellTime = flip.lastSellTime || flip.last_sell_time;
+              if (buyTime && sellTime) {
+                const hours = (new Date(sellTime) - new Date(buyTime)) / (1000 * 60 * 60);
+                return Math.round(hours * 10) / 10;
+              }
+              return 0;
+            })(),
+            roi: (() => {
+              const spent = (flip.avgBuyPrice || flip.avg_buy_price || 0) * (flip.quantity || flip.bought || 0);
+              return spent > 0 ? ((flip.profit || 0) / spent) * 100 : 0;
+            })(),
+            date: flip.date || flip.last_sell_time?.split('T')[0],
+          }));
+
           const processedData = {
             flipsByDate,
             itemStats,
@@ -178,7 +207,7 @@ export default function GuestUploadPage() {
             uniqueItems,
             timezone,
             accounts: rawData.accounts || [],
-            allFlips: rawData.allFlips || [],
+            allFlips,
             metadata: {
               ...(rawData.metadata || {}),
               processedAt: new Date().toISOString(),
