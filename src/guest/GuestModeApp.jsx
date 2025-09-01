@@ -4,6 +4,7 @@ import GuestUploadPage from './pages/GuestUploadPage';
 import GuestDashboard from './pages/GuestDashboard';
 import AnalyticsDisclosure from './components/AnalyticsDisclosure';
 import GuestErrorBoundary from './components/GuestErrorBoundary';
+import FeedbackButton from '../components/FeedbackButton';
 import * as Sentry from '@sentry/react';
 
 // Wrap routes with Sentry
@@ -53,6 +54,9 @@ export default function GuestModeApp() {
 
           {/* Analytics disclosure component */}
           <AnalyticsDisclosure />
+
+          {/* Feedback button - only in guest mode */}
+          <FeedbackButton />
         </div>
       </GuestErrorBoundary>
     </GuestDataProvider>

@@ -6,7 +6,6 @@ import Navigation from './components/Navigation';
 import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
 import CacheMonitor from './components/CacheMonitor';
-import FeedbackButton from './components/FeedbackButton';
 
 // Lazy load most page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -105,8 +104,6 @@ function App() {
         <AppContent />
         {/* Cache monitoring for development */}
         <CacheMonitor />
-        {/* Global feedback button */}
-        <FeedbackButton />
       </Router>
     </ErrorBoundary>
   );
