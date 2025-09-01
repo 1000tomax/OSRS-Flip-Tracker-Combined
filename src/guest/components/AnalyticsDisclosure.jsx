@@ -103,7 +103,7 @@ export default function AnalyticsDisclosure() {
 
   // Persistent minimal indicator (optional - can be removed if you don't want it)
   return (
-    <div className="fixed bottom-4 right-4 z-40">
+    <div className="fixed bottom-4 left-4 z-40">
       <button
         onClick={() => setShowBanner(true)}
         className="text-xs text-gray-500 hover:text-gray-400 transition"
