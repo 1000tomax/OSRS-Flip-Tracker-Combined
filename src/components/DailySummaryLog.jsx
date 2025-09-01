@@ -4,7 +4,7 @@ import useDailySummaries from '../hooks/useDailySummaries';
 import { useJsonData } from '../hooks/useJsonData';
 import { useETACalculator } from './ETACalculator';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
-import { formatGP, formatDuration, DateUtils } from '../utils';
+import { formatGP, DateUtils } from '../utils';
 import { isIncompleteDay } from '../lib/utils';
 
 function timeAgo(isoString) {
@@ -70,7 +70,7 @@ export default function DailySummaryLog() {
           logging: false,
           useCORS: true,
           allowTaint: true,
-          ignoreElements: (element) => {
+          ignoreElements: element => {
             // Exclude elements with data-html2canvas-ignore attribute
             return element.hasAttribute('data-html2canvas-ignore');
           },
@@ -434,7 +434,7 @@ export default function DailySummaryLog() {
             }}
           >
             Day {completeSummaries.length} • Current:{' '}
-            {formatGP(completeSummaries[completeSummaries.length - 1]?.net_worth || 0)} GP • Goal:
+            {formatGP(completeSummaries[completeSummaries.length - 1]?.net_worth || 0)} • Goal:
             2,147M GP (
             {(
               ((completeSummaries[completeSummaries.length - 1]?.net_worth || 0) / 2147483647) *
@@ -456,42 +456,61 @@ export default function DailySummaryLog() {
         </div>
 
         {/* Compact Table */}
-        <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse', border: '2px solid #000000' }}>
+        <table
+          style={{
+            width: '100%',
+            fontSize: '13px',
+            borderCollapse: 'collapse',
+            border: '2px solid #000000',
+          }}
+        >
           <thead>
-            <tr style={{ backgroundColor: '#374151', borderTop: '2px solid #000000', borderBottom: '2px solid #000000' }}>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold', borderLeft: '2px solid #000000' }}>
+            <tr
+              style={{
+                backgroundColor: '#374151',
+                borderTop: '2px solid #000000',
+                borderBottom: '2px solid #000000',
+              }}
+            >
+              <th
+                style={{
+                  padding: '8px',
+                  textAlign: 'left',
+                  fontWeight: 'bold',
+                  borderLeft: '2px solid #000000',
+                }}
+              >
                 Day
               </th>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
-                Flips
-              </th>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
-                Items
-              </th>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
-                Profit
-              </th>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
-                Net Worth
-              </th>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
-                Growth
-              </th>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold', borderRight: '2px solid #000000' }}>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Flips</th>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Items</th>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Profit</th>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Net Worth</th>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Growth</th>
+              <th
+                style={{
+                  padding: '8px',
+                  textAlign: 'left',
+                  fontWeight: 'bold',
+                  borderRight: '2px solid #000000',
+                }}
+              >
                 Progress
               </th>
             </tr>
           </thead>
           <tbody>
             {completeSummaries.map((s, i) => (
-              <tr key={s.date} style={{ backgroundColor: i % 2 === 0 ? '#1f2937' : '#374151', borderBottom: '1px solid #000000' }}>
+              <tr
+                key={s.date}
+                style={{
+                  backgroundColor: i % 2 === 0 ? '#1f2937' : '#374151',
+                  borderBottom: '1px solid #000000',
+                }}
+              >
                 <td style={{ padding: '6px 8px', borderLeft: '2px solid #000000' }}>{s.day}</td>
-                <td style={{ padding: '6px 8px' }}>
-                  {s.flips || 0}
-                </td>
-                <td style={{ padding: '6px 8px' }}>
-                  {s.items_flipped || 0}
-                </td>
+                <td style={{ padding: '6px 8px' }}>{s.flips || 0}</td>
+                <td style={{ padding: '6px 8px' }}>{s.items_flipped || 0}</td>
                 <td
                   style={{
                     padding: '6px 8px',
@@ -500,9 +519,7 @@ export default function DailySummaryLog() {
                 >
                   {formatGP(s.profit || 0)}
                 </td>
-                <td style={{ padding: '6px 8px' }}>
-                  {formatGP(s.net_worth || 0)}
-                </td>
+                <td style={{ padding: '6px 8px' }}>{formatGP(s.net_worth || 0)}</td>
                 <td
                   style={{
                     padding: '6px 8px',

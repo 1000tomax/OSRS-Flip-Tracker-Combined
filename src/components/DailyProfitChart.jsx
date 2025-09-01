@@ -118,7 +118,7 @@ export default function DailyProfitChart() {
           <p className="text-white font-medium">{data.dayLabel}</p>
           <p className="text-gray-300 text-xs">{data.fullDate}</p>
           <p className={data.isProfit ? 'text-green-400' : 'text-red-400'}>
-            Profit: <span className="font-mono">{formatGP(data.profit)} GP</span>
+            Profit: <span className="font-mono">{formatGP(data.profit)}</span>
           </p>
           <p className="text-gray-300 text-sm">{data.flips} flips</p>
         </div>

@@ -114,7 +114,7 @@ export default function NetWorthChart() {
           <p className="text-white font-medium">{data.dayLabel}</p>
           <p className="text-gray-300 text-xs">{data.fullDate}</p>
           <p className="text-yellow-400">
-            Net Worth: <span className="font-mono">{formatGP(data.netWorth)} GP</span>
+            Net Worth: <span className="font-mono">{formatGP(data.netWorth)}</span>
           </p>
         </div>
       );

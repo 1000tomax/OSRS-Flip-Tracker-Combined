@@ -154,7 +154,7 @@ export default function WeekdayPerformanceChart() {
             Avg ROI: <span className="font-mono">{data.avgROI.toFixed(2)}%</span>
           </p>
           <p className="text-green-400">
-            Avg Profit: <span className="font-mono">{formatGP(data.avgProfit)} GP</span>
+            Avg Profit: <span className="font-mono">{formatGP(data.avgProfit)}</span>
           </p>
           <p className="text-gray-300">
             Avg Flips: <span className="font-mono">{data.avgFlips.toFixed(0)}</span>

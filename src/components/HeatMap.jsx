@@ -142,7 +142,7 @@ export default function HeatMap({ flips }) {
                   {bucket.flips} flips •{' '}
                   <span className={bucket.profit >= 0 ? 'text-green-400' : 'text-red-400'}>
                     {bucket.profit >= 0 ? '+' : ''}
-                    {formatGP(bucket.profit)} GP
+                    {formatGP(bucket.profit)}
                   </span>
                 </div>
                 {/* Tooltip arrow */}

@@ -44,7 +44,7 @@ export default function GuestFlipLogViewer({
     if (selectedDate) {
       // Show flips for a specific date
       const dayData = guestData.flipsByDate[selectedDate];
-      const flips = Array.isArray(dayData) ? dayData : (dayData?.flips || []);
+      const flips = Array.isArray(dayData) ? dayData : dayData?.flips || [];
       allFlips = flips.map((flip, index) => ({
         ...flip,
         date: selectedDate,
@@ -56,7 +56,7 @@ export default function GuestFlipLogViewer({
       let flipIndex = 0; // Global counter for unique IDs
       Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
         // Handle both old format (array) and new format (object with flips array)
-        const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
+        const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
         flips.forEach(flip => {
           const lastSellTime = flip.lastSellTime || flip.last_sell_time;
           if (lastSellTime) {
@@ -80,7 +80,7 @@ export default function GuestFlipLogViewer({
       let flipIndex = 0; // Global counter for unique IDs
       Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
         // Handle both old format (array) and new format (object with flips array)
-        const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
+        const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
         flips.forEach(flip => {
           allFlips.push({
             ...flip,
@@ -328,7 +328,7 @@ export default function GuestFlipLogViewer({
             <div
               className={`text-2xl font-bold ${summary.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}
             >
-              {formatGP(summary.totalProfit)} GP
+              {formatGP(summary.totalProfit)}
             </div>
             <div className="text-sm text-gray-400">total profit</div>
           </div>

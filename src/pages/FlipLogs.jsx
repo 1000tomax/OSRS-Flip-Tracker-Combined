@@ -309,7 +309,7 @@ export default function FlipLogs() {
                 <div
                   className={`text-2xl sm:text-3xl font-bold ${summary.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}
                 >
-                  {formatGP(summary.totalProfit)} GP
+                  {formatGP(summary.totalProfit)}
                 </div>
                 <div className="text-sm text-gray-400">total</div>
               </div>

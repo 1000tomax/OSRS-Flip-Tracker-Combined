@@ -152,7 +152,7 @@ export default function Items() {
         }
         return (
           <span className={numValue >= 0 ? 'text-green-400' : 'text-red-400'}>
-            {formatGP(numValue)} GP
+            {formatGP(numValue)}
           </span>
         );
       },
@@ -205,7 +205,7 @@ export default function Items() {
         }
         return (
           <span className={numValue >= 0 ? 'text-green-400' : 'text-red-400'}>
-            {formatGP(numValue)} GP
+            {formatGP(numValue)}
           </span>
         );
       },

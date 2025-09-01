@@ -31,7 +31,7 @@ export const itemStatsColumns = [
         <span
           className={`font-medium font-mono ${numValue >= 0 ? 'text-green-400' : 'text-red-400'}`}
         >
-          {formatGP(numValue)} GP
+          {formatGP(numValue)}
         </span>
       );
     },
@@ -70,7 +70,7 @@ export const itemStatsColumns = [
         <span
           className={`font-medium font-mono ${numValue >= 0 ? 'text-green-400' : 'text-red-400'}`}
         >
-          {formatGP(numValue)} GP
+          {formatGP(numValue)}
         </span>
       );
     },
