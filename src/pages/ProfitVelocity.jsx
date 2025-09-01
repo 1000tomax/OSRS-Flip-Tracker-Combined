@@ -174,12 +174,16 @@ export default function ProfitVelocity() {
 
     const gpPerHourValues = velocityData.map(d => d.gpPerHour).filter(v => v > 0);
     const winRates = velocityData.map(d => d.winRate);
+    const totalFlips = velocityData.reduce((acc, d) => acc + d.flipCount, 0);
+    const totalMinutes = velocityData.reduce((acc, d) => acc + d.totalMinutes, 0);
 
     return {
       avgGpPerHour: gpPerHourValues.reduce((a, b) => a + b, 0) / gpPerHourValues.length,
       maxGpPerHour: Math.max(...gpPerHourValues),
       avgWinRate: winRates.reduce((a, b) => a + b, 0) / winRates.length,
-      totalActiveHours: velocityData.reduce((acc, d) => acc + d.totalMinutes, 0) / 60,
+      totalActiveHours: totalMinutes / 60,
+      avgFlipDuration: totalFlips > 0 ? totalMinutes / totalFlips : 0,
+      totalFlips,
       bestDay: velocityData.find(d => d.gpPerHour === Math.max(...gpPerHourValues)),
     };
   }, [velocityData]);
@@ -249,11 +253,11 @@ export default function ProfitVelocity() {
               </p>
             </div>
             <div className="bg-gray-800 border border-gray-600 rounded-lg p-4">
-              <h3 className="text-sm text-gray-400 mb-1">Avg Offer Time</h3>
+              <h3 className="text-sm text-gray-400 mb-1">Avg Flip Duration</h3>
               <p className="text-2xl font-bold text-purple-400">
-                {formatTime(((velocityStats.totalActiveHours || 0) * 60) / GE_SLOTS)}
+                {formatTime(velocityStats.avgFlipDuration || 0)}
               </p>
-              <p className="text-sm text-gray-400">Per slot</p>
+              <p className="text-sm text-gray-400">Per flip</p>
             </div>
           </div>
         </CardContainer>
