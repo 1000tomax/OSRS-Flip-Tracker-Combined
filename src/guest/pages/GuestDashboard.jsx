@@ -27,6 +27,12 @@ import GuestDatePicker from '../components/GuestDatePicker';
 // Use the new simple version:
 import { QueryBuilderSimple as QueryBuilder } from '../components/QueryBuilder/QueryBuilderSimple';
 
+// Import new performance components
+import GuestPerformanceAnalysis from '../components/GuestPerformanceAnalysis';
+import GuestProfitVelocity from '../components/GuestProfitVelocity';
+import GuestWinRateChart from '../components/GuestWinRateChart';
+import GuestFlipVolumeChart from '../components/GuestFlipVolumeChart';
+
 // Helper function to convert array of objects to CSV
 function arrayToCSV(data) {
   if (!data || data.length === 0) return '';
@@ -95,7 +101,7 @@ async function exportGuestData(guestData) {
       const allFlipsFlat = [];
       Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
         // Handle both old format (array) and new format (object with flips array)
-        const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
+        const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
         // Add safety check
         if (!Array.isArray(flips)) {
           console.error('Expected flips to be array, got:', typeof flips, flips);
@@ -182,7 +188,7 @@ export default function GuestDashboard() {
   const [isCapturingHeatmap, setIsCapturingHeatmap] = useState(false);
 
   // Tab navigation state
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'fliplogs', 'ai'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'performance', 'fliplogs', 'ai'
   const [selectedDate, setSelectedDate] = useState(null); // For flip log viewer
   const [selectedDayHour, setSelectedDayHour] = useState(null); // For heatmap cell clicks
 
@@ -1205,6 +1211,16 @@ export default function GuestDashboard() {
               Overview
             </button>
             <button
+              onClick={() => setActiveTab('performance')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'performance'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              Performance
+            </button>
+            <button
               onClick={() => {
                 setActiveTab('fliplogs');
                 // Reset selections when clicking tab directly
@@ -1488,6 +1504,26 @@ export default function GuestDashboard() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'performance' && (
+        <div className="space-y-8" id="performance-section">
+          {/* Performance Analysis Stats */}
+          <GuestPerformanceAnalysis guestData={guestData} />
+
+          {/* Main Velocity Chart */}
+          <GuestProfitVelocity
+            guestData={guestData}
+            includeStats={true}
+            showMethodologyHint={true}
+          />
+
+          {/* Secondary Charts Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <GuestWinRateChart guestData={guestData} />
+            <GuestFlipVolumeChart guestData={guestData} />
+          </div>
         </div>
       )}
 
