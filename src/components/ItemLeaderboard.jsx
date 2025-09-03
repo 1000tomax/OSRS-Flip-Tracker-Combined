@@ -33,8 +33,7 @@ export default function ItemLeaderboard() {
   const sorted = items
     .filter(item => {
       const value = mode === 'roi' ? Number(item.roi_percent) : Number(item.total_profit);
-      const flips = Number(item.flips);
-      return isFinite(value) && (filter === 'positive' ? flips >= 5 && value > 0 : value < 0);
+      return isFinite(value) && (filter === 'positive' ? value > 0 : value < 0);
     })
     .sort((a, b) => {
       const aVal = mode === 'roi' ? Number(a.roi_percent) : Number(a.total_profit);
