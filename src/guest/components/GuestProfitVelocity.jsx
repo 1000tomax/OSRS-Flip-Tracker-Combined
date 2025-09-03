@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -9,16 +9,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { formatGP } from '../../utils/formatUtils';
-import html2canvas from 'html2canvas-pro';
 
-export default function GuestProfitVelocity({
-  guestData,
-  includeStats = false,
-  showMethodologyHint = false,
-}) {
-  const chartRef = useRef(null);
-  const [isCapturing, setIsCapturing] = useState(false);
-
+export default function GuestProfitVelocity({ guestData, showMethodologyHint = false }) {
   // Process data for the velocity chart
   const velocityData = useMemo(() => {
     if (!guestData?.flipsByDate) return [];
@@ -114,130 +106,6 @@ export default function GuestProfitVelocity({
   // Check if we have any timing data
   const hasAnyTimingData = velocityData.some(day => day.hasTimingData);
 
-  // Screenshot function
-  const captureChart = async () => {
-    if (isCapturing) return;
-
-    try {
-      setIsCapturing(true);
-
-      // If includeStats is true, capture the entire performance section
-      let elementToCapture;
-      if (includeStats) {
-        elementToCapture = document.getElementById('performance-section');
-        if (!elementToCapture) {
-          console.error('Performance section not found');
-          return;
-        }
-      } else if (!chartRef.current) {
-        return;
-      }
-
-      // Create a wrapper div for the screenshot
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '0';
-      tempDiv.style.width = '1400px';
-      tempDiv.style.padding = '30px';
-      tempDiv.style.backgroundColor = '#0f172a';
-      tempDiv.style.color = 'white';
-      tempDiv.style.fontFamily = 'Arial, sans-serif';
-
-      // Header
-      const headerDiv = document.createElement('div');
-      headerDiv.style.marginBottom = '20px';
-      headerDiv.style.display = 'flex';
-      headerDiv.style.justifyContent = 'space-between';
-      headerDiv.style.alignItems = 'center';
-      headerDiv.style.padding = '15px 20px';
-      headerDiv.style.backgroundColor = '#1e293b';
-      headerDiv.style.borderRadius = '8px';
-      headerDiv.style.border = '2px solid #3b82f6';
-
-      const leftInfo = document.createElement('div');
-      const title = document.createElement('h1');
-      title.textContent = hasAnyTimingData ? 'Daily Profit Velocity' : 'Daily Profit Trend';
-      title.style.fontSize = '20px';
-      title.style.fontWeight = 'bold';
-      title.style.margin = '0';
-      title.style.color = 'white';
-
-      const subtitle = document.createElement('p');
-      subtitle.textContent = `${velocityData.length} Trading Days • Total: ${formatGP(guestData.totalProfit)}`;
-      subtitle.style.fontSize = '14px';
-      subtitle.style.color = '#9CA3AF';
-      subtitle.style.margin = '2px 0 0 0';
-
-      leftInfo.appendChild(title);
-      leftInfo.appendChild(subtitle);
-
-      const rightInfo = document.createElement('div');
-      rightInfo.style.textAlign = 'right';
-      const brandSpan = document.createElement('span');
-      brandSpan.textContent = 'mreedon.com/guest';
-      brandSpan.style.color = '#60a5fa';
-      brandSpan.style.fontWeight = 'bold';
-      brandSpan.style.fontSize = '16px';
-      rightInfo.appendChild(brandSpan);
-
-      headerDiv.appendChild(leftInfo);
-      headerDiv.appendChild(document.createElement('div'));
-      headerDiv.appendChild(rightInfo);
-
-      if (includeStats) {
-        // Clone the entire performance section
-        const sectionClone = elementToCapture.cloneNode(true);
-
-        // Hide all screenshot buttons in the clone
-        const screenshotButtons = sectionClone.querySelectorAll('.screenshot-button');
-        screenshotButtons.forEach(btn => (btn.style.display = 'none'));
-
-        tempDiv.appendChild(headerDiv);
-        tempDiv.appendChild(sectionClone);
-      } else {
-        // Clone just the chart
-        const chartClone = chartRef.current.cloneNode(true);
-        chartClone.style.height = '400px';
-
-        // Hide screenshot button in clone
-        const screenshotBtn = chartClone.querySelector('.screenshot-button');
-        if (screenshotBtn) screenshotBtn.style.display = 'none';
-
-        tempDiv.appendChild(headerDiv);
-        tempDiv.appendChild(chartClone);
-      }
-
-      document.body.appendChild(tempDiv);
-
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const canvas = await html2canvas(tempDiv, {
-        backgroundColor: '#0f172a',
-        scale: 2,
-        width: 1400,
-        logging: false,
-        windowHeight: tempDiv.scrollHeight,
-      });
-
-      document.body.removeChild(tempDiv);
-
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      const filename = includeStats
-        ? `performance-analysis-${new Date().toISOString().split('T')[0]}.png`
-        : `profit-velocity-${new Date().toISOString().split('T')[0]}.png`;
-      link.download = filename;
-      link.href = dataUrl;
-      link.click();
-    } catch (error) {
-      console.error('Screenshot failed:', error);
-      console.error('Screenshot failed. Please try again.');
-    } finally {
-      setIsCapturing(false);
-    }
-  };
-
   if (velocityData.length === 0) {
     return (
       <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
@@ -248,25 +116,16 @@ export default function GuestProfitVelocity({
   }
 
   return (
-    <div className="bg-gray-800 border border-gray-600 rounded-xl p-6" ref={chartRef}>
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-xl font-bold">
-            {hasAnyTimingData ? 'Daily Profit Velocity' : 'Daily Profit Trend'}
-          </h2>
-          <p className="text-sm text-gray-400 mt-1">
-            {hasAnyTimingData
-              ? 'GP per hour efficiency across trading days'
-              : 'Daily profit performance across trading days'}
-          </p>
-        </div>
-        <button
-          onClick={captureChart}
-          disabled={isCapturing}
-          className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50 screenshot-button"
-        >
-          {isCapturing ? 'Capturing...' : includeStats ? 'Screenshot All' : 'Screenshot'}
-        </button>
+    <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
+      <div className="mb-4">
+        <h2 className="text-xl font-bold">
+          {hasAnyTimingData ? 'Daily Profit Velocity' : 'Daily Profit Trend'}
+        </h2>
+        <p className="text-sm text-gray-400 mt-1">
+          {hasAnyTimingData
+            ? 'GP per hour efficiency across trading days'
+            : 'Daily profit performance across trading days'}
+        </p>
       </div>
 
       <div className="h-96">

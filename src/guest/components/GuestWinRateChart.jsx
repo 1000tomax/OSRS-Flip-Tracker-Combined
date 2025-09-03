@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -9,12 +9,8 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import html2canvas from 'html2canvas-pro';
 
 export default function GuestWinRateChart({ guestData }) {
-  const chartRef = useRef(null);
-  const [isCapturing, setIsCapturing] = useState(false);
-
   // Process data for win rate chart
   const winRateData = useMemo(() => {
     if (!guestData?.flipsByDate) return [];
@@ -77,100 +73,6 @@ export default function GuestWinRateChart({ guestData }) {
     return totalFlips > 0 ? (totalProfitable / totalFlips) * 100 : 0;
   }, [winRateData]);
 
-  // Screenshot function
-  const captureChart = async () => {
-    if (isCapturing || !chartRef.current) return;
-
-    try {
-      setIsCapturing(true);
-
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '0';
-      tempDiv.style.width = '1000px';
-      tempDiv.style.padding = '30px';
-      tempDiv.style.backgroundColor = '#0f172a';
-      tempDiv.style.color = 'white';
-      tempDiv.style.fontFamily = 'Arial, sans-serif';
-
-      // Header
-      const headerDiv = document.createElement('div');
-      headerDiv.style.marginBottom = '20px';
-      headerDiv.style.display = 'flex';
-      headerDiv.style.justifyContent = 'space-between';
-      headerDiv.style.alignItems = 'center';
-      headerDiv.style.padding = '15px 20px';
-      headerDiv.style.backgroundColor = '#1e293b';
-      headerDiv.style.borderRadius = '8px';
-      headerDiv.style.border = '2px solid #3b82f6';
-
-      const leftInfo = document.createElement('div');
-      const title = document.createElement('h1');
-      title.textContent = 'Profitable Trades Percentage';
-      title.style.fontSize = '20px';
-      title.style.fontWeight = 'bold';
-      title.style.margin = '0';
-      title.style.color = 'white';
-
-      const subtitle = document.createElement('p');
-      subtitle.textContent = `Average: ${avgWinRate.toFixed(1)}% • ${winRateData.length} Trading Days`;
-      subtitle.style.fontSize = '14px';
-      subtitle.style.color = '#9CA3AF';
-      subtitle.style.margin = '2px 0 0 0';
-
-      leftInfo.appendChild(title);
-      leftInfo.appendChild(subtitle);
-
-      const rightInfo = document.createElement('div');
-      rightInfo.style.textAlign = 'right';
-      const brandSpan = document.createElement('span');
-      brandSpan.textContent = 'mreedon.com/guest';
-      brandSpan.style.color = '#60a5fa';
-      brandSpan.style.fontWeight = 'bold';
-      brandSpan.style.fontSize = '16px';
-      rightInfo.appendChild(brandSpan);
-
-      headerDiv.appendChild(leftInfo);
-      headerDiv.appendChild(document.createElement('div'));
-      headerDiv.appendChild(rightInfo);
-
-      // Clone the chart
-      const chartClone = chartRef.current.cloneNode(true);
-      chartClone.style.height = '350px';
-
-      // Hide screenshot button in clone
-      const screenshotBtn = chartClone.querySelector('.screenshot-button');
-      if (screenshotBtn) screenshotBtn.style.display = 'none';
-
-      tempDiv.appendChild(headerDiv);
-      tempDiv.appendChild(chartClone);
-      document.body.appendChild(tempDiv);
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const canvas = await html2canvas(tempDiv, {
-        backgroundColor: '#0f172a',
-        scale: 2,
-        width: 1000,
-        logging: false,
-      });
-
-      document.body.removeChild(tempDiv);
-
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `win-rate-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (error) {
-      console.error('Screenshot failed:', error);
-      console.error('Screenshot failed. Please try again.');
-    } finally {
-      setIsCapturing(false);
-    }
-  };
-
   if (winRateData.length === 0) {
     return (
       <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
@@ -181,21 +83,12 @@ export default function GuestWinRateChart({ guestData }) {
   }
 
   return (
-    <div className="bg-gray-800 border border-gray-600 rounded-xl p-6" ref={chartRef}>
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-xl font-bold">% of Profitable Trades</h2>
-          <p className="text-sm text-gray-400 mt-1">
-            Daily win rate trend (Average: {avgWinRate.toFixed(1)}%)
-          </p>
-        </div>
-        <button
-          onClick={captureChart}
-          disabled={isCapturing}
-          className="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-500 disabled:opacity-50 screenshot-button"
-        >
-          {isCapturing ? 'Capturing...' : 'Screenshot'}
-        </button>
+    <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
+      <div className="mb-4">
+        <h2 className="text-xl font-bold">% of Profitable Trades</h2>
+        <p className="text-sm text-gray-400 mt-1">
+          Daily win rate trend (Average: {avgWinRate.toFixed(1)}%)
+        </p>
       </div>
 
       <div className="h-64">

@@ -120,6 +120,7 @@ export default function GuestFlipLogViewer({
       label: 'Qty',
       headerClass: 'text-right hidden sm:table-cell',
       cellClass: 'text-right text-gray-300 hidden sm:table-cell',
+      sortValue: row => row.quantity || row.bought || row.sold || 0,
       render: (value, row) => row.quantity || row.bought || row.sold || 0,
     },
     {
@@ -144,6 +145,7 @@ export default function GuestFlipLogViewer({
       label: 'Buy Price',
       headerClass: 'text-right hidden md:table-cell',
       cellClass: 'text-right text-gray-300 font-mono hidden md:table-cell',
+      sortValue: row => row.avgBuyPrice || row.avg_buy_price || 0,
       render: (value, row) => formatGP(value || row.avg_buy_price || 0),
     },
     {
@@ -151,6 +153,7 @@ export default function GuestFlipLogViewer({
       label: 'Sell Price',
       headerClass: 'text-right hidden md:table-cell',
       cellClass: 'text-right text-gray-300 font-mono hidden md:table-cell',
+      sortValue: row => row.avgSellPrice || row.avg_sell_price || 0,
       render: (value, row) => formatGP(value || row.avg_sell_price || 0),
     },
     {
@@ -158,6 +161,7 @@ export default function GuestFlipLogViewer({
       label: 'Tax',
       headerClass: 'text-right hidden lg:table-cell',
       cellClass: 'text-right text-gray-300 font-mono hidden lg:table-cell',
+      sortValue: row => row.sellerTax || row.tax || 0,
       render: (value, row) => formatGP(value || row.tax || 0),
     },
     {
