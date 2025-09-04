@@ -275,7 +275,14 @@ export default function GuestPerformanceAnalysis({ guestData }) {
       totalFlips,
       bestProfitDay,
       hasDurationData: daysWithDuration.length > 0,
-      dailyMetrics: validDays.sort((a, b) => new Date(a.date) - new Date(b.date)),
+      dailyMetrics: validDays.sort((a, b) => {
+        // Sort dates properly considering year (MM-DD-YYYY format)
+        const [aMonth, aDay, aYear] = a.date.split('-');
+        const [bMonth, bDay, bYear] = b.date.split('-');
+        const dateA = new Date(aYear, aMonth - 1, aDay);
+        const dateB = new Date(bYear, bMonth - 1, bDay);
+        return dateA - dateB;
+      }),
     };
   }, [guestData]);
 

@@ -167,7 +167,14 @@ export default function GuestUploadPage() {
               flipCount: dayData.totalFlips || dayData.flips?.length || 0,
               uniqueItems: new Set(dayData.flips?.map(f => f.item) || []).size,
             }))
-            .sort((a, b) => a.date.localeCompare(b.date));
+            .sort((a, b) => {
+              // Sort dates properly considering year (MM-DD-YYYY format)
+              const [aMonth, aDay, aYear] = a.date.split('-');
+              const [bMonth, bDay, bYear] = b.date.split('-');
+              const dateA = new Date(aYear, aMonth - 1, aDay);
+              const dateB = new Date(bYear, bMonth - 1, bDay);
+              return dateA - dateB;
+            });
 
           // Map allFlips to have consistent field names for query builder
           const allFlips = (rawData.allFlips || []).map(flip => ({

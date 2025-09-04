@@ -21,7 +21,14 @@ export default function GuestDatePicker({ guestData, selectedDate, onDateSelect 
           uniqueItems,
         };
       })
-      .sort((a, b) => new Date(b.date) - new Date(a.date)); // Most recent first
+      .sort((a, b) => {
+        // Sort dates properly considering year (MM-DD-YYYY format)
+        const [aMonth, aDay, aYear] = a.date.split('-');
+        const [bMonth, bDay, bYear] = b.date.split('-');
+        const dateA = new Date(aYear, aMonth - 1, aDay);
+        const dateB = new Date(bYear, bMonth - 1, bDay);
+        return dateB - dateA; // Most recent first (descending)
+      });
   }, [guestData]);
 
   if (availableDates.length === 0) {

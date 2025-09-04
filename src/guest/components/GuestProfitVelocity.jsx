@@ -74,7 +74,14 @@ export default function GuestProfitVelocity({ guestData, showMethodologyHint = f
 
     // Sort by date and calculate GP/Hour
     const sortedDays = Object.values(dailyData)
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .sort((a, b) => {
+        // Sort dates properly considering year (MM-DD-YYYY format)
+        const [aMonth, aDay, aYear] = a.date.split('-');
+        const [bMonth, bDay, bYear] = b.date.split('-');
+        const dateA = new Date(aYear, aMonth - 1, aDay);
+        const dateB = new Date(bYear, bMonth - 1, bDay);
+        return dateA - dateB;
+      })
       .map((day, index) => {
         const dayNumber = index + 1;
 

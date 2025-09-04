@@ -36,7 +36,14 @@ export function QueryBuilderSimple({ data }) {
     const dates = data.allFlips
       .map(flip => flip.date)
       .filter(date => date && date !== 'Unknown')
-      .sort();
+      .sort((a, b) => {
+        // Sort dates properly considering year (MM-DD-YYYY format)
+        const [aMonth, aDay, aYear] = a.split('-');
+        const [bMonth, bDay, bYear] = b.split('-');
+        const dateA = new Date(aYear, aMonth - 1, aDay);
+        const dateB = new Date(bYear, bMonth - 1, bDay);
+        return dateA - dateB;
+      });
 
     const min = dates[0] || '';
     const max = dates[dates.length - 1] || '';

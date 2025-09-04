@@ -52,7 +52,14 @@ export default function GuestWinRateChart({ guestData }) {
 
     // Sort by date and add day numbers
     return dailyData
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .sort((a, b) => {
+        // Sort dates properly considering year (MM-DD-YYYY format)
+        const [aMonth, aDay, aYear] = a.date.split('-');
+        const [bMonth, bDay, bYear] = b.date.split('-');
+        const dateA = new Date(aYear, aMonth - 1, aDay);
+        const dateB = new Date(bYear, bMonth - 1, bDay);
+        return dateA - dateB;
+      })
       .map((day, index) => {
         // Format date for display (MM/DD/YYYY)
         const dateObj = new Date(day.date);

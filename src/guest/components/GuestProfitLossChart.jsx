@@ -47,7 +47,14 @@ export default function GuestProfitLossChart({ guestData }) {
     if (!guestData?.flipsByDate) return [];
 
     const dailyData = [];
-    const dates = Object.keys(guestData.flipsByDate).sort();
+    const dates = Object.keys(guestData.flipsByDate).sort((a, b) => {
+      // Sort dates properly considering year (MM-DD-YYYY format)
+      const [aMonth, aDay, aYear] = a.split('-');
+      const [bMonth, bDay, bYear] = b.split('-');
+      const dateA = new Date(aYear, aMonth - 1, aDay);
+      const dateB = new Date(bYear, bMonth - 1, bDay);
+      return dateA - dateB;
+    });
 
     dates.forEach((date, index) => {
       const dayData = guestData.flipsByDate[date];
