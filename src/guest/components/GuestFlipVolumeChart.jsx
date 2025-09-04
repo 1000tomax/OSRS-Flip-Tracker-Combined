@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -9,8 +9,10 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
+import ChartFullscreenModal from './ChartFullscreenModal';
 
 export default function GuestFlipVolumeChart({ guestData }) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
   // Process data for flip volume chart
   const volumeData = useMemo(() => {
     if (!guestData?.flipsByDate) return [];
@@ -105,13 +107,8 @@ export default function GuestFlipVolumeChart({ guestData }) {
     return null;
   };
 
-  return (
-    <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
-      <div className="mb-4">
-        <h2 className="text-xl font-bold">Daily Flip Volume</h2>
-        <p className="text-sm text-gray-400 mt-1">Number of flips completed per day</p>
-      </div>
-
+  const chartContent = (
+    <>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={volumeData}>
@@ -168,6 +165,47 @@ export default function GuestFlipVolumeChart({ guestData }) {
           </div>
         </div>
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold">Daily Flip Volume</h2>
+            <p className="text-sm text-gray-400 mt-1">Number of flips completed per day</p>
+          </div>
+          <button
+            onClick={() => setIsFullscreen(true)}
+            className="p-2 hover:bg-gray-700 rounded-lg transition-colors group"
+            title="Maximize chart"
+          >
+            <svg
+              className="w-5 h-5 text-gray-400 group-hover:text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+              />
+            </svg>
+          </button>
+        </div>
+        {chartContent}
+      </div>
+
+      <ChartFullscreenModal
+        isOpen={isFullscreen}
+        onClose={() => setIsFullscreen(false)}
+        title="Daily Flip Volume"
+      >
+        {chartContent}
+      </ChartFullscreenModal>
+    </>
   );
 }

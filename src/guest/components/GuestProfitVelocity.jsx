@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   LineChart,
   Line,
@@ -9,8 +9,10 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { formatGP } from '../../utils/formatUtils';
+import ChartFullscreenModal from './ChartFullscreenModal';
 
 export default function GuestProfitVelocity({ guestData, showMethodologyHint = false }) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
   // Process data for the velocity chart
   const velocityData = useMemo(() => {
     if (!guestData?.flipsByDate) return [];
@@ -115,19 +117,8 @@ export default function GuestProfitVelocity({ guestData, showMethodologyHint = f
     );
   }
 
-  return (
-    <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
-      <div className="mb-4">
-        <h2 className="text-xl font-bold">
-          {hasAnyTimingData ? 'Daily Profit Velocity' : 'Daily Profit Trend'}
-        </h2>
-        <p className="text-sm text-gray-400 mt-1">
-          {hasAnyTimingData
-            ? 'GP per hour efficiency across trading days'
-            : 'Daily profit performance across trading days'}
-        </p>
-      </div>
-
+  const chartContent = (
+    <>
       <div className="h-96">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={velocityData}>
@@ -222,6 +213,54 @@ export default function GuestProfitVelocity({ guestData, showMethodologyHint = f
           💡 GP/Hour calculation requires timestamp data. Showing daily profit instead.
         </p>
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold">
+              {hasAnyTimingData ? 'Daily Profit Velocity' : 'Daily Profit Trend'}
+            </h2>
+            <p className="text-sm text-gray-400 mt-1">
+              {hasAnyTimingData
+                ? 'GP per hour efficiency across trading days'
+                : 'Daily profit performance across trading days'}
+            </p>
+          </div>
+          <button
+            onClick={() => setIsFullscreen(true)}
+            className="p-2 hover:bg-gray-700 rounded-lg transition-colors group"
+            title="Maximize chart"
+          >
+            <svg
+              className="w-5 h-5 text-gray-400 group-hover:text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {chartContent}
+      </div>
+
+      <ChartFullscreenModal
+        isOpen={isFullscreen}
+        onClose={() => setIsFullscreen(false)}
+        title={hasAnyTimingData ? 'Daily Profit Velocity' : 'Daily Profit Trend'}
+      >
+        {chartContent}
+      </ChartFullscreenModal>
+    </>
   );
 }

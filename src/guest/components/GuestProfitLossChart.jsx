@@ -30,6 +30,18 @@ export default function GuestProfitLossChart({ guestData }) {
   const [showTransactions, setShowTransactions] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'time', direction: 'desc' });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  // Get sorted list of dates for navigation
+  const sortedDates = useMemo(() => {
+    if (!guestData?.flipsByDate) return [];
+    return Object.keys(guestData.flipsByDate).sort((a, b) => {
+      const [aMonth, aDay, aYear] = a.split('-');
+      const [bMonth, bDay, bYear] = b.split('-');
+      const dateA = new Date(aYear, aMonth - 1, aDay);
+      const dateB = new Date(bYear, bMonth - 1, bDay);
+      return dateA - dateB;
+    });
+  }, [guestData]);
   // Process data to calculate daily profits and losses
   const chartData = useMemo(() => {
     if (!guestData?.flipsByDate) return [];
@@ -97,7 +109,7 @@ export default function GuestProfitLossChart({ guestData }) {
       const startHour = Math.floor(startMinutes / 60);
       const startMin = startMinutes % 60;
       const endHour = Math.floor(endMinutes / 60);
-      const endMin = endMinutes % 60;
+      const _endMin = endMinutes % 60;
       
       let timeLabel;
       if (intervalMinutes < 60) {
@@ -233,6 +245,25 @@ export default function GuestProfitLossChart({ guestData }) {
     }
   };
 
+  // Navigate to previous/next day
+  const navigateDay = (direction) => {
+    if (!selectedDay || sortedDates.length === 0) return;
+    
+    const currentIndex = sortedDates.indexOf(selectedDay);
+    if (currentIndex === -1) return;
+    
+    let newIndex;
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : sortedDates.length - 1; // Wrap to last
+    } else {
+      newIndex = currentIndex < sortedDates.length - 1 ? currentIndex + 1 : 0; // Wrap to first
+    }
+    
+    setSelectedDay(sortedDates[newIndex]);
+    setSelectedInterval(null);
+    setShowTransactions(false);
+  };
+
   // Handle sorting
   const handleSort = (key) => {
     let direction = 'asc';
@@ -314,6 +345,30 @@ export default function GuestProfitLossChart({ guestData }) {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Day navigation buttons - only show when viewing a specific day */}
+            {selectedDay && !showTransactions && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => navigateDay('prev')}
+                  className="p-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                  title="Previous day"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => navigateDay('next')}
+                  className="p-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                  title="Next day"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            
             {/* Interval selector and back button - only show when needed */}
             {(selectedDay || showTransactions) && (
               <>
