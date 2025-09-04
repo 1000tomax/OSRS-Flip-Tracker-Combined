@@ -10,10 +10,26 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { formatGP } from '../../utils/formatUtils';
+import ChartFullscreenModal from './ChartFullscreenModal';
+
+// Helper function to format time
+const formatTime = dateString => {
+  if (!dateString) return '—';
+  const date = new Date(dateString);
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
 
 export default function GuestProfitLossChart({ guestData }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const [intervalMinutes, setIntervalMinutes] = useState(30); // Default to 30 minutes
+  const [selectedInterval, setSelectedInterval] = useState(null);
+  const [showTransactions, setShowTransactions] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: 'time', direction: 'desc' });
+  const [isFullscreen, setIsFullscreen] = useState(false);
   // Process data to calculate daily profits and losses
   const chartData = useMemo(() => {
     if (!guestData?.flipsByDate) return [];
@@ -102,7 +118,8 @@ export default function GuestProfitLossChart({ guestData }) {
         displayProfit: 0,
         displayLoss: 0,
         net: 0,
-        flipCount: 0
+        flipCount: 0,
+        flips: [] // Store actual flip objects
       });
     }
 
@@ -130,11 +147,12 @@ export default function GuestProfitLossChart({ guestData }) {
         }
         intervals[intervalIndex].net += profit;
         intervals[intervalIndex].flipCount += 1;
+        intervals[intervalIndex].flips.push(flip); // Store the flip
       }
     });
 
-    // Filter out empty intervals for cleaner visualization
-    return intervals.filter(interval => interval.flipCount > 0);
+    // Return all intervals to show gaps in trading activity
+    return intervals;
   }, [selectedDay, guestData, intervalMinutes]);
 
   // Calculate max value for Y-axis scaling
@@ -177,8 +195,11 @@ export default function GuestProfitLossChart({ guestData }) {
               </div>
             </div>
           </div>
-          {!selectedDay && (
+          {!selectedDay && !showTransactions && (
             <p className="text-xs text-blue-300 mt-2 italic">Click to view hourly breakdown</p>
+          )}
+          {selectedDay && !showTransactions && (
+            <p className="text-xs text-blue-300 mt-2 italic">Click to view transactions</p>
           )}
         </div>
       );
@@ -189,9 +210,80 @@ export default function GuestProfitLossChart({ guestData }) {
   // Handle bar click
   const handleBarClick = (data) => {
     if (!selectedDay && data && data.date) {
+      // First level: clicking daily view to see intervals
       setSelectedDay(data.date);
+    } else if (selectedDay && !showTransactions && data) {
+      // Second level: clicking interval to see transactions
+      setSelectedInterval(data);
+      setShowTransactions(true);
     }
   };
+
+  // Handle back navigation
+  const handleBack = () => {
+    if (showTransactions) {
+      // Go back from transactions to intervals
+      setShowTransactions(false);
+      setSelectedInterval(null);
+      setSortConfig({ key: 'time', direction: 'desc' }); // Reset sort
+    } else if (selectedDay) {
+      // Go back from intervals to daily view
+      setSelectedDay(null);
+      setIntervalMinutes(30); // Reset to default
+    }
+  };
+
+  // Handle sorting
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort transactions
+  const sortedTransactions = useMemo(() => {
+    if (!selectedInterval?.flips) return [];
+    
+    const sorted = [...selectedInterval.flips].sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortConfig.key) {
+        case 'item':
+          aValue = a.item.toLowerCase();
+          bValue = b.item.toLowerCase();
+          break;
+        case 'quantity':
+          aValue = a.quantity || a.bought || a.sold || 0;
+          bValue = b.quantity || b.bought || b.sold || 0;
+          break;
+        case 'buyPrice':
+          aValue = a.avgBuyPrice || a.avg_buy_price || 0;
+          bValue = b.avgBuyPrice || b.avg_buy_price || 0;
+          break;
+        case 'sellPrice':
+          aValue = a.avgSellPrice || a.avg_sell_price || 0;
+          bValue = b.avgSellPrice || b.avg_sell_price || 0;
+          break;
+        case 'profit':
+          aValue = a.profit || 0;
+          bValue = b.profit || 0;
+          break;
+        case 'time':
+        default:
+          aValue = new Date(a.lastSellTime || a.last_sell_time || 0).getTime();
+          bValue = new Date(b.lastSellTime || b.last_sell_time || 0).getTime();
+          break;
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    
+    return sorted;
+  }, [selectedInterval, sortConfig]);
 
   if (chartData.length === 0) {
     return (
@@ -204,8 +296,9 @@ export default function GuestProfitLossChart({ guestData }) {
   // Determine which data to use
   const displayData = selectedDay ? intervalData : chartData;
 
-  return (
-    <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
+  // Chart content render function (used in both normal and fullscreen)
+  const renderChartContent = (isInFullscreen = false) => (
+    <div className={isInFullscreen ? '' : 'bg-gray-800 border border-gray-600 rounded-xl p-6'}>
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -220,47 +313,68 @@ export default function GuestProfitLossChart({ guestData }) {
                 : 'Green bars show daily profits, red bars show daily losses (click a bar to drill down)'}
             </p>
           </div>
-          {selectedDay && (
-            <div className="flex items-center gap-3">
-              {/* Interval selector */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">Interval:</span>
-                <select
-                  value={intervalMinutes}
-                  onChange={(e) => setIntervalMinutes(Number(e.target.value))}
-                  className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <div className="flex items-center gap-3">
+            {/* Interval selector and back button - only show when needed */}
+            {(selectedDay || showTransactions) && (
+              <>
+                {/* Interval selector - only show when viewing intervals, not transactions */}
+                {selectedDay && !showTransactions && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400">Interval:</span>
+                    <select
+                      value={intervalMinutes}
+                      onChange={(e) => setIntervalMinutes(Number(e.target.value))}
+                      className="px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value={15}>15 min</option>
+                      <option value={30}>30 min</option>
+                      <option value={60}>1 hour</option>
+                      <option value={120}>2 hours</option>
+                      <option value={240}>4 hours</option>
+                      <option value={360}>6 hours</option>
+                    </select>
+                  </div>
+                )}
+                {/* Back button with dynamic label */}
+                <button
+                  onClick={handleBack}
+                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded-md text-sm transition-colors"
                 >
-                  <option value={15}>15 min</option>
-                  <option value={30}>30 min</option>
-                  <option value={60}>1 hour</option>
-                  <option value={120}>2 hours</option>
-                  <option value={240}>4 hours</option>
-                  <option value={360}>6 hours</option>
-                </select>
-              </div>
-              {/* Back button */}
+                  ← {showTransactions ? 'Back to Intervals' : 'Back to Daily View'}
+                </button>
+              </>
+            )}
+            
+            {/* Maximize button - always show when not in fullscreen modal */}
+            {!isInFullscreen && (
               <button
-                onClick={() => setSelectedDay(null)}
-                className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded-md text-sm transition-colors"
+                onClick={() => setIsFullscreen(true)}
+                className="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-md transition-colors"
+                title="Maximize chart"
               >
-                ← Back to Daily View
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                    d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart 
-            data={displayData}
-            margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
-            stackOffset="sign"
-            onClick={(e) => {
-              if (!selectedDay && e && e.activePayload && e.activePayload[0]) {
-                handleBarClick(e.activePayload[0].payload);
-              }
-            }}
+      {/* Only show chart when not viewing transactions */}
+      {!showTransactions && (
+        <div className={isInFullscreen ? "h-[60vh]" : "h-80"}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart 
+              data={displayData}
+              margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
+              stackOffset="sign"
+              onClick={(e) => {
+                if (e && e.activePayload && e.activePayload[0]) {
+                  handleBarClick(e.activePayload[0].payload);
+                }
+              }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
             
@@ -313,7 +427,7 @@ export default function GuestProfitLossChart({ guestData }) {
               stackId="stack"
               fill="rgba(34, 197, 94, 0.8)"
               radius={[4, 4, 0, 0]}
-              cursor={!selectedDay ? "pointer" : "default"}
+              cursor="pointer"
             />
             
             <Bar 
@@ -321,11 +435,156 @@ export default function GuestProfitLossChart({ guestData }) {
               stackId="stack"
               fill="rgba(239, 68, 68, 0.8)"
               radius={[0, 0, 4, 4]}
-              cursor={!selectedDay ? "pointer" : "default"}
+              cursor="pointer"
             />
           </BarChart>
         </ResponsiveContainer>
       </div>
+    )}
+
+      {/* Transaction Table - shown when an interval is selected */}
+      {showTransactions && selectedInterval && selectedInterval.flips && (
+        <div className="mt-6 border-t border-gray-700 pt-4">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold text-white">
+              Transactions for {selectedInterval.displayLabel} ({selectedInterval.flips.length} flips)
+            </h4>
+            <button
+              onClick={() => {
+                setShowTransactions(false);
+                setSelectedInterval(null);
+              }}
+              className="text-gray-400 hover:text-white text-sm"
+            >
+              ✕ Close
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-gray-300">
+              <thead className="text-xs uppercase bg-gray-900/50 text-gray-400">
+                <tr>
+                  <th 
+                    className="px-3 py-2 text-left cursor-pointer hover:bg-gray-800/50 transition-colors"
+                    onClick={() => handleSort('item')}
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Item</span>
+                      {sortConfig.key === 'item' && (
+                        <span className="text-blue-400">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-3 py-2 text-right cursor-pointer hover:bg-gray-800/50 transition-colors"
+                    onClick={() => handleSort('quantity')}
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Quantity</span>
+                      {sortConfig.key === 'quantity' && (
+                        <span className="text-blue-400">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-3 py-2 text-right cursor-pointer hover:bg-gray-800/50 transition-colors"
+                    onClick={() => handleSort('buyPrice')}
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Buy Price</span>
+                      {sortConfig.key === 'buyPrice' && (
+                        <span className="text-blue-400">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-3 py-2 text-right cursor-pointer hover:bg-gray-800/50 transition-colors"
+                    onClick={() => handleSort('sellPrice')}
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Sell Price</span>
+                      {sortConfig.key === 'sellPrice' && (
+                        <span className="text-blue-400">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-3 py-2 text-right cursor-pointer hover:bg-gray-800/50 transition-colors"
+                    onClick={() => handleSort('profit')}
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Profit</span>
+                      {sortConfig.key === 'profit' && (
+                        <span className="text-blue-400">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-3 py-2 text-right cursor-pointer hover:bg-gray-800/50 transition-colors"
+                    onClick={() => handleSort('time')}
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Time</span>
+                      {sortConfig.key === 'time' && (
+                        <span className="text-blue-400">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {sortedTransactions.map((flip, index) => (
+                    <tr key={index} className="hover:bg-gray-800/50">
+                      <td className="px-3 py-2 text-left font-medium">{flip.item}</td>
+                      <td className="px-3 py-2 text-right">
+                        {(flip.quantity || flip.bought || flip.sold || 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        {formatGP(flip.avgBuyPrice || flip.avg_buy_price || 0)}
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        {formatGP(flip.avgSellPrice || flip.avg_sell_price || 0)}
+                      </td>
+                      <td className={`px-3 py-2 text-right font-medium ${
+                        flip.profit >= 0 ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        {formatGP(flip.profit || 0)}
+                      </td>
+                      <td className="px-3 py-2 text-right text-gray-400">
+                        {formatTime(flip.lastSellTime || flip.last_sell_time)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+              <tfoot className="bg-gray-900/50 font-semibold">
+                <tr>
+                  <td colSpan="4" className="px-3 py-2 text-right text-gray-400">
+                    Interval Total:
+                  </td>
+                  <td className={`px-3 py-2 text-right ${
+                    selectedInterval.net >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {formatGP(selectedInterval.net)}
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-700">
@@ -355,5 +614,24 @@ export default function GuestProfitLossChart({ guestData }) {
         </div>
       </div>
     </div>
+  );
+
+  // Main return with fullscreen modal
+  return (
+    <>
+      {renderChartContent(false)}
+      
+      <ChartFullscreenModal
+        isOpen={isFullscreen}
+        onClose={() => setIsFullscreen(false)}
+        title={selectedDay 
+          ? `Profit & Loss - ${selectedDay}${showTransactions ? ` - ${selectedInterval?.displayLabel || ''}` : ''}` 
+          : 'Daily Profit & Loss Distribution'}
+      >
+        <div style={{ height: '80vh' }}>
+          {renderChartContent(true)}
+        </div>
+      </ChartFullscreenModal>
+    </>
   );
 }
