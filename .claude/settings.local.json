@@ -6,7 +6,8 @@
       "Bash(mkdir:*)",
       "Bash(npm run build:*)",
       "Bash(npm test:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

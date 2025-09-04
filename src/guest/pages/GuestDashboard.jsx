@@ -34,6 +34,7 @@ import GuestPerformanceAnalysis from '../components/GuestPerformanceAnalysis';
 import GuestProfitVelocity from '../components/GuestProfitVelocity';
 import GuestWinRateChart from '../components/GuestWinRateChart';
 import GuestFlipVolumeChart from '../components/GuestFlipVolumeChart';
+import GuestProfitLossChart from '../components/GuestProfitLossChart';
 
 // Helper function to convert array of objects to CSV
 function arrayToCSV(data) {
@@ -1151,6 +1152,9 @@ export default function GuestDashboard() {
             includeStats={true}
             showMethodologyHint={true}
           />
+
+          {/* Profit/Loss Bar Chart */}
+          <GuestProfitLossChart guestData={guestData} originalData={originalData} />
 
           {/* Secondary Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
