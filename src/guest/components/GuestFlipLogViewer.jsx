@@ -116,6 +116,17 @@ export default function GuestFlipLogViewer({
       render: value => <span className="text-white font-medium">{value || 'Unknown Item'}</span>,
     },
     {
+      key: 'account',
+      label: 'Account',
+      headerClass: 'text-left',
+      cellClass: 'text-left',
+      sortValue: row => row.account || row.accountId || 'Unknown',
+      render: (value, row) => {
+        const accountName = row.account || row.accountId || 'Unknown';
+        return <span className="text-blue-400 font-medium text-sm">{accountName}</span>;
+      },
+    },
+    {
       key: 'quantity',
       label: 'Qty',
       headerClass: 'text-right hidden sm:table-cell',

@@ -1,4 +1,5 @@
 import { useGuestData } from '../contexts/GuestDataContext';
+import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { guestAnalytics } from '../../utils/guestAnalytics';
@@ -14,6 +15,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from 'recharts';
 
 // Import existing components
@@ -179,11 +181,14 @@ Accounts: ${guestData.metadata.accounts.join(', ')}
 }
 
 export default function GuestDashboard() {
-  const { guestData } = useGuestData();
+  const { guestData: originalData } = useGuestData();
+  const { getFilteredData, isFiltered, selectedAccounts } = useAccountFilter();
+  const guestData = getFilteredData() || originalData;
   const navigate = useNavigate();
   const [searchTerms, setSearchTerms] = useState([]);
   const [isCapturingChart, setIsCapturingChart] = useState(false);
   const [isCapturingHeatmap, setIsCapturingHeatmap] = useState(false);
+  const [chartViewMode, setChartViewMode] = useState('combined'); // 'combined' or 'individual'
 
   // Tab navigation state
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'performance', 'fliplogs', 'ai'
@@ -598,15 +603,19 @@ export default function GuestDashboard() {
         </p>
       </div>
 
-      {/* Account info if multiple accounts */}
-      {guestData.metadata?.accountCount > 1 && (
+      {/* Account filter info */}
+      {originalData.metadata?.accountCount > 1 && isFiltered && (
         <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3 mb-6">
           <p className="text-blue-200 text-sm">
-            📊 <strong>Combined data from {guestData.metadata.accountCount} accounts:</strong>{' '}
-            {guestData.metadata.accounts.join(', ')}
+            🔍{' '}
+            <strong>
+              Filtering data for {selectedAccounts.length} account
+              {selectedAccounts.length > 1 ? 's' : ''}:
+            </strong>{' '}
+            {selectedAccounts.join(', ')}
           </p>
           <p className="text-blue-300 text-xs mt-1">
-            Tip: Export accounts separately from Flipping Copilot if you want individual analysis
+            Use the account toggles above to show/hide individual account data
           </p>
         </div>
       )}
@@ -728,44 +737,160 @@ export default function GuestDashboard() {
           <div className="bg-gray-800 p-6 rounded-lg mb-8" ref={chartRef}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-white">Cumulative Profit Over Time</h3>
-              <button
-                onClick={captureChart}
-                disabled={isCapturingChart}
-                className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50 screenshot-button"
-              >
-                {isCapturingChart ? 'Capturing...' : 'Screenshot'}
-              </button>
+              <div className="flex items-center gap-3">
+                {/* Toggle buttons for chart view mode */}
+                {originalData.metadata?.accountCount > 1 && (
+                  <div className="flex rounded-lg bg-gray-700 p-1">
+                    <button
+                      onClick={() => setChartViewMode('combined')}
+                      className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                        chartViewMode === 'combined'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      Combined
+                    </button>
+                    <button
+                      onClick={() => setChartViewMode('individual')}
+                      className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                        chartViewMode === 'individual'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      Individual
+                    </button>
+                  </div>
+                )}
+                <button
+                  onClick={captureChart}
+                  disabled={isCapturingChart}
+                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 disabled:opacity-50 screenshot-button"
+                >
+                  {isCapturingChart ? 'Capturing...' : 'Screenshot'}
+                </button>
+              </div>
             </div>
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={(() => {
-                    // Calculate cumulative profit
-                    let cumulativeProfit = 0;
-                    return guestData.dailySummaries.map((day, index) => {
-                      cumulativeProfit += day.totalProfit;
-                      return {
-                        date: day.date,
-                        day: index + 1,
-                        dailyProfit: day.totalProfit,
-                        cumulativeProfit,
-                        flips: day.flipCount,
-                      };
-                    });
+                    if (chartViewMode === 'combined') {
+                      // Calculate combined cumulative profit
+                      let cumulativeProfit = 0;
+                      return guestData.dailySummaries.map((day, index) => {
+                        cumulativeProfit += day.totalProfit;
+                        // Format date for display (MM/DD)
+                        const [month, dayNum] = day.date.split('-');
+                        const displayLabel = `${month}/${dayNum}`;
+                        return {
+                          date: day.date,
+                          day: index + 1,
+                          displayLabel,
+                          dailyProfit: day.totalProfit,
+                          cumulativeProfit,
+                          flips: day.flipCount,
+                        };
+                      });
+                    } else {
+                      // Calculate per-account cumulative profit
+                      const accountProfits = {};
+                      const dates = new Set();
+
+                      // Only process accounts that are currently selected/visible
+                      const visibleAccounts =
+                        selectedAccounts.length > 0
+                          ? selectedAccounts
+                          : originalData.metadata?.accounts || [];
+                      visibleAccounts.forEach(account => {
+                        accountProfits[account] = 0;
+                      });
+
+                      // Process all flips by date
+                      const dataByDate = {};
+                      Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
+                        dates.add(date);
+                        if (!dataByDate[date]) {
+                          dataByDate[date] = {};
+                          visibleAccounts.forEach(acc => {
+                            dataByDate[date][acc] = 0;
+                          });
+                        }
+
+                        const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
+                        flips.forEach(flip => {
+                          const accountName = flip.account || flip.accountId;
+                          // Only track data for visible accounts
+                          if (
+                            accountName &&
+                            visibleAccounts.includes(accountName) &&
+                            dataByDate[date]
+                          ) {
+                            dataByDate[date][accountName] =
+                              (dataByDate[date][accountName] || 0) + (flip.profit || 0);
+                          }
+                        });
+                      });
+
+                      // Build cumulative data
+                      const sortedDates = Array.from(dates).sort();
+                      const cumulativeData = {};
+                      visibleAccounts.forEach(account => {
+                        cumulativeData[account] = 0;
+                      });
+
+                      return sortedDates.map((date, index) => {
+                        // Format date for display (MM/DD)
+                        const [month, dayNum] = date.split('-');
+                        const displayLabel = `${month}/${dayNum}`;
+                        const dayEntry = { date, day: index + 1, displayLabel };
+
+                        // Update cumulative for each visible account
+                        visibleAccounts.forEach(account => {
+                          cumulativeData[account] += dataByDate[date]?.[account] || 0;
+                          dayEntry[`cumulative_${account}`] = cumulativeData[account];
+                        });
+
+                        return dayEntry;
+                      });
+                    }
                   })()}
                   margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#374151"
+                    vertical={true}
+                    horizontal={true}
+                  />
                   <XAxis
                     dataKey="day"
                     stroke="#9CA3AF"
                     fontSize={12}
                     tickLine={false}
+                    tick={{ fill: 'transparent' }}
+                    axisLine={{ stroke: '#374151' }}
                     label={{
-                      value: 'Day',
+                      value: (() => {
+                        if (guestData.dailySummaries && guestData.dailySummaries.length > 0) {
+                          const firstDate = guestData.dailySummaries[0].date;
+                          const lastDate =
+                            guestData.dailySummaries[guestData.dailySummaries.length - 1].date;
+                          const [fMonth, fDay] = firstDate.split('-');
+                          const [lMonth, lDay] = lastDate.split('-');
+                          return `${fMonth}/${fDay} - ${lMonth}/${lDay}`;
+                        }
+                        return 'Date Range';
+                      })(),
                       position: 'insideBottom',
-                      offset: -5,
-                      style: { textAnchor: 'middle', fill: '#9CA3AF' },
+                      offset: -8,
+                      style: {
+                        textAnchor: 'middle',
+                        fill: '#9CA3AF',
+                        fontSize: 16,
+                        fontWeight: 500,
+                      },
                     }}
                   />
                   <YAxis
@@ -781,32 +906,98 @@ export default function GuestDashboard() {
                       borderRadius: '8px',
                       color: 'white',
                     }}
-                    formatter={(value, name) => [
-                      name === 'cumulativeProfit'
-                        ? `${value.toLocaleString()} GP`
-                        : formatGP(value),
-                      name === 'cumulativeProfit'
-                        ? 'Total Profit'
-                        : name === 'dailyProfit'
-                          ? 'Daily Profit'
-                          : name,
-                    ]}
-                    labelFormatter={day => `Day ${day}`}
+                    formatter={(value, name) => {
+                      if (name.startsWith('cumulative_')) {
+                        const accountName = name.replace('cumulative_', '');
+                        return [`${value.toLocaleString()} GP`, accountName];
+                      }
+                      return [
+                        name === 'cumulativeProfit'
+                          ? `${value.toLocaleString()} GP`
+                          : formatGP(value),
+                        name === 'cumulativeProfit'
+                          ? 'Total Profit'
+                          : name === 'dailyProfit'
+                            ? 'Daily Profit'
+                            : name,
+                      ];
+                    }}
+                    labelFormatter={(label, payload) => {
+                      if (payload && payload[0]) {
+                        return `Date: ${payload[0].payload.date}`;
+                      }
+                      return label;
+                    }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="cumulativeProfit"
-                    stroke="#22c55e"
-                    strokeWidth={3}
-                    dot={false}
-                    activeDot={{ r: 6, fill: '#22c55e' }}
-                  />
+                  {chartViewMode === 'combined' ? (
+                    <Line
+                      type="monotone"
+                      dataKey="cumulativeProfit"
+                      stroke="#22c55e"
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={{ r: 6, fill: '#22c55e' }}
+                    />
+                  ) : (
+                    <>
+                      {(() => {
+                        // Only show lines for visible accounts
+                        const visibleAccounts =
+                          selectedAccounts.length > 0
+                            ? selectedAccounts
+                            : originalData.metadata?.accounts || [];
+                        const allAccounts = originalData.metadata?.accounts || [];
+
+                        return visibleAccounts.map(account => {
+                          // Use the original index for consistent coloring
+                          const index = allAccounts.indexOf(account);
+                          const colors = [
+                            '#3b82f6',
+                            '#22c55e',
+                            '#ef4444',
+                            '#f59e0b',
+                            '#8b5cf6',
+                            '#ec4899',
+                            '#14b8a6',
+                            '#f97316',
+                          ];
+                          const color = colors[index % colors.length];
+
+                          return (
+                            <Line
+                              key={account}
+                              type="monotone"
+                              dataKey={`cumulative_${account}`}
+                              name={account}
+                              stroke={color}
+                              strokeWidth={2}
+                              dot={false}
+                              activeDot={{ r: 5, fill: color }}
+                            />
+                          );
+                        });
+                      })()}
+                      {/* Only show legend if there are visible accounts */}
+                      {(selectedAccounts.length > 0
+                        ? selectedAccounts
+                        : originalData.metadata?.accounts || []
+                      ).length > 0 && (
+                        <Legend
+                          verticalAlign="bottom"
+                          height={36}
+                          wrapperStyle={{ paddingTop: '10px' }}
+                          iconType="line"
+                        />
+                      )}
+                    </>
+                  )}
                 </LineChart>
               </ResponsiveContainer>
             </div>
             <p className="text-sm text-gray-400 mt-2">
-              Shows your total accumulated profit over {guestData.dailySummaries.length} trading
-              days
+              {chartViewMode === 'combined'
+                ? `Shows your total accumulated profit over ${guestData.dailySummaries.length} trading days`
+                : `Shows individual account profit growth over ${guestData.dailySummaries.length} trading days`}
             </p>
           </div>
 
@@ -821,7 +1012,11 @@ export default function GuestDashboard() {
                 {isCapturingHeatmap ? 'Capturing...' : 'Screenshot'}
               </button>
             </div>
-            <GuestHeatMap guestData={guestData} onCellClick={handleHeatmapCellClick} />
+            <GuestHeatMap
+              guestData={guestData}
+              originalData={originalData}
+              onCellClick={handleHeatmapCellClick}
+            />
           </div>
 
           {/* Tables */}
@@ -889,6 +1084,7 @@ export default function GuestDashboard() {
           {selectedDate || selectedDayHour ? (
             <GuestFlipLogViewer
               guestData={guestData}
+              originalData={originalData}
               selectedDate={selectedDate}
               selectedDayHour={selectedDayHour}
               onClose={handleBackToOverview}
@@ -898,6 +1094,7 @@ export default function GuestDashboard() {
               {/* Date picker for daily logs */}
               <GuestDatePicker
                 guestData={guestData}
+                originalData={originalData}
                 selectedDate={selectedDate}
                 onDateSelect={handleDateSelect}
               />
@@ -945,24 +1142,25 @@ export default function GuestDashboard() {
       {activeTab === 'performance' && (
         <div className="space-y-8" id="performance-section">
           {/* Performance Analysis Stats */}
-          <GuestPerformanceAnalysis guestData={guestData} />
+          <GuestPerformanceAnalysis guestData={guestData} originalData={originalData} />
 
           {/* Main Velocity Chart */}
           <GuestProfitVelocity
             guestData={guestData}
+            originalData={originalData}
             includeStats={true}
             showMethodologyHint={true}
           />
 
           {/* Secondary Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <GuestWinRateChart guestData={guestData} />
-            <GuestFlipVolumeChart guestData={guestData} />
+            <GuestWinRateChart guestData={guestData} originalData={originalData} />
+            <GuestFlipVolumeChart guestData={guestData} originalData={originalData} />
           </div>
         </div>
       )}
 
-      {activeTab === 'ai' && <QueryBuilder data={guestData} />}
+      {activeTab === 'ai' && <QueryBuilder data={guestData} originalData={originalData} />}
     </div>
   );
 }
