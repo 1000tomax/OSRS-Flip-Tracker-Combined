@@ -1,0 +1,3 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Berserker ring,SELLING,7,39250211,4,22483024,458836,54332,2025-09-04T04:45:52Z,2025-09-04T05:01:10Z,2025-09-04T05:01:10Z,2dfbfca05b4d4e25eab26cfff06fdd920ec56c7c7726b4fb0ee565af2daca84d
+1000tomax,Feather,FINISHED,1,3,1,2,0,-1,2025-09-04T05:00:39Z,2025-09-04T05:01:01Z,2025-09-04T05:01:01Z,1c42ba4f8e2e2b4f63f33d82b737934bbc5eb173d04217af133b171388f60d18
