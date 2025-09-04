@@ -835,14 +835,24 @@ export default function GuestDashboard() {
                       });
 
                       // Build cumulative data
-                      const sortedDates = Array.from(dates).sort();
+                      // Sort dates chronologically in ascending order (MM-DD-YYYY format)
+                      const sortedDates = Array.from(dates).sort((a, b) => {
+                        const [aMonth, aDay, aYear] = a.split('-');
+                        const [bMonth, bDay, bYear] = b.split('-');
+
+                        // Create Date objects for proper comparison
+                        const dateA = new Date(aYear, aMonth - 1, aDay);
+                        const dateB = new Date(bYear, bMonth - 1, bDay);
+
+                        return dateA - dateB;
+                      });
                       const cumulativeData = {};
                       visibleAccounts.forEach(account => {
                         cumulativeData[account] = 0;
                       });
 
                       return sortedDates.map((date, index) => {
-                        // Format date for display (MM/DD)
+                        // Format date for display (MM/DD) from MM-DD-YYYY format
                         const [month, dayNum] = date.split('-');
                         const displayLabel = `${month}/${dayNum}`;
                         const dayEntry = { date, day: index + 1, displayLabel };
