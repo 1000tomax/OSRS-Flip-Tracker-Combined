@@ -202,7 +202,7 @@ self.onmessage = async e => {
                   avg_sell_price: cleanNumeric(row[headerMap['avg. sell price']]),
                   tax: cleanNumeric(row[headerMap.tax]),
                   profit:
-                    headerMap.profit !== undefined
+                    'profit' in headerMap
                       ? cleanNumeric(row[headerMap.profit])
                       : cleanNumeric(row[headerMap.sold]) *
                           cleanNumeric(row[headerMap['avg. sell price']]) -
