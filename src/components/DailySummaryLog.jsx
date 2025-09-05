@@ -58,15 +58,60 @@ export default function DailySummaryLog() {
     refetchMeta();
   };
 
+  // Helper function to group daily summaries into weeks for screenshot
+  const groupSummariesIntoWeeks = summaries => {
+    const weeks = [];
+    const remainingDays = [];
+
+    // Group complete weeks (7 days each)
+    for (let i = 0; i < Math.floor(summaries.length / 7); i++) {
+      const weekStart = i * 7;
+      const weekEnd = weekStart + 7;
+      const weekDays = summaries.slice(weekStart, weekEnd);
+
+      // Calculate weekly aggregates
+      const weekData = {
+        weekNumber: i + 1,
+        startDay: weekDays[0].day,
+        endDay: weekDays[6].day,
+        days: weekDays,
+        totalFlips: weekDays.reduce((sum, day) => sum + (day.flips || 0), 0),
+        totalItems: weekDays.reduce((sum, day) => sum + (day.items_flipped || 0), 0), // Sum of unique items per day
+        totalProfit: weekDays.reduce((sum, day) => sum + (day.profit || 0), 0),
+        endingNetWorth: weekDays[6].net_worth || 0,
+        startingNetWorth: i > 0 ? summaries[weekStart - 1].net_worth || 0 : 1000,
+        endingProgress: weekDays[6].percent_to_goal || 0,
+      };
+
+      // Calculate average profit per flip
+      weekData.avgProfitPerFlip =
+        weekData.totalFlips > 0 ? weekData.totalProfit / weekData.totalFlips : 0;
+
+      weeks.push(weekData);
+    }
+
+    // Get remaining days (incomplete week)
+    const remainingStart = Math.floor(summaries.length / 7) * 7;
+    if (remainingStart < summaries.length) {
+      remainingDays.push(...summaries.slice(remainingStart));
+    }
+
+    return { weeks, remainingDays };
+  };
+
   // Screenshot generator - now with html2canvas-pro for better CSS support
   const generateScreenshot = async () => {
     if (screenshotRef.current && completeSummaries.length > 0) {
       try {
+        // Group summaries for screenshot
+        const { weeks, remainingDays } = groupSummariesIntoWeeks(completeSummaries);
+        const totalRows = weeks.length + remainingDays.length;
+
         const canvas = await html2canvas(screenshotRef.current, {
           backgroundColor: '#1f2937',
           scale: 2,
           width: 800,
-          height: completeSummaries.length * 35 + 200,
+          height: totalRows * 35 + 200,
           logging: false,
           useCORS: true,
           allowTaint: true,
@@ -453,6 +498,17 @@ export default function DailySummaryLog() {
           >
             🌐 MREEDON.COM
           </p>
+          <p
+            style={{
+              color: '#9ca3af',
+              margin: '4px 0 0 0',
+              fontSize: '12px',
+              fontStyle: 'italic',
+            }}
+          >
+            Compressed weekly stats • Full details at mreedon.com • Track your own flips at
+            mreedon.com/guest
+          </p>
         </div>
 
         {/* Compact Table */}
@@ -480,13 +536,13 @@ export default function DailySummaryLog() {
                   borderLeft: '2px solid #000000',
                 }}
               >
-                Day
+                Period
               </th>
               <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Flips</th>
               <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Items</th>
               <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Profit</th>
               <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Net Worth</th>
-              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Growth</th>
+              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Avg/Flip</th>
               <th
                 style={{
                   padding: '8px',
@@ -500,39 +556,101 @@ export default function DailySummaryLog() {
             </tr>
           </thead>
           <tbody>
-            {completeSummaries.map((s, i) => (
-              <tr
-                key={s.date}
-                style={{
-                  backgroundColor: i % 2 === 0 ? '#1f2937' : '#374151',
-                  borderBottom: '1px solid #000000',
-                }}
-              >
-                <td style={{ padding: '6px 8px', borderLeft: '2px solid #000000' }}>{s.day}</td>
-                <td style={{ padding: '6px 8px' }}>{s.flips || 0}</td>
-                <td style={{ padding: '6px 8px' }}>{s.items_flipped || 0}</td>
-                <td
-                  style={{
-                    padding: '6px 8px',
-                    color: (s.profit || 0) >= 0 ? '#10b981' : '#ef4444',
-                  }}
-                >
-                  {formatGP(s.profit || 0)}
-                </td>
-                <td style={{ padding: '6px 8px' }}>{formatGP(s.net_worth || 0)}</td>
-                <td
-                  style={{
-                    padding: '6px 8px',
-                    color: (s.percent_change || 0) >= 0 ? '#10b981' : '#ef4444',
-                  }}
-                >
-                  +{(s.percent_change || 0).toFixed(2)}%
-                </td>
-                <td style={{ padding: '6px 8px', borderRight: '2px solid #000000' }}>
-                  {(s.percent_to_goal || 0).toFixed(2)}%
-                </td>
-              </tr>
-            ))}
+            {(() => {
+              const { weeks, remainingDays } = groupSummariesIntoWeeks(completeSummaries);
+              let rowIndex = 0;
+
+              return (
+                <>
+                  {/* Render weekly rows */}
+                  {weeks.map(week => {
+                    const currentRowIndex = rowIndex++;
+                    return (
+                      <tr
+                        key={`week-${week.weekNumber}`}
+                        style={{
+                          backgroundColor: currentRowIndex % 2 === 0 ? '#1f2937' : '#374151',
+                          borderBottom: '1px solid #000000',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        <td
+                          style={{
+                            padding: '6px 8px',
+                            borderLeft: '2px solid #000000',
+                            color: '#fbbf24',
+                          }}
+                        >
+                          Week {week.weekNumber} (Days {week.startDay}-{week.endDay})
+                        </td>
+                        <td style={{ padding: '6px 8px' }}>{week.totalFlips}</td>
+                        <td style={{ padding: '6px 8px' }}>{week.totalItems}</td>
+                        <td
+                          style={{
+                            padding: '6px 8px',
+                            color: week.totalProfit >= 0 ? '#10b981' : '#ef4444',
+                          }}
+                        >
+                          {formatGP(week.totalProfit)}
+                        </td>
+                        <td style={{ padding: '6px 8px' }}>{formatGP(week.endingNetWorth)}</td>
+                        <td
+                          style={{
+                            padding: '6px 8px',
+                            color: week.avgProfitPerFlip >= 0 ? '#10b981' : '#ef4444',
+                          }}
+                        >
+                          {formatGP(week.avgProfitPerFlip)}
+                        </td>
+                        <td style={{ padding: '6px 8px', borderRight: '2px solid #000000' }}>
+                          {week.endingProgress.toFixed(2)}%
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {/* Render remaining individual days */}
+                  {remainingDays.map(s => {
+                    const currentRowIndex = rowIndex++;
+                    return (
+                      <tr
+                        key={s.date}
+                        style={{
+                          backgroundColor: currentRowIndex % 2 === 0 ? '#1f2937' : '#374151',
+                          borderBottom: '1px solid #000000',
+                        }}
+                      >
+                        <td style={{ padding: '6px 8px', borderLeft: '2px solid #000000' }}>
+                          Day {s.day}
+                        </td>
+                        <td style={{ padding: '6px 8px' }}>{s.flips || 0}</td>
+                        <td style={{ padding: '6px 8px' }}>{s.items_flipped || 0}</td>
+                        <td
+                          style={{
+                            padding: '6px 8px',
+                            color: (s.profit || 0) >= 0 ? '#10b981' : '#ef4444',
+                          }}
+                        >
+                          {formatGP(s.profit || 0)}
+                        </td>
+                        <td style={{ padding: '6px 8px' }}>{formatGP(s.net_worth || 0)}</td>
+                        <td
+                          style={{
+                            padding: '6px 8px',
+                            color: (s.profit || 0) / (s.flips || 1) >= 0 ? '#10b981' : '#ef4444',
+                          }}
+                        >
+                          {formatGP((s.flips || 0) > 0 ? (s.profit || 0) / s.flips : 0)}
+                        </td>
+                        <td style={{ padding: '6px 8px', borderRight: '2px solid #000000' }}>
+                          {(s.percent_to_goal || 0).toFixed(2)}%
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </>
+              );
+            })()}
           </tbody>
         </table>
       </div>
