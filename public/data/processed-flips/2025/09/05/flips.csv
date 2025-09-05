@@ -1,0 +1,2 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Mithril bar,FINISHED,10000,6900000,10000,6860000,130000,-40000,2025-09-05T04:23:59Z,2025-09-05T05:02:00Z,2025-09-05T05:02:00Z,178c3c849df9907b7a65fa2db35583b26b48aa4b2f771a376a32f81ed02ccd94
