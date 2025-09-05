@@ -23,6 +23,7 @@ const EXPECTED_COLUMNS = [
   'avg. buy price',
   'avg. sell price',
   'tax',
+  'profit',
 ];
 
 // Utility to clean numeric values (removes commas that Flipping Copilot might include)
@@ -56,7 +57,8 @@ self.onmessage = async e => {
     const { file, timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } = e.data;
 
     // EARLY EXIT: File size check to prevent crashes
-    if (file.size > 3 * 1024 * 1024) { // 3MB limit
+    if (file.size > 3 * 1024 * 1024) {
+      // 3MB limit
       self.postMessage({
         type: 'ERROR',
         message: `File too large: ${(file.size / (1024 * 1024)).toFixed(1)}MB. Maximum: 3MB. Try exporting a shorter date range.`,
@@ -70,19 +72,19 @@ self.onmessage = async e => {
     let rowsProcessed = 0;
     let lastProgressUpdate = 0;
     const accounts = new Set();
-    
+
     // MEMORY MANAGEMENT: Process in batches and clean up
     const flipsByDate = {};
     const itemStatsMap = {};
     const allFlips = []; // Keep flips but manage memory better
     const seen = new Set();
     let hasShowBuyingError = false;
-    
+
     // BATCH PROCESSING: Prevent memory spikes
     const BATCH_SIZE = 2000;
     let currentBatch = [];
-    
-    const processBatch = (batch) => {
+
+    const processBatch = batch => {
       for (const flipData of batch) {
         // Deduplication
         const flipHash = `${flipData.account}-${flipData.item}-${flipData.first_buy_time}-${flipData.last_sell_time}`;
@@ -95,7 +97,7 @@ self.onmessage = async e => {
 
         // Update aggregates
         const dateKey = toDateKey(flipData.last_sell_time, timezone);
-        
+
         // Update date aggregates
         if (!flipsByDate[dateKey]) {
           flipsByDate[dateKey] = {
@@ -122,7 +124,7 @@ self.onmessage = async e => {
         itemStatsMap[flipData.item].flipCount++;
         itemStatsMap[flipData.item].totalQuantity += flipData.bought;
       }
-      
+
       // MEMORY CLEANUP: Clear batch and force GC opportunity
       batch.length = 0;
       // Hint for garbage collection if available
@@ -135,19 +137,24 @@ self.onmessage = async e => {
         header: true,
         skipEmptyLines: true,
         dynamicTyping: false,
-        
+
         // MEMORY OPTIMIZATION: Much smaller chunks
         chunkSize: 32 * 1024, // 32KB chunks (very small)
-        
+
         chunk: results => {
           try {
             // MEMORY MONITORING
             if (performance.memory) {
               const used = performance.memory.usedJSHeapSize;
               const limit = performance.memory.jsHeapSizeLimit;
-              if (used / limit > 0.85) { // Stop at 85% memory usage
+              if (used / limit > 0.85) {
+                // Stop at 85% memory usage
                 if (parser) parser.abort();
-                reject(new Error(`Memory usage too high (${Math.round(used/limit*100)}%). File too large for processing.`));
+                reject(
+                  new Error(
+                    `Memory usage too high (${Math.round((used / limit) * 100)}%). File too large for processing.`
+                  )
+                );
                 return;
               }
             }
@@ -161,11 +168,17 @@ self.onmessage = async e => {
               });
 
               const normalizedHeaders = Object.keys(headerMap);
-              const missingColumns = EXPECTED_COLUMNS.filter(col => !normalizedHeaders.includes(col));
+              const missingColumns = EXPECTED_COLUMNS.filter(
+                col => !normalizedHeaders.includes(col)
+              );
 
               if (missingColumns.length > 0) {
                 if (parser) parser.abort();
-                reject(new Error(`Not a valid Flipping Copilot CSV. Missing columns: ${missingColumns.join(', ')}`));
+                reject(
+                  new Error(
+                    `Not a valid Flipping Copilot CSV. Missing columns: ${missingColumns.join(', ')}`
+                  )
+                );
                 return;
               }
             }
@@ -175,7 +188,7 @@ self.onmessage = async e => {
               try {
                 const firstBuyTime = row[headerMap['first buy time']];
                 const lastSellTime = row[headerMap['last sell time']];
-                
+
                 if (!firstBuyTime || !lastSellTime) continue;
 
                 const flipData = {
@@ -188,10 +201,14 @@ self.onmessage = async e => {
                   avg_buy_price: cleanNumeric(row[headerMap['avg. buy price']]),
                   avg_sell_price: cleanNumeric(row[headerMap['avg. sell price']]),
                   tax: cleanNumeric(row[headerMap.tax]),
-                  profit: cleanNumeric(row[headerMap.profit]) || 
-                          (cleanNumeric(row[headerMap.sold]) * cleanNumeric(row[headerMap['avg. sell price']]) - 
-                           cleanNumeric(row[headerMap.bought]) * cleanNumeric(row[headerMap['avg. buy price']]) - 
-                           cleanNumeric(row[headerMap.tax])),
+                  profit:
+                    headerMap.profit !== undefined
+                      ? cleanNumeric(row[headerMap.profit])
+                      : cleanNumeric(row[headerMap.sold]) *
+                          cleanNumeric(row[headerMap['avg. sell price']]) -
+                        cleanNumeric(row[headerMap.bought]) *
+                          cleanNumeric(row[headerMap['avg. buy price']]) -
+                        cleanNumeric(row[headerMap.tax]),
                 };
 
                 if (flipData.bought === 0 && flipData.sold === 0) {
@@ -201,7 +218,7 @@ self.onmessage = async e => {
 
                 // Add to batch
                 currentBatch.push(flipData);
-                
+
                 // BATCH PROCESSING: Process when batch is full
                 if (currentBatch.length >= BATCH_SIZE) {
                   processBatch(currentBatch);
@@ -221,13 +238,11 @@ self.onmessage = async e => {
                   });
                   lastProgressUpdate = Date.now();
                 }
-
               } catch (rowError) {
                 console.warn('Error processing row:', rowError);
                 continue;
               }
             }
-
           } catch (chunkError) {
             console.error('Chunk processing error:', chunkError);
             if (parser) parser.abort();
@@ -246,7 +261,7 @@ self.onmessage = async e => {
         error: error => {
           console.error('Papa Parse error:', error);
           reject(new Error(`CSV parsing failed: ${error.message}`));
-        }
+        },
       });
     });
 
@@ -254,7 +269,9 @@ self.onmessage = async e => {
     if (performance.memory) {
       const used = performance.memory.usedJSHeapSize;
       const limit = performance.memory.jsHeapSizeLimit;
-      console.log(`Final memory usage: ${Math.round(used/(1024*1024))}MB (${Math.round(used/limit*100)}%)`);
+      console.log(
+        `Final memory usage: ${Math.round(used / (1024 * 1024))}MB (${Math.round((used / limit) * 100)}%)`
+      );
     }
 
     // Send results with all flips (but processed efficiently)
@@ -275,7 +292,6 @@ self.onmessage = async e => {
         },
       },
     });
-
   } catch (error) {
     console.error('Worker processing error:', error);
     self.postMessage({
@@ -285,6 +301,7 @@ self.onmessage = async e => {
     });
   } finally {
     // Final cleanup
+    // eslint-disable-next-line no-undef
     if (typeof gc !== 'undefined') gc();
   }
 };
