@@ -36,6 +36,9 @@ coverage
 *.sln
 *.sw?
 
+# Claude configuration
+CLAUDE.md
+
 # OS files
 Thumbs.db
 desktop.ini
