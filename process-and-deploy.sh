@@ -133,8 +133,57 @@ if (( CHANGES )); then
   fi
   push_rc=$?
   set -e
+
   if (( push_rc != 0 )); then
-    echo "❌ Push failed — keeping flips.csv for retry."; KEEP_FLIPS=1; exit 1; fi
+    echo "🔁 Push rejected (likely non-fast-forward). Attempting auto fetch + rebase..."
+
+    # Determine upstream remote/branch if configured
+    upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)
+    if [ -n "$upstream" ]; then
+      remote="${upstream%%/*}"
+      remote_branch="${upstream#*/}"
+    else
+      remote="origin"
+      remote_branch="$branch"
+    fi
+
+    git fetch "$remote" || { echo "❌ Fetch failed"; KEEP_FLIPS=1; exit 1; }
+
+    set +e
+    git rebase "$remote/$remote_branch"
+    rebase_rc=$?
+    set -e
+
+    if (( rebase_rc != 0 )); then
+      echo "⚠️  Rebase conflicts detected. Preferring locally generated public/data ..."
+      # Keep our newly generated data on conflicts in public/data
+      git checkout --ours -- public/data || true
+      git add public/data || true
+      set +e
+      git rebase --continue
+      rebase_rc=$?
+      set -e
+      if (( rebase_rc != 0 )); then
+        echo "❌ Rebase failed. Aborting. Your local changes are preserved."
+        git rebase --abort || true
+        KEEP_FLIPS=1; exit 1
+      fi
+    fi
+
+    echo "🔁 Retrying push after rebase..."
+    set +e
+    if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+      git push -q $push_no_verify
+    else
+      git push -q $push_no_verify -u "$remote" "$branch"
+    fi
+    push_rc=$?
+    set -e
+    if (( push_rc != 0 )); then
+      echo "❌ Push failed after auto-rebase — keeping flips.csv for retry."
+      KEEP_FLIPS=1; exit 1
+    fi
+  fi
 
   echo "🚀 Pushed."
   PUSHED=1
