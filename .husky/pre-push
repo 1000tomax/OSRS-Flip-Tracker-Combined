@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+# Lightweight quality gate before pushing.
+# Runs a production build.
+
+echo "Running QA checks (build)..."
+npm run qa
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "\nPre-push blocked: QA checks failed. Fix issues and try again."
+  exit $status
+fi
+
+echo "QA checks passed. Proceeding with push."
+exit 0

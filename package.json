@@ -18,6 +18,7 @@
     "test": "jest --config ./config/jest.config.js",
     "test:watch": "jest --config ./config/jest.config.js --watch",
     "test:coverage": "jest --config ./config/jest.config.js --coverage",
+    "test:inband": "jest --config ./config/jest.config.js --runInBand",
     "test:ci": "jest --config ./config/jest.config.js --ci --coverage --watchAll=false",
     "deps:check": "npx madge --circular --extensions js,jsx,ts,tsx src",
     "build:production": "npm run type-check && npm run test:ci && npm run build",
@@ -30,7 +31,9 @@
     "process:items": "node data-processing/itemStats.cjs",
     "process:meta": "node data-processing/metaWriter.cjs",
     "prebuild": "npm run build:data",
-    "prepare": "husky"
+    "prepare": "husky",
+    "qa": "npm run build",
+    "qa:full": "npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {
     "@sentry/react": "^10.7.0",
@@ -73,6 +76,7 @@
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.21",
     "babel-jest": "^30.0.5",
+    "babel-plugin-transform-vite-meta-env": "^1.0.3",
     "concurrently": "^9.2.1",
     "csv-parse": "^6.1.0",
     "eslint": "^9.30.1",
