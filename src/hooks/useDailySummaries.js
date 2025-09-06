@@ -1,8 +1,7 @@
 // src/hooks/useDailySummaries.js - Simple data fetching without React Query
 import { useState, useEffect } from 'react';
 
-// Helper function to add delay between batches
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+// (removed) delay helper not used after concurrency pool change
 
 async function fetchDailySummaries() {
   // First, get the index of all available dates
@@ -32,30 +31,28 @@ async function fetchDailySummaries() {
     throw new Error('Invalid summary index format');
   }
 
-  // Process in smaller batches to avoid overwhelming the server
+  // Process using a bounded concurrency pool (faster, polite to server)
   const summaries = [];
-  const BATCH_SIZE = 3; // Smaller batches for better performance
+  const CONCURRENCY = 6;
+  let index = 0;
 
-  for (let i = 0; i < dates.length; i += BATCH_SIZE) {
-    const batch = dates.slice(i, i + BATCH_SIZE);
-
-    const batchPromises = batch.map(async date => {
-      const res = await fetch(`/data/daily-summary/${date}.json`);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: Failed to fetch ${date}`);
+  const worker = async () => {
+    while (index < dates.length) {
+      const current = dates[index++];
+      try {
+        const res = await fetch(`/data/daily-summary/${current}.json`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: Failed to fetch ${current}`);
+        }
+        const data = await res.json();
+        summaries.push({ date: current, ...data });
+      } catch (_e) {
+        // Skip on error; optionally log if needed
       }
-      const data = await res.json();
-      return { date, ...data };
-    });
-
-    const batchResults = await Promise.all(batchPromises);
-    summaries.push(...batchResults);
-
-    // Small delay between batches (except for the last batch)
-    if (i + BATCH_SIZE < dates.length) {
-      await delay(150); // Slightly longer delay for better server performance
     }
-  }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, dates.length) }, worker));
 
   // Sort by date ascending
   summaries.sort((a, b) => new Date(a.date) - new Date(b.date));

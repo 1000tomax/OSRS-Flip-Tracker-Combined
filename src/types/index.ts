@@ -1,4 +1,5 @@
 // src/types/index.ts - Comprehensive type definitions for OSRS Flip Dashboard
+import type React from 'react';
 
 /**
  * Core data types for flip trading data

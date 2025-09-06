@@ -17,7 +17,9 @@ const PORT = process.env.PROXY_PORT || 3002;
 console.log('Environment variables loaded:', {
   hasClaudeKey: !!process.env.VITE_CLAUDE_API_KEY || !!process.env.CLAUDE_API_KEY,
   hasDiscordWebhook: !!process.env.VITE_DISCORD_WEBHOOK_URL,
-  webhookUrlPrefix: process.env.VITE_DISCORD_WEBHOOK_URL ? process.env.VITE_DISCORD_WEBHOOK_URL.substring(0, 50) + '...' : 'Not set',
+  webhookUrlPrefix: process.env.VITE_DISCORD_WEBHOOK_URL
+    ? `${process.env.VITE_DISCORD_WEBHOOK_URL.substring(0, 50)}...`
+    : 'Not set',
   logInDev: process.env.VITE_LOG_TO_DISCORD_IN_DEV === 'true'
 });
 
@@ -300,7 +302,7 @@ Choose the most appropriate display type based on the query:
       const content = data.content[0].text;
       // Try to parse the content directly
       aiResponse = JSON.parse(content);
-    } catch (parseError) {
+    } catch (_parseError) {
       // If direct parsing fails, try to extract JSON from the text
       const content = data.content[0].text;
       const jsonMatch = content.match(/\{[\s\S]*\}/);

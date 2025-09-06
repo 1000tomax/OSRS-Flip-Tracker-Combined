@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { analyticsOptOut } from '../../utils/guestAnalytics';
+import UI from '@/config/constants';
 
 export default function AnalyticsDisclosure() {
   const [isOptedOut, setIsOptedOut] = useState(false);
@@ -28,7 +29,7 @@ export default function AnalyticsDisclosure() {
       const timeoutId = setTimeout(() => {
         // Auto-dismiss after 30 seconds of the banner being visible
         handleUserInteraction();
-      }, 30000);
+      }, UI.ANALYTICS_BANNER_TIMEOUT_MS);
 
       // Add event listeners for user interactions
       interactionEvents.forEach(event => {

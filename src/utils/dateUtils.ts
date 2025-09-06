@@ -1,6 +1,6 @@
 // src/utils/dateUtils.ts - Centralized date handling utilities
 import logger from './logger';
-// Removed import - types are defined inline
+import type { DateFormat, DateFormatOptions } from '@/types';
 
 /**
  * Date formats used throughout the application
@@ -24,19 +24,11 @@ export class DateUtils {
    * @param expectedFormat - Expected format (optional)
    * @returns Parsed date or null if invalid
    */
-  static parse(dateString: string, expectedFormat: string = 'auto'): Date | null {
+  static parse(dateString: string, _expectedFormat: string = 'auto'): Date | null {
     if (!dateString) return null;
 
     try {
-      // Handle common formats
-      const formats = [
-        // MM-DD-YYYY (most common in this app)
-        /^(\d{1,2})-(\d{1,2})-(\d{4})$/,
-        // YYYY-MM-DD (ISO-like)
-        /^(\d{4})-(\d{1,2})-(\d{1,2})$/,
-        // MM/DD/YYYY
-        /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/,
-      ];
+      // Try common formats explicitly
 
       // Try MM-DD-YYYY format first (most common)
       const mmddyyyy = dateString.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
@@ -79,7 +71,7 @@ export class DateUtils {
    * @param date - Date to check
    * @returns True if valid
    */
-  static isValidDate(date: any): date is Date {
+  static isValidDate(date: unknown): date is Date {
     return date instanceof Date && !isNaN(date.getTime());
   }
 
@@ -97,6 +89,39 @@ export class DateUtils {
     const year = dateObj.getFullYear();
 
     return `${month}-${day}-${year}`;
+  }
+
+  /**
+   * Add days to a date and return a new Date
+   */
+  static addDays(date: Date, days: number): Date {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  /**
+   * Convenience alias used by some modules (API format)
+   */
+  static formatDate(date: Date | string): string {
+    return DateUtils.toApiFormat(date);
+  }
+
+  /**
+   * Parse an API date (MM-DD-YYYY) into parts
+   */
+  static parseDateParts(apiDate: string): { month: string; day: string; year: string } {
+    const match = apiDate.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+    if (!match) {
+      const d = DateUtils.parse(apiDate);
+      if (!d) return { month: '01', day: '01', year: '1970' };
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const year = String(d.getFullYear());
+      return { month, day, year };
+    }
+    const [, m, d, y] = match;
+    return { month: m.padStart(2, '0'), day: d.padStart(2, '0'), year: y };
   }
 
   /**

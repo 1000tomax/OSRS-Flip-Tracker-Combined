@@ -51,7 +51,7 @@ export default function GuestProfitVelocity({ guestData, showMethodologyHint = f
           if (!isNaN(buyTime.getTime()) && !isNaN(sellTime.getTime())) {
             const durationMinutes = (sellTime - buyTime) / (1000 * 60);
 
-            if (durationMinutes > 0 && durationMinutes < 10080) {
+            if (durationMinutes > 0 && durationMinutes < TIME.MINUTES_PER_WEEK) {
               // Cap at 1 week
               totalDurationMinutes += durationMinutes;
               flipsWithDuration += 1;
@@ -89,7 +89,7 @@ export default function GuestProfitVelocity({ guestData, showMethodologyHint = f
         let gpPerHour = 0;
         if (day.flipsWithDuration > 0 && day.totalDurationMinutes > 0) {
           // Divide by 8 to estimate active trading time (accounting for parallel GE slots)
-          const estimatedActiveMinutes = day.totalDurationMinutes / 8;
+          const estimatedActiveMinutes = day.totalDurationMinutes / TRADING.PARALLEL_SLOTS;
           gpPerHour = (day.totalProfit / estimatedActiveMinutes) * 60;
         }
 
@@ -271,3 +271,4 @@ export default function GuestProfitVelocity({ guestData, showMethodologyHint = f
     </>
   );
 }
+import { TIME, TRADING } from '@/config/constants';

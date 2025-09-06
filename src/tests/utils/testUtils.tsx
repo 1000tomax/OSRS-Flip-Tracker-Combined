@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ReactElement } from 'react';
-import { render, RenderOptions, RenderResult } from '@testing-library/react';
+import { render, RenderOptions, RenderResult, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { FlipData, ItemStats, DailySummary } from '../../types';
 
@@ -15,60 +15,65 @@ const AllProviders: React.FC<AllProvidersProps> = ({ children }) => {
 };
 
 // Custom render function
-interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+interface CustomRenderOptions extends RenderOptions {
   initialEntries?: string[];
 }
 
 const customRender = (ui: ReactElement, options: CustomRenderOptions = {}): RenderResult => {
-  const { ...renderOptions } = options;
+  const { wrapper, ...renderOptions } = options;
+  const DefaultWrapper: React.FC<AllProvidersProps> = ({ children }) => (
+    <AllProviders>{children}</AllProviders>
+  );
+  const FinalWrapper = wrapper ?? DefaultWrapper;
 
-  return render(ui, {
-    wrapper: ({ children }) => <AllProviders>{children}</AllProviders>,
-    ...renderOptions,
-  });
+  return render(ui, { wrapper: FinalWrapper as React.ComponentType, ...renderOptions });
 };
 
 // Mock data factories
-export const createMockFlipData = (overrides: Partial<FlipData> = {}): FlipData => ({
-  id: 'test-flip-1',
-  item_name: 'Dragon bones',
-  buy_price: 1000,
-  sell_price: 1200,
-  quantity: 100,
-  profit: 200,
-  roi_percent: 20,
-  opened_time: '2024-01-15T10:00:00Z',
-  closed_time: '2024-01-15T11:00:00Z',
-  status: 'FINISHED',
-  spent: 100000,
-  received_post_tax: 120000,
-  closed_quantity: 100,
-  ...overrides,
-});
+export const createMockFlipData = (overrides: Partial<FlipData> = {}): FlipData =>
+  ({
+    id: 'test-flip-1',
+    item_name: 'Dragon bones',
+    buy_price: 1000,
+    sell_price: 1200,
+    quantity: 100,
+    profit: 200,
+    roi_percent: 20,
+    opened_time: '2024-01-15T10:00:00Z',
+    closed_time: '2024-01-15T11:00:00Z',
+    // Additional fields used by tests
+    status: 'FINISHED',
+    spent: 100000,
+    received_post_tax: 120000,
+    closed_quantity: 100,
+    ...overrides,
+  } as unknown as FlipData);
 
-export const createMockItemStats = (overrides: Partial<ItemStats> = {}): ItemStats => ({
-  item_name: 'Dragon bones',
-  flips: 50,
-  total_profit: 10000,
-  total_spent: 50000,
-  roi_percent: 20,
-  avg_profit_per_flip: 200,
-  last_flipped: '2024-01-15',
-  ...overrides,
-});
+export const createMockItemStats = (overrides: Partial<ItemStats> = {}): ItemStats =>
+  ({
+    item_name: 'Dragon bones',
+    flips: 50,
+    total_profit: 10000,
+    total_spent: 50000,
+    roi_percent: 20,
+    avg_profit_per_flip: 200,
+    last_flipped: '2024-01-15',
+    ...overrides,
+  } as unknown as ItemStats);
 
-export const createMockDailySummary = (overrides: Partial<DailySummary> = {}): DailySummary => ({
-  date: '2024-01-15',
-  flips: 25,
-  total_profit: 5000,
-  total_spent: 25000,
-  roi_percent: 20,
-  top_items: [
-    { item_name: 'Dragon bones', profit: 2000 },
-    { item_name: 'Shark', profit: 1500 },
-  ],
-  ...overrides,
-});
+export const createMockDailySummary = (overrides: Partial<DailySummary> = {}): DailySummary =>
+  ({
+    date: '2024-01-15',
+    flips: 25,
+    total_profit: 5000,
+    total_spent: 25000,
+    roi_percent: 20,
+    top_items: [
+      { item_name: 'Dragon bones', profit: 2000 },
+      { item_name: 'Shark', profit: 1500 },
+    ],
+    ...overrides,
+  } as unknown as DailySummary);
 
 // Mock CSV data
 export const mockCsvData = [
@@ -99,10 +104,9 @@ export const mockFetchError = (error: string = 'Network error') => {
 
 // Utility functions for testing
 export const waitForLoadingToFinish = async () => {
-  const { findByText } = await import('@testing-library/react');
   try {
-    await findByText(/loading/i, {}, { timeout: 100 });
-    await findByText(/loading/i, {}, { timeout: 100 }).then(() => {
+    await screen.findByText(/loading/i, {}, { timeout: 100 });
+    await screen.findByText(/loading/i, {}, { timeout: 100 }).then(() => {
       throw new Error('Still loading');
     });
   } catch {

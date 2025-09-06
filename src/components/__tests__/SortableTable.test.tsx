@@ -22,7 +22,7 @@ const mockColumns = [
   {
     key: 'score',
     label: 'Score',
-    render: (value: number) => `${value.toFixed(1)}%`,
+    render: (value: number | undefined) => (typeof value === 'number' ? `${value.toFixed(1)}%` : '-'),
   },
 ];
 
@@ -95,13 +95,13 @@ describe('SortableTable', () => {
     const nameHeader = screen.getByText('Name').closest('th');
     nameHeader?.focus();
 
-    // Press Enter to sort
+    // Press Enter to sort (first sort sets desc by default)
     fireEvent.keyDown(nameHeader!, { key: 'Enter', code: 'Enter' });
-    expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
+    expect(nameHeader).toHaveAttribute('aria-sort', 'descending');
 
     // Press Space to sort
     fireEvent.keyDown(nameHeader!, { key: ' ', code: 'Space' });
-    expect(nameHeader).toHaveAttribute('aria-sort', 'descending');
+    expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
   });
 
   it('should handle empty data', () => {
@@ -112,9 +112,9 @@ describe('SortableTable', () => {
     expect(screen.getByText('Age')).toBeInTheDocument();
     expect(screen.getByText('Score')).toBeInTheDocument();
 
-    // No data rows
+    // Expect header row + 'No data available' row
     const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(1); // Only header row
+    expect(rows).toHaveLength(2);
   });
 
   it('should handle missing data fields gracefully', () => {
@@ -194,10 +194,11 @@ describe('SortableTable', () => {
 
     // After clicking once
     fireEvent.click(nameHeader!);
-    expect(nameHeader).toHaveAttribute('aria-label', 'Sort by Name descending');
+    // After first click current sort is desc, label shows next action
+    expect(nameHeader).toHaveAttribute('aria-label', 'Sort by Name ascending');
 
     // After clicking twice
     fireEvent.click(nameHeader!);
-    expect(nameHeader).toHaveAttribute('aria-label', 'Sort by Name ascending');
+    expect(nameHeader).toHaveAttribute('aria-label', 'Sort by Name descending');
   });
 });

@@ -114,8 +114,8 @@ export default function GuestWinRateChart({ guestData }) {
             <YAxis
               stroke="#9CA3AF"
               domain={[
-                dataMin => Math.max(0, Math.floor(dataMin * 0.9)), // 10% below min, but not below 0
-                dataMax => Math.min(100, Math.ceil(dataMax * 1.1)), // 10% above max, but not above 100
+                dataMin => Math.max(0, Math.floor(dataMin * CHART.Y_PAD_MIN_MULT)),
+                dataMax => Math.min(100, Math.ceil(dataMax * CHART.Y_PAD_TOP_MULT)),
               ]}
               tickFormatter={value => `${value}%`}
               label={{
@@ -245,3 +245,4 @@ export default function GuestWinRateChart({ guestData }) {
     </>
   );
 }
+import { CHART } from '@/config/constants';

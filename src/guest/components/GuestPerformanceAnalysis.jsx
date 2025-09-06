@@ -11,13 +11,15 @@ function MethodologyModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div
+    <button
+      type="button"
+      aria-label="Close"
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
         className="bg-gray-800 border border-gray-600 rounded-xl p-6 max-w-2xl max-h-[80vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-start mb-4">
           <h2 className="text-xl font-bold text-white">GP/Hour Calculation Methodology</h2>
@@ -153,7 +155,7 @@ function MethodologyModal({ isOpen, onClose }) {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 

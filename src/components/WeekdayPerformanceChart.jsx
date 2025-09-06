@@ -35,6 +35,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import useDailySummaries from '../hooks/useDailySummaries';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatGP } from '../utils/formatUtils';
+import { ANALYTICS } from '@/config/constants';
 import { exportToImage, generateImageFilename } from '../lib/imageExport';
 import { toast } from 'sonner';
 
@@ -64,7 +65,7 @@ export default function WeekdayPerformanceChart() {
   const weekdayStats = {};
 
   summaries
-    .filter(day => day.day >= 8) // Exclude first week (days 1-7) to avoid early outliers
+    .filter(day => day.day >= ANALYTICS.ROI_EXCLUSION_DAYS) // Exclude first week (days 1-7)
     .forEach(day => {
       // Parse date and get day of week
       const [mm, dd, yyyy] = day.date.split('-');

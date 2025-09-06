@@ -21,6 +21,7 @@
 
 import React, { useMemo } from 'react';
 import { formatGP } from '../utils/formatUtils';
+import { HEATMAP } from '@/config/constants';
 
 /**
  * HeatMap Component - Shows hourly trading activity for a specific day
@@ -92,9 +93,9 @@ export default function HeatMap({ flips }) {
       // Intensity based on profit amount (higher profit = more intense)
       const profitIntensity = maxProfit > 0 ? Math.abs(bucket.profit) / maxProfit : 0;
 
-      // Combine both metrics, weighing flip count slightly higher (0.7 factor)
+      // Combine both metrics, weighing flip count slightly higher
       // This means busy hours are emphasized more than just profitable hours
-      bucket.intensity = Math.max(flipIntensity, profitIntensity * 0.7);
+      bucket.intensity = Math.max(flipIntensity, profitIntensity * HEATMAP.PROFIT_WEIGHT);
     });
 
     return hourlyBuckets;
@@ -132,7 +133,7 @@ export default function HeatMap({ flips }) {
               }`}
               style={{
                 height: `${height}%`,
-                opacity: intensity > 0 ? Math.max(0.3, intensity) : 0.2,
+                opacity: intensity > 0 ? Math.max(HEATMAP.MIN_OPACITY, intensity) : HEATMAP.EMPTY_OPACITY,
               }}
             >
               {/* Custom tooltip */}

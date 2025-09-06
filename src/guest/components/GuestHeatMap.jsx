@@ -274,7 +274,8 @@ export default function GuestHeatMap({ guestData, onCellClick = null }) {
               {Array.from({ length: 24 }, (_, hour) => {
                 const cellData = getCellData(day, hour);
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={`${day}-${hour}`}
                     className={`h-7 ${cellData.color} rounded-sm relative group cursor-pointer transition-all duration-200 hover:ring-1 hover:ring-green-400 hover:z-10 ${
                       onCellClick && cellData.cell?.transactions > 0
@@ -287,18 +288,7 @@ export default function GuestHeatMap({ guestData, onCellClick = null }) {
                         onCellClick({ day, hour, dayName, formattedHour: formatHour(hour) });
                       }
                     }}
-                    onKeyDown={e => {
-                      if (
-                        (e.key === 'Enter' || e.key === ' ') &&
-                        onCellClick &&
-                        cellData.cell?.transactions > 0
-                      ) {
-                        e.preventDefault();
-                        onCellClick({ day, hour, dayName, formattedHour: formatHour(hour) });
-                      }
-                    }}
-                    role={onCellClick && cellData.cell?.transactions > 0 ? 'button' : undefined}
-                    tabIndex={onCellClick && cellData.cell?.transactions > 0 ? 0 : undefined}
+                    disabled={!onCellClick || !(cellData.cell?.transactions > 0)}
                   >
                     {/* Detailed tooltip */}
                     {cellData.cell && cellData.value !== 0 && (
@@ -330,7 +320,7 @@ export default function GuestHeatMap({ guestData, onCellClick = null }) {
                         )}
                       </div>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>

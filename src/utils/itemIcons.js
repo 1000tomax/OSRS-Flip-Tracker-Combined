@@ -75,7 +75,7 @@ function formatItemNameForWiki(itemName) {
   }
   
   // Trim and handle basic formatting
-  let formattedName = itemName.trim();
+  const formattedName = itemName.trim();
   
   // Standard formatting: replace spaces with underscores and encode special chars
   // Note: The Wiki uses underscores for spaces and URL encoding for special characters

@@ -13,6 +13,8 @@ interface PageViewEvent {
   page_path: string;
 }
 
+type WebVitalMetric = { value: number };
+
 class Analytics {
   private isEnabled: boolean;
   private isDevelopment: boolean;
@@ -56,7 +58,7 @@ class Analytics {
   // Track trading-specific events
   trackTradingEvent(
     action: 'flip_viewed' | 'strategy_compared' | 'chart_interacted',
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): void {
     this.trackEvent({
       category: 'Trading',
@@ -76,7 +78,10 @@ class Analytics {
   }
 
   // Track performance metrics
-  trackPerformance(metric: 'load_time' | 'chart_render' | 'data_fetch', value: number): void {
+  trackPerformance(
+    metric: 'load_time' | 'chart_render' | 'data_fetch' | 'lcp' | 'fid' | 'cls',
+    value: number
+  ): void {
     this.trackEvent({
       category: 'Performance',
       action: metric,
@@ -93,7 +98,7 @@ class Analytics {
     });
   }
 
-  private sendEvent(eventName: string, parameters: Record<string, any>): void {
+  private sendEvent(eventName: string, parameters: Record<string, unknown>): void {
     // This is where you'd integrate with your analytics provider
     // Examples: Google Analytics 4, Plausible, Mixpanel, etc.
 
@@ -132,7 +137,7 @@ class Analytics {
       // Largest Contentful Paint
       if ('getLCP' in window) {
         // @ts-ignore
-        window.getLCP((metric: any) => {
+        window.getLCP((metric: WebVitalMetric) => {
           this.trackPerformance('lcp', metric.value);
         });
       }
@@ -140,7 +145,7 @@ class Analytics {
       // First Input Delay
       if ('getFID' in window) {
         // @ts-ignore
-        window.getFID((metric: any) => {
+        window.getFID((metric: WebVitalMetric) => {
           this.trackPerformance('fid', metric.value);
         });
       }
@@ -148,7 +153,7 @@ class Analytics {
       // Cumulative Layout Shift
       if ('getCLS' in window) {
         // @ts-ignore
-        window.getCLS((metric: any) => {
+        window.getCLS((metric: WebVitalMetric) => {
           this.trackPerformance('cls', metric.value * 1000); // Convert to ms
         });
       }

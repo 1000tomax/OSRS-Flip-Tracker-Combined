@@ -144,27 +144,36 @@ class CacheWarmingManager {
    * Process a batch of warming tasks
    */
   private async processTasks(tasks: WarmingTask[]): Promise<void> {
-    // Sort by priority and dependencies
-    const sortedTasks = this.sortTasksByPriority(tasks);
+    // Sort by priority and then process in rounds to respect dependencies.
+    const queue = this.sortTasksByPriority([...tasks]);
+    const CONCURRENCY = 4;
 
-    for (const task of sortedTasks) {
-      if (this.completedTasks.has(task.cacheKey)) {
-        continue; // Skip already completed tasks
+    while (queue.length > 0) {
+      // Select all tasks whose dependencies are satisfied and not completed.
+      const ready: WarmingTask[] = [];
+      for (const task of queue) {
+        if (this.completedTasks.has(task.cacheKey)) continue;
+        const depsOk = !task.dependencies || task.dependencies.every(dep => this.completedTasks.has(dep));
+        if (depsOk) ready.push(task);
       }
 
-      // Wait for dependencies
-      if (task.dependencies) {
-        const dependenciesReady = task.dependencies.every(dep => 
-          this.completedTasks.has(dep)
-        );
-        
-        if (!dependenciesReady) {
-          logger.debug(`Skipping ${task.cacheKey} - dependencies not ready`);
-          continue;
-        }
+      if (ready.length === 0) {
+        // Nothing can run due to unmet deps; break to avoid infinite loop.
+        logger.debug('No ready warming tasks found (dependencies unmet). Stopping batch.');
+        break;
       }
 
-      await this.executeWarmingTask(task);
+      // Remove ready tasks from queue
+      for (const task of ready) {
+        const idx = queue.indexOf(task);
+        if (idx !== -1) queue.splice(idx, 1);
+      }
+
+      // Run ready tasks in chunks to bound concurrency
+      for (let i = 0; i < ready.length; i += CONCURRENCY) {
+        const chunk = ready.slice(i, i + CONCURRENCY);
+        await Promise.allSettled(chunk.map(t => this.executeWarmingTask(t)));
+      }
     }
   }
 

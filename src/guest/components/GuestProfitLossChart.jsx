@@ -461,12 +461,12 @@ export default function GuestProfitLossChart({ guestData }) {
               stroke="#9CA3AF"
               tickFormatter={value => formatGP(value)}
               domain={[
-                dataMin => Math.min(dataMin * 1.1, -maxValue * 0.1),
-                dataMax => Math.max(dataMax * 1.1, maxValue * 0.1)
+                dataMin => Math.min(dataMin * CHART.Y_PAD_TOP_MULT, -maxValue * CHART.Y_PAD_BOTTOM_MULT),
+                dataMax => Math.max(dataMax * CHART.Y_PAD_TOP_MULT, maxValue * CHART.Y_PAD_BOTTOM_MULT)
               ]}
               label={{
-                value: selectedDay 
-                  ? `${intervalMinutes < 60 ? intervalMinutes + ' min' : intervalMinutes/60 + ' hr'} P&L` 
+                value: selectedDay
+                  ? `${intervalMinutes < 60 ? `${intervalMinutes} min` : `${intervalMinutes / 60} hr`} P&L`
                   : 'Daily P&L',
                 angle: -90,
                 position: 'insideLeft',
@@ -697,3 +697,4 @@ export default function GuestProfitLossChart({ guestData }) {
     </>
   );
 }
+import { CHART } from '@/config/constants';

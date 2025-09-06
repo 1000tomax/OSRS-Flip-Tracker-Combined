@@ -1,6 +1,7 @@
 // src/components/ErrorBoundary.jsx - Comprehensive error boundary system
 import React from 'react';
 import logger from '../utils/logger';
+import * as Sentry from '@sentry/react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,7 +14,7 @@ class ErrorBoundary extends React.Component {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     // Update state so the next render will show the fallback UI
     return {
       hasError: true,
@@ -36,10 +37,9 @@ class ErrorBoundary extends React.Component {
       errorInfo,
     });
 
-    // Report to error tracking service in production
-    if (import.meta.env.PROD) {
-      // TODO: Send to error tracking service (Sentry, Bugsnag, etc.)
-      // errorTracker.captureException(error, { extra: errorInfo })
+    // Report to Sentry in production if configured
+    if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
     }
   }
 

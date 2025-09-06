@@ -62,9 +62,6 @@ function arrayToCSV(data) {
 // Export function - creates a ZIP with both JSON and CSV data
 async function exportGuestData(guestData) {
   try {
-    // Import the analytics at function level since this is outside the component
-    const { guestAnalytics } = await import('../../utils/guestAnalytics');
-
     Sentry.addBreadcrumb({
       category: 'action',
       message: 'Export started',

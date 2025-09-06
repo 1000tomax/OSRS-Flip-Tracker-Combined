@@ -1,5 +1,6 @@
 // src/utils/formatUtils.ts - Centralized formatting utilities
 // Removed import - types are defined inline
+import type { FormFieldValue } from '@/types';
 
 /**
  * Comprehensive formatting utilities for numbers, currency, and text
@@ -311,10 +312,10 @@ export class FormatUtils {
     if (!includeColor) return formatted;
 
     // Return object with formatted text and color class
-    let colorClass = '';
-    if (winRate >= 70) colorClass = 'text-green-400';
-    else if (winRate >= 50) colorClass = 'text-yellow-400';
-    else colorClass = 'text-red-400';
+    let _colorClass = '';
+    if (winRate >= 70) _colorClass = 'text-green-400';
+    else if (winRate >= 50) _colorClass = 'text-yellow-400';
+    else _colorClass = 'text-red-400';
 
     return formatted; // In actual usage, you'd return { text: formatted, colorClass }
   }

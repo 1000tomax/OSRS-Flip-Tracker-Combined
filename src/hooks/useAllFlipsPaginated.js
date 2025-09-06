@@ -5,6 +5,7 @@ import { useJsonData } from './useJsonData';
 import Papa from 'papaparse';
 import { DateUtils } from '../utils/dateUtils';
 import logger from '../utils/logger';
+import UI from '@/config/constants';
 
 const FLIPS_PER_PAGE = 50; // Load 50 days worth of data at a time
 const MAX_CONCURRENT_REQUESTS = 10; // Limit concurrent requests
@@ -15,16 +16,8 @@ async function fetchFlipsBatch(dates, startIndex = 0, limit = FLIPS_PER_PAGE) {
   const endIndex = Math.min(startIndex + limit, dates.length);
   const batch = dates.slice(startIndex, endIndex);
 
-  // Process in smaller chunks to prevent browser overload
-  const chunks = [];
-  for (let i = 0; i < batch.length; i += MAX_CONCURRENT_REQUESTS) {
-    chunks.push(batch.slice(i, i + MAX_CONCURRENT_REQUESTS));
-  }
-
-  const allResults = [];
-
-  for (const chunk of chunks) {
-    const fetchPromises = chunk.map(async date => {
+  // Create tasks for each date and run with bounded concurrency
+  const tasks = batch.map(date => async () => {
       const [month, day, year] = date.split('-');
       const filePath = `/data/processed-flips/${year}/${month}/${day}/flips.csv`;
 
@@ -74,11 +67,23 @@ async function fetchFlipsBatch(dates, startIndex = 0, limit = FLIPS_PER_PAGE) {
       }
     });
 
-    const chunkResults = await Promise.all(fetchPromises);
-    allResults.push(...chunkResults);
-  }
+  // Run tasks with a concurrency pool
+  const runPool = async (taskFns, limit) => {
+    const out = [];
+    let i = 0;
+    const worker = async () => {
+      while (i < taskFns.length) {
+        const fn = taskFns[i++];
+        // eslint-disable-next-line no-await-in-loop
+        const res = await fn();
+        out.push(res);
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(limit, taskFns.length) }, worker));
+    return out.flat();
+  };
 
-  const flatData = allResults.flat();
+  const flatData = await runPool(tasks, MAX_CONCURRENT_REQUESTS);
   const hasMore = endIndex < dates.length;
 
   logger.debug(
@@ -153,12 +158,12 @@ export function useAllFlipsPaginated(options = {}) {
   // Auto-load more data if enabled and we're near the end
   React.useEffect(() => {
     if (autoLoadMore && batchData?.hasMore && !batchLoading) {
-      // Auto-load when we have less than 200 flips remaining
-      if (allLoadedData.length > 0 && allLoadedData.length < 200) {
+      // Auto-load when we have less than the configured threshold remaining
+      if (allLoadedData.length > 0 && allLoadedData.length < UI.AUTOLOAD_FLIPS_THRESHOLD) {
         loadMore();
       }
     }
-  }, [autoLoadMore, batchData, batchLoading, allLoadedData.length]);
+  }, [autoLoadMore, batchData, batchLoading, allLoadedData.length, loadMore]);
 
   const loadMore = React.useCallback(() => {
     if (batchData?.hasMore && !batchLoading) {

@@ -6,6 +6,7 @@ import ProcessingStatus from '../components/ProcessingStatus';
 import { guestAnalytics } from '../../utils/guestAnalytics';
 import { checkUploadedItemIcons } from '../utils/iconChecker';
 import * as Sentry from '@sentry/react';
+import { toast } from 'sonner';
 
 export default function GuestUploadPage() {
   const [step, setStep] = useState('upload'); // 'upload' | 'processing' | 'complete'
@@ -38,11 +39,11 @@ export default function GuestUploadPage() {
         const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1);
         
         guestAnalytics.uploadFailed('file_too_large');
-        window.alert(
+        toast.error(
           `File too large: ${fileSizeMB}MB\n` +
-          `Maximum allowed: ${maxSizeMB}MB\n\n` +
-          `Your file has ${Math.round(file.size / 112).toLocaleString()} estimated rows.\n` +
-          `Try exporting a shorter date range (3-6 months) from Flipping Copilot.`
+            `Maximum allowed: ${maxSizeMB}MB\n\n` +
+            `Your file has ${Math.round(file.size / 112).toLocaleString()} estimated rows.\n` +
+            `Try exporting a shorter date range (3-6 months) from Flipping Copilot.`
         );
         return;
       }
@@ -50,7 +51,7 @@ export default function GuestUploadPage() {
       // VALIDATION 2: File type check
       if (!file.name.toLowerCase().endsWith('.csv')) {
         guestAnalytics.uploadFailed('invalid_file_type');
-        window.alert('Please upload a .csv file from Flipping Copilot');
+        toast.error('Please upload a .csv file from Flipping Copilot');
         return;
       }
 
@@ -61,9 +62,9 @@ export default function GuestUploadPage() {
       
       if (!sampleLower.includes('first buy time') || !sampleLower.includes('last sell time')) {
         guestAnalytics.uploadFailed('not_copilot_csv');
-        window.alert(
-          'This doesn\'t appear to be a Flipping Copilot export.\n\n' +
-          'Make sure you\'re uploading the flips.csv file from the plugin.'
+        toast.error(
+          "This doesn't appear to be a Flipping Copilot export.\n\n" +
+            "Make sure you're uploading the flips.csv file from the plugin."
         );
         return;
       }
@@ -278,7 +279,7 @@ export default function GuestUploadPage() {
 
           guestAnalytics.uploadFailed('worker_error');
 
-          window.alert(`Processing failed: ${e.data.message}`);
+          toast.error(`Processing failed: ${e.data.message}`);
           setStep('upload');
           worker.terminate();
           return;
@@ -302,8 +303,7 @@ export default function GuestUploadPage() {
         });
 
         guestAnalytics.uploadFailed('worker_error');
-        // eslint-disable-next-line no-alert
-        window.alert(`Processing error: ${error.message}`);
+        toast.error(`Processing error: ${error.message}`);
         setStep('upload');
         worker.terminate();
       };
@@ -327,8 +327,7 @@ export default function GuestUploadPage() {
 
         guestAnalytics.uploadFailed('message_error');
         console.error('Worker message error:', event);
-        // eslint-disable-next-line no-alert
-        window.alert('An error occurred while processing. Please try again.');
+        toast.error('An error occurred while processing. Please try again.');
         setStep('upload');
         worker.terminate();
       };
@@ -353,8 +352,7 @@ export default function GuestUploadPage() {
       guestAnalytics.uploadFailed(error.message || 'unknown_error');
       setStep('upload');
       console.error('Upload error:', error);
-      // eslint-disable-next-line no-alert
-      window.alert('An unexpected error occurred. Please try again.');
+      toast.error('An unexpected error occurred. Please try again.');
     }
   };
 

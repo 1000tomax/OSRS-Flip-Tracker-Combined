@@ -23,6 +23,19 @@ export default [
       'jest.config.js',
     ],
   },
+  // Node runtime files (API, server scripts)
+  {
+    files: ['api/**/*.{js,jsx,cjs,ts,tsx}', 'scripts/**/*.{js,cjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      // Server code can use process, console, etc.
+      'no-alert': 'off',
+    },
+  },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
@@ -57,6 +70,8 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
           ignoreRestSiblings: true,
         },
       ],
@@ -106,20 +121,14 @@ export default [
       ],
     },
   },
+  // Jest and test utilities (setup, mocks, helpers)
   {
-    files: ['**/*.{js,jsx}'],
-    rules: {
-      // Relax TypeScript rules for JS files
-      '@typescript-eslint/no-var-requires': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-    },
-  },
-  {
-    files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*'],
+    files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*', 'src/tests/**/*'],
     languageOptions: {
       globals: {
         ...globals.jest,
         ...globals.browser,
+        ...globals.node,
       },
     },
     rules: {
@@ -127,6 +136,15 @@ export default [
       'no-magic-numbers': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',
+      'no-undef': 'off',
+    },
+  },
+  {
+    files: ['**/*.{js,jsx}'],
+    rules: {
+      // Relax TypeScript rules for JS files
+      '@typescript-eslint/no-var-requires': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
   {

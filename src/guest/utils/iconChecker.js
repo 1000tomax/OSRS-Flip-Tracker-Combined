@@ -26,31 +26,24 @@ export async function checkUploadedItemIcons(items) {
   console.log(`Checking icons for ${uniqueItems.length} unique items from upload...`);
   
   const failedItems = [];
-  const batchSize = 20; // Process in batches to avoid overwhelming
-  
-  for (let i = 0; i < uniqueItems.length; i += batchSize) {
-    const batch = uniqueItems.slice(i, i + batchSize);
-    
-    // Check each item in the batch
-    await Promise.all(
-      batch.map(async (itemName) => {
-        try {
-          const url = await getValidatedIconUrl(itemName);
-          if (!url) {
-            failedItems.push(itemName);
-          }
-        } catch (error) {
-          console.error(`Error checking icon for ${itemName}:`, error);
-          failedItems.push(itemName);
-        }
-      })
-    );
-    
-    // Small delay between batches
-    if (i + batchSize < uniqueItems.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+  // Bounded concurrency pool to avoid overwhelming network
+  const CONCURRENCY = 10;
+  let index = 0;
+
+  const worker = async () => {
+    while (index < uniqueItems.length) {
+      const current = uniqueItems[index++];
+      try {
+        const url = await getValidatedIconUrl(current);
+        if (!url) failedItems.push(current);
+      } catch (error) {
+        console.error(`Error checking icon for ${current}:`, error);
+        failedItems.push(current);
+      }
     }
-  }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, uniqueItems.length) }, worker));
   
   // Report failed items if any
   if (failedItems.length > 0) {

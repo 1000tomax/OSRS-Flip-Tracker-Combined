@@ -40,12 +40,9 @@ export default function HeatMapCell({ day, hour, value, metric, color, onClick }
   };
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-    >
-      <div
+    <div className="relative">
+      <button
+        type="button"
         className={`
           w-full h-8 ${color} border border-gray-800 
           cursor-pointer transition-all duration-200
@@ -53,9 +50,13 @@ export default function HeatMapCell({ day, hour, value, metric, color, onClick }
           flex items-center justify-center
         `}
         onClick={() => onClick && onClick(day, hour)}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        onFocus={() => setShowTooltip(true)}
+        onBlur={() => setShowTooltip(false)}
       >
         <span className="text-xs text-gray-300 font-medium">{value > 0 ? formatValue() : ''}</span>
-      </div>
+      </button>
 
       {showTooltip && value > 0 && (
         <div

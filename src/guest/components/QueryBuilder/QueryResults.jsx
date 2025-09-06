@@ -1,7 +1,6 @@
 import { 
   formatGP, 
   formatNumber, 
-  formatPercent,
   formatItemName 
 } from '../../../utils/formatUtils';
 import SortableTable from '../../../components/SortableTable';
@@ -17,7 +16,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer
 } from 'recharts';
 

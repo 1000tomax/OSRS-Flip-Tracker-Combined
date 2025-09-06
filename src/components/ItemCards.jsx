@@ -65,9 +65,10 @@ function ItemCard({ item, columns, onClick }) {
   const title = item.item_name || item.name || 'Unknown Item';
 
   return (
-    <div
-      className={`bg-gray-800 border border-gray-600 rounded-xl p-4 hover:ring-2 hover:ring-yellow-500 transition duration-150 ${
-        onClick ? 'cursor-pointer' : '' // Only show pointer cursor if clickable
+    <button
+      type="button"
+      className={`text-left w-full bg-gray-800 border border-gray-600 rounded-xl p-4 hover:ring-2 hover:ring-yellow-500 transition duration-150 ${
+        onClick ? 'cursor-pointer' : ''
       }`}
       onClick={handleClick}
     >
@@ -96,7 +97,7 @@ function ItemCard({ item, columns, onClick }) {
           Last flipped: {item.last_flipped}
         </div>
       )}
-    </div>
+    </button>
   );
 }
 

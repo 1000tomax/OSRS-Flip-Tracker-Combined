@@ -5,6 +5,7 @@
  */
 
 import React, { useState } from 'react';
+import UI from '@/config/constants';
 import { reportFailedIcon } from '../utils/iconReporting';
 
 export default function ReportIconButton({ itemName, className = '' }) {
@@ -27,7 +28,7 @@ export default function ReportIconButton({ itemName, className = '' }) {
         // Show success feedback
         setTimeout(() => {
           setReported(false);
-        }, 5000);
+        }, UI.REPORT_FEEDBACK_MS);
       }
     } catch (error) {
       console.error('Error reporting icon:', error);

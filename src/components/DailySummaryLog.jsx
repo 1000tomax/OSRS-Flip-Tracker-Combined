@@ -5,6 +5,7 @@ import { useJsonData } from '../hooks/useJsonData';
 import { useETACalculator } from './ETACalculator';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatGP, DateUtils } from '../utils';
+import UI from '@/config/constants';
 import { isIncompleteDay } from '../lib/utils';
 
 function timeAgo(isoString) {
@@ -111,7 +112,7 @@ export default function DailySummaryLog() {
           backgroundColor: '#1f2937',
           scale: 2,
           width: 800,
-          height: totalRows * 35 + 200,
+          height: totalRows * UI.DAILY_SUMMARY_ROW_HEIGHT + UI.DAILY_SUMMARY_EXTRA_HEIGHT,
           logging: false,
           useCORS: true,
           allowTaint: true,

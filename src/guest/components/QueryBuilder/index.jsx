@@ -80,7 +80,7 @@ export function QueryBuilder({ data }) {
       setExplanation(null); // Clear AI explanation when manually executing
     } catch (error) {
       console.error('Query execution failed:', error);
-      setErrors(['Query execution failed: ' + error.message]);
+      setErrors([`Query execution failed: ${error.message}`]);
     }
   };
   

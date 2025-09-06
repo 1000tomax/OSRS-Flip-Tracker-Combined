@@ -8,11 +8,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { CacheUtils } from '../utils/cacheManager';
+import UI from '@/config/constants';
 
 const CacheMonitor = () => {
   const [stats, setStats] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [refreshInterval, setRefreshInterval] = useState(null);
+  // Interval handle kept locally; no need to store in state
 
   // Only show in development
   const isDev = import.meta.env.DEV;
@@ -29,8 +30,7 @@ const CacheMonitor = () => {
     updateStats();
 
     // Set up auto-refresh
-    const interval = setInterval(updateStats, 2000);
-    setRefreshInterval(interval);
+    const interval = setInterval(updateStats, UI.REFRESH_INTERVAL_MS);
 
     return () => {
       if (interval) clearInterval(interval);

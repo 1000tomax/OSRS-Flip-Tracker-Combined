@@ -30,47 +30,46 @@ export default function IconTest() {
     setTesting(true);
     const statuses = {};
     
-    // Test in batches to avoid overwhelming the server
-    const batchSize = 20;
-    for (let i = 0; i < items.length; i += batchSize) {
-      const batch = items.slice(i, i + batchSize);
-      
-      await Promise.all(
-        batch.map(async (item) => {
-          const itemName = item.item_name || item.item;
-          if (!itemName) return;
-          
-          // Get all possible URLs and test them
-          const { getPossibleIconUrls, preloadImage: testImage } = await import('../utils/itemIcons');
-          const possibleUrls = getPossibleIconUrls(itemName);
-          let workingUrl = null;
-          
-          for (const url of possibleUrls) {
-            const works = await testImage(url);
-            if (works) {
-              workingUrl = url;
-              break;
-            }
+    // Pool concurrency for faster checks without overwhelming
+    const CONCURRENCY = 20;
+    let idx = 0;
+
+    const { getPossibleIconUrls, preloadImage: testImage } = await import('../utils/itemIcons');
+
+    const worker = async () => {
+      while (idx < items.length) {
+        const current = items[idx++];
+        const itemName = current.item_name || current.item;
+        if (!itemName) continue;
+
+        const possibleUrls = getPossibleIconUrls(itemName);
+        // Test all candidate URLs concurrently and pick the first that works
+        const results = await Promise.allSettled(possibleUrls.map(url => testImage(url)));
+        let workingUrl = null;
+        for (let i = 0; i < results.length; i++) {
+          const r = results[i];
+          if (r.status === 'fulfilled' && r.value === true) {
+            workingUrl = possibleUrls[i];
+            break;
           }
-          
-          statuses[itemName] = {
-            url: workingUrl || possibleUrls[0],
-            works: !!workingUrl,
-            itemName,
-            tried: possibleUrls
-          };
-          
-          // Update state progressively
-          setIconStatuses(prev => ({
-            ...prev,
-            [itemName]: statuses[itemName]
-          }));
-        })
-      );
-      
-      // Small delay between batches
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
+        }
+
+        statuses[itemName] = {
+          url: workingUrl || possibleUrls[0],
+          works: !!workingUrl,
+          itemName,
+          tried: possibleUrls,
+        };
+
+        // Update state progressively
+        setIconStatuses(prev => ({
+          ...prev,
+          [itemName]: statuses[itemName],
+        }));
+      }
+    };
+
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, items.length) }, worker));
     
     setTesting(false);
   };

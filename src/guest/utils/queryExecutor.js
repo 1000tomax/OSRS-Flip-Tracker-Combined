@@ -116,17 +116,17 @@ function applyFilter(data, filter) {
 function getFieldValue(item, field) {
   // Handle computed fields
   switch(field) {
-    case 'profitVelocity':
+    case 'profitVelocity': {
       // Profit per hour held
       const hoursHeld = item.hoursHeld || 1;
       return (item.profit || 0) / hoursHeld;
-      
-    case 'marginPercent':
+    }
+    case 'marginPercent': {
       // Profit margin percentage
       const spent = item.spent || item.avgBuyPrice * item.quantity || 1;
       return ((item.profit || 0) / spent) * 100;
-      
-    case 'daysSinceFlip':
+    }
+    case 'daysSinceFlip': {
       // Days since this flip occurred
       if (!item.date) {
         return null;
@@ -135,20 +135,20 @@ function getFieldValue(item, field) {
       const now = new Date();
       const days = Math.floor((now - flipDate) / (1000 * 60 * 60 * 24));
       return days;
-      
-    case 'weekOfYear':
+    }
+    case 'weekOfYear': {
       // Week number of the year
       if (!item.date) return null;
       const date = new Date(item.date);
       const startOfYear = new Date(date.getFullYear(), 0, 1);
       const weekNumber = Math.ceil((((date - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7);
       return weekNumber;
-      
-    case 'profitPerItem':
+    }
+    case 'profitPerItem': {
       // Average profit per item
       const quantity = item.quantity || 1;
       return (item.profit || 0) / quantity;
-      
+    }
     case 'totalValue':
       // Total value of the transaction
       return (item.avgSellPrice || 0) * (item.quantity || 0);
@@ -178,7 +178,7 @@ function groupBy(data, field) {
     totalQuantity: items.reduce((sum, item) => sum + (item.quantity || 0), 0),
     avgProfit: items.reduce((sum, item) => sum + (item.profit || 0), 0) / items.length,
     avgROI: items.reduce((sum, item) => sum + (item.roi || 0), 0) / items.length,
-    items: items
+    items
   }));
 }
 
@@ -222,7 +222,7 @@ export function validateQueryConfig(config) {
 }
 
 // Get available fields - all fields are always available
-export function getAvailableFields(data) {
+export function getAvailableFields(_data) {
   return [
     // Core fields
     { name: 'item', type: 'string', label: 'Item Name' },

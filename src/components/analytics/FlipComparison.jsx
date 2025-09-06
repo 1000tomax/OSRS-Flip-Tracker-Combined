@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatGP } from '../../utils/formatUtils';
+import { ANALYTICS } from '@/config/constants';
 
 export default function FlipComparison({ fastFlips, slowFlips }) {
   const ComparisonCard = ({ title, data, color }) => {
@@ -47,8 +48,10 @@ export default function FlipComparison({ fastFlips, slowFlips }) {
   const getWinner = () => {
     if (!fastFlips || !slowFlips) return null;
 
-    const fastScore = parseFloat(fastFlips.avgRoi) + fastFlips.avgGpPerHour / 10000;
-    const slowScore = parseFloat(slowFlips.avgRoi) + slowFlips.avgGpPerHour / 10000;
+    const fastScore =
+      parseFloat(fastFlips.avgRoi) + fastFlips.avgGpPerHour / ANALYTICS.GP_PER_HOUR_NORMALIZER;
+    const slowScore =
+      parseFloat(slowFlips.avgRoi) + slowFlips.avgGpPerHour / ANALYTICS.GP_PER_HOUR_NORMALIZER;
 
     if (fastScore > slowScore) {
       return {

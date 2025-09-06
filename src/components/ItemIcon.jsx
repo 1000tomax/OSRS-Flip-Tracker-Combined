@@ -91,7 +91,7 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
     return () => {
       cancelled = true;
     };
-  }, [itemName, isVisible]);
+  }, [itemName, isVisible, onError]);
 
   // Don't render anything if there's an error or no item name
   if (!itemName || error) return null;

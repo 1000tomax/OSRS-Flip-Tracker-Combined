@@ -5,11 +5,12 @@
 
 // Removed import - types are defined inline
 
-const isDevelopment =
-  import.meta.env.DEV ||
-  (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development');
+const nodeEnv = (
+  (globalThis as unknown as { process?: { env?: { NODE_ENV?: string } } }).process?.env?.NODE_ENV
+);
+const isDevelopment = import.meta.env.DEV || nodeEnv === 'development';
 
-type LogFunction = (...args: any[]) => void;
+type LogFunction = (...args: unknown[]) => void;
 
 interface Logger {
   debug: LogFunction;
@@ -25,35 +26,35 @@ interface Logger {
 }
 
 export const logger: Logger = {
-  debug: (...args: any[]): void => {
+  debug: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.log('[DEBUG]', ...args);
     }
   },
 
-  info: (...args: any[]): void => {
+  info: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.info('[INFO]', ...args);
     }
   },
 
-  warn: (...args: any[]): void => {
+  warn: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.warn('[WARN]', ...args);
     }
   },
 
-  error: (...args: any[]): void => {
+  error: (...args: unknown[]): void => {
     // Always log errors, even in production
     console.error('[ERROR]', ...args);
   },
 
   // For data processing scripts that should always log
   force: {
-    log: (...args: any[]): void => console.log(...args),
-    warn: (...args: any[]): void => console.warn(...args),
-    error: (...args: any[]): void => console.error(...args),
-    info: (...args: any[]): void => console.info(...args),
+    log: (...args: unknown[]): void => console.log(...args),
+    warn: (...args: unknown[]): void => console.warn(...args),
+    error: (...args: unknown[]): void => console.error(...args),
+    info: (...args: unknown[]): void => console.info(...args),
   },
 };
 

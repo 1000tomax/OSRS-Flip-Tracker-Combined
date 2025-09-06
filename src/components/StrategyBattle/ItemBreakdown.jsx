@@ -1,6 +1,6 @@
 // src/components/StrategyBattle/ItemBreakdown.jsx - Extracted component for item breakdown display
 import React, { useState } from 'react';
-import { formatGP, formatDuration } from '@/utils';
+import { formatGP } from '@/utils';
 
 /**
  * ItemBreakdown Component - Shows detailed breakdown of items contributing to strategy performance
@@ -38,9 +38,10 @@ export default function ItemBreakdown({ items, color, strategyName }) {
 
   return (
     <div className={`${styles.bg} ${styles.border} border rounded-lg`}>
-      <div className={`${styles.hover} cursor-pointer transition-colors`}>
-        <div
-          className="flex justify-between items-center p-3"
+      <div className={`${styles.hover} transition-colors`}>
+        <button
+          type="button"
+          className="flex justify-between items-center p-3 w-full text-left cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <h4 className={`font-semibold ${styles.text}`}>
@@ -50,7 +51,7 @@ export default function ItemBreakdown({ items, color, strategyName }) {
             <span className={`text-sm ${styles.text}`}>{formatGP(totalProfit)} total</span>
             <span className={`text-sm ${styles.text}`}>{isExpanded ? '▼' : '▶'}</span>
           </div>
-        </div>
+        </button>
       </div>
 
       <div className="space-y-2 p-3 pt-0">

@@ -163,7 +163,7 @@ Choose the most appropriate display type based on the query:
       const content = data.content[0].text;
       // Try to parse the content directly
       aiResponse = JSON.parse(content);
-    } catch (parseError) {
+    } catch (_parseError) {
       // If direct parsing fails, try to extract JSON from the text
       const content = data.content[0].text;
       const jsonMatch = content.match(/\{[\s\S]*\}/);

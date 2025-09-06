@@ -22,7 +22,7 @@ interface CacheConfig {
 }
 
 // Cache entry structure
-interface CacheEntry<T = any> {
+interface CacheEntry<T = unknown> {
   data: T;
   timestamp: number;
   ttl: number;
@@ -299,16 +299,16 @@ class CacheManager {
     logger.debug('IndexedDB cache initialized');
   }
 
-  private async getFromIndexedDB<T>(key: string): Promise<CacheEntry<T> | null> {
+  private async getFromIndexedDB<T>(_key: string): Promise<CacheEntry<T> | null> {
     // Placeholder for IndexedDB implementation
     return null;
   }
 
-  private async setInIndexedDB<T>(key: string, data: T, ttl: number): Promise<void> {
+  private async setInIndexedDB<T>(_key: string, _data: T, _ttl: number): Promise<void> {
     // Placeholder for IndexedDB implementation
   }
 
-  private async deleteFromIndexedDB(key: string): Promise<void> {
+  private async deleteFromIndexedDB(_key: string): Promise<void> {
     // Placeholder for IndexedDB implementation
   }
 
@@ -360,7 +360,7 @@ class CacheManager {
               keysToRemove.push(key);
             }
           }
-        } catch (error) {
+        } catch (_error) {
           keysToRemove.push(key);
         }
       }
@@ -377,7 +377,6 @@ class CacheManager {
   }
 
   private cleanup(): void {
-    const now = Date.now();
     const keysToDelete: string[] = [];
 
     // Cleanup memory cache
@@ -404,9 +403,9 @@ class CacheManager {
       .reduce((total, entry) => total + entry.size, 0);
   }
 
-  private estimateSize(data: any): number {
+  private estimateSize(data: unknown): number {
     try {
-      return new Blob([JSON.stringify(data)]).size;
+      return new Blob([JSON.stringify(data as unknown as Record<string, unknown>)]).size;
     } catch {
       return JSON.stringify(data).length * 2; // Rough estimate
     }
