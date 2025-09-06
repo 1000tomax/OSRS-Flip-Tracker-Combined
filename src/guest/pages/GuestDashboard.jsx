@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/react';
 import JSZip from 'jszip';
 import { formatGP } from '../../utils/formatUtils';
 import html2canvas from 'html2canvas-pro';
+import { ItemWithIcon } from '../../components/ItemIcon';
 import {
   LineChart,
   Line,
@@ -581,7 +582,17 @@ export default function GuestDashboard() {
   const allItems = guestData.itemStats;
   const filteredItems = filterItems(allItems, searchTerms);
   const itemTableColumns = [
-    { key: 'item', label: 'Item', sortable: true },
+    { 
+      key: 'item', 
+      label: 'Item', 
+      sortable: true,
+      render: value => (
+        <ItemWithIcon 
+          itemName={value} 
+          textClassName="text-white font-medium"
+        />
+      ),
+    },
     {
       key: 'totalProfit',
       label: 'Total Profit',

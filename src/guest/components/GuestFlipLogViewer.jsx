@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { formatGP } from '../../utils/formatUtils';
 import SortableTable from '../../components/SortableTable';
+import { ItemWithIcon } from '../../components/ItemIcon';
 
 // Helper function to format duration
 const formatDuration = milliseconds => {
@@ -113,7 +114,12 @@ export default function GuestFlipLogViewer({
       label: 'Item',
       headerClass: 'text-left',
       cellClass: 'text-left',
-      render: value => <span className="text-white font-medium">{value || 'Unknown Item'}</span>,
+      render: value => (
+        <ItemWithIcon 
+          itemName={value || 'Unknown Item'} 
+          textClassName="text-white font-medium"
+        />
+      ),
     },
     {
       key: 'account',

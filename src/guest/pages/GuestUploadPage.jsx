@@ -4,6 +4,7 @@ import { useGuestData } from '../contexts/GuestDataContext';
 import CsvDropzone from '../components/CsvDropzone';
 import ProcessingStatus from '../components/ProcessingStatus';
 import { guestAnalytics } from '../../utils/guestAnalytics';
+import { checkUploadedItemIcons } from '../utils/iconChecker';
 import * as Sentry from '@sentry/react';
 
 export default function GuestUploadPage() {
@@ -237,6 +238,11 @@ export default function GuestUploadPage() {
 
           setStep('complete');
           worker.terminate();
+          
+          // Check icons for uploaded items (async, don't block navigation)
+          checkUploadedItemIcons(itemStats).catch(error => {
+            console.error('Error checking icons:', error);
+          });
           
           // Navigate to guest dashboard
           // eslint-disable-next-line no-magic-numbers

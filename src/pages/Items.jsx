@@ -32,6 +32,7 @@ import { itemStatsColumns } from '../lib/columnConfigs.jsx';
 import SortableTable from '../components/SortableTable';
 import { formatPercent } from '../lib/utils';
 import { formatGP } from '../utils/formatUtils';
+import { ItemWithIcon } from '../components/ItemIcon';
 import {
   PageContainer,
   CardContainer,
@@ -121,14 +122,17 @@ export default function Items() {
    * Each column includes custom formatting and styling for optimal display.
    */
   const tableColumns = [
-    // Item Name - Truncated for long names with full name on hover
+    // Item Name - With icon and truncated for long names with full name on hover
     {
       key: 'item_name',
       label: 'Item Name',
       render: value => (
-        <span className="font-medium max-w-[200px] truncate" title={value}>
-          {value}
-        </span>
+        <div className="flex items-center gap-2 max-w-[200px]">
+          <ItemWithIcon 
+            itemName={value} 
+            textClassName="font-medium truncate"
+          />
+        </div>
       ),
     },
 

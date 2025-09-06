@@ -15,6 +15,8 @@ const Charts = lazy(() => import('./pages/Charts'));
 const StrategyBattle = lazy(() => import('./pages/StrategyBattle'));
 const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
 const QueryPage = lazy(() => import('./pages/QueryPage'));
+const IconTest = lazy(() => import('./pages/IconTest'));
+const TestDiscordReport = lazy(() => import('./pages/TestDiscordReport'));
 
 // Lazy load the entire guest mode - it's a separate "app"
 const GuestModeApp = lazy(() => import('./guest/GuestModeApp'));
@@ -52,6 +54,8 @@ function AppContent() {
             <Route path="/profit-velocity" element={<ProfitVelocity />} />
             <Route path="/heatmap" element={<TradingHeatMap />} />
             <Route path="/efficiency" element={<CapitalEfficiency />} />
+            <Route path="/icon-test" element={<IconTest />} />
+            <Route path="/test-discord" element={<TestDiscordReport />} />
 
             {/* Guest mode - completely separate, lazy loaded */}
             <Route

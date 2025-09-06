@@ -32,6 +32,7 @@ import HeatMap from '../components/HeatMap';
 import SortableTable from '../components/SortableTable';
 import { parseDateParts, formatDuration } from '../lib/utils';
 import { formatGP } from '../utils/formatUtils';
+import { ItemWithIcon } from '../components/ItemIcon';
 import {
   PageContainer,
   CardContainer,
@@ -114,7 +115,12 @@ export default function FlipLogs() {
       label: 'Item', // Column header text
       headerClass: 'text-left', // Header cell styling
       cellClass: 'text-left', // Data cell styling
-      render: value => <span className="text-white font-medium">{value || 'Unknown Item'}</span>,
+      render: value => (
+        <ItemWithIcon 
+          itemName={value || 'Unknown Item'} 
+          textClassName="text-white font-medium"
+        />
+      ),
     },
 
     // Quantity Column - Hidden on mobile to save space

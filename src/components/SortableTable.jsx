@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { ItemWithIcon } from './ItemIcon';
 
 export default function SortableTable({
   data,
@@ -138,15 +139,30 @@ export default function SortableTable({
                   index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-850'
                 } ${rowClassName}`}
               >
-                {columns.map(column => (
-                  <td
-                    key={column.key}
-                    role="cell"
-                    className={`px-4 py-3 text-sm ${column.cellClass || ''}`}
-                  >
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                  </td>
-                ))}
+                {columns.map(column => {
+                  // Check if this is an item column that should have an icon
+                  const isItemColumn = ['item', 'item_name', 'itemName'].includes(column.key);
+                  const value = row[column.key];
+                  
+                  return (
+                    <td
+                      key={column.key}
+                      role="cell"
+                      className={`px-4 py-3 text-sm ${column.cellClass || ''}`}
+                    >
+                      {column.render ? (
+                        column.render(row[column.key], row)
+                      ) : isItemColumn && value ? (
+                        <ItemWithIcon 
+                          itemName={value} 
+                          textClassName="text-white font-medium"
+                        />
+                      ) : (
+                        row[column.key]
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             ))
           ) : (
