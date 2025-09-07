@@ -30,9 +30,9 @@
     "process:summaries": "node data-processing/summaryBuilder.cjs",
     "process:items": "node data-processing/itemStats.cjs",
     "process:meta": "node data-processing/metaWriter.cjs",
-    "prebuild": "npm run build:data",
+    "prebuild": "node -e \"if(!process.env.RUN_DATA_BUILD){process.exit(0)}\" && npm run build:data",
     "prepare": "husky",
-    "qa": "npm run build",
+    "qa": "git fetch origin && git rebase --autostash origin/main || true && RUN_DATA_BUILD=1 npm run build",
     "qa:full": "npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {

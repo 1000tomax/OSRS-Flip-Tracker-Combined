@@ -62,6 +62,12 @@ if ! git diff --quiet --exit-code -- . ':(exclude)public/data' || \
   echo "⚠️  You have changes outside public/data. This script won't push them."
 fi
 
+# Ensure we're up-to-date before generating data (reduces post-build conflicts)
+set +e
+git fetch origin
+git rebase --autostash origin/$(git rev-parse --abbrev-ref HEAD)
+set -e
+
 # Locate flips.csv
 if [[ -z "${FLIPS_FILE:-}" ]]; then
   candidates=("$HOME/Documents/flips.csv")
@@ -150,7 +156,7 @@ if (( CHANGES )); then
     git fetch "$remote" || { echo "❌ Fetch failed"; KEEP_FLIPS=1; exit 1; }
 
     set +e
-    git rebase "$remote/$remote_branch"
+    git rebase --autostash "$remote/$remote_branch"
     rebase_rc=$?
     set -e
 
