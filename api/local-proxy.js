@@ -357,6 +357,131 @@ Choose the most appropriate display type based on the query:
   }
 });
 
+// AI Insights endpoint - generates concise analytics bullets from aggregates
+// (Disabled: remove or guard with a feature flag if needed)
+/* app.post('/api/insights', async (req, res) => {
+  try {
+    const apiKey = process.env.VITE_CLAUDE_API_KEY || process.env.CLAUDE_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Server configuration error', message: 'Claude API key not set' });
+    }
+
+    const { payload } = req.body || {};
+    if (!payload || typeof payload !== 'object') {
+      return res.status(400).json({ error: 'Invalid payload', message: 'Expected payload with aggregates' });
+    }
+
+    // Keep input compact: include only the key aggregates
+    // Build a compact payload and explicit whitelists to avoid hallucinations
+    const compact = {
+      range: payload.range,
+      totals: payload.totals,
+      prevTotals: payload.prevTotals,
+      topItems: Array.isArray(payload.topItems) ? payload.topItems.slice(0, 5) : [],
+      worstItems: Array.isArray(payload.worstItems) ? payload.worstItems.slice(0, 5) : [],
+      bestHours: Array.isArray(payload.bestHours) ? payload.bestHours.slice(0, 5) : [],
+      worstHours: Array.isArray(payload.worstHours) ? payload.worstHours.slice(0, 5) : [],
+      prevTopItems: Array.isArray(payload.prevTopItems) ? payload.prevTopItems.slice(0, 5) : [],
+      prevBestHours: Array.isArray(payload.prevBestHours) ? payload.prevBestHours.slice(0, 5) : [],
+      allowedItemNames: [
+        ...new Set(
+          [
+            ...(payload.topItems || []),
+            ...(payload.worstItems || []),
+            ...(payload.prevTopItems || []),
+          ]
+            .map(x => (x && x.name ? String(x.name) : null))
+            .filter(Boolean)
+        ),
+      ],
+    };
+
+    const instructions = `You are an analytics assistant for a trading journal.
+Return EXACTLY this JSON (no code fences, no extra text): {"bullets":["...","...","..."]}.
+Rules:
+- Be precise and concise; <= 20 words per bullet.
+- Explain changes between CURRENT and PREVIOUS periods using ONLY the provided aggregates.
+- Focus on mix vs performance (item composition vs ROI/WinRate changes) and time-of-day patterns.
+- Include clear numeric references.
+- DO NOT recommend items or actions. No speculation. No extra keys.
+- Only mention item names that appear in allowedItemNames. If none, avoid naming items.
+- Only mention hours that appear in bestHours/worstHours/prevBestHours. If none, avoid hour mentions.
+- If constraints prevent specifics, write generic but numeric bullets using totals and deltas.
+`;
+
+    const prompt = `${instructions}\n\nDATA:\n${JSON.stringify(compact)}`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 120,
+        temperature: 0,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('Insights API error:', text);
+      return res.status(502).json({ error: 'AI upstream error', message: `Status ${response.status}` });
+    }
+
+    const data = await response.json();
+    const usage = data.usage || null;
+    let bullets = [];
+
+    try {
+      const content = data.content?.[0]?.text || '';
+      if (content) {
+        console.log('Insights raw content:', content.slice(0, 500));
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(content);
+      } catch (_err) {
+        const match = content.match(/\{[\s\S]*\}/);
+        if (match) parsed = JSON.parse(match[0]);
+      }
+      bullets = Array.isArray(parsed?.bullets) ? parsed.bullets.slice(0, 3) : [];
+      // Fallback: extract up to 3 bullet-like lines from text
+      if ((!bullets || bullets.length === 0) && content) {
+        const lines = content
+          .split(/\r?\n/) // split lines
+          .map(s => s.trim().replace(/^[-•*\d.\)]\s*/, '')) // strip bullets/numbers
+          .filter(Boolean)
+          .slice(0, 3);
+        if (lines.length > 0) bullets = lines;
+      }
+    } catch (_e) {
+      console.warn('Failed to parse insights JSON');
+    }
+
+    if (bullets.length === 0) {
+      // Fallback formatting
+      bullets = ['No concise insights available for the selected range.', 'Try a different period or regenerate.', ''];
+    }
+
+    const cost = usage ? calculateCost(usage) : null;
+    if (usage) {
+      console.log(
+        `📊 Insights Token Usage: In ${usage.input_tokens}, Out ${usage.output_tokens}, Total ${usage.input_tokens + usage.output_tokens}`
+      );
+      if (cost) console.log(`💰 Estimated Cost: ${cost.formatted}`);
+    }
+
+    return res.status(200).json({ bullets, usage, cost });
+  } catch (_err) {
+    console.error('Insights endpoint error:', _err);
+    return res.status(500).json({ error: 'Internal error', message: 'Failed to generate insights' });
+  }
+}); */
+
 app.listen(PORT, () => {
   console.log(`Proxy server running on http://localhost:${PORT}`);
   console.log(`Claude API endpoint: http://localhost:${PORT}/api/claude`);

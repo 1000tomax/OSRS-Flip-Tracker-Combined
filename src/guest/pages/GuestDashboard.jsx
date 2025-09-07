@@ -1,13 +1,10 @@
 import { useGuestData } from '../contexts/GuestDataContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { useNavigate } from 'react-router-dom';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { guestAnalytics } from '../../utils/guestAnalytics';
 import * as Sentry from '@sentry/react';
-import JSZip from 'jszip';
 import { formatGP } from '../../utils/formatUtils';
-import html2canvas from 'html2canvas-pro';
-import { ItemWithIcon } from '../../components/ItemIcon';
 import {
   LineChart,
   Line,
@@ -21,7 +18,6 @@ import {
 
 // Import existing components
 import SortableTable from '../../components/SortableTable';
-import ItemSearch from '../components/ItemSearch';
 import GuestHeatMap from '../components/GuestHeatMap';
 import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
 import GuestDatePicker from '../components/GuestDatePicker';
@@ -31,11 +27,12 @@ import GuestDatePicker from '../components/GuestDatePicker';
 import { QueryBuilderSimple as QueryBuilder } from '../components/QueryBuilder/QueryBuilderSimple';
 
 // Import new performance components
-import GuestPerformanceAnalysis from '../components/GuestPerformanceAnalysis';
-import GuestProfitVelocity from '../components/GuestProfitVelocity';
-import GuestWinRateChart from '../components/GuestWinRateChart';
-import GuestFlipVolumeChart from '../components/GuestFlipVolumeChart';
-import GuestProfitLossChart from '../components/GuestProfitLossChart';
+const GuestPerformanceAnalysis = lazy(() => import('../components/GuestPerformanceAnalysis'));
+const GuestProfitVelocity = lazy(() => import('../components/GuestProfitVelocity'));
+const GuestWinRateChart = lazy(() => import('../components/GuestWinRateChart'));
+const GuestFlipVolumeChart = lazy(() => import('../components/GuestFlipVolumeChart'));
+const GuestProfitLossChart = lazy(() => import('../components/GuestProfitLossChart'));
+// import InsightsCard from '../components/InsightsCard';
 
 // Helper function to convert array of objects to CSV
 function arrayToCSV(data) {
@@ -71,7 +68,9 @@ async function exportGuestData(guestData) {
     // Track data export
     guestAnalytics.dataExported();
 
-    const zip = new JSZip();
+    const JSZipMod = await import('jszip');
+    const JSZipCtor = JSZipMod.default || JSZipMod;
+    const zip = new JSZipCtor();
 
     // Create metadata
     const metadata = {
@@ -184,7 +183,6 @@ export default function GuestDashboard() {
   const { getFilteredData, isFiltered, selectedAccounts } = useAccountFilter();
   const guestData = getFilteredData() || originalData;
   const navigate = useNavigate();
-  const [searchTerms, setSearchTerms] = useState([]);
   const [isCapturingChart, setIsCapturingChart] = useState(false);
   const [isCapturingHeatmap, setIsCapturingHeatmap] = useState(false);
   const [chartViewMode, setChartViewMode] = useState('combined'); // 'combined' or 'individual'
@@ -196,6 +194,66 @@ export default function GuestDashboard() {
 
   const chartRef = useRef(null);
   const heatmapRef = useRef(null);
+
+  // Memoize chart data to avoid recalculating on each render
+  const chartData = useMemo(() => {
+    if (!guestData?.dailySummaries) return [];
+
+    if (chartViewMode === 'combined') {
+      let cumulativeProfit = 0;
+      return guestData.dailySummaries.map((day, index) => {
+        cumulativeProfit += day.totalProfit;
+        const [month, dayNum] = day.date.split('-');
+        const displayLabel = `${month}/${dayNum}`;
+        return {
+          date: day.date,
+          day: index + 1,
+          displayLabel,
+          dailyProfit: day.totalProfit,
+          cumulativeProfit,
+          flips: day.flipCount,
+        };
+      });
+    }
+
+    // Individual per-account cumulative
+    const accountProfits = {};
+    const dates = new Set();
+    const visibleAccounts =
+      selectedAccounts.length > 0 ? selectedAccounts : originalData.metadata?.accounts || [];
+    visibleAccounts.forEach(account => {
+      accountProfits[account] = 0;
+    });
+
+    const dataByDate = {};
+    Object.entries(guestData.flipsByDate || {}).forEach(([date, dayData]) => {
+      dates.add(date);
+      if (!dataByDate[date]) {
+        dataByDate[date] = {};
+        visibleAccounts.forEach(acc => {
+          dataByDate[date][acc] = 0;
+        });
+      }
+
+      const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
+      flips.forEach(flip => {
+        const accountName = flip.account || flip.accountId;
+        if (accountName && visibleAccounts.includes(accountName) && dataByDate[date]) {
+          dataByDate[date][accountName] = (dataByDate[date][accountName] || 0) + (flip.profit || 0);
+        }
+      });
+    });
+
+    const sortedDates = Array.from(dates).sort();
+    return sortedDates.map((date, index) => {
+      const result = { date, day: index + 1, displayLabel: date };
+      visibleAccounts.forEach(acc => {
+        accountProfits[acc] += dataByDate[date]?.[acc] || 0;
+        result[`cumulative_${acc}`] = accountProfits[acc];
+      });
+      return result;
+    });
+  }, [guestData, originalData, chartViewMode, selectedAccounts]);
 
   // Track dashboard view on mount
   useEffect(() => {
@@ -349,6 +407,7 @@ export default function GuestDashboard() {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Capture
+      const { default: html2canvas } = await import('html2canvas-pro');
       const canvas = await html2canvas(tempDiv, {
         backgroundColor: '#0f172a',
         scale: 2,
@@ -498,6 +557,7 @@ export default function GuestDashboard() {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Capture
+      const { default: html2canvas } = await import('html2canvas-pro');
       const canvas = await html2canvas(tempDiv, {
         backgroundColor: '#0f172a',
         scale: 2,
@@ -565,42 +625,7 @@ export default function GuestDashboard() {
     { key: 'uniqueItems', label: 'Items', sortable: true },
   ];
 
-  // Filter items based on search
-  const filterItems = (items, searchTerms) => {
-    if (searchTerms.length === 0) return items;
-
-    return items.filter(item => {
-      const itemName = item.item.toLowerCase();
-      return searchTerms.some(term => itemName.includes(term));
-    });
-  };
-
-  // Show all items - this is their personal analysis, let them see everything
-  const allItems = guestData.itemStats;
-  const filteredItems = filterItems(allItems, searchTerms);
-  const itemTableColumns = [
-    { 
-      key: 'item', 
-      label: 'Item', 
-      sortable: true,
-      render: value => (
-        <ItemWithIcon 
-          itemName={value} 
-          textClassName="text-white font-medium"
-        />
-      ),
-    },
-    {
-      key: 'totalProfit',
-      label: 'Total Profit',
-      sortable: true,
-      render: value => (
-        <span className={value >= 0 ? 'text-green-400' : 'text-red-400'}>{formatGP(value)}</span>
-      ),
-    },
-    { key: 'flipCount', label: 'Flips', sortable: true },
-    { key: 'totalQuantity', label: 'Quantity', sortable: true },
-  ];
+  
 
   return (
     <div className="max-w-7xl mx-auto p-8">
@@ -676,6 +701,12 @@ export default function GuestDashboard() {
               }`}
             >
               Overview
+            </button>
+            <button
+              onClick={() => navigate('/guest/dashboard/items')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-400 hover:text-gray-300`}
+            >
+              Items Analysis
             </button>
             <button
               onClick={() => setActiveTab('performance')}
@@ -783,100 +814,7 @@ export default function GuestDashboard() {
             </div>
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={(() => {
-                    if (chartViewMode === 'combined') {
-                      // Calculate combined cumulative profit
-                      let cumulativeProfit = 0;
-                      return guestData.dailySummaries.map((day, index) => {
-                        cumulativeProfit += day.totalProfit;
-                        // Format date for display (MM/DD)
-                        const [month, dayNum] = day.date.split('-');
-                        const displayLabel = `${month}/${dayNum}`;
-                        return {
-                          date: day.date,
-                          day: index + 1,
-                          displayLabel,
-                          dailyProfit: day.totalProfit,
-                          cumulativeProfit,
-                          flips: day.flipCount,
-                        };
-                      });
-                    } else {
-                      // Calculate per-account cumulative profit
-                      const accountProfits = {};
-                      const dates = new Set();
-
-                      // Only process accounts that are currently selected/visible
-                      const visibleAccounts =
-                        selectedAccounts.length > 0
-                          ? selectedAccounts
-                          : originalData.metadata?.accounts || [];
-                      visibleAccounts.forEach(account => {
-                        accountProfits[account] = 0;
-                      });
-
-                      // Process all flips by date
-                      const dataByDate = {};
-                      Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
-                        dates.add(date);
-                        if (!dataByDate[date]) {
-                          dataByDate[date] = {};
-                          visibleAccounts.forEach(acc => {
-                            dataByDate[date][acc] = 0;
-                          });
-                        }
-
-                        const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
-                        flips.forEach(flip => {
-                          const accountName = flip.account || flip.accountId;
-                          // Only track data for visible accounts
-                          if (
-                            accountName &&
-                            visibleAccounts.includes(accountName) &&
-                            dataByDate[date]
-                          ) {
-                            dataByDate[date][accountName] =
-                              (dataByDate[date][accountName] || 0) + (flip.profit || 0);
-                          }
-                        });
-                      });
-
-                      // Build cumulative data
-                      // Sort dates chronologically in ascending order (MM-DD-YYYY format)
-                      const sortedDates = Array.from(dates).sort((a, b) => {
-                        const [aMonth, aDay, aYear] = a.split('-');
-                        const [bMonth, bDay, bYear] = b.split('-');
-
-                        // Create Date objects for proper comparison
-                        const dateA = new Date(aYear, aMonth - 1, aDay);
-                        const dateB = new Date(bYear, bMonth - 1, bDay);
-
-                        return dateA - dateB;
-                      });
-                      const cumulativeData = {};
-                      visibleAccounts.forEach(account => {
-                        cumulativeData[account] = 0;
-                      });
-
-                      return sortedDates.map((date, index) => {
-                        // Format date for display (MM/DD) from MM-DD-YYYY format
-                        const [month, dayNum] = date.split('-');
-                        const displayLabel = `${month}/${dayNum}`;
-                        const dayEntry = { date, day: index + 1, displayLabel };
-
-                        // Update cumulative for each visible account
-                        visibleAccounts.forEach(account => {
-                          cumulativeData[account] += dataByDate[date]?.[account] || 0;
-                          dayEntry[`cumulative_${account}`] = cumulativeData[account];
-                        });
-
-                        return dayEntry;
-                      });
-                    }
-                  })()}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
+                <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="#374151"
@@ -955,6 +893,7 @@ export default function GuestDashboard() {
                       stroke="#22c55e"
                       strokeWidth={3}
                       dot={false}
+                      isAnimationActive={false}
                       activeDot={{ r: 6, fill: '#22c55e' }}
                     />
                   ) : (
@@ -991,6 +930,7 @@ export default function GuestDashboard() {
                               stroke={color}
                               strokeWidth={2}
                               dot={false}
+                              isAnimationActive={false}
                               activeDot={{ r: 5, fill: color }}
                             />
                           );
@@ -1060,38 +1000,19 @@ export default function GuestDashboard() {
               </p>
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-white">
-                  All Items (
-                  {searchTerms.length > 0
-                    ? `${filteredItems.length} of ${allItems.length}`
-                    : allItems.length}
-                  )
-                </h3>
-              </div>
-
-              <ItemSearch
-                onSearch={setSearchTerms}
-                placeholder="Search items... (e.g., 'Dragon bones' or 'Rune sword, Magic logs, Whip')"
-              />
-
-              <div className="max-h-96 overflow-y-auto">
-                <SortableTable
-                  data={filteredItems}
-                  columns={itemTableColumns}
-                  className="text-sm"
-                />
-              </div>
-
-              {searchTerms.length > 0 && filteredItems.length === 0 && (
-                <div className="text-center text-gray-400 py-8">
-                  <p>No items found matching your search.</p>
-                  <p className="text-sm mt-2">
-                    Try searching for partial names like "dragon" or "rune"
-                  </p>
-                </div>
-              )}
+            {/* Items table moved to dedicated Items Analysis page */}
+            <div className="bg-gray-800/60 p-6 rounded-lg border border-dashed border-gray-700">
+              <h3 className="text-xl font-bold text-white mb-2">Items Analysis</h3>
+              <p className="text-gray-300 text-sm mb-4">
+                Explore detailed item performance, trends, and insights in the new Items Analysis
+                section.
+              </p>
+              <button
+                onClick={() => navigate('/guest/dashboard/items')}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+              >
+                Go to Items Analysis →
+              </button>
             </div>
           </div>
         </>
@@ -1158,26 +1079,36 @@ export default function GuestDashboard() {
         </div>
       )}
 
-      {activeTab === 'performance' && (
+  {activeTab === 'performance' && (
         <div className="space-y-8" id="performance-section">
-          {/* Performance Analysis Stats */}
-          <GuestPerformanceAnalysis guestData={guestData} originalData={originalData} />
+          <Suspense fallback={<div className="text-gray-300">Loading performance analysis…</div>}>
+            {/* Performance Analysis Stats */}
+            <GuestPerformanceAnalysis guestData={guestData} originalData={originalData} />
+          </Suspense>
 
           {/* Main Velocity Chart */}
-          <GuestProfitVelocity
-            guestData={guestData}
-            originalData={originalData}
-            includeStats={true}
-            showMethodologyHint={true}
-          />
+          <Suspense fallback={<div className="text-gray-300">Loading profit velocity…</div>}>
+            <GuestProfitVelocity
+              guestData={guestData}
+              originalData={originalData}
+              includeStats={true}
+              showMethodologyHint={true}
+            />
+          </Suspense>
 
           {/* Profit/Loss Bar Chart */}
-          <GuestProfitLossChart guestData={guestData} originalData={originalData} />
+          <Suspense fallback={<div className="text-gray-300">Loading profit/loss…</div>}>
+            <GuestProfitLossChart guestData={guestData} originalData={originalData} />
+          </Suspense>
 
           {/* Secondary Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <GuestWinRateChart guestData={guestData} originalData={originalData} />
-            <GuestFlipVolumeChart guestData={guestData} originalData={originalData} />
+            <Suspense fallback={<div className="text-gray-300">Loading win rate…</div>}>
+              <GuestWinRateChart guestData={guestData} originalData={originalData} />
+            </Suspense>
+            <Suspense fallback={<div className="text-gray-300">Loading flip volume…</div>}>
+              <GuestFlipVolumeChart guestData={guestData} originalData={originalData} />
+            </Suspense>
           </div>
         </div>
       )}
