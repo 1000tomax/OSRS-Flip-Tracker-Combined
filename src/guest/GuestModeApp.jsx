@@ -8,15 +8,13 @@ import GuestDashboard from './pages/GuestDashboard';
 import AnalyticsDisclosure from './components/AnalyticsDisclosure';
 import GuestErrorBoundary from './components/GuestErrorBoundary';
 import FeedbackButton from '../components/FeedbackButton';
-import * as Sentry from '@sentry/react';
 import { lazy, Suspense } from 'react';
 
 // Lazy load items pages (deep dive especially for performance)
 const GuestItemsList = lazy(() => import('./pages/GuestItemsList'));
 const GuestItemDeepDive = lazy(() => import('./pages/GuestItemDeepDive'));
 
-// Wrap routes with Sentry
-const SentryRoutes = Sentry.withSentryRouting(Routes);
+// Use standard Routes without external error reporting
 
 // Protected route component - redirects to upload if no data
 function RequireGuestData({ children }) {
@@ -49,90 +47,101 @@ function ItemsAnalysisRoot({ children }) {
 }
 
 export default function GuestModeApp() {
-
   return (
     <GuestDataProvider>
       <AccountFilterProvider>
         {/* Provide Items Analysis cache above routes so list state persists across pages */}
         <ItemsAnalysisRoot>
-        <GuestErrorBoundary>
-          {/* Different background color to make it visually distinct */}
-          <div className="min-h-screen bg-gradient-to-br from-purple-900 via-gray-900 to-purple-900">
-            {/* Persistent banner across all guest pages */}
-            <div className="bg-yellow-500 text-black p-2 text-center font-bold sticky top-0 z-50">
-              🔒 GUEST MODE - Your data never leaves this browser
+          <GuestErrorBoundary>
+            {/* Different background color to make it visually distinct */}
+            <div className="min-h-screen bg-gradient-to-br from-purple-900 via-gray-900 to-purple-900">
+              {/* Persistent banner across all guest pages */}
+              <div className="bg-yellow-500 text-black p-2 text-center font-bold sticky top-0 z-50">
+                🔒 GUEST MODE - Your data never leaves this browser
+              </div>
+
+              {/* Account filter bar - only shows when data is loaded and multiple accounts exist */}
+              <RequireGuestDataForFilter>
+                <AccountFilterBar />
+              </RequireGuestDataForFilter>
+
+              <Routes>
+                {/* Upload is always accessible */}
+                <Route path="/" element={<GuestUploadPage />} />
+
+                {/* Dashboard requires data to be uploaded first */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <RequireGuestData>
+                      <GuestDashboard />
+                    </RequireGuestData>
+                  }
+                />
+
+                {/* Items analysis */}
+                <Route
+                  path="/dashboard/items"
+                  element={
+                    <RequireGuestData>
+                      <Suspense
+                        fallback={
+                          <div
+                            className="fixed inset-0 z-50 flex items-center justify-center"
+                            style={{
+                              backgroundColor: 'rgba(0,0,0,0.55)',
+                              backdropFilter: 'blur(2px)',
+                            }}
+                          >
+                            <div className="bg-gray-900/90 border border-gray-700 rounded-xl px-6 py-5 shadow-2xl flex items-center gap-4">
+                              <div className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+                              <div className="text-gray-200 font-medium">Loading Items…</div>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <GuestItemsList />
+                      </Suspense>
+                    </RequireGuestData>
+                  }
+                />
+                <Route
+                  path="/dashboard/items/:itemName"
+                  element={
+                    <RequireGuestData>
+                      <Suspense
+                        fallback={
+                          <div
+                            className="fixed inset-0 z-50 flex items-center justify-center"
+                            style={{
+                              backgroundColor: 'rgba(0,0,0,0.55)',
+                              backdropFilter: 'blur(2px)',
+                            }}
+                          >
+                            <div className="bg-gray-900/90 border border-gray-700 rounded-xl px-6 py-5 shadow-2xl flex items-center gap-4">
+                              <div className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+                              <div className="text-gray-200 font-medium">Loading Item…</div>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <GuestItemDeepDive />
+                      </Suspense>
+                    </RequireGuestData>
+                  }
+                />
+
+                {/* Any other guest routes redirect to upload */}
+                <Route path="/*" element={<Navigate to="/guest" replace />} />
+              </Routes>
+
+              {/* Analytics disclosure component */}
+              <AnalyticsDisclosure />
+
+              {/* Feedback button - only in guest mode */}
+              <FeedbackButton />
             </div>
-
-            {/* Account filter bar - only shows when data is loaded and multiple accounts exist */}
-            <RequireGuestDataForFilter>
-              <AccountFilterBar />
-            </RequireGuestDataForFilter>
-
-            <SentryRoutes>
-              {/* Upload is always accessible */}
-              <Route path="/" element={<GuestUploadPage />} />
-
-              {/* Dashboard requires data to be uploaded first */}
-              <Route
-                path="/dashboard"
-                element={
-                  <RequireGuestData>
-                    <GuestDashboard />
-                  </RequireGuestData>
-                }
-              />
-
-              {/* Items analysis */}
-              <Route
-                path="/dashboard/items"
-                element={
-                  <RequireGuestData>
-                    <Suspense
-                      fallback={
-                        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}>
-                          <div className="bg-gray-900/90 border border-gray-700 rounded-xl px-6 py-5 shadow-2xl flex items-center gap-4">
-                            <div className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
-                            <div className="text-gray-200 font-medium">Loading Items…</div>
-                          </div>
-                        </div>
-                      }
-                    >
-                      <GuestItemsList />
-                    </Suspense>
-                  </RequireGuestData>
-                }
-              />
-              <Route
-                path="/dashboard/items/:itemName"
-                element={
-                  <RequireGuestData>
-                    <Suspense
-                      fallback={
-                        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}>
-                          <div className="bg-gray-900/90 border border-gray-700 rounded-xl px-6 py-5 shadow-2xl flex items-center gap-4">
-                            <div className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
-                            <div className="text-gray-200 font-medium">Loading Item…</div>
-                          </div>
-                        </div>
-                      }
-                    >
-                      <GuestItemDeepDive />
-                    </Suspense>
-                  </RequireGuestData>
-                }
-              />
-
-              {/* Any other guest routes redirect to upload */}
-              <Route path="/*" element={<Navigate to="/guest" replace />} />
-            </SentryRoutes>
-
-            {/* Analytics disclosure component */}
-            <AnalyticsDisclosure />
-
-            {/* Feedback button - only in guest mode */}
-            <FeedbackButton />
-          </div>
-        </GuestErrorBoundary>
+          </GuestErrorBoundary>
         </ItemsAnalysisRoot>
       </AccountFilterProvider>
     </GuestDataProvider>

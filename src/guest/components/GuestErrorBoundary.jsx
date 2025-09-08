@@ -1,5 +1,4 @@
 import React from 'react';
-import * as Sentry from '@sentry/react';
 
 class GuestErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,15 +11,8 @@ class GuestErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log to Sentry with context
-    Sentry.withScope(scope => {
-      scope.setTag('location', 'guest_dashboard');
-      scope.setContext('error_boundary', {
-        componentStack: errorInfo.componentStack,
-        props: this.props,
-      });
-      Sentry.captureException(error);
-    });
+    // Log locally
+    console.error('GuestErrorBoundary caught an error', error, errorInfo);
   }
 
   render() {

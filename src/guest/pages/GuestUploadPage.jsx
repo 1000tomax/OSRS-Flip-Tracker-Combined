@@ -5,7 +5,6 @@ import CsvDropzone from '../components/CsvDropzone';
 import ProcessingStatus from '../components/ProcessingStatus';
 import { guestAnalytics } from '../../utils/guestAnalytics';
 import { checkUploadedItemIcons } from '../utils/iconChecker';
-import * as Sentry from '@sentry/react';
 import { toast } from 'sonner';
 
 export default function GuestUploadPage() {
@@ -18,12 +17,8 @@ export default function GuestUploadPage() {
     if (guestData) {
       guestAnalytics.returnedToUpload(true);
 
-      // Add breadcrumb for debugging
-      Sentry.addBreadcrumb({
-        category: 'navigation',
-        message: 'User returned to upload with existing data',
-        level: 'info',
-      });
+      // Debug breadcrumb stub:
+      // console.debug('Returned to upload with existing data');
     }
   }, [guestData]);
 
@@ -37,7 +32,7 @@ export default function GuestUploadPage() {
       if (file.size > maxFileSize) {
         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
         const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1);
-        
+
         guestAnalytics.uploadFailed('file_too_large');
         toast.error(
           `File too large: ${fileSizeMB}MB\n` +
@@ -59,7 +54,7 @@ export default function GuestUploadPage() {
       const sampleSize = Math.min(file.size, 1024); // Read first 1KB
       const sampleText = await file.slice(0, sampleSize).text();
       const sampleLower = sampleText.toLowerCase();
-      
+
       if (!sampleLower.includes('first buy time') || !sampleLower.includes('last sell time')) {
         guestAnalytics.uploadFailed('not_copilot_csv');
         toast.error(
@@ -69,17 +64,7 @@ export default function GuestUploadPage() {
         return;
       }
 
-      // Add breadcrumb for file upload
-      Sentry.addBreadcrumb({
-        category: 'upload',
-        message: `File selected: ${file.size} bytes`,
-        level: 'info',
-        data: {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type,
-        },
-      });
+      // console.debug('File selected', { name: file.name, size: file.size, type: file.type });
 
       // Continue with existing upload logic...
       // If they have existing data, confirm replacement
@@ -87,19 +72,10 @@ export default function GuestUploadPage() {
         // eslint-disable-next-line no-alert
         const confirmed = window.confirm('This will replace your current data. Continue?');
         if (!confirmed) {
-          Sentry.addBreadcrumb({
-            category: 'action',
-            message: 'User cancelled file replacement',
-            level: 'info',
-          });
+          // console.debug('User cancelled file replacement');
           return;
         }
-
-        Sentry.addBreadcrumb({
-          category: 'action',
-          message: 'User confirmed data replacement',
-          level: 'info',
-        });
+        // console.debug('User confirmed data replacement');
       }
 
       // Track upload started
@@ -124,28 +100,24 @@ export default function GuestUploadPage() {
         // Handle memory warnings from worker
         if (e.data.type === 'MEMORY_WARNING') {
           console.warn('Worker memory warning:', e.data.message);
-          setProcessingStats(prev => ({ 
-            ...prev, 
-            message: `${prev.message || 'Processing'} (High memory usage - processing slowly)` 
+          setProcessingStats(prev => ({
+            ...prev,
+            message: `${prev.message || 'Processing'} (High memory usage - processing slowly)`,
           }));
           return;
         }
 
         // Handle progress updates
         if (e.data.type === 'PROGRESS') {
-          setProcessingStats(e.data.progress || {
-            rowsProcessed: e.data.rowsProcessed,
-            totalRows: e.data.totalRows,
-          });
+          setProcessingStats(
+            e.data.progress || {
+              rowsProcessed: e.data.rowsProcessed,
+              totalRows: e.data.totalRows,
+            }
+          );
 
           // Add breadcrumb for processing progress
-          if ((e.data.progress?.current || e.data.rowsProcessed) % 10000 === 0) {
-            Sentry.addBreadcrumb({
-              category: 'processing',
-              message: `Processed ${e.data.progress?.current || e.data.rowsProcessed} rows`,
-              level: 'info',
-            });
-          }
+          // Periodic debug: console.debug('Processed rows', e.data.progress?.current || e.data.rowsProcessed);
           return;
         }
 
@@ -155,17 +127,20 @@ export default function GuestUploadPage() {
           const rawData = e.data.data || e.data.result;
           const flipsByDate = rawData.flipsByDate || {};
           const itemStats = rawData.itemStats || [];
-          
+
           // Calculate totals from the data
           const totalProfit = itemStats.reduce((sum, item) => sum + (item.totalProfit || 0), 0);
           const totalFlips = itemStats.reduce((sum, item) => sum + (item.flipCount || 0), 0);
           const uniqueItems = itemStats.length;
-          
+
           // Create daily summaries from flipsByDate
           const dailySummaries = Object.entries(flipsByDate)
             .map(([date, dayData]) => ({
               date,
-              totalProfit: dayData.totalProfit || (dayData.flips?.reduce((sum, f) => sum + (f.profit || 0), 0) || 0),
+              totalProfit:
+                dayData.totalProfit ||
+                dayData.flips?.reduce((sum, f) => sum + (f.profit || 0), 0) ||
+                0,
               flipCount: dayData.totalFlips || dayData.flips?.length || 0,
               uniqueItems: new Set(dayData.flips?.map(f => f.item) || []).size,
             }))
@@ -189,8 +164,10 @@ export default function GuestUploadPage() {
             lastSellTime: flip.lastSellTime || flip.last_sell_time,
             sellerTax: flip.sellerTax || flip.tax || 0,
             // Calculate derived fields
-            spent: (flip.avgBuyPrice || flip.avg_buy_price || 0) * (flip.quantity || flip.bought || 0),
-            revenue: (flip.avgSellPrice || flip.avg_sell_price || 0) * (flip.quantity || flip.sold || 0),
+            spent:
+              (flip.avgBuyPrice || flip.avg_buy_price || 0) * (flip.quantity || flip.bought || 0),
+            revenue:
+              (flip.avgSellPrice || flip.avg_sell_price || 0) * (flip.quantity || flip.sold || 0),
             hoursHeld: (() => {
               const buyTime = flip.firstBuyTime || flip.first_buy_time;
               const sellTime = flip.lastSellTime || flip.last_sell_time;
@@ -201,7 +178,8 @@ export default function GuestUploadPage() {
               return 0;
             })(),
             roi: (() => {
-              const spent = (flip.avgBuyPrice || flip.avg_buy_price || 0) * (flip.quantity || flip.bought || 0);
+              const spent =
+                (flip.avgBuyPrice || flip.avg_buy_price || 0) * (flip.quantity || flip.bought || 0);
               return spent > 0 ? ((flip.profit || 0) / spent) * 100 : 0;
             })(),
             date: flip.date || flip.last_sell_time?.split('T')[0],
@@ -239,12 +217,12 @@ export default function GuestUploadPage() {
 
           setStep('complete');
           worker.terminate();
-          
+
           // Check icons for uploaded items (async, don't block navigation)
           checkUploadedItemIcons(itemStats).catch(error => {
             console.error('Error checking icons:', error);
           });
-          
+
           // Navigate to guest dashboard
           // eslint-disable-next-line no-magic-numbers
           setTimeout(() => navigate('/guest/dashboard'), 500);
@@ -254,28 +232,8 @@ export default function GuestUploadPage() {
         // Handle errors with enhanced context
         if (e.data.type === 'ERROR') {
           console.error('Worker error:', e.data);
-          
-          // Enhanced Sentry error reporting
-          Sentry.captureException(new Error(e.data.message), {
-            tags: {
-              error_type: 'worker_processing_error',
-              component: 'guest_csv_processor',
-              severity: 'high',
-            },
-            contexts: {
-              file_info: {
-                size: file.size,
-                name: file.name,
-                estimated_rows: Math.round(file.size / 112),
-              },
-              error_details: {
-                message: e.data.message,
-                stack: e.data.stack,
-                line: e.data.line,
-                column: e.data.column,
-              },
-            },
-          });
+
+          // console.error('Worker processing error', e.data);
 
           guestAnalytics.uploadFailed('worker_error');
 
@@ -288,19 +246,8 @@ export default function GuestUploadPage() {
 
       // Handle worker errors
       worker.onerror = error => {
-        // Capture worker crash
-        Sentry.captureException(error, {
-          tags: {
-            error_type: 'worker_crash',
-            component: 'web_worker',
-          },
-          contexts: {
-            file_info: {
-              size: file.size,
-              name: file.name,
-            },
-          },
-        });
+        // Log worker crash
+        console.error('Worker crash', error);
 
         guestAnalytics.uploadFailed('worker_error');
         toast.error(`Processing error: ${error.message}`);
@@ -310,20 +257,8 @@ export default function GuestUploadPage() {
 
       // Handle message errors (malformed messages)
       worker.onmessageerror = event => {
-        // Capture message error
-        Sentry.captureException(new Error('Worker message error'), {
-          tags: {
-            error_type: 'worker_message_error',
-            component: 'web_worker',
-          },
-          contexts: {
-            file_info: {
-              size: file.size,
-              name: file.name,
-            },
-            event_data: event.data,
-          },
-        });
+        // Log message error
+        console.error('Worker message error', event);
 
         guestAnalytics.uploadFailed('message_error');
         console.error('Worker message error:', event);
@@ -335,18 +270,8 @@ export default function GuestUploadPage() {
       // Start processing with timezone
       worker.postMessage({ type: 'START', file, timezone });
     } catch (error) {
-      // Capture any other errors
-      Sentry.captureException(error, {
-        tags: {
-          component: 'upload_handler',
-        },
-        contexts: {
-          file_info: {
-            size: file.size,
-            name: file.name,
-          },
-        },
-      });
+      // Log any other errors
+      console.error('Upload handler error', error);
 
       // Track general error
       guestAnalytics.uploadFailed(error.message || 'unknown_error');

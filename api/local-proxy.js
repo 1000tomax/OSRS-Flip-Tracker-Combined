@@ -20,25 +20,27 @@ console.log('Environment variables loaded:', {
   webhookUrlPrefix: process.env.VITE_DISCORD_WEBHOOK_URL
     ? `${process.env.VITE_DISCORD_WEBHOOK_URL.substring(0, 50)}...`
     : 'Not set',
-  logInDev: process.env.VITE_LOG_TO_DISCORD_IN_DEV === 'true'
+  logInDev: process.env.VITE_LOG_TO_DISCORD_IN_DEV === 'true',
 });
 
 // Enable CORS for your dev server
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
 // Proxy endpoint for Claude API
 app.post('/api/claude', async (req, res) => {
   const apiKey = process.env.VITE_CLAUDE_API_KEY;
-  
+
   if (!apiKey) {
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Server configuration error',
-      message: 'VITE_CLAUDE_API_KEY not set in .env file'
+      message: 'VITE_CLAUDE_API_KEY not set in .env file',
     });
   }
 
@@ -48,18 +50,18 @@ app.post('/api/claude', async (req, res) => {
       headers: {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
+        'content-type': 'application/json',
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(req.body),
     });
 
     const data = await response.text();
     res.status(response.status).json(JSON.parse(data));
   } catch (error) {
     console.error('Proxy error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Proxy error',
-      message: error.message || 'An unexpected error occurred'
+      message: error.message || 'An unexpected error occurred',
     });
   }
 });
@@ -67,92 +69,109 @@ app.post('/api/claude', async (req, res) => {
 // Cost calculation for Claude 3 Haiku
 function calculateCost(usage) {
   if (!usage) return null;
-  
+
   const INPUT_COST_PER_MILLION = 0.25; // $0.25 per million input tokens
   const OUTPUT_COST_PER_MILLION = 1.25; // $1.25 per million output tokens
-  
+
   const inputCost = (usage.input_tokens / 1_000_000) * INPUT_COST_PER_MILLION;
   const outputCost = (usage.output_tokens / 1_000_000) * OUTPUT_COST_PER_MILLION;
   const totalCost = inputCost + outputCost;
-  
+
   return {
     inputCost,
     outputCost,
     totalCost,
-    formatted: `$${totalCost.toFixed(6)}` // Show 6 decimal places for small amounts
+    formatted: `$${totalCost.toFixed(6)}`, // Show 6 decimal places for small amounts
   };
 }
 
 // Discord webhook logging function
 async function logToDiscord(userInput, translation, success, errorMessage = null, usage = null) {
   const webhookUrl = process.env.VITE_DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
-  
+
   if (!webhookUrl) {
     console.log('Discord webhook not configured');
     return;
   }
-  
+
   // Check if we should log in dev
   if (process.env.VITE_LOG_TO_DISCORD_IN_DEV === 'false') {
     console.log('📵 Discord logging disabled in dev (VITE_LOG_TO_DISCORD_IN_DEV=false)');
     console.log('   To enable: Set VITE_LOG_TO_DISCORD_IN_DEV=true in .env.local');
     return;
   }
-  
+
   try {
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        embeds: [{
-          title: success ? '✅ Query Translation (Local Dev)' : '❌ Failed Translation (Local Dev)',
-          color: success ? 0x00ff00 : 0xff0000,
-          fields: [
-            {
-              name: 'User Input',
-              value: `"${userInput.substring(0, 200)}"`,
-              inline: false
-            },
-            success ? {
-              name: 'Filters Generated',
-              value: translation.query.filters.length > 0 
-                ? `\`\`\`json\n${JSON.stringify(translation.query.filters, null, 2).substring(0, 500)}\`\`\``
-                : 'No filters',
-              inline: false
-            } : {
-              name: 'Error',
-              value: errorMessage || 'Unknown error',
-              inline: false
-            },
-            success ? {
-              name: 'Display Type',
-              value: translation.display?.type || 'table',
-              inline: true
-            } : null,
-            success ? {
-              name: 'Sort/Limit',
-              value: `${translation.query.sortBy || 'none'} / ${translation.query.limit || 'all'}`,
-              inline: true
-            } : null,
-            success && translation.explanation ? {
-              name: 'AI Explanation',
-              value: translation.explanation.summary || 'No explanation',
-              inline: false
-            } : null,
-            usage ? {
-              name: '📊 Token Usage',
-              value: `Input: ${usage.input_tokens}\nOutput: ${usage.output_tokens}\nTotal: ${usage.input_tokens + usage.output_tokens}`,
-              inline: true
-            } : null,
-            usage && calculateCost(usage) ? {
-              name: '💰 Cost',
-              value: `${calculateCost(usage).formatted}\n(≈ ${(calculateCost(usage).totalCost * 100).toFixed(4)}¢)`,
-              inline: true
-            } : null
-          ].filter(Boolean),
-          timestamp: new Date().toISOString()
-        }]
-      })
+        embeds: [
+          {
+            title: success
+              ? '✅ Query Translation (Local Dev)'
+              : '❌ Failed Translation (Local Dev)',
+            color: success ? 0x00ff00 : 0xff0000,
+            fields: [
+              {
+                name: 'User Input',
+                value: `"${userInput.substring(0, 200)}"`,
+                inline: false,
+              },
+              success
+                ? {
+                    name: 'Filters Generated',
+                    value:
+                      translation.query.filters.length > 0
+                        ? `\`\`\`json\n${JSON.stringify(translation.query.filters, null, 2).substring(0, 500)}\`\`\``
+                        : 'No filters',
+                    inline: false,
+                  }
+                : {
+                    name: 'Error',
+                    value: errorMessage || 'Unknown error',
+                    inline: false,
+                  },
+              success
+                ? {
+                    name: 'Display Type',
+                    value: translation.display?.type || 'table',
+                    inline: true,
+                  }
+                : null,
+              success
+                ? {
+                    name: 'Sort/Limit',
+                    value: `${translation.query.sortBy || 'none'} / ${translation.query.limit || 'all'}`,
+                    inline: true,
+                  }
+                : null,
+              success && translation.explanation
+                ? {
+                    name: 'AI Explanation',
+                    value: translation.explanation.summary || 'No explanation',
+                    inline: false,
+                  }
+                : null,
+              usage
+                ? {
+                    name: '📊 Token Usage',
+                    value: `Input: ${usage.input_tokens}\nOutput: ${usage.output_tokens}\nTotal: ${usage.input_tokens + usage.output_tokens}`,
+                    inline: true,
+                  }
+                : null,
+              usage && calculateCost(usage)
+                ? {
+                    name: '💰 Cost',
+                    value: `${calculateCost(usage).formatted}\n(≈ ${(calculateCost(usage).totalCost * 100).toFixed(4)}¢)`,
+                    inline: true,
+                  }
+                : null,
+            ].filter(Boolean),
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
     });
     console.log('Logged to Discord successfully');
   } catch (err) {
@@ -163,22 +182,22 @@ async function logToDiscord(userInput, translation, success, errorMessage = null
 // Add translate-query endpoint for local development
 app.post('/api/translate-query', async (req, res) => {
   const apiKey = process.env.VITE_CLAUDE_API_KEY || process.env.CLAUDE_API_KEY;
-  
+
   if (!apiKey) {
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Server configuration error',
-      message: 'Claude API key not set in .env file'
+      message: 'Claude API key not set in .env file',
     });
   }
 
   const { userInput } = req.body;
-  
+
   console.log('Received query translation request:', userInput);
-  
+
   if (!userInput) {
     return res.status(400).json({ error: 'User input is required' });
   }
-  
+
   const prompt = `Convert this natural language query about OSRS flipping data to a structured query:
 "${userInput}"
 
@@ -258,7 +277,7 @@ Choose the most appropriate display type based on the query:
 - Use pie_chart for showing proportions
 - Use line_chart for trends over time
 - Use single_value for aggregate totals`;
-  
+
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -271,31 +290,37 @@ Choose the most appropriate display type based on the query:
         model: 'claude-3-haiku-20240307',
         max_tokens: 500,
         temperature: 0,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      }),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Claude API error:', errorData);
       throw new Error(`Claude API returned ${response.status}`);
     }
-    
+
     const data = await response.json();
-    
+
     // Extract token usage
     const usage = data.usage || null;
     if (usage) {
       const cost = calculateCost(usage);
-      console.log(`📊 Token Usage: Input: ${usage.input_tokens}, Output: ${usage.output_tokens}, Total: ${usage.input_tokens + usage.output_tokens}`);
-      console.log(`💰 Cost: ${cost.formatted} (Input: $${cost.inputCost.toFixed(6)}, Output: $${cost.outputCost.toFixed(6)})`);
+      console.log(
+        `📊 Token Usage: Input: ${usage.input_tokens}, Output: ${usage.output_tokens}, Total: ${usage.input_tokens + usage.output_tokens}`
+      );
+      console.log(
+        `💰 Cost: ${cost.formatted} (Input: $${cost.inputCost.toFixed(6)}, Output: $${cost.outputCost.toFixed(6)})`
+      );
     }
-    
+
     console.log('Claude API raw response:', JSON.stringify(data.content[0].text).substring(0, 500));
-    
+
     // Extract JSON from the response
     let aiResponse;
     try {
@@ -312,184 +337,62 @@ Choose the most appropriate display type based on the query:
         throw new Error('Could not extract valid JSON from AI response');
       }
     }
-    
+
     // Validate the response structure
     if (!aiResponse.query) {
       aiResponse.query = {
         filters: [],
         sortBy: null,
         sortOrder: 'desc',
-        limit: null
+        limit: null,
       };
     }
-    
+
     if (!aiResponse.display) {
       aiResponse.display = {
-        type: 'table'
+        type: 'table',
       };
     }
-    
+
     if (!aiResponse.explanation) {
       aiResponse.explanation = {
         summary: 'Query processed',
         filters: [],
-        insight: null
+        insight: null,
       };
     }
-    
+
     console.log('Final AI response being sent:', JSON.stringify(aiResponse, null, 2));
-    
+
     // Log to Discord webhook if configured (pass usage data)
     await logToDiscord(userInput, aiResponse, true, null, usage);
-    
+
     res.status(200).json(aiResponse);
-    
   } catch (error) {
     console.error('Query translation error:', error);
-    
+
     // Log failure to Discord if configured
     await logToDiscord(userInput, null, false, error.message, null);
-    
+
     res.status(500).json({
       error: 'Failed to translate query',
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-// AI Insights endpoint - generates concise analytics bullets from aggregates
-// (Disabled: remove or guard with a feature flag if needed)
-/* app.post('/api/insights', async (req, res) => {
-  try {
-    const apiKey = process.env.VITE_CLAUDE_API_KEY || process.env.CLAUDE_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'Server configuration error', message: 'Claude API key not set' });
-    }
+// AI Insights endpoint (removed for now)
 
-    const { payload } = req.body || {};
-    if (!payload || typeof payload !== 'object') {
-      return res.status(400).json({ error: 'Invalid payload', message: 'Expected payload with aggregates' });
-    }
-
-    // Keep input compact: include only the key aggregates
-    // Build a compact payload and explicit whitelists to avoid hallucinations
-    const compact = {
-      range: payload.range,
-      totals: payload.totals,
-      prevTotals: payload.prevTotals,
-      topItems: Array.isArray(payload.topItems) ? payload.topItems.slice(0, 5) : [],
-      worstItems: Array.isArray(payload.worstItems) ? payload.worstItems.slice(0, 5) : [],
-      bestHours: Array.isArray(payload.bestHours) ? payload.bestHours.slice(0, 5) : [],
-      worstHours: Array.isArray(payload.worstHours) ? payload.worstHours.slice(0, 5) : [],
-      prevTopItems: Array.isArray(payload.prevTopItems) ? payload.prevTopItems.slice(0, 5) : [],
-      prevBestHours: Array.isArray(payload.prevBestHours) ? payload.prevBestHours.slice(0, 5) : [],
-      allowedItemNames: [
-        ...new Set(
-          [
-            ...(payload.topItems || []),
-            ...(payload.worstItems || []),
-            ...(payload.prevTopItems || []),
-          ]
-            .map(x => (x && x.name ? String(x.name) : null))
-            .filter(Boolean)
-        ),
-      ],
-    };
-
-    const instructions = `You are an analytics assistant for a trading journal.
-Return EXACTLY this JSON (no code fences, no extra text): {"bullets":["...","...","..."]}.
-Rules:
-- Be precise and concise; <= 20 words per bullet.
-- Explain changes between CURRENT and PREVIOUS periods using ONLY the provided aggregates.
-- Focus on mix vs performance (item composition vs ROI/WinRate changes) and time-of-day patterns.
-- Include clear numeric references.
-- DO NOT recommend items or actions. No speculation. No extra keys.
-- Only mention item names that appear in allowedItemNames. If none, avoid naming items.
-- Only mention hours that appear in bestHours/worstHours/prevBestHours. If none, avoid hour mentions.
-- If constraints prevent specifics, write generic but numeric bullets using totals and deltas.
-`;
-
-    const prompt = `${instructions}\n\nDATA:\n${JSON.stringify(compact)}`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 120,
-        temperature: 0,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      console.error('Insights API error:', text);
-      return res.status(502).json({ error: 'AI upstream error', message: `Status ${response.status}` });
-    }
-
-    const data = await response.json();
-    const usage = data.usage || null;
-    let bullets = [];
-
-    try {
-      const content = data.content?.[0]?.text || '';
-      if (content) {
-        console.log('Insights raw content:', content.slice(0, 500));
-      }
-      let parsed;
-      try {
-        parsed = JSON.parse(content);
-      } catch (_err) {
-        const match = content.match(/\{[\s\S]*\}/);
-        if (match) parsed = JSON.parse(match[0]);
-      }
-      bullets = Array.isArray(parsed?.bullets) ? parsed.bullets.slice(0, 3) : [];
-      // Fallback: extract up to 3 bullet-like lines from text
-      if ((!bullets || bullets.length === 0) && content) {
-        const lines = content
-          .split(/\r?\n/) // split lines
-          .map(s => s.trim().replace(/^[-•*\d.\)]\s*/, '')) // strip bullets/numbers
-          .filter(Boolean)
-          .slice(0, 3);
-        if (lines.length > 0) bullets = lines;
-      }
-    } catch (_e) {
-      console.warn('Failed to parse insights JSON');
-    }
-
-    if (bullets.length === 0) {
-      // Fallback formatting
-      bullets = ['No concise insights available for the selected range.', 'Try a different period or regenerate.', ''];
-    }
-
-    const cost = usage ? calculateCost(usage) : null;
-    if (usage) {
-      console.log(
-        `📊 Insights Token Usage: In ${usage.input_tokens}, Out ${usage.output_tokens}, Total ${usage.input_tokens + usage.output_tokens}`
-      );
-      if (cost) console.log(`💰 Estimated Cost: ${cost.formatted}`);
-    }
-
-    return res.status(200).json({ bullets, usage, cost });
-  } catch (_err) {
-    console.error('Insights endpoint error:', _err);
-    return res.status(500).json({ error: 'Internal error', message: 'Failed to generate insights' });
-  }
-}); */
-
-app.listen(PORT, () => {
-  console.log(`Proxy server running on http://localhost:${PORT}`);
-  console.log(`Claude API endpoint: http://localhost:${PORT}/api/claude`);
-  console.log(`Query translation endpoint: http://localhost:${PORT}/api/translate-query`);
-}).on('error', (err) => {
-  console.error('Failed to start proxy server:', err);
-  process.exit(1);
-});
+app
+  .listen(PORT, () => {
+    console.log(`Proxy server running on http://localhost:${PORT}`);
+    console.log(`Claude API endpoint: http://localhost:${PORT}/api/claude`);
+    console.log(`Query translation endpoint: http://localhost:${PORT}/api/translate-query`);
+  })
+  .on('error', err => {
+    console.error('Failed to start proxy server:', err);
+    process.exit(1);
+  });
 
 // Keep the process running
 process.on('SIGINT', () => {

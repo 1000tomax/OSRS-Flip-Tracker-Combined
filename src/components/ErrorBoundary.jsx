@@ -1,7 +1,6 @@
 // src/components/ErrorBoundary.jsx - Comprehensive error boundary system
 import React from 'react';
 import logger from '../utils/logger';
-import * as Sentry from '@sentry/react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -37,10 +36,7 @@ class ErrorBoundary extends React.Component {
       errorInfo,
     });
 
-    // Report to Sentry in production if configured
-    if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
-      Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-    }
+    // External error reporting removed
   }
 
   handleRetry = () => {

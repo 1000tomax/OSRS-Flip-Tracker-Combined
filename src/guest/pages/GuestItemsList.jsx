@@ -22,7 +22,7 @@ function useItemMetrics(guestData) {
 
     // Seed from itemStats for totals/averages
     const statsArray = Array.isArray(guestData?.itemStats) ? guestData.itemStats : [];
-    statsArray.forEach((s) => {
+    statsArray.forEach(s => {
       metrics.set(s.item, {
         item: s.item,
         totalProfit: Number(s.totalProfit) || 0,
@@ -38,8 +38,7 @@ function useItemMetrics(guestData) {
     // Defer wins/losses/spark computation to progressive pass; keep only stat-based fields here
 
     // Convert to array with computed successRate and sparkline data points
-    return Array.from(metrics.values()).map((m) => {
-      const total = m.flipCount || 0;
+    return Array.from(metrics.values()).map(m => {
       const successRate = 0;
       const sparkData = [];
       const avgProfit = Number.isFinite(m.avgProfit)
@@ -58,10 +57,13 @@ function useItemMetrics(guestData) {
 // Debounce helper without extra deps
 function useDebouncedCallback(cb, delay) {
   const timeoutRef = useRef();
-  const fn = useCallback((...args) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => cb(...args), delay);
-  }, [cb, delay]);
+  const fn = useCallback(
+    (...args) => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => cb(...args), delay);
+    },
+    [cb, delay]
+  );
   useEffect(() => () => timeoutRef.current && clearTimeout(timeoutRef.current), []);
   return fn;
 }
@@ -84,7 +86,11 @@ export default function GuestItemsList() {
   const [terms, setTerms] = useState(() => {
     if (Array.isArray(ui.terms) && ui.terms.length > 0) return ui.terms;
     return searchParams.get('q')
-      ? searchParams.get('q').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+      ? searchParams
+          .get('q')
+          .split(',')
+          .map(s => s.trim().toLowerCase())
+          .filter(Boolean)
       : [];
   });
 
@@ -98,7 +104,11 @@ export default function GuestItemsList() {
     // Safety cap to ensure it never lingers too long
     const t2 = setTimeout(() => setIntroShow(false), 2000);
     const raf = requestAnimationFrame(() => setFirstFrame(true));
-    return () => { clearTimeout(t1); clearTimeout(t2); cancelAnimationFrame(raf); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Keep URL + context UI in sync for persistence between list and detail
@@ -121,13 +131,15 @@ export default function GuestItemsList() {
       setBaseItems(allItemsBaseComputed);
     }
   }, [allItemsBaseComputed, baseItems]);
-  const allItemsBase = (baseItems && baseItems.length > 0) ? baseItems : allItemsBaseComputed;
+  const allItemsBase = baseItems && baseItems.length > 0 ? baseItems : allItemsBaseComputed;
 
   // Progressive metrics: fill success and sparkline incrementally to avoid long blocking work
   useEffect(() => {
     let cancelled = false;
     if (progressive?.byItem && progressive.byItem.size > 0) {
-      return () => { cancelled = true; };
+      return () => {
+        cancelled = true;
+      };
     }
     const byItem = new Map();
     const rows = [];
@@ -147,7 +159,7 @@ export default function GuestItemsList() {
     const chunkSize = 400;
     let index = 0;
 
-    function processChunk(deadline) {
+    function processChunk(_deadline) {
       const end = Math.min(index + chunkSize, rows.length);
       for (; index < end; index++) {
         const f = rows[index];
@@ -156,7 +168,8 @@ export default function GuestItemsList() {
         const profit = Number(f.profit) || 0;
         if (!byItem.has(name)) byItem.set(name, { wins: 0, losses: 0, spark: [] });
         const m = byItem.get(name);
-        if (profit > 0) m.wins += 1; else if (profit < 0) m.losses += 1;
+        if (profit > 0) m.wins += 1;
+        else if (profit < 0) m.losses += 1;
         m.spark.push(profit);
         if (m.spark.length > 40) m.spark = m.spark.slice(-40);
       }
@@ -175,7 +188,9 @@ export default function GuestItemsList() {
 
     if (rows.length === 0) {
       setProgressive({ ready: true, byItem: new Map() });
-      return () => { cancelled = true; };
+      return () => {
+        cancelled = true;
+      };
     }
 
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
@@ -184,7 +199,9 @@ export default function GuestItemsList() {
       setTimeout(processChunk, 0);
     }
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [guestData]);
 
   // Merge base + progressive into render-ready items
@@ -194,7 +211,7 @@ export default function GuestItemsList() {
       const p = progressive.byItem.get(m.item);
       if (!p) return m;
       const wl = (p.wins || 0) + (p.losses || 0);
-      const denom = wl > 0 ? wl : (m.flipCount || 0);
+      const denom = wl > 0 ? wl : m.flipCount || 0;
       const successRate = denom > 0 ? (p.wins / denom) * 100 : 0;
       const sparkData = (p.spark || []).map((v, i) => ({ x: i, profit: v }));
       return { ...m, successRate, sparkData };
@@ -209,16 +226,16 @@ export default function GuestItemsList() {
   }, [introMinElapsed, firstFrame, allItemsBase.length]);
 
   // Debounce search updates from ItemSearch
-  const updateTerms = useDebouncedCallback((values) => setTerms(values), 250);
+  const updateTerms = useDebouncedCallback(values => setTerms(values), 250);
 
   const filtered = useMemo(() => {
     let arr = allItems;
     if (terms.length > 0) {
-      arr = arr.filter((i) => terms.some((t) => i.item.toLowerCase().includes(t)));
+      arr = arr.filter(i => terms.some(t => i.item.toLowerCase().includes(t)));
     }
-    if (filters.has('profit')) arr = arr.filter((i) => i.totalProfit > 0);
-    if (filters.has('loss')) arr = arr.filter((i) => i.totalProfit < 0);
-    if (filters.has('volume')) arr = arr.filter((i) => (i.flipCount || 0) > 50);
+    if (filters.has('profit')) arr = arr.filter(i => i.totalProfit > 0);
+    if (filters.has('loss')) arr = arr.filter(i => i.totalProfit < 0);
+    if (filters.has('volume')) arr = arr.filter(i => (i.flipCount || 0) > 50);
     return arr;
   }, [allItems, terms, filters]);
 
@@ -241,7 +258,7 @@ export default function GuestItemsList() {
     return arr;
   }, [filtered, sortKey, sortDir]);
 
-  const toggleFilter = (key) => {
+  const toggleFilter = key => {
     const next = new Set(filters);
     if (next.has(key)) next.delete(key);
     else {
@@ -253,7 +270,7 @@ export default function GuestItemsList() {
     setFilters(next);
   };
 
-  const toggleSort = (key) => {
+  const toggleSort = key => {
     if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
     else {
       setSortKey(key);
@@ -261,12 +278,13 @@ export default function GuestItemsList() {
     }
   };
 
-  const onClickItem = (name) => {
+  const onClickItem = name => {
     const qs = searchParams.toString();
     navigate(`/guest/dashboard/items/${encodeURIComponent(name)}${qs ? `?${qs}` : ''}`);
   };
 
-  const countDisplay = terms.length > 0 ? `${sorted.length} of ${allItems.length}` : `${allItems.length}`;
+  const countDisplay =
+    terms.length > 0 ? `${sorted.length} of ${allItems.length}` : `${allItems.length}`;
 
   return (
     <div className="max-w-7xl mx-auto p-8">
@@ -296,7 +314,12 @@ export default function GuestItemsList() {
       {originalData?.metadata?.accountCount > 1 && isFiltered && (
         <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3 mb-6">
           <p className="text-blue-200 text-sm">
-            🔍 <strong>Filtering data for {selectedAccounts.length} account{selectedAccounts.length > 1 ? 's' : ''}:</strong> {selectedAccounts.join(', ')}
+            🔍{' '}
+            <strong>
+              Filtering data for {selectedAccounts.length} account
+              {selectedAccounts.length > 1 ? 's' : ''}:
+            </strong>{' '}
+            {selectedAccounts.join(', ')}
           </p>
         </div>
       )}
@@ -305,10 +328,7 @@ export default function GuestItemsList() {
       <div className="bg-gray-800 rounded-lg p-4 mb-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
-            <ItemSearch
-              onSearch={(vals) => updateTerms(vals)}
-              placeholder="Search items..."
-            />
+            <ItemSearch onSearch={vals => updateTerms(vals)} placeholder="Search items..." />
           </div>
           <div className="flex items-center gap-3">
             <div className="flex rounded-lg bg-gray-700 p-1">
@@ -330,14 +350,49 @@ export default function GuestItemsList() {
 
         <div className="flex flex-wrap items-center gap-2 mt-2">
           <span className="text-xs text-gray-400">Sort:</span>
-          <button onClick={() => toggleSort('profit')} className={`text-xs px-2 py-1 rounded ${sortKey==='profit' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}>Profit {sortKey==='profit' ? (sortDir==='asc'?'↑':'↓') : ''}</button>
-          <button onClick={() => toggleSort('flips')} className={`text-xs px-2 py-1 rounded ${sortKey==='flips' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}>Flips {sortKey==='flips' ? (sortDir==='asc'?'↑':'↓') : ''}</button>
-          <button onClick={() => toggleSort('success')} className={`text-xs px-2 py-1 rounded ${sortKey==='success' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}>Success {sortKey==='success' ? (sortDir==='asc'?'↑':'↓') : ''}</button>
-          <button onClick={() => toggleSort('name')} className={`text-xs px-2 py-1 rounded ${sortKey==='name' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}>Name {sortKey==='name' ? (sortDir==='asc'?'↑':'↓') : ''}</button>
+          <button
+            onClick={() => toggleSort('profit')}
+            className={`text-xs px-2 py-1 rounded ${sortKey === 'profit' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
+          >
+            Profit {sortKey === 'profit' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </button>
+          <button
+            onClick={() => toggleSort('flips')}
+            className={`text-xs px-2 py-1 rounded ${sortKey === 'flips' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
+          >
+            Flips {sortKey === 'flips' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </button>
+          <button
+            onClick={() => toggleSort('success')}
+            className={`text-xs px-2 py-1 rounded ${sortKey === 'success' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
+          >
+            Success {sortKey === 'success' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </button>
+          <button
+            onClick={() => toggleSort('name')}
+            className={`text-xs px-2 py-1 rounded ${sortKey === 'name' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
+          >
+            Name {sortKey === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </button>
           <span className="ml-4 text-xs text-gray-400">Filters:</span>
-          <button onClick={() => toggleFilter('profit')} className={`text-xs px-2 py-1 rounded ${filters.has('profit') ? 'bg-green-700 text-green-100' : 'bg-gray-700 text-gray-200'}`}>Profitable only</button>
-          <button onClick={() => toggleFilter('loss')} className={`text-xs px-2 py-1 rounded ${filters.has('loss') ? 'bg-red-700 text-red-100' : 'bg-gray-700 text-gray-200'}`}>Loss only</button>
-          <button onClick={() => toggleFilter('volume')} className={`text-xs px-2 py-1 rounded ${filters.has('volume') ? 'bg-yellow-700 text-yellow-100' : 'bg-gray-700 text-gray-200'}`}>High volume (&gt;50)</button>
+          <button
+            onClick={() => toggleFilter('profit')}
+            className={`text-xs px-2 py-1 rounded ${filters.has('profit') ? 'bg-green-700 text-green-100' : 'bg-gray-700 text-gray-200'}`}
+          >
+            Profitable only
+          </button>
+          <button
+            onClick={() => toggleFilter('loss')}
+            className={`text-xs px-2 py-1 rounded ${filters.has('loss') ? 'bg-red-700 text-red-100' : 'bg-gray-700 text-gray-200'}`}
+          >
+            Loss only
+          </button>
+          <button
+            onClick={() => toggleFilter('volume')}
+            className={`text-xs px-2 py-1 rounded ${filters.has('volume') ? 'bg-yellow-700 text-yellow-100' : 'bg-gray-700 text-gray-200'}`}
+          >
+            High volume (&gt;50)
+          </button>
           <span className="ml-auto text-xs text-gray-400">Items: {countDisplay}</span>
         </div>
       </div>
@@ -373,11 +428,19 @@ export default function GuestItemsList() {
                     <ItemWithIcon itemName={i.item} textClassName="text-white font-medium" />
                   </div>
                   <div className="col-span-2 px-4 py-2 text-right">
-                    <span className={i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}>{formatGP(i.totalProfit)}</span>
+                    <span className={i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}>
+                      {formatGP(i.totalProfit)}
+                    </span>
                   </div>
-                  <div className="col-span-2 px-4 py-2 text-right text-gray-200">{i.flipCount?.toLocaleString?.() || i.flipCount}</div>
-                  <div className="col-span-1 px-4 py-2 text-right"><ItemSuccessRateBadge value={i.successRate} /></div>
-                  <div className="col-span-1 px-4 py-2 text-right text-gray-200">{formatGP(i.avgProfit)}</div>
+                  <div className="col-span-2 px-4 py-2 text-right text-gray-200">
+                    {i.flipCount?.toLocaleString?.() || i.flipCount}
+                  </div>
+                  <div className="col-span-1 px-4 py-2 text-right">
+                    <ItemSuccessRateBadge value={i.successRate} />
+                  </div>
+                  <div className="col-span-1 px-4 py-2 text-right text-gray-200">
+                    {formatGP(i.avgProfit)}
+                  </div>
                   <div className="col-span-2 px-4 py-2">
                     <ItemProfitSparkline data={i.sparkData} />
                   </div>
@@ -391,18 +454,31 @@ export default function GuestItemsList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sorted.map((i) => (
-            <button key={i.item} onClick={() => onClickItem(i.item)} className="text-left bg-gray-800 rounded-lg p-4 border border-transparent hover:border-blue-500">
+          {sorted.map(i => (
+            <button
+              key={i.item}
+              onClick={() => onClickItem(i.item)}
+              className="text-left bg-gray-800 rounded-lg p-4 border border-transparent hover:border-blue-500"
+            >
               <div className="flex items-center justify-between mb-2">
                 <ItemWithIcon itemName={i.item} textClassName="text-white font-semibold" />
                 <ItemSuccessRateBadge value={i.successRate} />
               </div>
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <div className={`text-sm ${i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formatGP(i.totalProfit)}</div>
-                  <div className="text-xs text-gray-400">{i.flipCount?.toLocaleString?.() || i.flipCount} flips • {formatGP(i.avgProfit)} avg</div>
+                  <div
+                    className={`text-sm ${i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                  >
+                    {formatGP(i.totalProfit)}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {i.flipCount?.toLocaleString?.() || i.flipCount} flips • {formatGP(i.avgProfit)}{' '}
+                    avg
+                  </div>
                 </div>
-                <div className="flex-1"><ItemProfitSparkline data={i.sparkData} /></div>
+                <div className="flex-1">
+                  <ItemProfitSparkline data={i.sparkData} />
+                </div>
               </div>
             </button>
           ))}

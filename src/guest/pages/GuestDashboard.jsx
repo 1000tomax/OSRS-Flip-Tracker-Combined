@@ -3,7 +3,6 @@ import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { guestAnalytics } from '../../utils/guestAnalytics';
-import * as Sentry from '@sentry/react';
 import { formatGP } from '../../utils/formatUtils';
 import {
   LineChart,
@@ -59,11 +58,7 @@ function arrayToCSV(data) {
 // Export function - creates a ZIP with both JSON and CSV data
 async function exportGuestData(guestData) {
   try {
-    Sentry.addBreadcrumb({
-      category: 'action',
-      message: 'Export started',
-      level: 'info',
-    });
+    // console.debug('Export started');
 
     // Track data export
     guestAnalytics.dataExported();
@@ -163,17 +158,9 @@ Accounts: ${guestData.metadata.accounts.join(', ')}
     a.click();
     URL.revokeObjectURL(url);
 
-    Sentry.addBreadcrumb({
-      category: 'action',
-      message: 'Export completed successfully',
-      level: 'info',
-    });
+    // console.debug('Export completed successfully');
   } catch (error) {
-    Sentry.captureException(error, {
-      tags: {
-        component: 'export_function',
-      },
-    });
+    console.error('Export failed', error);
     throw error; // Re-throw so the calling code can handle it
   }
 }
@@ -259,19 +246,9 @@ export default function GuestDashboard() {
   useEffect(() => {
     guestAnalytics.dashboardViewed();
 
-    // Add context about loaded data
-    Sentry.setContext('dashboard_data', {
-      totalFlips: guestData.totalFlips,
-      uniqueItems: guestData.uniqueItems,
-      dateRange: guestData.metadata?.dateRange,
-      accountCount: guestData.metadata?.accountCount || 1,
-    });
+    // Add context about loaded data (external telemetry removed)
 
-    Sentry.addBreadcrumb({
-      category: 'navigation',
-      message: 'Dashboard loaded successfully',
-      level: 'info',
-    });
+    // console.debug('Dashboard loaded successfully');
   }, [guestData]);
 
   // Note: We don't need to check for data here because RequireGuestData handles it
@@ -303,11 +280,7 @@ export default function GuestDashboard() {
     if (isCapturingChart) return;
 
     try {
-      Sentry.addBreadcrumb({
-        category: 'action',
-        message: 'Screenshot capture started: profit_chart',
-        level: 'info',
-      });
+      // console.debug('Screenshot capture started: profit_chart');
 
       // Track screenshot capture
       guestAnalytics.screenshotCaptured('profit_chart');
@@ -434,12 +407,6 @@ export default function GuestDashboard() {
       link.href = dataUrl;
       link.click();
     } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          component: 'screenshot',
-          type: 'profit_chart',
-        },
-      });
       console.error('Chart screenshot failed:', error);
       // eslint-disable-next-line no-alert
       alert('Chart screenshot failed. Please try again.');
@@ -453,11 +420,8 @@ export default function GuestDashboard() {
     if (isCapturingHeatmap) return;
 
     try {
-      Sentry.addBreadcrumb({
-        category: 'action',
-        message: 'Screenshot capture started: trading_heatmap',
-        level: 'info',
-      });
+      // Debug breadcrumb stub
+      // console.debug('Screenshot capture started: trading_heatmap');
 
       // Track screenshot capture
       guestAnalytics.screenshotCaptured('trading_heatmap');
@@ -583,12 +547,6 @@ export default function GuestDashboard() {
       link.href = dataUrl;
       link.click();
     } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          component: 'screenshot',
-          type: 'trading_heatmap',
-        },
-      });
       console.error('Heatmap screenshot failed:', error);
       // eslint-disable-next-line no-alert
       alert('Heatmap screenshot failed. Please try again.');
@@ -624,8 +582,6 @@ export default function GuestDashboard() {
     { key: 'flipCount', label: 'Flips', sortable: true },
     { key: 'uniqueItems', label: 'Items', sortable: true },
   ];
-
-  
 
   return (
     <div className="max-w-7xl mx-auto p-8">
@@ -1079,7 +1035,7 @@ export default function GuestDashboard() {
         </div>
       )}
 
-  {activeTab === 'performance' && (
+      {activeTab === 'performance' && (
         <div className="space-y-8" id="performance-section">
           <Suspense fallback={<div className="text-gray-300">Loading performance analysis…</div>}>
             {/* Performance Analysis Stats */}
