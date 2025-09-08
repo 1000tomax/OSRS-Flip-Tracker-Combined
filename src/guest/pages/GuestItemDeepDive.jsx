@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useGuestData } from '../contexts/GuestDataContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { ItemWithIcon } from '../../components/ItemIcon';
@@ -29,13 +29,14 @@ export default function GuestItemDeepDive() {
 
   const onBack = () => {
     const qs = searchParams.toString();
-    navigate(`/guest/dashboard/items${qs ? `?${qs}` : ''}`);
+    navigate(`/guest/dashboard/items${qs ? `?${qs}` : ''}`, { replace: false });
   };
+  const backTo = `/guest/dashboard/items${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
   return (
     <div className="max-w-7xl mx-auto p-8">
       <nav className="text-sm text-gray-400 mb-2">
-        <button onClick={onBack} className="hover:text-gray-200">Items Analysis</button>
+        <Link to={backTo} className="hover:text-gray-200">Items Analysis</Link>
         <span className="mx-2">›</span>
         <span className="text-gray-200">{decoded}</span>
       </nav>
@@ -43,7 +44,7 @@ export default function GuestItemDeepDive() {
         <h1 className="text-3xl font-bold text-white flex items-center gap-2">
           <ItemWithIcon itemName={decoded} />
         </h1>
-        <button onClick={onBack} className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">← Back to list</button>
+        <Link to={backTo} className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">← Back to list</Link>
       </div>
 
       {!stat ? (
