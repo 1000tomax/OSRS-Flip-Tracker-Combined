@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   ResponsiveContainer,
@@ -39,6 +39,8 @@ function ScatterDot(props) {
 
 export default function GuestItemPriceMargin({ flips = [] }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef(null);
+  const containerRefFs = useRef(null);
   // no scale capture; rely on activeLabel (x) and activePayload (y)
   const base = useMemo(() => {
     const pts = [];
@@ -144,11 +146,10 @@ export default function GuestItemPriceMargin({ flips = [] }) {
     );
   };
 
-  const renderChart = (tall = false) => {
-    const containerRef = React.useRef(null);
+  const renderChart = (tall = false, refArg) => {
     const MARGINS = { top: 8, right: 20, left: 12, bottom: 8 };
     const getDims = () => {
-      const el = containerRef.current;
+      const el = (refArg && refArg.current) ? refArg.current : null;
       if (!el) return { w: 1, h: 1 };
       return { w: el.clientWidth || 1, h: el.clientHeight || 1 };
     };
@@ -171,7 +172,7 @@ export default function GuestItemPriceMargin({ flips = [] }) {
     };
 
     return (
-    <div className={tall ? 'h-[70vh]' : 'h-64'} ref={containerRef} style={{ cursor: isDragging ? 'crosshair' : 'default' }}>
+    <div className={tall ? 'h-[70vh]' : 'h-64'} ref={refArg} style={{ cursor: isDragging ? 'crosshair' : 'default' }}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
             data={base.points}
@@ -315,7 +316,7 @@ export default function GuestItemPriceMargin({ flips = [] }) {
         </div>
       )}
       <p className="text-xs text-gray-400 mb-2">Tip: Drag to draw a rectangle for a detailed selection view below.</p>
-      {renderChart(false)}
+      {renderChart(false, containerRef)}
       {renderFocusChart()}
       <div className="flex flex-wrap items-center justify-between mt-3 text-xs text-gray-300 gap-2">
         <div><span className="text-gray-400">Consistency:</span> <span className="font-semibold text-white">{volatility.label}</span> <span className="text-gray-500">(σ {stddev(viewPoints.map(p=>p.marginPct)).toFixed(2)}%)</span></div>
@@ -329,7 +330,7 @@ export default function GuestItemPriceMargin({ flips = [] }) {
         onClose={() => setIsFullscreen(false)}
         title="Margin Performance Timeline"
       >
-        {renderChart(true)}
+        {renderChart(true, containerRefFs)}
         {renderFocusChart()}
       </ChartFullscreenModal>
     </div>
