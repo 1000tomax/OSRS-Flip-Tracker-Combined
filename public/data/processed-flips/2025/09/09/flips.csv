@@ -1,0 +1,4 @@
+account_id,item_name,status,opened_quantity,spent,closed_quantity,received_post_tax,tax_paid,profit,opened_time,closed_time,updated_time,flip_hash
+1000tomax,Magic longbow (u),FINISHED,10000,10500000,10000,10540000,210000,40000,2025-09-09T03:00:27Z,2025-09-09T11:58:55Z,2025-09-09T11:58:55Z,b55fd2430459c44b5bf9f1a9d2977dd587538718743a83f88ff6ab1da7bff75a
+1000tomax,Tonalztics of ralos (uncharged),FINISHED,1,37381999,1,37576546,766868,194547,2025-09-09T03:25:17Z,2025-09-09T11:58:55Z,2025-09-09T11:58:55Z,97f0bad119f87f45d2d4f62f364884ee6a32ca8dc9ff3455ec0d4e6170fd2cc8
+1000tomax,Uncharged toxic trident,FINISHED,2,7863946,2,7976806,162790,112860,2025-09-09T03:46:06Z,2025-09-09T11:58:55Z,2025-09-09T11:58:55Z,78bf1a82c9100f97a0f852df825aa12cb2d9c9cafa07b2e61160c40eeb9fb30c
