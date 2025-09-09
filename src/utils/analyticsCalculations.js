@@ -1,5 +1,4 @@
 import { DateUtils } from './dateUtils';
-import { classifyItem as classify, getCoarseCategory as toCoarse } from '../lib/classification';
 
 export function aggregateHeatMapData(flips, metric, dateRange) {
   let relevantFlips;
@@ -277,13 +276,6 @@ export function analyzeCategoryPerformance(flips) {
 }
 
 function categorizeItem(itemName) {
-  // Defer to shared classifier and coarse mapping
-  try {
-    const fine = classify(itemName);
-    return toCoarse(fine);
-  } catch (_) {
-    // Classification failed, will fallback to heuristic method
-  }
 
   // Fallback to old heuristic
   const name = String(itemName || '').toLowerCase();
