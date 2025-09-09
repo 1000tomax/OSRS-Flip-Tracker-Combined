@@ -4,6 +4,58 @@ export const config = {
   runtime: 'edge'
 };
 
+// Discord webhook logging function
+async function logToDiscord(requestBody, success, errorMessage = null) {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  
+  if (!webhookUrl) {
+    return; // Skip logging if not configured
+  }
+
+  // Skip logging in dev if disabled
+  if (process.env.VITE_LOG_TO_DISCORD_IN_DEV === 'false') {
+    return;
+  }
+
+  try {
+    const embed = {
+      title: success ? '📡 Claude API Call' : '❌ Claude API Error',
+      color: success ? 0x0099ff : 0xff0000,
+      fields: [
+        {
+          name: '🔧 Model',
+          value: requestBody.model || 'Unknown',
+          inline: true
+        },
+        {
+          name: '💬 Messages',
+          value: `${requestBody.messages?.length || 0} messages`,
+          inline: true
+        },
+        errorMessage ? {
+          name: '💥 Error',
+          value: `\`\`\`${errorMessage.substring(0, 500)}\`\`\``,
+          inline: false
+        } : null
+      ].filter(Boolean),
+      timestamp: new Date().toISOString(),
+      footer: {
+        text: 'Claude API Proxy'
+      }
+    };
+
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [embed]
+      })
+    });
+  } catch (err) {
+    console.error('Discord webhook error:', err);
+  }
+}
+
 export default async function handler(req) {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -14,13 +66,13 @@ export default async function handler(req) {
   }
 
   // Get API key from environment (set in Vercel dashboard)
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.VITE_CLAUDE_API_KEY;
   if (!apiKey) {
-    console.error('ANTHROPIC_API_KEY not configured in Vercel environment');
+    console.error('VITE_CLAUDE_API_KEY not configured in Vercel environment');
     return new Response(
       JSON.stringify({ 
         error: 'Server configuration error',
-        message: 'API key not configured. Please set ANTHROPIC_API_KEY in Vercel dashboard.'
+        message: 'API key not configured. Please set VITE_CLAUDE_API_KEY in Vercel dashboard.'
       }),
       { 
         status: 500, 
@@ -29,9 +81,10 @@ export default async function handler(req) {
     );
   }
 
+  let body;
   try {
     // Get request body
-    const body = await req.json();
+    body = await req.json();
     
     // Validate required fields
     if (!body.model || !body.messages) {
@@ -58,6 +111,9 @@ export default async function handler(req) {
     // Get response as text to preserve exact formatting
     const responseText = await response.text();
     
+    // Log successful API call to Discord
+    await logToDiscord(body, response.ok);
+    
     // Return response with same status
     return new Response(responseText, {
       status: response.status,
@@ -68,6 +124,10 @@ export default async function handler(req) {
     });
   } catch (error) {
     console.error('Proxy error:', error);
+    
+    // Log error to Discord
+    await logToDiscord(body || {}, false, error.message);
+    
     return new Response(
       JSON.stringify({ 
         error: 'Proxy error',

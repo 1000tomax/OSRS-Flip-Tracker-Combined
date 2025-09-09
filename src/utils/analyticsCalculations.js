@@ -1,4 +1,5 @@
 import { DateUtils } from './dateUtils';
+import { classifyItem as classify, getCoarseCategory as toCoarse } from '../lib/classification';
 
 export function aggregateHeatMapData(flips, metric, dateRange) {
   let relevantFlips;
@@ -276,19 +277,22 @@ export function analyzeCategoryPerformance(flips) {
 }
 
 function categorizeItem(itemName) {
-  const name = itemName.toLowerCase();
+  // Defer to shared classifier and coarse mapping
+  try {
+    const fine = classify(itemName);
+    return toCoarse(fine);
+  } catch (_) {
+    // Classification failed, will fallback to heuristic method
+  }
 
-  if (name.includes('rune') && !name.includes('runite')) return 'Runes';
-  if (name.includes('log') || name.includes('plank')) return 'Woodcutting';
-  if (name.includes('ore') || name.includes('bar')) return 'Mining';
-  if (name.includes('potion') || name.includes('herb')) return 'Herblore';
-  if (name.includes('seed')) return 'Farming';
+  // Fallback to old heuristic
+  const name = String(itemName || '').toLowerCase();
   if (name.includes('bolt') || name.includes('arrow') || name.includes('dart')) return 'Ammunition';
-  if (name.includes('dragon') || name.includes('rune') || name.includes('adamant'))
-    return 'Equipment';
-  if (name.includes('bone')) return 'Prayer';
-  if (name.includes('food') || name.includes('fish')) return 'Food';
-
+  if (name.includes('rune') && !name.includes('runite')) return 'Magic';
+  if (name.includes('potion') || name.includes('herb')) return 'Consumables';
+  if (name.includes('seed') || name.includes('ore') || name.includes('bar') || name.includes('log') || name.includes('plank')) return 'Skilling';
+  if (name.includes('bone') || name.includes('ashes')) return 'Prayer';
+  if (name.includes('dragon') || name.includes('rune') || name.includes('adamant')) return 'Equipment';
   return 'Other';
 }
 

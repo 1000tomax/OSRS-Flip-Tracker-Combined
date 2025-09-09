@@ -381,13 +381,244 @@ Choose the most appropriate display type based on the query:
   }
 });
 
-// AI Insights endpoint (removed for now)
+// SQL Generation endpoint for AI queries
+app.post('/api/generate-sql', async (req, res) => {
+  const apiKey = process.env.VITE_CLAUDE_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      error: 'Server configuration error',
+      message: 'VITE_CLAUDE_API_KEY not set in .env file',
+    });
+  }
+
+  // Rate limiting
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({ 
+      error: 'Too many requests. Please wait a minute.' 
+    });
+  }
+
+  try {
+    const { query, previousQuery, previousSQL } = req.body;
+    
+    // Input validation
+    if (!query || query.length < 3) {
+      return res.status(400).json({ 
+        error: 'Query too short' 
+      });
+    }
+    
+    if (query.length > 500) {
+      return res.status(400).json({ 
+        error: 'Query too long. Please keep under 500 characters.' 
+      });
+    }
+    
+    // Build prompt based on whether this is a follow-up
+    const isFollowUp = !!previousQuery;
+    
+    const prompt = isFollowUp ? `
+You are refining a previous SQL query based on user feedback.
+
+Previous user query: "${previousQuery}"
+Previous SQL generated: ${previousSQL}
+
+User's refinement request: "${query}"
+
+Generate an updated SQL query that incorporates the refinement.
+
+Examples of refinements:
+- "exclude ammo" → Add: AND item NOT LIKE '%bolt%' AND item NOT LIKE '%arrow%'
+- "only the profitable ones" → Add: AND profit > 0
+- "sort by ROI instead" → Change: ORDER BY roi DESC
+- "show more results" → Change: LIMIT 100
+- "show all" → Remove LIMIT clause but keep all WHERE conditions and ORDER BY
+- "show only top 10" → Add/Change: LIMIT 10
+
+IMPORTANT: When user says "show all", preserve the original WHERE conditions and ORDER BY clause exactly. Only remove LIMIT restrictions.
+
+Table schema:
+CREATE TABLE flips (
+  id INTEGER,
+  item TEXT NOT NULL,
+  buy_price INTEGER,
+  sell_price INTEGER,
+  profit INTEGER,
+  roi REAL,
+  quantity INTEGER,
+  buy_time TEXT,
+  sell_time TEXT,
+  account TEXT,
+  flip_duration_minutes INTEGER,
+  date TEXT -- Format: YYYY-MM-DD
+);
+
+NOTE: 
+- Item categorization is not currently implemented. Use specific item names or LIKE patterns for item filtering.
+- Never select the 'id' field in queries as it's just an internal row number.
+
+Return ONLY the updated SQL query:
+` : `
+You are a SQL query generator for an OSRS flip tracking database.
+
+Table schema:
+CREATE TABLE flips (
+  id INTEGER,
+  item TEXT NOT NULL,
+  buy_price INTEGER,
+  sell_price INTEGER,
+  profit INTEGER,
+  roi REAL,
+  quantity INTEGER,
+  buy_time TEXT,
+  sell_time TEXT,
+  account TEXT,
+  flip_duration_minutes INTEGER,
+  date TEXT -- Format: YYYY-MM-DD
+);
+
+NOTE: 
+- Item categorization is not currently implemented. Use specific item names or LIKE patterns for item filtering.
+- Never select the 'id' field in queries as it's just an internal row number.
+- For time-based calculations, flip_duration_minutes can be converted to hours by dividing by 60
+
+User request: "${query}"
+
+Generate a SQL query that answers the user's request.
+
+IMPORTANT RULES:
+1. Return ONLY the SQL query, no explanations
+2. Only include LIMIT if user specifies a number (e.g., "top 10", "first 20")
+3. Use DATE() and DATETIME() functions for date operations
+4. For "recent" or "latest", use date > date('now', '-7 days')
+5. For aggregations, use appropriate GROUP BY with aggregate functions (SUM, COUNT, AVG)
+6. NEVER use SELECT * - always specify columns explicitly (exclude id column)
+7. Default to ORDER BY profit DESC if no order specified
+8. Be defensive - use CAST() for numeric comparisons when needed
+9. Use LIKE for partial text matches
+10. When filtering by flip_duration_minutes, ALWAYS include flip_duration_minutes in SELECT for context
+11. When querying by time duration (longer than, shorter than), ORDER BY flip_duration_minutes DESC for best results
+12. If the user input is not about flips/trading, return: SELECT 'Please ask about OSRS flips' as error
+
+Examples:
+- "top 10 items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips ORDER BY profit DESC LIMIT 10
+- "flips from last week" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE date > date('now', '-7 days') ORDER BY profit DESC
+- "dragon scimitar profits" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE item LIKE '%dragon scimitar%' ORDER BY profit DESC
+- "bandos items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE item LIKE '%bandos%' ORDER BY profit DESC
+- "items I traded daily this week" → SELECT item, SUM(profit) as total_profit, AVG(roi) as avg_roi, COUNT(*) as total_flips, COUNT(DISTINCT date) as days_traded FROM flips WHERE date > date('now', '-7 days') GROUP BY item HAVING COUNT(DISTINCT date) = 7 ORDER BY SUM(profit) DESC
+- "profit by item" → SELECT item, SUM(profit) as total_profit, COUNT(*) as flip_count FROM flips GROUP BY item ORDER BY total_profit DESC
+- "profit by account" → SELECT account, SUM(profit) as total_profit, AVG(roi) as avg_roi FROM flips GROUP BY account ORDER BY total_profit DESC
+- "most traded items" → SELECT item, COUNT(*) as flip_count, SUM(profit) as total_profit FROM flips GROUP BY item ORDER BY flip_count DESC
+- "expensive flips only" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE profit > 100000 ORDER BY profit DESC
+- "flips longer than 24 hours" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date, flip_duration_minutes FROM flips WHERE flip_duration_minutes > 1440 ORDER BY flip_duration_minutes DESC
+
+Generate SQL for the user request:`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 500,
+        temperature: 0,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const sql = data.content[0].text.trim();
+    
+    // Validate SQL
+    const validation = validateSQL(sql);
+    if (!validation.safe) {
+      return res.status(400).json({ 
+        error: 'Generated SQL failed safety check',
+        reason: validation.reason 
+      });
+    }
+    
+    res.status(200).json({ 
+      sql,
+      estimated_cost: 0.00025
+    });
+    
+  } catch (error) {
+    console.error('SQL generation error:', error);
+    
+    res.status(500).json({ 
+      error: 'Failed to generate SQL query' 
+    });
+  }
+});
+
+function validateSQL(sql) {
+  const forbidden = [
+    'DROP', 'DELETE', 'INSERT', 'UPDATE', 'ALTER', 
+    'CREATE', 'TRUNCATE', 'EXEC', 'EXECUTE'
+  ];
+  
+  const upperSQL = sql.toUpperCase();
+  for (const keyword of forbidden) {
+    if (upperSQL.includes(keyword)) {
+      return { safe: false, reason: `Forbidden keyword: ${keyword}` };
+    }
+  }
+  
+  if (!upperSQL.trim().startsWith('SELECT')) {
+    return { safe: false, reason: 'Only SELECT queries allowed' };
+  }
+  
+  // LIMIT clause no longer required - user preference is to see all results
+  
+  return { safe: true };
+}
+
+// Rate limiting for SQL endpoint
+const sqlRateLimits = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const userLimits = sqlRateLimits.get(ip) || { count: 0, resetAt: now + 60000 };
+  
+  if (now > userLimits.resetAt) {
+    userLimits.count = 0;
+    userLimits.resetAt = now + 60000;
+  }
+  
+  if (userLimits.count >= 20) {
+    return false;
+  }
+  
+  userLimits.count++;
+  sqlRateLimits.set(ip, userLimits);
+  
+  if (sqlRateLimits.size > 1000) {
+    sqlRateLimits.clear();
+  }
+  
+  return true;
+}
 
 app
   .listen(PORT, () => {
     console.log(`Proxy server running on http://localhost:${PORT}`);
     console.log(`Claude API endpoint: http://localhost:${PORT}/api/claude`);
     console.log(`Query translation endpoint: http://localhost:${PORT}/api/translate-query`);
+    console.log(`SQL generation endpoint: http://localhost:${PORT}/api/generate-sql`);
   })
   .on('error', err => {
     console.error('Failed to start proxy server:', err);

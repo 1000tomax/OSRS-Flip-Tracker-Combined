@@ -25,6 +25,7 @@
     "build:analyze": "npm run build && npm run analyze",
     "analyze": "npx serve dist -s & open http://localhost:3000/stats.html",
     "build:data": "node scripts/build-embeddings.cjs && node scripts/build-summary-index.cjs",
+    "classify:scan": "node scripts/classify-scan.mjs",
     "process-flips": "node data-processing/run-all.cjs",
     "process:parse": "node data-processing/parser.cjs",
     "process:summaries": "node data-processing/summaryBuilder.cjs",
@@ -36,6 +37,7 @@
     "qa:full": "npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.61.0",
     "@vercel/analytics": "^1.5.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
@@ -51,7 +53,8 @@
     "react-router-dom": "^7.7.1",
     "react-window": "^1.8.11",
     "recharts": "2.12.7",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.7",
+    "sql.js": "^1.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.3",

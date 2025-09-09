@@ -20,10 +20,7 @@ import GuestHeatMap from '../components/GuestHeatMap';
 import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
 import GuestDatePicker from '../components/GuestDatePicker';
 import GuestDailySummary from '../components/GuestDailySummary';
-// Comment out the old complex version:
-// import { QueryBuilder } from '../components/QueryBuilder';
-// Use the new simple version:
-import { QueryBuilderSimple as QueryBuilder } from '../components/QueryBuilder/QueryBuilderSimple';
+import { AIQueryInterface } from '../components/AIQueryInterface';
 
 // Import new performance components
 const GuestPerformanceAnalysis = lazy(() => import('../components/GuestPerformanceAnalysis'));
@@ -688,7 +685,7 @@ export default function GuestDashboard() {
                   : 'border-transparent text-gray-400 hover:text-gray-300'
               }`}
             >
-              Data Query
+              AI Search
             </button>
             {hasFrequencyTestAccounts && (
               <button
@@ -1078,7 +1075,7 @@ export default function GuestDashboard() {
         </div>
       )}
 
-      {activeTab === 'ai' && <QueryBuilder data={guestData} originalData={originalData} />}
+      {activeTab === 'ai' && <AIQueryInterface flips={guestData.allFlips} />}
 
       {activeTab === 'summary' && (
         <GuestDailySummary guestData={guestData} onDateSelect={handleDateSelect} />
