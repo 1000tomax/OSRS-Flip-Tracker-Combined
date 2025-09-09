@@ -192,23 +192,24 @@ self.onmessage = async e => {
                 if (!firstBuyTime || !lastSellTime) continue;
 
                 const flipData = {
-                  account: row[headerMap.account] || 'Unknown',
-                  item: row[headerMap.item] || 'Unknown',
+                  account: row[headerMap['account']] || 'Unknown',
+                  item: row[headerMap['item']] || 'Unknown',
+                  status: row[headerMap['status']] || 'UNKNOWN',
                   first_buy_time: firstBuyTime,
                   last_sell_time: lastSellTime,
-                  bought: cleanNumeric(row[headerMap.bought]),
-                  sold: cleanNumeric(row[headerMap.sold]),
+                  bought: cleanNumeric(row[headerMap['bought']]),
+                  sold: cleanNumeric(row[headerMap['sold']]),
                   avg_buy_price: cleanNumeric(row[headerMap['avg. buy price']]),
                   avg_sell_price: cleanNumeric(row[headerMap['avg. sell price']]),
-                  tax: cleanNumeric(row[headerMap.tax]),
+                  tax: cleanNumeric(row[headerMap['tax']]),
                   profit:
                     'profit' in headerMap
-                      ? cleanNumeric(row[headerMap.profit])
-                      : cleanNumeric(row[headerMap.sold]) *
+                      ? cleanNumeric(row[headerMap['profit']])
+                      : cleanNumeric(row[headerMap['sold']]) *
                           cleanNumeric(row[headerMap['avg. sell price']]) -
-                        cleanNumeric(row[headerMap.bought]) *
+                        cleanNumeric(row[headerMap['bought']]) *
                           cleanNumeric(row[headerMap['avg. buy price']]) -
-                        cleanNumeric(row[headerMap.tax]),
+                        cleanNumeric(row[headerMap['tax']]),
                 };
 
                 if (flipData.bought === 0 && flipData.sold === 0) {

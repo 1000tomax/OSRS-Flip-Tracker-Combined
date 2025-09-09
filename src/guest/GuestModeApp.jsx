@@ -13,6 +13,7 @@ import { lazy, Suspense } from 'react';
 // Lazy load items pages (deep dive especially for performance)
 const GuestItemsList = lazy(() => import('./pages/GuestItemsList'));
 const GuestItemDeepDive = lazy(() => import('./pages/GuestItemDeepDive'));
+const GuestFrequencyComparison = lazy(() => import('./pages/GuestFrequencyComparison'));
 
 // Use standard Routes without external error reporting
 
@@ -126,6 +127,33 @@ export default function GuestModeApp() {
                         }
                       >
                         <GuestItemDeepDive />
+                      </Suspense>
+                    </RequireGuestData>
+                  }
+                />
+
+                {/* Unlisted frequency comparison page */}
+                <Route
+                  path="/dashboard/frequency-comparison"
+                  element={
+                    <RequireGuestData>
+                      <Suspense
+                        fallback={
+                          <div
+                            className="fixed inset-0 z-50 flex items-center justify-center"
+                            style={{
+                              backgroundColor: 'rgba(0,0,0,0.55)',
+                              backdropFilter: 'blur(2px)',
+                            }}
+                          >
+                            <div className="bg-gray-900/90 border border-gray-700 rounded-xl px-6 py-5 shadow-2xl flex items-center gap-4">
+                              <div className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+                              <div className="text-gray-200 font-medium">Loading Comparison…</div>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <GuestFrequencyComparison />
                       </Suspense>
                     </RequireGuestData>
                   }

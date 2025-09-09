@@ -170,6 +170,13 @@ export default function GuestDashboard() {
   const { getFilteredData, isFiltered, selectedAccounts } = useAccountFilter();
   const guestData = getFilteredData() || originalData;
   const navigate = useNavigate();
+
+  // Check if frequency comparison should be available
+  const hasFrequencyTestAccounts = useMemo(() => {
+    const targetAccounts = ['Iron Nuggget', 'Mreedon97'];
+    const availableAccounts = originalData?.metadata?.accounts || [];
+    return targetAccounts.every(account => availableAccounts.includes(account));
+  }, [originalData]);
   const [isCapturingChart, setIsCapturingChart] = useState(false);
   const [isCapturingHeatmap, setIsCapturingHeatmap] = useState(false);
   const [chartViewMode, setChartViewMode] = useState('combined'); // 'combined' or 'individual'
@@ -683,12 +690,42 @@ export default function GuestDashboard() {
             >
               Data Query
             </button>
+            {hasFrequencyTestAccounts && (
+              <button
+                onClick={() => navigate('/guest/dashboard/frequency-comparison')}
+                className="py-2 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-orange-400 hover:text-orange-300"
+                title="Compare Iron Nuggget vs Mreedon97 frequency test"
+              >
+                🧪 Frequency Test
+              </button>
+            )}
           </nav>
         </div>
       </div>
 
       {activeTab === 'overview' && (
         <>
+          {/* Frequency Test Notice */}
+          {hasFrequencyTestAccounts && (
+            <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <span className="text-orange-400 text-lg">🧪</span>
+                <div>
+                  <p className="text-orange-200 font-medium">Frequency Test Data Detected</p>
+                  <p className="text-orange-300 text-sm mt-1">
+                    Both test accounts found: Iron Nuggget (30min) & Mreedon97 (5min).{' '}
+                    <button
+                      onClick={() => navigate('/guest/dashboard/frequency-comparison')}
+                      className="text-orange-400 hover:text-orange-300 underline font-medium"
+                    >
+                      View comparison analysis →
+                    </button>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Summary Cards - No challenge metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="bg-gray-800 p-6 rounded-lg">
