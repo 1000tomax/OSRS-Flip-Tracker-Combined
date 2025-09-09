@@ -9,13 +9,16 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  ReferenceLine,
 } from 'recharts';
 import { formatGP } from '../../utils/formatUtils';
 
 const TEST_START_TIME = '2025-09-08T18:04:27.000Z';
 const TARGET_ACCOUNTS = ['Iron Nuggget', 'Mreedon97'];
+const GAP_THRESHOLD_HOURS = 2; // Consider gaps larger than 2 hours as significant
+const GAP_VISUAL_WIDTH = 0.5; // Visual width for gaps on the chart
 
-function FrequencyComparisonChart({ chartData, accountStats }) {
+function FrequencyComparisonChart({ chartData, gapMarkers, accountStats }) {
   const formatTooltipDate = dateStr => {
     const date = new Date(dateStr);
     return date.toLocaleString('en-US', {
@@ -34,14 +37,22 @@ function FrequencyComparisonChart({ chartData, accountStats }) {
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
             <XAxis
-              dataKey="hoursFromStart"
+              dataKey="displayPosition"
               stroke="#9CA3AF"
               fontSize={12}
               tickLine={false}
               tick={{ fill: '#9CA3AF' }}
               domain={['dataMin', 'dataMax']}
               type="number"
-              tickFormatter={value => `${value}h`}
+              tickFormatter={value => {
+                // Find the closest data point to this tick value
+                const point = chartData.find(d => Math.abs(d.displayPosition - value) < 0.1);
+                if (point) {
+                  return `${point.actualHours}h`;
+                }
+                // For ticks that don't match exact data points, interpolate
+                return '';
+              }}
             />
             <YAxis
               stroke="#9CA3AF"
@@ -70,9 +81,14 @@ function FrequencyComparisonChart({ chartData, accountStats }) {
               }}
               labelFormatter={(label, payload) => {
                 if (payload && payload[0]) {
-                  const hoursFromStart = payload[0].payload.hoursFromStart;
-                  const actualTime = formatTooltipDate(payload[0].payload.timestamp);
-                  return `${hoursFromStart}h from start (${actualTime})`;
+                  const data = payload[0].payload;
+                  const actualHours = data.actualHours;
+                  const actualTime = formatTooltipDate(data.timestamp);
+                  const gapInfo =
+                    data.hoursSinceLastTransaction > GAP_THRESHOLD_HOURS
+                      ? ` (${data.hoursSinceLastTransaction.toFixed(1)}h gap)`
+                      : '';
+                  return `${actualHours}h from start (${actualTime})${gapInfo}`;
                 }
                 return label;
               }}
@@ -105,13 +121,31 @@ function FrequencyComparisonChart({ chartData, accountStats }) {
                 activeDot={{ r: 6, fill: '#22c55e' }}
               />
             )}
+            {/* Add visual markers for time gaps */}
+            {gapMarkers &&
+              gapMarkers.map((gap, index) => (
+                <ReferenceLine
+                  key={`gap-${index}`}
+                  x={gap.position}
+                  stroke="#fbbf24"
+                  strokeDasharray="5 5"
+                  strokeWidth={2}
+                  label={{
+                    value: `${gap.duration.toFixed(1)}h gap`,
+                    position: 'top',
+                    fill: '#fbbf24',
+                    fontSize: 10,
+                  }}
+                />
+              ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
       <p className="text-sm text-gray-400 mt-4">
         Comparison of cumulative profit between 5-minute and 30-minute frequency trading accounts
         from test start. Each point represents a completed transaction (plotted by sell completion
-        time).
+        time). Yellow dashed lines indicate time gaps longer than {GAP_THRESHOLD_HOURS} hours that
+        have been compressed for clarity.
       </p>
     </div>
   );
@@ -196,9 +230,15 @@ function SummaryStats({ accountStats }) {
 export default function GuestFrequencyComparison() {
   const { guestData } = useGuestData();
 
-  const { chartData, accountStats, testDuration, hasValidAccounts } = useMemo(() => {
+  const { chartData, gapMarkers, accountStats, testDuration, hasValidAccounts } = useMemo(() => {
     if (!guestData?.flipsByDate) {
-      return { chartData: [], accountStats: {}, testDuration: 0, hasValidAccounts: false };
+      return {
+        chartData: [],
+        gapMarkers: [],
+        accountStats: {},
+        testDuration: 0,
+        hasValidAccounts: false,
+      };
     }
 
     const testStartDate = new Date(TEST_START_TIME);
@@ -273,8 +313,9 @@ export default function GuestFrequencyComparison() {
     // Sort all transactions by timestamp
     allTransactions.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-    // Build cumulative chart data
+    // Build cumulative chart data with discontinuous scale
     const chartData = [];
+    const gapMarkers = [];
     const cumulatives = {
       'Iron Nuggget': 0,
       Mreedon97: 0,
@@ -287,28 +328,59 @@ export default function GuestFrequencyComparison() {
     };
 
     // Start with 0,0 point at test start
+    let currentDisplayPosition = 0;
+    let lastTimestamp = TEST_START_TIME;
+
     chartData.push({
       timestamp: TEST_START_TIME,
       hoursFromStart: 0,
+      actualHours: 0,
+      displayPosition: 0,
       timeLabel: '0h',
       ironNugggetCumulative: 0,
       mreedon97Cumulative: 0,
+      isGap: false,
     });
 
-    // Add cumulative points for each transaction
-    allTransactions.forEach(transaction => {
-      cumulatives[transaction.account] += transaction.profit;
-
+    // Add cumulative points for each transaction with gap detection
+    allTransactions.forEach((transaction, index) => {
       const hoursFromStart = getHoursFromStart(transaction.timestamp);
-      const timeLabel = `${hoursFromStart}h`;
+      const hoursSinceLastTransaction =
+        getHoursFromStart(transaction.timestamp) -
+        (index === 0 ? 0 : getHoursFromStart(lastTimestamp));
+
+      // Check if there's a significant gap
+      if (hoursSinceLastTransaction > GAP_THRESHOLD_HOURS && index > 0) {
+        // Add gap marker
+        const gapStart = currentDisplayPosition;
+        currentDisplayPosition += GAP_VISUAL_WIDTH;
+
+        gapMarkers.push({
+          position: gapStart + GAP_VISUAL_WIDTH / 2,
+          duration: hoursSinceLastTransaction,
+          startTime: lastTimestamp,
+          endTime: transaction.timestamp,
+        });
+      } else if (index > 0) {
+        // Normal progression without gap
+        currentDisplayPosition += Math.min(hoursSinceLastTransaction, GAP_THRESHOLD_HOURS);
+      }
+
+      cumulatives[transaction.account] += transaction.profit;
 
       chartData.push({
         timestamp: transaction.timestamp,
         hoursFromStart,
-        timeLabel,
+        actualHours: hoursFromStart,
+        displayPosition: currentDisplayPosition,
+        timeLabel: `${hoursFromStart}h`,
         ironNugggetCumulative: cumulatives['Iron Nuggget'],
         mreedon97Cumulative: cumulatives['Mreedon97'],
+        isGap: false,
+        hoursSinceLastTransaction: index === 0 ? 0 : hoursSinceLastTransaction,
       });
+
+      lastTimestamp = transaction.timestamp;
     });
 
     // Calculate test duration
@@ -320,6 +392,7 @@ export default function GuestFrequencyComparison() {
 
     return {
       chartData,
+      gapMarkers,
       accountStats: accountData,
       testDuration,
       hasValidAccounts: hasAnyTargetAccount,
@@ -399,7 +472,11 @@ export default function GuestFrequencyComparison() {
       <SummaryStats accountStats={accountStats} />
 
       {/* Chart */}
-      <FrequencyComparisonChart chartData={chartData} accountStats={accountStats} />
+      <FrequencyComparisonChart
+        chartData={chartData}
+        gapMarkers={gapMarkers}
+        accountStats={accountStats}
+      />
 
       {/* Test Details */}
       <div className="mt-8 bg-gray-800 p-6 rounded-lg">
