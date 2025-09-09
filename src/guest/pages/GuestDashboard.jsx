@@ -16,10 +16,10 @@ import {
 } from 'recharts';
 
 // Import existing components
-import SortableTable from '../../components/SortableTable';
 import GuestHeatMap from '../components/GuestHeatMap';
 import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
 import GuestDatePicker from '../components/GuestDatePicker';
+import GuestDailySummary from '../components/GuestDailySummary';
 // Comment out the old complex version:
 // import { QueryBuilder } from '../components/QueryBuilder';
 // Use the new simple version:
@@ -175,7 +175,7 @@ export default function GuestDashboard() {
   const [chartViewMode, setChartViewMode] = useState('combined'); // 'combined' or 'individual'
 
   // Tab navigation state
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'performance', 'fliplogs', 'ai'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'performance', 'fliplogs', 'ai', 'summary'
   const [selectedDate, setSelectedDate] = useState(null); // For flip log viewer
   const [selectedDayHour, setSelectedDayHour] = useState(null); // For heatmap cell clicks
 
@@ -555,34 +555,6 @@ export default function GuestDashboard() {
     }
   };
 
-  // Prepare data for daily summaries table
-  const dailyTableColumns = [
-    {
-      key: 'date',
-      label: 'Date',
-      sortable: true,
-      render: value => (
-        <button
-          onClick={() => handleDateSelect(value)}
-          className="text-blue-400 hover:text-blue-300 hover:underline font-medium transition-colors cursor-pointer"
-          title="Click to view transactions for this date"
-        >
-          {value}
-        </button>
-      ),
-    },
-    {
-      key: 'totalProfit',
-      label: 'Profit',
-      sortable: true,
-      render: value => (
-        <span className={value >= 0 ? 'text-green-400' : 'text-red-400'}>{formatGP(value)}</span>
-      ),
-    },
-    { key: 'flipCount', label: 'Flips', sortable: true },
-    { key: 'uniqueItems', label: 'Items', sortable: true },
-  ];
-
   return (
     <div className="max-w-7xl mx-auto p-8">
       {/* Warning about refreshing */}
@@ -663,6 +635,16 @@ export default function GuestDashboard() {
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-400 hover:text-gray-300`}
             >
               Items Analysis
+            </button>
+            <button
+              onClick={() => setActiveTab('summary')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'summary'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              Daily Summary
             </button>
             <button
               onClick={() => setActiveTab('performance')}
@@ -934,41 +916,31 @@ export default function GuestDashboard() {
             />
           </div>
 
-          {/* Tables */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-white">
-                  Daily Summary ({guestData.dailySummaries.length} days)
-                </h3>
-              </div>
-              <div className="max-h-96 overflow-y-auto">
-                <SortableTable
-                  data={guestData.dailySummaries}
-                  columns={dailyTableColumns}
-                  initialSortField="date"
-                  initialSortDirection="desc"
-                  className="text-sm"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-3">
-                💡 Click any date to view detailed transactions for that day
+          {/* Subtle notices about moved features */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="text-center py-8">
+              <p className="text-gray-500 text-sm">
+                📊 Daily summaries have moved to the{' '}
+                <button
+                  onClick={() => setActiveTab('summary')}
+                  className="text-blue-400 hover:text-blue-300 underline"
+                >
+                  Daily Summary
+                </button>{' '}
+                tab
               </p>
             </div>
-
-            {/* Items table moved to dedicated Items Analysis page */}
-            <div className="bg-gray-800/60 p-6 rounded-lg border border-dashed border-gray-700">
-              <h3 className="text-xl font-bold text-white mb-2">Items Analysis</h3>
-              <p className="text-gray-300 text-sm mb-4">
-                Explore detailed item performance, trends, and insights in the new Items Analysis
-                section.
+            <div className="text-center py-8">
+              <p className="text-gray-500 text-sm">
+                📦 Item statistics have moved to the{' '}
+                <button
+                  onClick={() => navigate('/guest/dashboard/items')}
+                  className="text-blue-400 hover:text-blue-300 underline"
+                >
+                  Items Analysis
+                </button>{' '}
+                page
               </p>
-              <button
-                onClick={() => navigate('/guest/dashboard/items')}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
-              >
-                Go to Items Analysis →
-              </button>
             </div>
           </div>
         </>
@@ -1070,6 +1042,10 @@ export default function GuestDashboard() {
       )}
 
       {activeTab === 'ai' && <QueryBuilder data={guestData} originalData={originalData} />}
+
+      {activeTab === 'summary' && (
+        <GuestDailySummary guestData={guestData} onDateSelect={handleDateSelect} />
+      )}
     </div>
   );
 }
