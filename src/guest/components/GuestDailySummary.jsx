@@ -128,7 +128,78 @@ export default function GuestDailySummary({ guestData, onDateSelect }) {
     };
   }, [summaries]);
 
-  // Generate screenshot with compression
+  // Helper function to trim unused space from canvas
+  const trimCanvas = canvas => {
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+    const backgroundColor = [31, 41, 55, 255]; // #1f2937 in RGBA
+
+    let minX = canvas.width;
+    let minY = canvas.height;
+    let maxX = 0;
+    let maxY = 0;
+
+    // Scan for non-background pixels
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        const idx = (y * canvas.width + x) * 4;
+        const r = pixels[idx];
+        const g = pixels[idx + 1];
+        const b = pixels[idx + 2];
+        const a = pixels[idx + 3];
+
+        // Check if pixel is significantly different from background
+        const isBackground =
+          Math.abs(r - backgroundColor[0]) <= 5 &&
+          Math.abs(g - backgroundColor[1]) <= 5 &&
+          Math.abs(b - backgroundColor[2]) <= 5;
+
+        if (!isBackground || a < 250) {
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+
+    // Add some padding around the content (20px on each side)
+    const padding = 20;
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(canvas.width - 1, maxX + padding);
+    maxY = Math.min(canvas.height - 1, maxY + padding);
+
+    // If no content found, return original canvas
+    if (minX >= maxX || minY >= maxY) {
+      return canvas;
+    }
+
+    // Create new trimmed canvas
+    const trimmedWidth = maxX - minX + 1;
+    const trimmedHeight = maxY - minY + 1;
+    const trimmedCanvas = document.createElement('canvas');
+    trimmedCanvas.width = trimmedWidth;
+    trimmedCanvas.height = trimmedHeight;
+
+    const trimmedCtx = trimmedCanvas.getContext('2d');
+    trimmedCtx.drawImage(
+      canvas,
+      minX,
+      minY,
+      trimmedWidth,
+      trimmedHeight,
+      0,
+      0,
+      trimmedWidth,
+      trimmedHeight
+    );
+
+    return trimmedCanvas;
+  };
+
+  // Generate screenshot with compression and trimming
   const generateScreenshot = async () => {
     if (screenshotRef.current && summaries.length > 0) {
       try {
@@ -187,10 +258,13 @@ export default function GuestDailySummary({ guestData, onDateSelect }) {
           allowTaint: true,
         });
 
+        // Trim unused space from the canvas
+        const trimmedCanvas = trimCanvas(canvas);
+
         const link = document.createElement('a');
         const dateRange = `${summaries[0].date}-to-${summaries[summaries.length - 1].date}`;
         link.download = `flip-summary-${screenshotMode}-${dateRange}.png`;
-        link.href = canvas.toDataURL();
+        link.href = trimmedCanvas.toDataURL();
         link.click();
       } catch (error) {
         console.error('Screenshot generation failed:', error);
@@ -596,7 +670,7 @@ export default function GuestDailySummary({ guestData, onDateSelect }) {
                               color: '#fbbf24',
                             }}
                           >
-                            Week {week.weekNumber}
+                            Week {week.weekNumber} ({week.startDate} - {week.endDate})
                           </td>
                           <td style={{ padding: '6px 8px' }}>{week.totalFlips}</td>
                           <td style={{ padding: '6px 8px' }}>{week.totalItems}</td>
@@ -663,7 +737,7 @@ export default function GuestDailySummary({ guestData, onDateSelect }) {
                         color: '#fbbf24',
                       }}
                     >
-                      Month {month.month} ({month.days.length} days)
+                      Month {month.month} ({month.startDate} - {month.endDate})
                     </td>
                     <td style={{ padding: '6px 8px' }}>{month.totalFlips}</td>
                     <td style={{ padding: '6px 8px' }}>{month.totalItems}</td>
