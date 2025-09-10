@@ -4,18 +4,18 @@ import { toast } from 'sonner';
 import { formatToShorthand } from '../../utils/parseShorthandNumber';
 
 const EXAMPLE_QUERIES = [
-  "Show me my top 10 most profitable flips",
-  "Dragon scimitar vs Abyssal whip profits",
-  "All flips over 1 million profit",
-  "My worst losses this month",
-  "Average profit per flip by account",
-  "Flips that took longer than 24 hours",
-  "Show me items with ROI over 50%",
-  "What did I flip yesterday?",
-  "Total profit this week by item",
+  'Show me my top 10 most profitable flips',
+  'All flips over 1 million profit',
+  'My worst losses this month',
+  'Average profit per flip by account',
+  'Flips that took longer than 24 hours',
+  'Show me items with ROI over 50%',
+  'What did I flip yesterday?',
+  'Total profit this week by item',
   "Items I've flipped more than 5 times",
-  "Highest profit margin flips",
-  "Show me all Bandos items"
+  'Highest profit margin flips',
+  'Show me flips from this week',
+  'Compare profits between accounts',
 ];
 
 export function AIQueryInterface({ flips }) {
@@ -27,7 +27,7 @@ export function AIQueryInterface({ flips }) {
   const [showSQL, setShowSQL] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
-  
+
   const { executeQuery, loading: dbLoading, error: dbError } = useSQLDatabase(flips);
   const queryHistoryRef = useRef([]);
 
@@ -50,13 +50,13 @@ export function AIQueryInterface({ flips }) {
       const context = {
         query,
         previousQuery: isFollowUp ? conversation[conversation.length - 1].query : null,
-        previousSQL: isFollowUp ? conversation[conversation.length - 1].sql : null
+        previousSQL: isFollowUp ? conversation[conversation.length - 1].sql : null,
       };
 
       const response = await fetch('/api/generate-sql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(context)
+        body: JSON.stringify(context),
       });
 
       if (!response.ok) {
@@ -70,17 +70,20 @@ export function AIQueryInterface({ flips }) {
       // Execute the SQL locally
       const queryResults = executeQuery(sql);
       setResults(queryResults);
-      
+
       // Add to conversation history
-      setConversation([...conversation, {
-        query,
-        sql,
-        resultCount: queryResults.values?.length || 0
-      }]);
-      
+      setConversation([
+        ...conversation,
+        {
+          query,
+          sql,
+          resultCount: queryResults.values?.length || 0,
+        },
+      ]);
+
       // Save to history
       queryHistoryRef.current = [...queryHistoryRef.current, { query, sql }].slice(-20);
-      
+
       toast.success(`Found ${queryResults.values?.length || 0} results!`);
     } catch (error) {
       console.error('Query error:', error);
@@ -109,7 +112,7 @@ export function AIQueryInterface({ flips }) {
         generated_sql: sqlQuery,
         feedback_text: feedback.trim(),
         results_count: results?.values?.length || 0,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       await fetch('/api/claude', {
@@ -118,19 +121,21 @@ export function AIQueryInterface({ flips }) {
         body: JSON.stringify({
           model: 'claude-3-haiku-20240307',
           max_tokens: 50,
-          messages: [{
-            role: 'user',
-            content: `Log AI Query Feedback: ${JSON.stringify(feedbackData)}`
-          }]
-        })
+          messages: [
+            {
+              role: 'user',
+              content: `Log AI Query Feedback: ${JSON.stringify(feedbackData)}`,
+            },
+          ],
+        }),
       });
 
       setShowFeedback(false);
       setFeedback('');
-      alert('Thank you for your feedback! This helps us improve the AI query system.');
+      console.log('Feedback submitted successfully');
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      alert('Error submitting feedback. Please try again.');
+      console.error('Failed to submit feedback');
     }
   };
 
@@ -158,11 +163,42 @@ export function AIQueryInterface({ flips }) {
           <h3 className="text-xl font-bold text-white mb-2">
             🤖 AI-Powered Natural Language Search
           </h3>
-          <p className="text-gray-400 text-sm">
-            Ask questions about your flips in plain English
-          </p>
+          <p className="text-gray-400 text-sm">Ask questions about your flips in plain English</p>
+
+          {/* Feature Explanation */}
+          <div className="mt-3 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-200">
+            <div className="mb-2">
+              <span className="font-semibold text-blue-300">✨ NEW:</span> This experimental feature
+              uses AI to convert your natural language queries into SQL.
+            </div>
+            <div className="space-y-1 text-xs text-blue-100/80">
+              <div>
+                • <span className="font-medium">How it works:</span> Type any question about your
+                flips and the AI will search your data
+              </div>
+              <div>
+                • <span className="font-medium">Refine queries:</span> After getting results, ask
+                follow-up questions to drill deeper
+              </div>
+              <div>
+                • <span className="font-medium">Context aware:</span> The AI remembers your
+                conversation to provide better refinements
+              </div>
+              <div>
+                • <span className="font-medium">Privacy first:</span> Your flip data never leaves
+                your browser - only the query text is sent to generate SQL
+              </div>
+              <div>
+                • <span className="font-medium">Report issues:</span> Use the feedback button to
+                help improve accuracy
+              </div>
+            </div>
+          </div>
+
           <div className="mt-2 p-2 bg-yellow-900/30 border border-yellow-500/30 rounded text-xs text-yellow-300">
-            <span className="font-medium">Note:</span> Item categorization is not yet implemented. For now, queries work best with specific item names, profit amounts, dates, and accounts.
+            <span className="font-medium">Note:</span> Item categorization is not yet implemented.
+            For now, queries work best with specific item names, profit amounts, dates, and
+            accounts.
           </div>
         </div>
 
@@ -182,28 +218,26 @@ export function AIQueryInterface({ flips }) {
         <div className="space-y-3">
           <textarea
             value={query}
-            onChange={(e) => setQuery(e.target.value.substring(0, 500))}
+            onChange={e => setQuery(e.target.value.substring(0, 500))}
             placeholder={
-              conversation.length > 0 
-                ? "Refine your search or ask a new question..." 
+              conversation.length > 0
+                ? 'Refine your search or ask a new question...'
                 : "Try: 'Show me my most profitable dragon items' or 'What did I flip last week?'"
             }
             className="w-full p-3 bg-gray-700 text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows={3}
-            onKeyDown={(e) => {
+            onKeyDown={e => {
               if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 e.preventDefault();
                 handleQuery();
               }
             }}
           />
-          
+
           {query.length > 400 && (
-            <div className="text-xs text-yellow-400">
-              {500 - query.length} characters remaining
-            </div>
+            <div className="text-xs text-yellow-400">{500 - query.length} characters remaining</div>
           )}
-          
+
           <div className="flex justify-between items-center">
             <div className="flex gap-2">
               <button
@@ -213,7 +247,7 @@ export function AIQueryInterface({ flips }) {
               >
                 {loading ? 'Thinking...' : conversation.length > 0 ? '🔄 Refine' : '🔮 Search'}
               </button>
-              
+
               {conversation.length > 0 && (
                 <button
                   onClick={handleNewQuery}
@@ -223,10 +257,8 @@ export function AIQueryInterface({ flips }) {
                 </button>
               )}
             </div>
-            
-            <div className="text-xs text-gray-500">
-              Press Ctrl+Enter to search
-            </div>
+
+            <div className="text-xs text-gray-500">Press Ctrl+Enter to search</div>
           </div>
         </div>
 
@@ -255,7 +287,7 @@ export function AIQueryInterface({ flips }) {
             >
               {showSQL ? 'Hide' : 'Show'} Generated SQL
             </button>
-            
+
             {showSQL && (
               <pre className="mt-2 p-3 bg-gray-900 rounded text-green-400 text-xs overflow-x-auto">
                 {sqlQuery}
@@ -268,12 +300,12 @@ export function AIQueryInterface({ flips }) {
       {/* Results Display */}
       {results && (
         <div className="bg-gray-800 rounded-lg overflow-hidden">
-          <QueryResults results={results} />
-          
-          {/* Feedback Button */}
-          <div className="border-t border-gray-700 px-4 py-3">
+          {/* Feedback Button - Moved to Top */}
+          <div className="border-b border-gray-700 px-4 py-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-400">Was this result helpful?</span>
+              <span className="text-sm text-gray-400">
+                Found {results.values?.length || 0} results
+              </span>
               <button
                 onClick={() => setShowFeedback(!showFeedback)}
                 className="px-3 py-1 text-xs bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
@@ -281,12 +313,12 @@ export function AIQueryInterface({ flips }) {
                 {showFeedback ? 'Cancel' : '⚠️ Report Issue'}
               </button>
             </div>
-            
+
             {showFeedback && (
               <div className="mt-3 space-y-3">
                 <textarea
                   value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
+                  onChange={e => setFeedback(e.target.value)}
                   placeholder="Please describe what's not working as expected. For example: 'Results don't match my query', 'Missing expected data', 'Wrong calculations', etc."
                   className="w-full p-3 bg-gray-700 text-white rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
@@ -296,7 +328,10 @@ export function AIQueryInterface({ flips }) {
                   <span className="text-xs text-gray-500">{feedback.length}/500 characters</span>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => {setShowFeedback(false); setFeedback('');}}
+                      onClick={() => {
+                        setShowFeedback(false);
+                        setFeedback('');
+                      }}
                       className="px-3 py-1 text-xs bg-gray-600 text-gray-300 rounded hover:bg-gray-500"
                     >
                       Cancel
@@ -313,21 +348,23 @@ export function AIQueryInterface({ flips }) {
               </div>
             )}
           </div>
+
+          <QueryResults results={results} />
         </div>
       )}
-      
-      {/* Refinement Suggestions */}
-      {results && conversation.length > 0 && (
+
+      {/* Generic Query Examples */}
+      {!results && (
         <div className="bg-gray-800 p-4 rounded-lg">
-          <p className="text-sm text-gray-400 mb-2">Refine your search:</p>
+          <p className="text-sm text-gray-400 mb-2">Popular queries:</p>
           <div className="flex flex-wrap gap-2">
-            {getRefinementSuggestions(results).map((suggestion, i) => (
+            {EXAMPLE_QUERIES.slice(6, 12).map((example, i) => (
               <button
                 key={i}
-                onClick={() => setQuery(suggestion)}
-                className="px-3 py-1 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600"
+                onClick={() => setQuery(example)}
+                className="px-3 py-1 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-colors"
               >
-                {suggestion}
+                {example}
               </button>
             ))}
           </div>
@@ -350,59 +387,64 @@ function QueryResults({ results }) {
   // Format and color values for display
   const formatValue = (value, columnName) => {
     if (value === null || value === undefined) return { text: '—', className: 'text-gray-500' };
-    
+
     const col = columnName.toLowerCase();
-    
+
     // Format GP values with color coding
     if (col.includes('profit') || col.includes('revenue')) {
       const formatted = typeof value === 'number' ? `${formatToShorthand(value)} GP` : value;
       if (typeof value === 'number') {
-        const colorClass = value > 0 ? 'text-green-400' : value < 0 ? 'text-red-400' : 'text-gray-300';
+        const colorClass =
+          value > 0 ? 'text-green-400' : value < 0 ? 'text-red-400' : 'text-gray-300';
         return { text: formatted, className: colorClass };
       }
       return { text: formatted, className: 'text-gray-300' };
     }
-    
+
     // Format buy/sell prices
     if (col.includes('price') || col.includes('spent')) {
       const formatted = typeof value === 'number' ? `${formatToShorthand(value)} GP` : value;
       return { text: formatted, className: 'text-blue-400' };
     }
-    
+
     // Format ROI with color coding
     if (col.includes('roi') || col.includes('percent')) {
       const formatted = typeof value === 'number' ? `${value.toFixed(1)}%` : value;
       if (typeof value === 'number') {
-        const colorClass = value > 10 ? 'text-green-400' : value > 0 ? 'text-yellow-400' : 'text-red-400';
+        const colorClass =
+          value > 10 ? 'text-green-400' : value > 0 ? 'text-yellow-400' : 'text-red-400';
         return { text: formatted, className: colorClass };
       }
       return { text: formatted, className: 'text-gray-300' };
     }
-    
+
     // Format quantities
     if (col.includes('quantity') || col.includes('count') || col.includes('flips')) {
-      const formatted = typeof value === 'number' && value >= 1000
-        ? formatToShorthand(value, 0)
-        : (typeof value === 'number' ? value.toLocaleString() : value);
+      const formatted =
+        typeof value === 'number' && value >= 1000
+          ? formatToShorthand(value, 0)
+          : typeof value === 'number'
+            ? value.toLocaleString()
+            : value;
       return { text: formatted, className: 'text-purple-400' };
     }
-    
+
     // Item names - highlight them
     if (col.includes('item') || col.includes('name')) {
       return { text: value, className: 'text-white font-medium' };
     }
-    
+
     // Account names
     if (col.includes('account')) {
       return { text: value, className: 'text-cyan-400' };
     }
-    
+
     // Duration formatting
     if (col.includes('duration') && col.includes('minutes')) {
       if (typeof value === 'number') {
         const hours = Math.floor(value / 60);
         const days = Math.floor(hours / 24);
-        
+
         if (days > 0) {
           const remainingHours = hours % 24;
           const formatted = remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`;
@@ -417,7 +459,7 @@ function QueryResults({ results }) {
       }
       return { text: value, className: 'text-gray-300' };
     }
-    
+
     // Default formatting
     const formatted = typeof value === 'number' ? value.toLocaleString() : value;
     return { text: formatted, className: 'text-gray-300' };
@@ -459,30 +501,6 @@ function QueryResults({ results }) {
       </table>
     </div>
   );
-}
-
-function getRefinementSuggestions(results) {
-  const suggestions = [];
-  
-  if (results.values.length > 20) {
-    suggestions.push("show only top 10");
-  }
-  if (results.columns.includes('profit')) {
-    suggestions.push("only profitable ones");
-    suggestions.push("sort by profit");
-  }
-  if (results.columns.includes('roi')) {
-    suggestions.push("ROI over 50%");
-  }
-  if (results.columns.includes('item')) {
-    suggestions.push("exclude ammo");
-    suggestions.push("only rune items");
-  }
-  if (!results.columns.includes('account')) {
-    suggestions.push("group by account");
-  }
-  
-  return suggestions.slice(0, 4);
 }
 
 export default AIQueryInterface;
