@@ -17,6 +17,12 @@ const EXAMPLE_QUERIES = [
   'Highest profit margin flips',
   'Show me flips from this week',
   'Compare profits between accounts',
+  'Tuesday flips',
+  'weekend profits',
+  'weekday vs weekend ROI',
+  'flips in May',
+  'Monday rune items',
+  'profitable weekend flips',
 ];
 
 function ExportButtons({ results }) {
@@ -131,6 +137,48 @@ export function AIQueryInterface({ flips }) {
     return sessionId;
   };
 
+  // Generate temporal context for AI queries
+  const getTemporalContext = () => {
+    const now = new Date();
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const localDate = new Date(now.toLocaleString('en-US', { timeZone: userTimezone }));
+
+    // Calculate recent day dates
+    const getRecentDayDate = targetDayOfWeek => {
+      const current = new Date(localDate);
+      const currentDay = current.getDay();
+
+      // Calculate days to subtract to get to the target day
+      let daysBack = currentDay - targetDayOfWeek;
+      if (daysBack <= 0) daysBack += 7; // Go back to previous week if target day hasn't occurred this week
+
+      const targetDate = new Date(current);
+      targetDate.setDate(current.getDate() - daysBack);
+      return targetDate.toISOString().split('T')[0];
+    };
+
+    return {
+      currentDate: localDate.toISOString().split('T')[0], // YYYY-MM-DD
+      currentYear: localDate.getFullYear(),
+      currentMonth: localDate.getMonth() + 1,
+      currentDayOfWeek: localDate.getDay(), // 0=Sunday, 6=Saturday
+      dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][
+        localDate.getDay()
+      ],
+      timezone: userTimezone,
+      // Recent day dates for "last [day]" queries
+      recentDays: {
+        lastSunday: getRecentDayDate(0),
+        lastMonday: getRecentDayDate(1),
+        lastTuesday: getRecentDayDate(2),
+        lastWednesday: getRecentDayDate(3),
+        lastThursday: getRecentDayDate(4),
+        lastFriday: getRecentDayDate(5),
+        lastSaturday: getRecentDayDate(6),
+      },
+    };
+  };
+
   // Check if this is the owner (persistent across sessions)
   const [isOwnerMode] = useState(() => {
     return localStorage.getItem('osrs_flip_owner_mode') === 'true';
@@ -186,6 +234,7 @@ export function AIQueryInterface({ flips }) {
         previousSQL: isFollowUp ? conversation[conversation.length - 1].sql : null,
         sessionId: getSessionId(),
         isOwner: isOwnerMode,
+        temporalContext: getTemporalContext(),
       };
 
       const response = await fetch('/api/generate-sql', {
@@ -605,7 +654,9 @@ function QueryResults({ results }) {
 
     // Format ROI with color coding
     if (col.includes('roi') || col.includes('percent')) {
-      const formatted = typeof value === 'number' ? `${value.toFixed(1)}%` : value;
+      // Use more precision for small ROI values
+      const precision = typeof value === 'number' && Math.abs(value) < 1 ? 3 : 1;
+      const formatted = typeof value === 'number' ? `${value.toFixed(precision)}%` : value;
       if (typeof value === 'number') {
         const colorClass =
           value > 10 ? 'text-green-400' : value > 0 ? 'text-yellow-400' : 'text-red-400';

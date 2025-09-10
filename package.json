@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:vite\" \"npm:dev:proxy\"",
     "dev:vite": "vite",
-    "dev:proxy": "node api/local-proxy.js",
+    "dev:proxy": "nodemon api/local-proxy.js",
     "build": "vite build",
     "lint": "eslint . --config ./config/eslint.config.js --ext js,jsx,ts,tsx",
     "lint:fix": "eslint . --config ./config/eslint.config.js --ext js,jsx,ts,tsx --fix",
@@ -95,6 +95,7 @@
     "lint-staged": "^16.1.5",
     "madge": "^8.0.0",
     "ml-pca": "^4.1.1",
+    "nodemon": "^3.1.10",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "rollup-plugin-visualizer": "^6.0.3",

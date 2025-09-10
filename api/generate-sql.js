@@ -10,7 +10,8 @@ async function logToDiscord(
   success,
   errorMessage = null,
   sessionId = null,
-  isOwner = false
+  isOwner = false,
+  temporalContext = null
 ) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
@@ -66,6 +67,15 @@ async function logToDiscord(
       },
     };
 
+    // Add temporal context field if available
+    if (temporalContext) {
+      embed.fields.push({
+        name: '📅 Temporal Context',
+        value: `Date: ${temporalContext.currentDate}\nTimezone: ${temporalContext.timezone}`,
+        inline: true,
+      });
+    }
+
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -102,9 +112,9 @@ export default async function handler(req) {
     );
   }
 
-  let query, previousQuery, previousSQL, sessionId, isOwner;
+  let query, previousQuery, previousSQL, sessionId, isOwner, temporalContext;
   try {
-    ({ query, previousQuery, previousSQL, sessionId, isOwner } = await req.json());
+    ({ query, previousQuery, previousSQL, sessionId, isOwner, temporalContext } = await req.json());
 
     if (!query) {
       return new Response(JSON.stringify({ error: 'Query is required' }), {
@@ -119,12 +129,32 @@ export default async function handler(req) {
       ? `
 You are refining a previous SQL query based on user feedback.
 
+CURRENT DATE CONTEXT:
+- Today: ${temporalContext?.currentDate || 'N/A'} (${temporalContext?.dayName || 'N/A'})
+- Current year: ${temporalContext?.currentYear || 'N/A'}
+- Timezone: ${temporalContext?.timezone || 'N/A'}
+
 Previous user query: "${previousQuery}"
 Previous SQL generated: ${previousSQL}
 
 User's refinement request: "${query}"
 
 Generate an updated SQL query that incorporates the refinement.
+
+IMPORTANT DATE RULES:
+1. When user mentions a month without a year, use ${temporalContext?.currentYear || new Date().getFullYear()} if that month has already passed this year, otherwise use the previous year
+2. Day of week queries use: strftime('%w', date) where 0=Sunday, 6=Saturday
+3. CRITICAL: "last [day]" means the most recent occurrence of that specific day (use specific date)
+4. "[day] flips" means all occurrences of that day of the week (use strftime)
+
+RECENT DAY DATES:
+${
+  temporalContext?.recentDays
+    ? Object.entries(temporalContext.recentDays)
+        .map(([key, value]) => `- ${key}: ${value}`)
+        .join('\\n')
+    : ''
+}
 
 Examples of refinements:
 - "exclude ammo" → Add: AND item NOT LIKE '%bolt%' AND item NOT LIKE '%arrow%'
@@ -133,6 +163,7 @@ Examples of refinements:
 - "show more results" → Change: LIMIT 100
 - "show all" → Remove LIMIT clause but keep all WHERE conditions and ORDER BY
 - "show only top 10" → Add/Change: LIMIT 10
+- "only weekends" → Add: AND strftime('%w', date) IN ('0','6')
 
 IMPORTANT: When user says "show all", preserve the original WHERE conditions and ORDER BY clause exactly. Only remove LIMIT restrictions.
 
@@ -159,7 +190,91 @@ NOTE:
 Return ONLY the updated SQL query:
 `
       : `
-You are a SQL query generator for an OSRS flip tracking database.
+You are a helpful SQL query generator for OSRS flipping data.
+
+CURRENT DATE CONTEXT:
+- Today: ${temporalContext?.currentDate || 'N/A'} (${temporalContext?.dayName || 'N/A'})
+- Current year: ${temporalContext?.currentYear || new Date().getFullYear()}
+- Timezone: ${temporalContext?.timezone || 'N/A'}
+
+IMPORTANT DATE RULES:
+1. When user mentions a month without a year (e.g., "May"), use ${temporalContext?.currentYear || new Date().getFullYear()} if that month has already passed this year, otherwise use the previous year
+2. "This week" = last 7 days from today
+3. "Last month" = previous calendar month, not last 30 days
+4. CRITICAL: "last [day]" means the most recent occurrence of that specific day (use specific date)
+5. "[day] flips" means all occurrences of that day of the week (use strftime)
+
+RECENT DAY DATES:
+${
+  temporalContext?.recentDays
+    ? Object.entries(temporalContext.recentDays)
+        .map(([key, value]) => `- ${key}: ${value}`)
+        .join('\\n')
+    : ''
+}
+
+DAY OF WEEK QUERIES using SQLite:
+- strftime('%w', date) returns: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+
+EXAMPLES:
+- "Tuesday flips" (all Tuesdays) → WHERE strftime('%w', date) = '2'
+- "last Tuesday flips" (specific date) → WHERE date = '${temporalContext?.recentDays?.lastTuesday || 'YYYY-MM-DD'}'
+- "weekend flips" → WHERE strftime('%w', date) IN ('0','6')
+- "weekday flips" → WHERE strftime('%w', date) IN ('1','2','3','4','5')
+- "last Monday" → WHERE date = '${temporalContext?.recentDays?.lastMonday || 'YYYY-MM-DD'}'
+- "weekend vs weekday profit" → 
+  SELECT 
+    CASE 
+      WHEN strftime('%w', date) IN ('0','6') THEN 'Weekend'
+      ELSE 'Weekday'
+    END as day_type,
+    SUM(profit) as total_profit,
+    COUNT(*) as flip_count,
+    AVG(roi) as avg_roi
+  FROM flips
+  GROUP BY day_type
+- "most profitable Mondays" →
+  SELECT 
+    date,
+    SUM(profit) as daily_profit,
+    COUNT(*) as flip_count
+  FROM flips
+  WHERE strftime('%w', date) = '1'
+  GROUP BY date
+  ORDER BY daily_profit DESC
+  LIMIT 10
+- "most profitable day for each day of week" →
+  WITH daily_totals AS (
+    SELECT 
+      date,
+      strftime('%w', date) as dow,
+      SUM(profit) as daily_profit
+    FROM flips
+    GROUP BY date
+  ),
+  ranked_days AS (
+    SELECT 
+      dow,
+      date,
+      daily_profit,
+      ROW_NUMBER() OVER (PARTITION BY dow ORDER BY daily_profit DESC) as rn
+    FROM daily_totals
+  )
+  SELECT 
+    CASE dow
+      WHEN '0' THEN 'Sunday'
+      WHEN '1' THEN 'Monday'
+      WHEN '2' THEN 'Tuesday'
+      WHEN '3' THEN 'Wednesday'
+      WHEN '4' THEN 'Thursday'
+      WHEN '5' THEN 'Friday'
+      WHEN '6' THEN 'Saturday'
+    END as day_name,
+    date as best_date,
+    daily_profit as best_profit
+  FROM ranked_days
+  WHERE rn = 1
+  ORDER BY dow
 
 Table schema:
 CREATE TABLE flips (
@@ -199,6 +314,24 @@ IMPORTANT RULES:
 10. When filtering by flip_duration_minutes, ALWAYS include flip_duration_minutes in SELECT for context
 11. When querying by time duration (longer than, shorter than), ORDER BY flip_duration_minutes DESC for best results
 12. If the user input is not about flips/trading, return: SELECT 'Please ask about OSRS flips' as error
+13. NEVER use UNION queries - use CTEs (WITH clauses) and window functions instead
+14. For "each day of week" queries, use a single query with CASE statements and ROW_NUMBER() OVER (PARTITION BY...)
+15. CRITICAL: Use precise column names that clearly indicate what the metric represents
+16. MANDATORY: NEVER name AVG(profit) as "avg_daily_profit" - it is ALWAYS "avg_profit_per_flip"
+17. IMPORTANT: "compare [time period] vs [time period]" means compare aggregate metrics for those periods, NOT individual items between periods
+18. CRITICAL: In CASE statements with overlapping categories, put specific conditions BEFORE general ones
+19. CRITICAL: NEVER use AVG(roi) for time period analysis - ALWAYS use (SUM(profit) / SUM(buy_price * quantity)) * 100
+20. MANDATORY: When user asks for "ROI by [time period]", calculate true weighted ROI for each period, NOT average of individual flip ROIs
+21. IMPORTANT: For simple ROI by time period queries, use single query with CASE statement, NOT complex multi-level CTEs
+
+COLUMN NAMING RULES (STRICTLY ENFORCE):
+- AVG(profit) → ALWAYS avg_profit_per_flip (NEVER avg_daily_profit, NEVER daily_profit)
+- SUM(profit) → total_profit
+- COUNT(*) → flip_count or total_flips
+- AVG(roi) → avg_roi_percent
+- For true daily averages from grouped data: AVG(daily_total) → avg_daily_profit
+- RULE: If you use AVG(profit) directly, the column name MUST be avg_profit_per_flip
+- RULE: Only use "daily_profit" in column names when you've actually grouped by date first
 
 FUZZY ITEM MATCHING RULES:
 13. Handle common typos and abbreviations with multiple LIKE patterns using OR
@@ -257,7 +390,7 @@ Generate SQL for the user request:`;
     const sql = data.content[0].text.trim();
 
     // Log successful generation to Discord
-    await logToDiscord(query, sql, true, null, sessionId, isOwner);
+    await logToDiscord(query, sql, true, null, sessionId, isOwner, temporalContext);
 
     return new Response(JSON.stringify({ sql }), {
       status: 200,
@@ -270,7 +403,15 @@ Generate SQL for the user request:`;
     console.error('SQL generation error:', error);
 
     // Log error to Discord
-    await logToDiscord(query || 'Unknown query', '', false, error.message, sessionId, isOwner);
+    await logToDiscord(
+      query || 'Unknown query',
+      '',
+      false,
+      error.message,
+      sessionId,
+      isOwner,
+      temporalContext
+    );
 
     return new Response(
       JSON.stringify({

@@ -401,7 +401,7 @@ app.post('/api/generate-sql', async (req, res) => {
   }
 
   try {
-    const { query, previousQuery, previousSQL } = req.body;
+    const { query, previousQuery, previousSQL, temporalContext } = req.body;
 
     // Input validation
     if (!query || query.length < 3) {
@@ -423,12 +423,32 @@ app.post('/api/generate-sql', async (req, res) => {
       ? `
 You are refining a previous SQL query based on user feedback.
 
+CURRENT DATE CONTEXT:
+- Today: ${temporalContext?.currentDate || 'N/A'} (${temporalContext?.dayName || 'N/A'})
+- Current year: ${temporalContext?.currentYear || 'N/A'}
+- Timezone: ${temporalContext?.timezone || 'N/A'}
+
 Previous user query: "${previousQuery}"
 Previous SQL generated: ${previousSQL}
 
 User's refinement request: "${query}"
 
 Generate an updated SQL query that incorporates the refinement.
+
+IMPORTANT DATE RULES:
+1. When user mentions a month without a year, use ${temporalContext?.currentYear || new Date().getFullYear()} if that month has already passed this year, otherwise use the previous year
+2. Day of week queries use: strftime('%w', date) where 0=Sunday, 6=Saturday
+3. CRITICAL: "last [day]" means the most recent occurrence of that specific day (use specific date)
+4. "[day] flips" means all occurrences of that day of the week (use strftime)
+
+RECENT DAY DATES:
+${
+  temporalContext?.recentDays
+    ? Object.entries(temporalContext.recentDays)
+        .map(([key, value]) => `- ${key}: ${value}`)
+        .join('\\n')
+    : ''
+}
 
 Examples of refinements:
 - "exclude ammo" → Add: AND item NOT LIKE '%bolt%' AND item NOT LIKE '%arrow%'
@@ -437,6 +457,7 @@ Examples of refinements:
 - "show more results" → Change: LIMIT 100
 - "show all" → Remove LIMIT clause but keep all WHERE conditions and ORDER BY
 - "show only top 10" → Add/Change: LIMIT 10
+- "only weekends" → Add: AND strftime('%w', date) IN ('0','6')
 
 IMPORTANT: When user says "show all", preserve the original WHERE conditions and ORDER BY clause exactly. Only remove LIMIT restrictions.
 
@@ -463,7 +484,59 @@ NOTE:
 Return ONLY the updated SQL query:
 `
       : `
-You are a SQL query generator for an OSRS flip tracking database.
+You are a helpful SQL query generator for OSRS flipping data.
+
+CURRENT DATE CONTEXT:
+- Today: ${temporalContext?.currentDate || 'N/A'} (${temporalContext?.dayName || 'N/A'})
+- Current year: ${temporalContext?.currentYear || new Date().getFullYear()}
+- Timezone: ${temporalContext?.timezone || 'N/A'}
+
+IMPORTANT DATE RULES:
+1. When user mentions a month without a year (e.g., "May"), use ${temporalContext?.currentYear || new Date().getFullYear()} if that month has already passed this year, otherwise use the previous year
+2. "This week" = last 7 days from today
+3. "Last month" = previous calendar month, not last 30 days
+4. CRITICAL: "last [day]" means the most recent occurrence of that specific day (use specific date)
+5. "[day] flips" means all occurrences of that day of the week (use strftime)
+
+RECENT DAY DATES:
+${
+  temporalContext?.recentDays
+    ? Object.entries(temporalContext.recentDays)
+        .map(([key, value]) => `- ${key}: ${value}`)
+        .join('\\n')
+    : ''
+}
+
+DAY OF WEEK QUERIES using SQLite:
+- strftime('%w', date) returns: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+
+EXAMPLES:
+- "Tuesday flips" (all Tuesdays) → WHERE strftime('%w', date) = '2'
+- "last Tuesday flips" (specific date) → WHERE date = '${temporalContext?.recentDays?.lastTuesday || 'YYYY-MM-DD'}'
+- "weekend flips" → WHERE strftime('%w', date) IN ('0','6')
+- "weekday flips" → WHERE strftime('%w', date) IN ('1','2','3','4','5')
+- "last Monday" → WHERE date = '${temporalContext?.recentDays?.lastMonday || 'YYYY-MM-DD'}'
+- "weekend vs weekday profit" → 
+  SELECT 
+    CASE 
+      WHEN strftime('%w', date) IN ('0','6') THEN 'Weekend'
+      ELSE 'Weekday'
+    END as day_type,
+    SUM(profit) as total_profit,
+    COUNT(*) as flip_count,
+    AVG(roi) as avg_roi
+  FROM flips
+  GROUP BY day_type
+- "most profitable Mondays" →
+  SELECT 
+    date,
+    SUM(profit) as daily_profit,
+    COUNT(*) as flip_count
+  FROM flips
+  WHERE strftime('%w', date) = '1'
+  GROUP BY date
+  ORDER BY daily_profit DESC
+  LIMIT 10
 
 Table schema:
 CREATE TABLE flips (
@@ -503,18 +576,147 @@ IMPORTANT RULES:
 10. When filtering by flip_duration_minutes, ALWAYS include flip_duration_minutes in SELECT for context
 11. When querying by time duration (longer than, shorter than), ORDER BY flip_duration_minutes DESC for best results
 12. If the user input is not about flips/trading, return: SELECT 'Please ask about OSRS flips' as error
+13. NEVER use UNION queries - use CTEs (WITH clauses) and window functions instead
+14. For "each day of week" queries, use a single query with CASE statements and ROW_NUMBER() OVER (PARTITION BY...)
+15. CRITICAL: Use precise column names that clearly indicate what the metric represents
+16. MANDATORY: NEVER name AVG(profit) as "avg_daily_profit" - it is ALWAYS "avg_profit_per_flip"
+17. IMPORTANT: "compare [time period] vs [time period]" means compare aggregate metrics for those periods, NOT individual items between periods
+18. CRITICAL: In CASE statements with overlapping categories, put specific conditions BEFORE general ones
+19. CRITICAL: NEVER use AVG(roi) for time period analysis - ALWAYS use (CAST(SUM(profit) AS REAL) / CAST(SUM(buy_price * quantity) AS REAL)) * 100
+20. MANDATORY: When user asks for "ROI by [time period]", calculate true weighted ROI for each period, NOT average of individual flip ROIs
+21. IMPORTANT: For simple ROI by time period queries, use single query with CASE statement, NOT complex multi-level CTEs
+
+COLUMN NAMING RULES (STRICTLY ENFORCE):
+- AVG(profit) → ALWAYS avg_profit_per_flip (NEVER avg_daily_profit, NEVER daily_profit)
+- SUM(profit) → total_profit
+- COUNT(*) → flip_count or total_flips
+- AVG(roi) → avg_individual_flip_roi (use sparingly - usually wrong for period analysis)
+- (SUM(profit) / SUM(buy_price * quantity)) * 100 → period_roi_percent or weighted_roi_percent
+- For true daily averages from grouped data: AVG(daily_total) → avg_daily_profit
+- RULE: If you use AVG(profit) directly, the column name MUST be avg_profit_per_flip
+- RULE: Only use "daily_profit" in column names when you've actually grouped by date first
+- RULE: For ROI by time period, NEVER use AVG(roi) - use weighted calculation
+
+FUZZY ITEM MATCHING RULES:
+13. Handle common typos and abbreviations with multiple LIKE patterns using OR
+14. For partial item names, use broad LIKE patterns to catch variations
+15. Handle plural/singular variations (e.g., "whip" matches "Abyssal whip")
+16. Common OSRS abbreviations: "dscim" = "dragon scimitar", "bcp" = "bandos chestplate", "sgs" = "saradomin godsword"
+17. When unsure about exact item name, use multiple LIKE patterns with OR conditions
 
 Examples:
 - "top 10 items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips ORDER BY profit DESC LIMIT 10
 - "flips from last week" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE date > date('now', '-7 days') ORDER BY profit DESC
 - "dragon scimitar profits" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE item LIKE '%dragon scimitar%' ORDER BY profit DESC
 - "bandos items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE item LIKE '%bandos%' ORDER BY profit DESC
+
+FUZZY MATCHING EXAMPLES:
+- "dscim profits" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%dragon scimitar%' OR item LIKE '%d scim%' OR item LIKE '%dscim%') ORDER BY profit DESC
+- "whips" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%whip%' OR item LIKE '%abyssal whip%') ORDER BY profit DESC
+- "bcp flips" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%bandos chestplate%' OR item LIKE '%bcp%') ORDER BY profit DESC
+- "sgs profits" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%saradomin godsword%' OR item LIKE '%sgs%') ORDER BY profit DESC
+- "zgs items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%zamorak godsword%' OR item LIKE '%zgs%') ORDER BY profit DESC
+- "rune scim" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%rune scimitar%' OR item LIKE '%rune scim%') ORDER BY profit DESC
 - "items I traded daily this week" → SELECT item, SUM(profit) as total_profit, AVG(roi) as avg_roi, COUNT(*) as total_flips, COUNT(DISTINCT date) as days_traded FROM flips WHERE date > date('now', '-7 days') GROUP BY item HAVING COUNT(DISTINCT date) = 7 ORDER BY SUM(profit) DESC
-- "profit by item" → SELECT item, SUM(profit) as total_profit, COUNT(*) as flip_count FROM flips GROUP BY item ORDER BY total_profit DESC
-- "profit by account" → SELECT account, SUM(profit) as total_profit, AVG(roi) as avg_roi FROM flips GROUP BY account ORDER BY total_profit DESC
+- "profit by item" → SELECT item, SUM(profit) as total_profit, COUNT(*) as flip_count, AVG(profit) as avg_profit_per_flip FROM flips GROUP BY item ORDER BY total_profit DESC
+- "profit by account" → SELECT account, SUM(profit) as total_profit, AVG(roi) as avg_roi_percent, COUNT(*) as total_flips FROM flips GROUP BY account ORDER BY total_profit DESC
 - "most traded items" → SELECT item, COUNT(*) as flip_count, SUM(profit) as total_profit FROM flips GROUP BY item ORDER BY flip_count DESC
 - "expensive flips only" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE profit > 100000 ORDER BY profit DESC
 - "flips longer than 24 hours" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date, flip_duration_minutes FROM flips WHERE flip_duration_minutes > 1440 ORDER BY flip_duration_minutes DESC
+- "most profitable day for each day of week" →
+  WITH daily_totals AS (
+    SELECT 
+      date,
+      strftime('%w', date) as dow,
+      SUM(profit) as daily_profit
+    FROM flips
+    GROUP BY date
+  ),
+  ranked_days AS (
+    SELECT 
+      dow,
+      date,
+      daily_profit,
+      ROW_NUMBER() OVER (PARTITION BY dow ORDER BY daily_profit DESC) as rn
+    FROM daily_totals
+  )
+  SELECT 
+    CASE dow
+      WHEN '0' THEN 'Sunday'
+      WHEN '1' THEN 'Monday'
+      WHEN '2' THEN 'Tuesday'
+      WHEN '3' THEN 'Wednesday'
+      WHEN '4' THEN 'Thursday'
+      WHEN '5' THEN 'Friday'
+      WHEN '6' THEN 'Saturday'
+    END as day_name,
+    date as best_date,
+    daily_profit as best_profit
+  FROM ranked_days
+  WHERE rn = 1
+  ORDER BY dow
+- "average profit per flip by day of week" →
+  SELECT 
+    CASE strftime('%w', date)
+      WHEN '0' THEN 'Sunday'
+      WHEN '1' THEN 'Monday'
+      WHEN '2' THEN 'Tuesday'
+      WHEN '3' THEN 'Wednesday'  
+      WHEN '4' THEN 'Thursday'
+      WHEN '5' THEN 'Friday'
+      WHEN '6' THEN 'Saturday'
+    END as day_name,
+    AVG(profit) as avg_profit_per_flip
+  FROM flips
+  GROUP BY strftime('%w', date)
+  ORDER BY avg_profit_per_flip DESC
+- "compare last weekend vs this week" →
+  SELECT 
+    CASE 
+      WHEN date IN ('${temporalContext?.recentDays?.lastSaturday || 'YYYY-MM-DD'}', '${temporalContext?.recentDays?.lastSunday || 'YYYY-MM-DD'}') THEN 'Last Weekend'
+      WHEN date > date('now', '-7 days') THEN 'This Week'
+      ELSE 'Other'
+    END as time_period,
+    SUM(profit) as total_profit,
+    COUNT(*) as flip_count,
+    AVG(profit) as avg_profit_per_flip,
+    AVG(roi) as avg_roi_percent
+  FROM flips
+  WHERE date IN ('${temporalContext?.recentDays?.lastSaturday || 'YYYY-MM-DD'}', '${temporalContext?.recentDays?.lastSunday || 'YYYY-MM-DD'}') 
+     OR date > date('now', '-7 days')
+  GROUP BY time_period
+  ORDER BY total_profit DESC
+- "ROI by weekdays vs weekends vs Fridays" →
+  SELECT
+    CASE
+      WHEN strftime('%w', date) = '5' THEN 'Friday'
+      WHEN strftime('%w', date) IN ('0', '6') THEN 'Weekend'
+      ELSE 'Other Weekdays'
+    END AS time_period,
+    (CAST(SUM(profit) AS REAL) / CAST(SUM(buy_price * quantity) AS REAL)) * 100 AS period_roi_percent,
+    SUM(profit) as total_profit,
+    SUM(buy_price * quantity) as total_invested,
+    COUNT(*) as flip_count
+  FROM flips
+  GROUP BY time_period
+  ORDER BY period_roi_percent DESC
+
+Table schema:
+CREATE TABLE flips (
+  id INTEGER,
+  item TEXT NOT NULL,
+  buy_price INTEGER,
+  sell_price INTEGER,
+  profit INTEGER,
+  roi REAL,
+  quantity INTEGER,
+  buy_time TEXT,
+  sell_time TEXT,
+  account TEXT,
+  flip_duration_minutes INTEGER,
+  date TEXT -- Format: YYYY-MM-DD
+);
+
 
 Generate SQL for the user request:`;
 
@@ -546,9 +748,13 @@ Generate SQL for the user request:`;
     const data = await response.json();
     const sql = data.content[0].text.trim();
 
+    // Log the generated SQL for debugging
+    console.log('🔍 Generated SQL:', sql);
+
     // Validate SQL
     const validation = validateSQL(sql);
     if (!validation.safe) {
+      console.log('❌ SQL Safety Check Failed:', validation.reason);
       return res.status(400).json({
         error: 'Generated SQL failed safety check',
         reason: validation.reason,
@@ -588,8 +794,9 @@ function validateSQL(sql) {
     }
   }
 
-  if (!upperSQL.trim().startsWith('SELECT')) {
-    return { safe: false, reason: 'Only SELECT queries allowed' };
+  const trimmedSQL = upperSQL.trim();
+  if (!trimmedSQL.startsWith('SELECT') && !trimmedSQL.startsWith('WITH')) {
+    return { safe: false, reason: 'Only SELECT and CTE (WITH) queries allowed' };
   }
 
   // LIMIT clause no longer required - user preference is to see all results
@@ -704,11 +911,11 @@ app.post('/api/feedback', async (req, res) => {
 
 app
   .listen(PORT, () => {
-    console.log(`Proxy server running on http://localhost:${PORT}`);
-    console.log(`Claude API endpoint: http://localhost:${PORT}/api/claude`);
-    console.log(`Query translation endpoint: http://localhost:${PORT}/api/translate-query`);
-    console.log(`SQL generation endpoint: http://localhost:${PORT}/api/generate-sql`);
-    console.log(`Feedback endpoint: http://localhost:${PORT}/api/feedback`);
+    console.log(`🚀 Proxy server running on http://localhost:${PORT}`);
+    console.log(`🤖 Claude API endpoint: http://localhost:${PORT}/api/claude`);
+    console.log(`🔤 Query translation endpoint: http://localhost:${PORT}/api/translate-query`);
+    console.log(`📊 SQL generation endpoint: http://localhost:${PORT}/api/generate-sql`);
+    console.log(`💬 Feedback endpoint: http://localhost:${PORT}/api/feedback`);
   })
   .on('error', err => {
     console.error('Failed to start proxy server:', err);

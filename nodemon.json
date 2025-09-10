@@ -1,0 +1,11 @@
+{
+  "watch": ["api/", "src/guest/components/AIQueryInterface.jsx"],
+  "ext": "js,json",
+  "ignore": ["node_modules/", "dist/", "public/", ".git/"],
+  "delay": "1000",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "verbose": true,
+  "restartable": "rs"
+}
