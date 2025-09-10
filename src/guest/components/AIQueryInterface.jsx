@@ -345,7 +345,17 @@ export function AIQueryInterface({ flips }) {
           <h3 className="text-xl font-bold text-white mb-2">
             🤖 AI-Powered Natural Language Search
           </h3>
-          <p className="text-gray-400 text-sm">Ask questions about your flips in plain English</p>
+          <p className="text-gray-400 text-sm">
+            Ask questions about your uploaded flip data in plain English
+          </p>
+
+          {/* Data Source Notice */}
+          <div className="mt-2 p-2 bg-amber-900/30 border border-amber-500/50 rounded text-sm">
+            <span className="text-amber-300 font-medium">📊 Data Source:</span>
+            <span className="text-amber-200 ml-1">
+              This searches your uploaded flip history only, not current market prices or live data.
+            </span>
+          </div>
 
           {/* Feature Explanation */}
           <div className="mt-3 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-200">
@@ -356,7 +366,7 @@ export function AIQueryInterface({ flips }) {
             <div className="space-y-1 text-xs text-blue-100/80">
               <div>
                 • <span className="font-medium">How it works:</span> Type any question about your
-                flips and the AI will search your data
+                historical flips and the AI will search your uploaded data
               </div>
               <div>
                 • <span className="font-medium">Refine queries:</span> After getting results, ask
@@ -414,7 +424,7 @@ export function AIQueryInterface({ flips }) {
             placeholder={
               conversation.length > 0
                 ? 'Refine your search or ask a new question...'
-                : "Try: 'Show me my most profitable dragon items' or 'What did I flip last week?'"
+                : "Try: 'Show me my most profitable dragon items' or 'What did I flip last week?' (searches your uploaded flip history)"
             }
             className="w-full p-3 bg-gray-700 text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows={3}
