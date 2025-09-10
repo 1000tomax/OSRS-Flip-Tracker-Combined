@@ -395,31 +395,32 @@ app.post('/api/generate-sql', async (req, res) => {
   // Rate limiting
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
   if (!checkRateLimit(ip)) {
-    return res.status(429).json({ 
-      error: 'Too many requests. Please wait a minute.' 
+    return res.status(429).json({
+      error: 'Too many requests. Please wait a minute.',
     });
   }
 
   try {
     const { query, previousQuery, previousSQL } = req.body;
-    
+
     // Input validation
     if (!query || query.length < 3) {
-      return res.status(400).json({ 
-        error: 'Query too short' 
+      return res.status(400).json({
+        error: 'Query too short',
       });
     }
-    
+
     if (query.length > 500) {
-      return res.status(400).json({ 
-        error: 'Query too long. Please keep under 500 characters.' 
+      return res.status(400).json({
+        error: 'Query too long. Please keep under 500 characters.',
       });
     }
-    
+
     // Build prompt based on whether this is a follow-up
     const isFollowUp = !!previousQuery;
-    
-    const prompt = isFollowUp ? `
+
+    const prompt = isFollowUp
+      ? `
 You are refining a previous SQL query based on user feedback.
 
 Previous user query: "${previousQuery}"
@@ -460,7 +461,8 @@ NOTE:
 - Never select the 'id' field in queries as it's just an internal row number.
 
 Return ONLY the updated SQL query:
-` : `
+`
+      : `
 You are a SQL query generator for an OSRS flip tracking database.
 
 Table schema:
@@ -527,10 +529,12 @@ Generate SQL for the user request:`;
         model: 'claude-3-haiku-20240307',
         max_tokens: 500,
         temperature: 0,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
       }),
     });
 
@@ -541,49 +545,55 @@ Generate SQL for the user request:`;
 
     const data = await response.json();
     const sql = data.content[0].text.trim();
-    
+
     // Validate SQL
     const validation = validateSQL(sql);
     if (!validation.safe) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Generated SQL failed safety check',
-        reason: validation.reason 
+        reason: validation.reason,
       });
     }
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       sql,
-      estimated_cost: 0.00025
+      estimated_cost: 0.00025,
     });
-    
   } catch (error) {
     console.error('SQL generation error:', error);
-    
-    res.status(500).json({ 
-      error: 'Failed to generate SQL query' 
+
+    res.status(500).json({
+      error: 'Failed to generate SQL query',
     });
   }
 });
 
 function validateSQL(sql) {
   const forbidden = [
-    'DROP', 'DELETE', 'INSERT', 'UPDATE', 'ALTER', 
-    'CREATE', 'TRUNCATE', 'EXEC', 'EXECUTE'
+    'DROP',
+    'DELETE',
+    'INSERT',
+    'UPDATE',
+    'ALTER',
+    'CREATE',
+    'TRUNCATE',
+    'EXEC',
+    'EXECUTE',
   ];
-  
+
   const upperSQL = sql.toUpperCase();
   for (const keyword of forbidden) {
     if (upperSQL.includes(keyword)) {
       return { safe: false, reason: `Forbidden keyword: ${keyword}` };
     }
   }
-  
+
   if (!upperSQL.trim().startsWith('SELECT')) {
     return { safe: false, reason: 'Only SELECT queries allowed' };
   }
-  
+
   // LIMIT clause no longer required - user preference is to see all results
-  
+
   return { safe: true };
 }
 
@@ -593,25 +603,104 @@ const sqlRateLimits = new Map();
 function checkRateLimit(ip) {
   const now = Date.now();
   const userLimits = sqlRateLimits.get(ip) || { count: 0, resetAt: now + 60000 };
-  
+
   if (now > userLimits.resetAt) {
     userLimits.count = 0;
     userLimits.resetAt = now + 60000;
   }
-  
+
   if (userLimits.count >= 20) {
     return false;
   }
-  
+
   userLimits.count++;
   sqlRateLimits.set(ip, userLimits);
-  
+
   if (sqlRateLimits.size > 1000) {
     sqlRateLimits.clear();
   }
-  
+
   return true;
 }
+
+// Feedback endpoint
+app.post('/api/feedback', async (req, res) => {
+  const { user_query, generated_sql, feedback_text, results_count, sessionId, isOwner } = req.body;
+
+  if (!feedback_text || !feedback_text.trim()) {
+    return res.status(400).json({ success: false, message: 'Feedback text is required' });
+  }
+
+  if (!process.env.VITE_DISCORD_WEBHOOK_URL) {
+    console.log('Discord webhook not configured');
+    return res.status(500).json({ success: false, message: 'Webhook not configured' });
+  }
+
+  try {
+    // Determine user type
+    const userType = isOwner ? '👑 Owner' : `👤 ${sessionId || 'Unknown Session'}`;
+
+    const embed = {
+      title: '💬 AI Query Feedback',
+      color: isOwner ? 0x00ff00 : 0xffa500, // Green for owner, orange for users
+      fields: [
+        {
+          name: '👤 Session',
+          value: userType,
+          inline: true,
+        },
+        {
+          name: '📝 Original Query',
+          value: `\`\`\`${user_query ? user_query.substring(0, 500) : 'N/A'}\`\`\``,
+          inline: false,
+        },
+        {
+          name: '🔍 Generated SQL',
+          value: `\`\`\`sql\n${generated_sql ? generated_sql.substring(0, 500) : 'N/A'}\n\`\`\``,
+          inline: false,
+        },
+        {
+          name: '💭 User Feedback',
+          value: `\`\`\`${feedback_text.substring(0, 1000)}${feedback_text.length > 1000 ? '...' : ''}\`\`\``,
+          inline: false,
+        },
+        {
+          name: '📊 Results Count',
+          value: results_count?.toString() || '0',
+          inline: true,
+        },
+      ],
+      timestamp: new Date().toISOString(),
+      footer: {
+        text: isOwner
+          ? 'OSRS AI Feedback - Owner'
+          : `OSRS AI Feedback - ${sessionId || 'Anonymous'}`,
+      },
+    };
+
+    const response = await fetch(process.env.VITE_DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [embed],
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Discord webhook failed: ${response.status}`);
+    }
+
+    console.log('Feedback sent to Discord successfully');
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Feedback submission error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to submit feedback',
+      error: error.message,
+    });
+  }
+});
 
 app
   .listen(PORT, () => {
@@ -619,6 +708,7 @@ app
     console.log(`Claude API endpoint: http://localhost:${PORT}/api/claude`);
     console.log(`Query translation endpoint: http://localhost:${PORT}/api/translate-query`);
     console.log(`SQL generation endpoint: http://localhost:${PORT}/api/generate-sql`);
+    console.log(`Feedback endpoint: http://localhost:${PORT}/api/feedback`);
   })
   .on('error', err => {
     console.error('Failed to start proxy server:', err);

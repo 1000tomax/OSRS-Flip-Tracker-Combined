@@ -243,35 +243,32 @@ export function AIQueryInterface({ flips }) {
 
     try {
       const feedbackData = {
-        type: 'ai_query_feedback',
-        user_query: conversation[conversation.length - 1]?.userQuery || '',
+        user_query: conversation[conversation.length - 1]?.query || '',
         generated_sql: sqlQuery,
         feedback_text: feedback.trim(),
         results_count: results?.values?.length || 0,
+        sessionId: getSessionId(),
+        isOwner: isOwnerMode,
         timestamp: new Date().toISOString(),
       };
 
-      await fetch('/api/claude', {
+      const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
-          max_tokens: 50,
-          messages: [
-            {
-              role: 'user',
-              content: `Log AI Query Feedback: ${JSON.stringify(feedbackData)}`,
-            },
-          ],
-        }),
+        body: JSON.stringify(feedbackData),
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to submit feedback');
+      }
 
       setShowFeedback(false);
       setFeedback('');
-      console.log('Feedback submitted successfully');
+      toast.success('Feedback submitted successfully!');
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      console.error('Failed to submit feedback');
+      toast.error('Failed to submit feedback');
     }
   };
 
