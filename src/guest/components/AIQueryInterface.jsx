@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSQLDatabase } from '../../hooks/useSQLDatabase';
 import { toast } from 'sonner';
 import { formatToShorthand } from '../../utils/parseShorthandNumber';
+import { itemFuzzySearch } from '../../lib/itemFuzzySearch';
 
 const EXAMPLE_QUERIES = [
   'Show me my top 10 most profitable flips',
@@ -18,6 +19,88 @@ const EXAMPLE_QUERIES = [
   'Compare profits between accounts',
 ];
 
+function ExportButtons({ results }) {
+  const exportToCSV = () => {
+    const headers = results.columns.map(col => {
+      let displayName = col.replace(/_/g, ' ');
+      if (displayName === 'flip duration minutes') {
+        displayName = 'time held (minutes)';
+      }
+      return displayName;
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...results.values.map(row =>
+        row
+          .map(cell => {
+            // Handle null/undefined values and escape commas/quotes
+            if (cell === null || cell === undefined) return '';
+            const str = String(cell);
+            return str.includes(',') || str.includes('"') || str.includes('\n')
+              ? `"${str.replace(/"/g, '""')}"`
+              : str;
+          })
+          .join(',')
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `query_results_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToJSON = () => {
+    const jsonData = results.values.map(row => {
+      const obj = {};
+      results.columns.forEach((col, index) => {
+        let displayName = col.replace(/_/g, ' ');
+        if (displayName === 'flip duration minutes') {
+          displayName = 'time held (minutes)';
+        }
+        obj[displayName] = row[index];
+      });
+      return obj;
+    });
+
+    const jsonContent = JSON.stringify(jsonData, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `query_results_${new Date().toISOString().split('T')[0]}.json`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <>
+      <button
+        onClick={exportToCSV}
+        className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors"
+        title="Export results as CSV file"
+      >
+        📊 CSV
+      </button>
+      <button
+        onClick={exportToJSON}
+        className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-500 transition-colors"
+        title="Export results as JSON file"
+      >
+        📄 JSON
+      </button>
+    </>
+  );
+}
+
 export function AIQueryInterface({ flips }) {
   const [query, setQuery] = useState('');
   const [conversation, setConversation] = useState([]);
@@ -27,9 +110,15 @@ export function AIQueryInterface({ flips }) {
   const [showSQL, setShowSQL] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [itemSuggestions, setItemSuggestions] = useState([]);
 
   const { executeQuery, loading: dbLoading, error: dbError } = useSQLDatabase(flips);
   const queryHistoryRef = useRef([]);
+
+  // Initialize fuzzy search
+  useEffect(() => {
+    itemFuzzySearch.initialize();
+  }, []);
 
   // Get or create session identifier for query tracking
   const getSessionId = () => {
@@ -43,8 +132,33 @@ export function AIQueryInterface({ flips }) {
   };
 
   // Check if this is the owner (persistent across sessions)
-  const isOwner = () => {
-    return localStorage.getItem('osrs_flip_user_id') === 'owner';
+  const [isOwnerMode] = useState(() => {
+    return localStorage.getItem('osrs_flip_owner_mode') === 'true';
+  });
+
+  // Process query to detect and enhance item names
+  const preprocessQuery = async originalQuery => {
+    const itemHints = itemFuzzySearch.extractItemHints(originalQuery);
+    let enhancedQuery = originalQuery;
+
+    if (itemHints.length > 0) {
+      // Show suggestions for detected items
+      setItemSuggestions(itemHints.slice(0, 3)); // Limit to 3 suggestions
+
+      // Auto-enhance query with expanded abbreviations
+      for (const hint of itemHints) {
+        if (hint.type === 'abbreviation') {
+          enhancedQuery = enhancedQuery.replace(
+            new RegExp(`\\b${hint.original}\\b`, 'gi'),
+            hint.expanded
+          );
+        }
+      }
+    } else {
+      setItemSuggestions([]);
+    }
+
+    return enhancedQuery;
   };
 
   const handleQuery = async () => {
@@ -61,14 +175,17 @@ export function AIQueryInterface({ flips }) {
 
     setLoading(true);
     try {
+      // Preprocess query for better item matching
+      const enhancedQuery = await preprocessQuery(query);
+
       // Build context for follow-up queries
       const isFollowUp = conversation.length > 0;
       const context = {
-        query,
+        query: enhancedQuery, // Use enhanced query
         previousQuery: isFollowUp ? conversation[conversation.length - 1].query : null,
         previousSQL: isFollowUp ? conversation[conversation.length - 1].sql : null,
         sessionId: getSessionId(),
-        isOwner: isOwner(),
+        isOwner: isOwnerMode,
       };
 
       const response = await fetch('/api/generate-sql', {
@@ -113,11 +230,12 @@ export function AIQueryInterface({ flips }) {
 
   const handleNewQuery = () => {
     setConversation([]);
-    setQuery('');
+    // Don't clear the query text - let user keep what they've typed
     setResults(null);
     setSqlQuery('');
     setShowFeedback(false);
     setFeedback('');
+    setItemSuggestions([]); // Clear item suggestions
   };
 
   const handleFeedbackSubmit = async () => {
@@ -236,7 +354,17 @@ export function AIQueryInterface({ flips }) {
         <div className="space-y-3">
           <textarea
             value={query}
-            onChange={e => setQuery(e.target.value.substring(0, 500))}
+            onChange={e => {
+              const newValue = e.target.value.substring(0, 500);
+              setQuery(newValue);
+              // Real-time item detection for suggestions
+              if (newValue.trim()) {
+                const itemHints = itemFuzzySearch.extractItemHints(newValue);
+                setItemSuggestions(itemHints.slice(0, 3));
+              } else {
+                setItemSuggestions([]);
+              }
+            }}
             placeholder={
               conversation.length > 0
                 ? 'Refine your search or ask a new question...'
@@ -251,6 +379,29 @@ export function AIQueryInterface({ flips }) {
               }
             }}
           />
+
+          {/* Item Suggestions */}
+          {itemSuggestions.length > 0 && (
+            <div className="p-2 bg-blue-900/20 border border-blue-500/30 rounded text-xs">
+              <div className="text-blue-300 mb-1">💡 Detected items:</div>
+              <div className="flex flex-wrap gap-1">
+                {itemSuggestions.map((suggestion, i) => (
+                  <span
+                    key={i}
+                    className="px-2 py-1 bg-blue-600/30 text-blue-200 rounded"
+                    title={`${suggestion.original} → ${suggestion.expanded} ${suggestion.confidence ? `(${Math.round(suggestion.confidence)}% match)` : ''}`}
+                  >
+                    {suggestion.type === 'abbreviation'
+                      ? '📝'
+                      : suggestion.type === 'pattern'
+                        ? '🔤'
+                        : '🔍'}{' '}
+                    {suggestion.original} → {suggestion.expanded}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {query.length > 400 && (
             <div className="text-xs text-yellow-400">{500 - query.length} characters remaining</div>
@@ -324,12 +475,17 @@ export function AIQueryInterface({ flips }) {
               <span className="text-sm text-gray-400">
                 Found {results.values?.length || 0} results
               </span>
-              <button
-                onClick={() => setShowFeedback(!showFeedback)}
-                className="px-3 py-1 text-xs bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
-              >
-                {showFeedback ? 'Cancel' : '⚠️ Report Issue'}
-              </button>
+              <div className="flex gap-2">
+                <div className="flex gap-1">
+                  <ExportButtons results={results} />
+                </div>
+                <button
+                  onClick={() => setShowFeedback(!showFeedback)}
+                  className="px-3 py-1 text-xs bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
+                >
+                  {showFeedback ? 'Cancel' : '⚠️ Report Issue'}
+                </button>
+              </div>
             </div>
 
             {showFeedback && (
@@ -375,6 +531,49 @@ export function AIQueryInterface({ flips }) {
 }
 
 function QueryResults({ results }) {
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+  const handleSort = columnIndex => {
+    let direction = 'asc';
+    if (sortConfig.key === columnIndex && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key: columnIndex, direction });
+  };
+
+  // Sort the data based on current sort config
+  const sortedData = React.useMemo(() => {
+    if (sortConfig.key === null) return results.values;
+
+    return [...results.values].sort((a, b) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+
+      // Handle null/undefined values
+      if (aVal === null || aVal === undefined) return 1;
+      if (bVal === null || bVal === undefined) return -1;
+
+      // Convert to numbers if both are numeric
+      const aNum = Number(aVal);
+      const bNum = Number(bVal);
+      const bothNumbers = !isNaN(aNum) && !isNaN(bNum);
+
+      if (bothNumbers) {
+        return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+
+      // String comparison
+      const aStr = String(aVal).toLowerCase();
+      const bStr = String(bVal).toLowerCase();
+
+      if (sortConfig.direction === 'asc') {
+        return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+      } else {
+        return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
+      }
+    });
+  }, [results.values, sortConfig]);
+
   if (!results.values || results.values.length === 0) {
     return (
       <div className="p-8 text-center">
@@ -476,16 +675,28 @@ function QueryResults({ results }) {
               if (displayName === 'flip duration minutes') {
                 displayName = 'time held';
               }
+
+              const isSorted = sortConfig.key === i;
+              const sortIcon = isSorted ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : '';
+
               return (
-                <th key={i} className="px-6 py-3">
-                  {displayName}
+                <th
+                  key={i}
+                  className="px-6 py-3 cursor-pointer hover:bg-gray-600 transition-colors select-none"
+                  onClick={() => handleSort(i)}
+                  title={`Click to sort by ${displayName}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{displayName}</span>
+                    <span className="ml-1 text-gray-400">{sortIcon}</span>
+                  </div>
                 </th>
               );
             })}
           </tr>
         </thead>
         <tbody>
-          {results.values.map((row, i) => (
+          {sortedData.map((row, i) => (
             <tr key={i} className="border-b border-gray-700 hover:bg-gray-700/50">
               {row.map((cell, j) => {
                 const formatted = formatValue(cell, results.columns[j]);

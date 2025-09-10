@@ -200,11 +200,26 @@ IMPORTANT RULES:
 11. When querying by time duration (longer than, shorter than), ORDER BY flip_duration_minutes DESC for best results
 12. If the user input is not about flips/trading, return: SELECT 'Please ask about OSRS flips' as error
 
+FUZZY ITEM MATCHING RULES:
+13. Handle common typos and abbreviations with multiple LIKE patterns using OR
+14. For partial item names, use broad LIKE patterns to catch variations
+15. Handle plural/singular variations (e.g., "whip" matches "Abyssal whip")
+16. Common OSRS abbreviations: "dscim" = "dragon scimitar", "bcp" = "bandos chestplate", "sgs" = "saradomin godsword"
+17. When unsure about exact item name, use multiple LIKE patterns with OR conditions
+
 Examples:
 - "top 10 items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips ORDER BY profit DESC LIMIT 10
 - "flips from last week" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE date > date('now', '-7 days') ORDER BY profit DESC
 - "dragon scimitar profits" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE item LIKE '%dragon scimitar%' ORDER BY profit DESC
 - "bandos items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE item LIKE '%bandos%' ORDER BY profit DESC
+
+FUZZY MATCHING EXAMPLES:
+- "dscim profits" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%dragon scimitar%' OR item LIKE '%d scim%' OR item LIKE '%dscim%') ORDER BY profit DESC
+- "whips" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%whip%' OR item LIKE '%abyssal whip%') ORDER BY profit DESC
+- "bcp flips" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%bandos chestplate%' OR item LIKE '%bcp%') ORDER BY profit DESC
+- "sgs profits" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%saradomin godsword%' OR item LIKE '%sgs%') ORDER BY profit DESC
+- "zgs items" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%zamorak godsword%' OR item LIKE '%zgs%') ORDER BY profit DESC
+- "rune scim" → SELECT item, buy_price, sell_price, profit, roi, quantity, account, date FROM flips WHERE (item LIKE '%rune scimitar%' OR item LIKE '%rune scim%') ORDER BY profit DESC
 - "items I traded daily this week" → SELECT item, SUM(profit) as total_profit, AVG(roi) as avg_roi, COUNT(*) as total_flips, COUNT(DISTINCT date) as days_traded FROM flips WHERE date > date('now', '-7 days') GROUP BY item HAVING COUNT(DISTINCT date) = 7 ORDER BY SUM(profit) DESC
 - "profit by item" → SELECT item, SUM(profit) as total_profit, COUNT(*) as flip_count FROM flips GROUP BY item ORDER BY total_profit DESC
 - "profit by account" → SELECT account, SUM(profit) as total_profit, AVG(roi) as avg_roi FROM flips GROUP BY account ORDER BY total_profit DESC

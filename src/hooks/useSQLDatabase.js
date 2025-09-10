@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import initSqlJs from 'sql.js';
 
 export function useSQLDatabase(flips) {
   const [db, setDb] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const dbRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -12,13 +13,13 @@ export function useSQLDatabase(flips) {
     async function initDB() {
       try {
         const SQL = await initSqlJs({
-          locateFile: file => `/sql-wasm.wasm`
+          locateFile: _file => `/sql-wasm.wasm`,
         });
-        
+
         if (!mounted) return;
-        
+
         const database = new SQL.Database();
-        
+
         // Create a simple flips table (no categories for now)
         database.run(`
           CREATE TABLE flips (
@@ -36,7 +37,7 @@ export function useSQLDatabase(flips) {
             date TEXT
           )
         `);
-        
+
         // Insert flip data
         if (flips && flips.length > 0) {
           const stmt = database.prepare(`
@@ -44,13 +45,13 @@ export function useSQLDatabase(flips) {
             (id, item, buy_price, sell_price, profit, roi, quantity, buy_time, sell_time, account, flip_duration_minutes, date)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `);
-          
+
           flips.forEach((flip, index) => {
             const itemName = flip.item || flip.item_name || 'Unknown';
             const profit = flip.profit || 0;
             const roi = flip.roi || 0;
             const account = flip.account || 'main';
-            
+
             // Handle date formatting
             let dateStr = flip.date;
             if (!dateStr && flip.sell_time) {
@@ -59,15 +60,21 @@ export function useSQLDatabase(flips) {
             if (!dateStr) {
               dateStr = new Date().toISOString().split('T')[0];
             }
-            
+
             // Handle various field name formats
-            const buyPrice = flip.avgBuyPrice || flip.avg_buy_price || flip.buyPrice || flip.buy_price || 0;
-            const sellPrice = flip.avgSellPrice || flip.avg_sell_price || flip.sellPrice || flip.sell_price || 0;
-            const buyTime = flip.firstBuyTime || flip.first_buy_time || flip.buy_time || flip.buyTime || '';
-            const sellTime = flip.lastSellTime || flip.last_sell_time || flip.sell_time || flip.sellTime || '';
-            const duration = flip.hoursHeld ? Math.round(flip.hoursHeld * 60) : (flip.flip_duration_minutes || flip.duration || 0);
+            const buyPrice =
+              flip.avgBuyPrice || flip.avg_buy_price || flip.buyPrice || flip.buy_price || 0;
+            const sellPrice =
+              flip.avgSellPrice || flip.avg_sell_price || flip.sellPrice || flip.sell_price || 0;
+            const buyTime =
+              flip.firstBuyTime || flip.first_buy_time || flip.buy_time || flip.buyTime || '';
+            const sellTime =
+              flip.lastSellTime || flip.last_sell_time || flip.sell_time || flip.sellTime || '';
+            const duration = flip.hoursHeld
+              ? Math.round(flip.hoursHeld * 60)
+              : flip.flip_duration_minutes || flip.duration || 0;
             const actualQuantity = flip.bought || flip.sold || flip.quantity || 1;
-            
+
             stmt.run([
               index,
               itemName,
@@ -80,16 +87,17 @@ export function useSQLDatabase(flips) {
               sellTime,
               account,
               duration,
-              dateStr
+              dateStr,
             ]);
           });
-          
+
           stmt.free();
         }
-        
+
+        dbRef.current = database;
         setDb(database);
         setLoading(false);
-        
+
         console.log(`✅ SQL Database initialized with ${flips?.length || 0} flips`);
       } catch (err) {
         console.error('Failed to initialize SQL database:', err);
@@ -108,9 +116,10 @@ export function useSQLDatabase(flips) {
 
     return () => {
       mounted = false;
-      if (db) {
+      if (dbRef.current) {
         try {
-          db.close();
+          dbRef.current.close();
+          dbRef.current = null;
         } catch (e) {
           console.warn('Error closing database:', e);
         }
@@ -118,11 +127,11 @@ export function useSQLDatabase(flips) {
     };
   }, [flips]);
 
-  const executeQuery = (sql) => {
+  const executeQuery = sql => {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    
+
     try {
       const result = db.exec(sql);
       if (result.length === 0) {
@@ -138,6 +147,6 @@ export function useSQLDatabase(flips) {
   return {
     executeQuery,
     loading,
-    error
+    error,
   };
 }
