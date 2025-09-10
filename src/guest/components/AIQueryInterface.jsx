@@ -31,6 +31,22 @@ export function AIQueryInterface({ flips }) {
   const { executeQuery, loading: dbLoading, error: dbError } = useSQLDatabase(flips);
   const queryHistoryRef = useRef([]);
 
+  // Get or create session identifier for query tracking
+  const getSessionId = () => {
+    let sessionId = sessionStorage.getItem('osrs_flip_session_id');
+    if (!sessionId) {
+      // Generate a random session ID (e.g., "session_abc123")
+      sessionId = `session_${Math.random().toString(36).substring(2, 8)}`;
+      sessionStorage.setItem('osrs_flip_session_id', sessionId);
+    }
+    return sessionId;
+  };
+
+  // Check if this is the owner (persistent across sessions)
+  const isOwner = () => {
+    return localStorage.getItem('osrs_flip_user_id') === 'owner';
+  };
+
   const handleQuery = async () => {
     if (!query.trim()) {
       toast.error('Please enter a query');
@@ -51,6 +67,8 @@ export function AIQueryInterface({ flips }) {
         query,
         previousQuery: isFollowUp ? conversation[conversation.length - 1].query : null,
         previousSQL: isFollowUp ? conversation[conversation.length - 1].sql : null,
+        sessionId: getSessionId(),
+        isOwner: isOwner(),
       };
 
       const response = await fetch('/api/generate-sql', {
@@ -350,24 +368,6 @@ export function AIQueryInterface({ flips }) {
           </div>
 
           <QueryResults results={results} />
-        </div>
-      )}
-
-      {/* Generic Query Examples */}
-      {!results && (
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <p className="text-sm text-gray-400 mb-2">Popular queries:</p>
-          <div className="flex flex-wrap gap-2">
-            {EXAMPLE_QUERIES.slice(6, 12).map((example, i) => (
-              <button
-                key={i}
-                onClick={() => setQuery(example)}
-                className="px-3 py-1 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-colors"
-              >
-                {example}
-              </button>
-            ))}
-          </div>
         </div>
       )}
     </div>

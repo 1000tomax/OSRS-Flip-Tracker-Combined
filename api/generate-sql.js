@@ -1,12 +1,19 @@
 // Vercel Edge Function for SQL generation
 export const config = {
-  runtime: 'edge'
+  runtime: 'edge',
 };
 
 // Discord webhook logging function
-async function logToDiscord(userQuery, sql, success, errorMessage = null) {
+async function logToDiscord(
+  userQuery,
+  sql,
+  success,
+  errorMessage = null,
+  sessionId = null,
+  isOwner = false
+) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  
+
   if (!webhookUrl) {
     console.log('Discord webhook not configured');
     return;
@@ -19,40 +26,54 @@ async function logToDiscord(userQuery, sql, success, errorMessage = null) {
   }
 
   try {
+    // Determine user type and session info
+    const userType = isOwner ? '👑 Owner' : `👤 ${sessionId || 'Unknown Session'}`;
+
     const embed = {
       title: success ? '✅ SQL Query Generated' : '❌ SQL Generation Failed',
-      color: success ? 0x00ff00 : 0xff0000,
+      color: success ? (isOwner ? 0x00ff00 : 0x00aaff) : 0xff0000, // Different color for owner vs users
       fields: [
+        {
+          name: '👤 Session',
+          value: userType,
+          inline: true,
+        },
         {
           name: '📝 User Query',
           value: `\`\`\`${userQuery.substring(0, 1000)}${userQuery.length > 1000 ? '...' : ''}\`\`\``,
-          inline: false
+          inline: false,
         },
-        success ? {
-          name: '🔍 Generated SQL',
-          value: `\`\`\`sql\n${sql.substring(0, 1000)}${sql.length > 1000 ? '...' : ''}\n\`\`\``,
-          inline: false
-        } : null,
-        errorMessage ? {
-          name: '💥 Error',
-          value: `\`\`\`${errorMessage}\`\`\``,
-          inline: false
-        } : null
+        success
+          ? {
+              name: '🔍 Generated SQL',
+              value: `\`\`\`sql\n${sql.substring(0, 1000)}${sql.length > 1000 ? '...' : ''}\n\`\`\``,
+              inline: false,
+            }
+          : null,
+        errorMessage
+          ? {
+              name: '💥 Error',
+              value: `\`\`\`${errorMessage}\`\`\``,
+              inline: false,
+            }
+          : null,
       ].filter(Boolean),
       timestamp: new Date().toISOString(),
       footer: {
-        text: 'OSRS AI Query System'
-      }
+        text: isOwner
+          ? 'OSRS AI Query System - Owner'
+          : `OSRS AI Query System - ${sessionId || 'Anonymous'}`,
+      },
     };
 
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        embeds: [embed]
-      })
+        embeds: [embed],
+      }),
     });
-    
+
     console.log('Logged to Discord successfully');
   } catch (err) {
     console.error('Discord webhook error:', err);
@@ -61,40 +82,41 @@ async function logToDiscord(userQuery, sql, success, errorMessage = null) {
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { 
+    return new Response('Method Not Allowed', {
       status: 405,
-      headers: { 'content-type': 'text/plain' }
+      headers: { 'content-type': 'text/plain' },
     });
   }
 
   const apiKey = process.env.VITE_CLAUDE_API_KEY;
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Server configuration error',
-        message: 'VITE_CLAUDE_API_KEY not configured in Vercel environment'
+        message: 'VITE_CLAUDE_API_KEY not configured in Vercel environment',
       }),
-      { 
-        status: 500, 
-        headers: { 'content-type': 'application/json' }
+      {
+        status: 500,
+        headers: { 'content-type': 'application/json' },
       }
     );
   }
 
-  let query, previousQuery, previousSQL;
+  let query, previousQuery, previousSQL, sessionId, isOwner;
   try {
-    ({ query, previousQuery, previousSQL } = await req.json());
-    
+    ({ query, previousQuery, previousSQL, sessionId, isOwner } = await req.json());
+
     if (!query) {
-      return new Response(
-        JSON.stringify({ error: 'Query is required' }),
-        { status: 400, headers: { 'content-type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Query is required' }), {
+        status: 400,
+        headers: { 'content-type': 'application/json' },
+      });
     }
 
     const isFollowUp = !!previousQuery;
-    
-    const prompt = isFollowUp ? `
+
+    const prompt = isFollowUp
+      ? `
 You are refining a previous SQL query based on user feedback.
 
 Previous user query: "${previousQuery}"
@@ -135,7 +157,8 @@ NOTE:
 - Never select the 'id' field in queries as it's just an internal row number.
 
 Return ONLY the updated SQL query:
-` : `
+`
+      : `
 You are a SQL query generator for an OSRS flip tracking database.
 
 Table schema:
@@ -204,9 +227,9 @@ Generate SQL for the user request:`;
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
-        ]
+            content: prompt,
+          },
+        ],
       }),
     });
 
@@ -217,35 +240,31 @@ Generate SQL for the user request:`;
 
     const data = await response.json();
     const sql = data.content[0].text.trim();
-    
-    // Log successful generation to Discord
-    await logToDiscord(query, sql, true);
-    
-    return new Response(
-      JSON.stringify({ sql }),
-      {
-        status: 200,
-        headers: { 
-          'content-type': 'application/json',
-          'cache-control': 'no-cache'
-        }
-      }
-    );
 
+    // Log successful generation to Discord
+    await logToDiscord(query, sql, true, null, sessionId, isOwner);
+
+    return new Response(JSON.stringify({ sql }), {
+      status: 200,
+      headers: {
+        'content-type': 'application/json',
+        'cache-control': 'no-cache',
+      },
+    });
   } catch (error) {
     console.error('SQL generation error:', error);
-    
+
     // Log error to Discord
-    await logToDiscord(query || 'Unknown query', '', false, error.message);
-    
+    await logToDiscord(query || 'Unknown query', '', false, error.message, sessionId, isOwner);
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Failed to generate SQL',
-        message: error.message 
+        message: error.message,
       }),
-      { 
+      {
         status: 500,
-        headers: { 'content-type': 'application/json' }
+        headers: { 'content-type': 'application/json' },
       }
     );
   }
