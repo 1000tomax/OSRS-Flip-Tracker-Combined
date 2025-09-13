@@ -1,0 +1,7131 @@
+{
+  "totalItems": 709,
+  "coarseSummary": [
+    {
+      "category": "Armour",
+      "count": 170
+    },
+    {
+      "category": "Skilling",
+      "count": 116
+    },
+    {
+      "category": "Consumables",
+      "count": 109
+    },
+    {
+      "category": "Weapons",
+      "count": 87
+    },
+    {
+      "category": "Utility",
+      "count": 62
+    },
+    {
+      "category": "Other",
+      "count": 48
+    },
+    {
+      "category": "Magic",
+      "count": 45
+    },
+    {
+      "category": "Ammunition",
+      "count": 41
+    },
+    {
+      "category": "Special Gear",
+      "count": 22
+    },
+    {
+      "category": "Prayer",
+      "count": 9
+    }
+  ],
+  "overTagged": [
+    {
+      "name": "Dragonstone ring",
+      "tags": [
+        "Dragon Equipment",
+        "Jewellery",
+        "Equipment",
+        "Gems",
+        "Crafting Materials"
+      ]
+    },
+    {
+      "name": "Echo virtus ornament kit",
+      "tags": [
+        "Magic Equipment",
+        "Armour",
+        "Desert Treasure Items",
+        "Ornament Kits",
+        "Special Items"
+      ]
+    }
+  ],
+  "others": [
+    "Glacial temotli",
+    "Gold seal",
+    "Sulphur blades",
+    "Trouver parchment",
+    "Tzhaar-ket-om",
+    "Unicorn horn dust",
+    "Unlit torch",
+    "Vial of blood",
+    "Weapon poison(+)",
+    "White berries",
+    "Xerician hat",
+    "Xerician top",
+    "Yanillian hops",
+    "Zamorakian hasta",
+    "Zombie pirate key"
+  ],
+  "rows": [
+    {
+      "name": "Abyssal bludgeon",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Abyssal dagger",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Abyssal dagger (p++)",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Abyssal whip",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Accursed sceptre (au)",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Accursed sceptre (u)",
+      "tags": [
+        "Magic Equipment",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Adamant arrow",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Adamant bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Adamant brutal",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Adamant crossbow",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Adamant dart",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Adamant dart tip",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Adamantite ore",
+      "tags": [
+        "Ores & Bars",
+        "Mining",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Admiral pie",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Aether catalyst",
+      "tags": [
+        "Utility"
+      ],
+      "primary": "Utility",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Agility potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Ahrim's armour set",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Ahrim's hood",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ahrim's robeskirt",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Ahrim's robetop",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ahrim's staff",
+      "tags": [
+        "Barrows Equipment",
+        "Weapons",
+        "Magic Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Air orb",
+      "tags": [
+        "Crafting Materials",
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 2
+    },
+    {
+      "name": "Aldarium",
+      "tags": [
+        "Smithing Supplies"
+      ],
+      "primary": "Smithing Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Amethyst arrow",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Amethyst broad bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Amethyst dart",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Amethyst dart tip",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Amethyst javelin",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Amulet of avarice",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amulet of chemistry",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amulet of defence",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amulet of eternal glory",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amulet of fury",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amulet of glory(4)",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Amulet of glory(6)",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Amulet of rancour",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amulet of strength",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amulet of torture",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Amylase crystal",
+      "tags": [
+        "Herblore Supplies"
+      ],
+      "primary": "Herblore Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Ancestral hat",
+      "tags": [
+        "Magic Equipment",
+        "Armour",
+        "Raids Equipment"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Ancient brew(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Ancient chaps",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Ancient d'hide boots",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ancient godsword",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Ancient staff",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Ancient wyvern shield",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Anglerfish",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Anguish ornament kit",
+      "tags": [
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Ankou mask",
+      "tags": [
+        "Equipment",
+        "Special Items"
+      ],
+      "primary": "Equipment",
+      "coarse": "Other",
+      "tagCount": 2
+    },
+    {
+      "name": "Ankou top",
+      "tags": [
+        "Equipment",
+        "Special Items"
+      ],
+      "primary": "Equipment",
+      "coarse": "Other",
+      "tagCount": 2
+    },
+    {
+      "name": "Annakarl teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Anti-venom+(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Antidote++(1)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Antidote++(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Antifire potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Antler guard",
+      "tags": [
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ape atoll teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Apple sapling",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Apples(5)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Aranea boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Arcane sigil",
+      "tags": [
+        "Magic Equipment",
+        "Special Items",
+        "GWD Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Arcane spirit shield",
+      "tags": [
+        "Armour",
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Arceuus library teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Archer helm",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Archers ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ardougne teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Armadyl chainskirt",
+      "tags": [
+        "Armour",
+        "GWD Equipment",
+        "Ranged Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Armadyl chaps",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Armadyl chestplate",
+      "tags": [
+        "Armour",
+        "GWD Equipment",
+        "Ranged Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Armadyl crossbow",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Armadyl d'hide body",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Armadyl d'hide boots",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Armadyl godsword",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Armadyl helmet",
+      "tags": [
+        "Armour",
+        "GWD Equipment",
+        "Ranged Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Asgarnian seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Astral rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Atlatl dart",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Weapons"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Attack potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Avantoe potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Avantoe seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Avernic defender hilt",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Awakener's orb",
+      "tags": [
+        "Crafting Materials",
+        "Magic Equipment",
+        "Special Items",
+        "Desert Treasure Items"
+      ],
+      "primary": "Desert Treasure Items",
+      "coarse": "Magic",
+      "tagCount": 4
+    },
+    {
+      "name": "Baby impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Babydragon bones",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Bag of salt",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Bagged plant 1",
+      "tags": [
+        "Construction Materials"
+      ],
+      "primary": "Construction Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Bagged plant 3",
+      "tags": [
+        "Construction Materials"
+      ],
+      "primary": "Construction Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Bandos boots",
+      "tags": [
+        "Armour",
+        "GWD Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bandos chaps",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Bandos chestplate",
+      "tags": [
+        "Armour",
+        "GWD Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bandos cloak",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Bandos d'hide boots",
+      "tags": [
+        "Armour",
+        "Crafting Materials",
+        "GWD Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Bandos godsword",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Bandos godsword ornament kit",
+      "tags": [
+        "Weapons",
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Bandos tassets",
+      "tags": [
+        "Armour",
+        "GWD Equipment"
+      ],
+      "primary": "GWD Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Barley seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Barrows teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Basalt",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Basilisk jaw",
+      "tags": [
+        "Special Items",
+        "Combat Supplies",
+        "Slayer Items"
+      ],
+      "primary": "Combat Supplies",
+      "coarse": "Consumables",
+      "tagCount": 3
+    },
+    {
+      "name": "Bass",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Bastion potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Battlefront teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Battlemage potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Beer",
+      "tags": [
+        "Consumables"
+      ],
+      "primary": "Consumables",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Belladonna seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Bellator ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Berserker helm",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Berserker necklace",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Berserker ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Big bones",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Binding necklace",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bird house",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Black cape",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Black chinchompa",
+      "tags": [
+        "Ranged Equipment",
+        "Hunter Supplies",
+        "Consumables"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Black d'hide shield",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Black dragon leather",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Blade of saeldor (inactive)",
+      "tags": [
+        "Weapons",
+        "Special Items",
+        "Gauntlet Items"
+      ],
+      "primary": "Gauntlet Items",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Blighted ancient ice sack",
+      "tags": [
+        "PvP Items",
+        "Utility"
+      ],
+      "primary": "Utility",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Blighted anglerfish",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Blighted entangle sack",
+      "tags": [
+        "PvP Items",
+        "Utility"
+      ],
+      "primary": "Utility",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Blighted karambwan",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Blighted manta ray",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Blighted super restore(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Blood essence",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Blood moon chestplate",
+      "tags": [
+        "Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Blood moon helm",
+      "tags": [
+        "Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Blood moon tassets",
+      "tags": [
+        "Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Blood rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Blood shard",
+      "tags": [
+        "Special Items",
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Bloodbark body",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bloodbark boots",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bloodbark gauntlets",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bloodbark helm",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bloodbark legs",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Blue d'hide vambraces",
+      "tags": [
+        "Crafting Materials",
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Blue firelighter",
+      "tags": [
+        "Utility"
+      ],
+      "primary": "Utility",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Blue moon chestplate",
+      "tags": [
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Blue moon helm",
+      "tags": [
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Blue moon spear",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Blue moon tassets",
+      "tags": [
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Bolt of cloth",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Bones",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Bones to peaches",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Boots of brimstone",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Botanical pie",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Bottomless compost bucket",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Bounty supply crate (manta ray)",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Bow of faerdhinen (inactive)",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Bow string",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Bracelet of slaughter",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Brimstone ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Brine sabre",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Broad bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Bronze axe",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Bryophyta's staff (uncharged)",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Burning amulet(5)",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Burning claws",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Burnt page",
+      "tags": [
+        "Books"
+      ],
+      "primary": "Books",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Cactus spine",
+      "tags": [
+        "Herblore Supplies"
+      ],
+      "primary": "Herblore Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Cadantine blood potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Cadantine potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Cadantine seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Cadava berries",
+      "tags": [
+        "Food"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 1
+    },
+    {
+      "name": "Calcified moth",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Calcite",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Camelot teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Cannonball",
+      "tags": [
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Cape of skulls",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Carrallanger teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Celastrus sapling",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Cemetery teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Chaos rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Chaos talisman",
+      "tags": [
+        "Magic"
+      ],
+      "primary": "Magic",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Chasm teleport scroll",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Chef's delight",
+      "tags": [
+        "Consumables"
+      ],
+      "primary": "Consumables",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Chinchompa",
+      "tags": [
+        "Ranged Equipment",
+        "Hunter Supplies",
+        "Consumables"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Chocolate bar",
+      "tags": [
+        "Ores & Bars",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Chromium ingot",
+      "tags": [
+        "Smithing Supplies"
+      ],
+      "primary": "Smithing Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Chugging barrel (disassembled)",
+      "tags": [
+        "Ores & Bars",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Clockwork",
+      "tags": [
+        "Construction Materials"
+      ],
+      "primary": "Construction Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Coal",
+      "tags": [
+        "Ores & Bars",
+        "Mining",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Coconut",
+      "tags": [
+        "Food",
+        "Farming Supplies"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Colossal wyrm teleport scroll",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Combat bracelet(6)",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Combat potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Confliction gauntlets",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Cooked karambwan",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Cooked moonlight antelope",
+      "tags": [
+        "Food"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 1
+    },
+    {
+      "name": "Cosmic rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Craw's bow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Crushed infernal shale",
+      "tags": [
+        "Consumables"
+      ],
+      "primary": "Consumables",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Crystal armour seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Crystal weapon seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Cup of hot water",
+      "tags": [
+        "Consumables"
+      ],
+      "primary": "Consumables",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Dagon'hai robe bottom",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dagon'hai robe top",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dagon'hai robes set",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dareeyak teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Dark bow",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Dark crab",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Death rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Demon tear",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Demonic tallow",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Devout boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Dexterous prayer scroll",
+      "tags": [
+        "Special Items",
+        "Prayer"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 2
+    },
+    {
+      "name": "Dharok's armour set",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Dharok's greataxe",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Dharok's helm",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dharok's platebody",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dharok's platelegs",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Diabolic worms",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Diamond",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Diamond bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Diamond bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Diamond dragon bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Digsite teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Dinh's bulwark",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Divine bastion potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Divine battlemage potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Divine magic potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Divine ranging potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Divine super attack potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Divine super combat potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Divine super strength potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Dodgy necklace",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon arrow",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragon arrow(p+)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragon arrow(p++)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragon axe",
+      "tags": [
+        "Dragon Equipment",
+        "Tools"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon bones",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Dragon boots",
+      "tags": [
+        "Dragon Equipment",
+        "Armour"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon chainbody",
+      "tags": [
+        "Dragon Equipment",
+        "Armour"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon claws",
+      "tags": [
+        "Dragon Equipment",
+        "Weapons"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon crossbow",
+      "tags": [
+        "Dragon Equipment",
+        "Ranged Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon dagger(p++)",
+      "tags": [
+        "Dragon Equipment",
+        "Weapons"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon dart",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragon dart tip",
+      "tags": [
+        "Dragon Equipment",
+        "Crafting Materials"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon felling axe",
+      "tags": [
+        "Dragon Equipment",
+        "Tools"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon harpoon",
+      "tags": [
+        "Tools",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon hunter crossbow",
+      "tags": [
+        "Dragon Equipment",
+        "Ranged Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon hunter lance",
+      "tags": [
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Dragon hunter wand",
+      "tags": [
+        "Dragon Equipment",
+        "Magic Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Magic",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon javelin",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragon javelin heads",
+      "tags": [
+        "Dragon Equipment",
+        "Crafting Materials"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon knife",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragon knife(p++)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragon pickaxe",
+      "tags": [
+        "Tools",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon pickaxe upgrade kit",
+      "tags": [
+        "Tools",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon platebody",
+      "tags": [
+        "Dragon Equipment",
+        "Armour"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon scale dust",
+      "tags": [
+        "Combat Supplies",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Consumables",
+      "tagCount": 3
+    },
+    {
+      "name": "Dragon sq shield",
+      "tags": [
+        "Dragon Equipment",
+        "Armour"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon sword",
+      "tags": [
+        "Dragon Equipment",
+        "Weapons"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragon warhammer",
+      "tags": [
+        "Tools",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragonfire shield",
+      "tags": [
+        "Dragon Equipment",
+        "Armour"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragonfire ward",
+      "tags": [
+        "Dragon Equipment",
+        "Armour"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragonfruit pie",
+      "tags": [
+        "Food",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Consumables",
+      "tagCount": 3
+    },
+    {
+      "name": "Dragonfruit sapling",
+      "tags": [
+        "Dragon Equipment",
+        "Farming Supplies"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Dragonstone bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragonstone bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragonstone dragon bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Dragonstone ring",
+      "tags": [
+        "Dragon Equipment",
+        "Jewellery",
+        "Equipment",
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Armour",
+      "tagCount": 5
+    },
+    {
+      "name": "Drake bones",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Draynor manor teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Drift net",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Dual macuahuitl",
+      "tags": [
+        "Weapons",
+        "Special Items"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Dwarf cannon set",
+      "tags": [
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Dwarf weed potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Dynamite",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Earth impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Echo ahrim's ornament kit",
+      "tags": [
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Echo virtus ornament kit",
+      "tags": [
+        "Magic Equipment",
+        "Armour",
+        "Desert Treasure Items",
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Desert Treasure Items",
+      "coarse": "Armour",
+      "tagCount": 5
+    },
+    {
+      "name": "Eclectic impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Eclipse atlatl",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Eclipse moon chestplate",
+      "tags": [
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Eclipse moon helm",
+      "tags": [
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Eclipse moon tassets",
+      "tags": [
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Efaritay's aid",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Elder chaos hood",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Elder chaos robe",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Elder chaos top",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Elder maul",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Elemental talisman",
+      "tags": [
+        "Magic"
+      ],
+      "primary": "Magic",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Elidinis' ward",
+      "tags": [
+        "Armour",
+        "Magic Equipment",
+        "Desert Treasure Items"
+      ],
+      "primary": "Desert Treasure Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Emerald",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Emerald ring",
+      "tags": [
+        "Jewellery",
+        "Equipment",
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Enhanced crystal teleport seed",
+      "tags": [
+        "Teleports",
+        "Utility",
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 4
+    },
+    {
+      "name": "Essence impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Eternal boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Extended anti-venom+(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Extended antifire(1)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Extended antifire(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Extended super antifire(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Eye of ayak (uncharged)",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Falador teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Fat snail",
+      "tags": [
+        "Food"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 1
+    },
+    {
+      "name": "Feather",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Feldip hills teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Fenkenstrain's castle teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Fishing potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Flared trousers",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Forgotten brew(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Ghorrock teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Ghrazi rapier",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Gianne dough",
+      "tags": [
+        "Food"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 1
+    },
+    {
+      "name": "Glacial temotli",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Goading potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Gold bar",
+      "tags": [
+        "Ores & Bars",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Gold ore",
+      "tags": [
+        "Ores & Bars",
+        "Mining",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Gold seal",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Gourmet impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Granite body",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Granite boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Granite hammer",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Granite maul",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Grapes",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Grimy harralander",
+      "tags": [
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Herbs",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Grimy toadflax",
+      "tags": [
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Herbs",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Guam leaf",
+      "tags": [
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Herbs",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Guam potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Guam seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Guthan's armour set",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Guthan's chainskirt",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Guthan's platebody",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Guthan's warspear",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Guthix chaps",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Guthix d'hide body",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Guthix d'hide boots",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Guthix rest(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Guthixian temple teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Harmonised orb",
+      "tags": [
+        "Crafting Materials",
+        "Magic Equipment",
+        "Special Items",
+        "Raids Equipment"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Magic",
+      "tagCount": 4
+    },
+    {
+      "name": "Harralander",
+      "tags": [
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Herbs",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Harralander potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Heavy ballista",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Helm of neitiznot",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Holy blessing",
+      "tags": [
+        "Prayer"
+      ],
+      "primary": "Prayer",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Holy sandals",
+      "tags": [
+        "Armour",
+        "Prayer"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Huasca potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Huasca seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Hueycoatl hide body",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Hueycoatl hide chaps",
+      "tags": [
+        "Crafting Materials",
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Hueycoatl hide coif",
+      "tags": [
+        "Crafting Materials",
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Hueycoatl hide vambraces",
+      "tags": [
+        "Crafting Materials",
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Hunter potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Hunters' crossbow",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Hydra leather",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Hydra tail",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Infinity boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Inquisitor's armour set",
+      "tags": [
+        "Armour",
+        "Special Items",
+        "Nightmare Items"
+      ],
+      "primary": "Nightmare Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Inquisitor's hauberk",
+      "tags": [
+        "Armour",
+        "Special Items",
+        "Nightmare Items"
+      ],
+      "primary": "Nightmare Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Inquisitor's mace",
+      "tags": [
+        "Weapons",
+        "Armour",
+        "Special Items",
+        "Nightmare Items"
+      ],
+      "primary": "Nightmare Items",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Inquisitor's plateskirt",
+      "tags": [
+        "Armour",
+        "Special Items",
+        "Nightmare Items"
+      ],
+      "primary": "Nightmare Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Iorwerth camp teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Irit potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Iron arrowtips",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Iron axe",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Iron bar",
+      "tags": [
+        "Ores & Bars",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Iron chainbody",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Iron dart",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Iron dart tip",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Iron full helm",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Iron ore",
+      "tags": [
+        "Ores & Bars",
+        "Mining",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Iron spit",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Justiciar armour set",
+      "tags": [
+        "Armour",
+        "Raids Equipment",
+        "Equipment Sets"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Justiciar chestguard",
+      "tags": [
+        "Armour",
+        "Raids Equipment"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Justiciar faceguard",
+      "tags": [
+        "Armour",
+        "Raids Equipment"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Justiciar legguards",
+      "tags": [
+        "Armour",
+        "Raids Equipment"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Karil's leatherskirt",
+      "tags": [
+        "Barrows Equipment",
+        "Crafting Materials"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Karil's leathertop",
+      "tags": [
+        "Barrows Equipment",
+        "Crafting Materials"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Kebbit bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Kharyrll teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Khazard teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Kodai wand",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Kraken tentacle",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Kwuarm potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Kwuarm seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Lantadyme",
+      "tags": [
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Herbs",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Lantadyme seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Lassar teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Lava battlestaff",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Lava dragon bones",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Lava rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Lava scale shard",
+      "tags": [
+        "Combat Supplies",
+        "Consumables"
+      ],
+      "primary": "Combat Supplies",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Law rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Leaf-bladed battleaxe",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Leather",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Lightbearer",
+      "tags": [
+        "Jewellery",
+        "Equipment",
+        "Special Items"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Limestone brick",
+      "tags": [
+        "Construction Materials"
+      ],
+      "primary": "Construction Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Limpwurt seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Lobster",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Longbow",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Lumbridge teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Mage's book",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Magic fang",
+      "tags": [
+        "Magic Equipment",
+        "Special Items"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 2
+    },
+    {
+      "name": "Magic logs",
+      "tags": [
+        "Logs",
+        "Woodcutting",
+        "Firemaking"
+      ],
+      "primary": "Logs",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Magic longbow",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Magic longbow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Magic potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Magic pyre logs",
+      "tags": [
+        "Logs",
+        "Woodcutting",
+        "Firemaking"
+      ],
+      "primary": "Logs",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Magic shortbow scroll",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons",
+        "Special Items"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Magus ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Mahogany bird house",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Mahogany logs",
+      "tags": [
+        "Logs",
+        "Woodcutting",
+        "Firemaking"
+      ],
+      "primary": "Logs",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Mahogany plank",
+      "tags": [
+        "Construction Materials"
+      ],
+      "primary": "Construction Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Mahogany sapling",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Malediction ward",
+      "tags": [
+        "Armour",
+        "Consumables"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Manta ray",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Maple bird house",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Maple longbow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Maple sapling",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Maple shortbow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Marrentill",
+      "tags": [
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Herbs",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Marrentill potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Masori body",
+      "tags": [
+        "Armour",
+        "Ranged Equipment",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Masori body (f)",
+      "tags": [
+        "Armour",
+        "Ranged Equipment",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Masori chaps",
+      "tags": [
+        "Armour",
+        "Ranged Equipment",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Masori mask",
+      "tags": [
+        "Armour",
+        "Ranged Equipment",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Masori mask (f)",
+      "tags": [
+        "Armour",
+        "Ranged Equipment",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Master wand",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Mind altar teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Mist rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Mithril arrowtips",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Mithril bar",
+      "tags": [
+        "Ores & Bars",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Mithril bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Mithril dart tip",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Mithril pickaxe",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Mithril plateskirt",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Mithril seeds",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Mixed hide boots",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Mixed hide cape",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Mixed hide top",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Crafting Materials"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 3
+    },
+    {
+      "name": "Mokhaiotl waystone",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Mole claw",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Mole skin",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Molten glass",
+      "tags": [
+        "Crafting Materials",
+        "Smithing Supplies"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Monkey bar",
+      "tags": [
+        "Ores & Bars",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Monkfish",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Moonclan teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Moonlight antler bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Moonlight moth mix (2)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Mort myre fungus",
+      "tags": [
+        "Herblore Supplies"
+      ],
+      "primary": "Herblore Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Mort'ton teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Mud rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Mystic boots",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Mystic boots (dark)",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Mystic gloves",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Mystic gloves (dark)",
+      "tags": [
+        "Armour",
+        "Magic Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Mystic hat",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Mystic set (blue)",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Mystic smoke staff",
+      "tags": [
+        "Magic Equipment",
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Nature rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Necklace of anguish",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Nightmare staff",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Ninja impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Noxious halberd",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Numulite",
+      "tags": [
+        "Utility"
+      ],
+      "primary": "Utility",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Oak bird house",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Oak longbow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Oak plank",
+      "tags": [
+        "Construction Materials"
+      ],
+      "primary": "Construction Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Oak shortbow",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Oathplate chest",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Oathplate helm",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Oathplate legs",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Obsidian armour set",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Obsidian cape",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Obsidian helmet",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Obsidian platebody",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Obsidian platelegs",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Occult necklace",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Occult ornament kit",
+      "tags": [
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Odium ward",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Olive oil(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Onyx",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Onyx dragon bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Opal",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Opal dragon bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Ornate maul handle",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Osmumten's fang",
+      "tags": [
+        "Weapons",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Papaya fruit",
+      "tags": [
+        "Food",
+        "Farming Supplies"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Pegasian boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Pest control teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Pharaoh's sceptre (uncharged)",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Phoenix necklace",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Pie dish",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Pineapple pizza",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Pineapple sapling",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Piscatoris teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Pot",
+      "tags": [
+        "Consumables"
+      ],
+      "primary": "Consumables",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Pot of cream",
+      "tags": [
+        "Consumables"
+      ],
+      "primary": "Consumables",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Potato with butter",
+      "tags": [
+        "Food"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 1
+    },
+    {
+      "name": "Potato with cheese",
+      "tags": [
+        "Food"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 1
+    },
+    {
+      "name": "Prayer potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Prayer regeneration potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Primordial boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Quetzal feed",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Ranarr seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Ranger boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Ranger gloves",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Rangers' tights",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Rangers' tunic",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Ranging potion(1)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Ranging potion(3)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Ranging potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Raw anglerfish",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Raw dark crab",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Raw karambwan",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Raw kyatt",
+      "tags": [
+        "Food"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 1
+    },
+    {
+      "name": "Raw manta ray",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Raw monkfish",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Raw shark",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Raw summer pie",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Red chinchompa",
+      "tags": [
+        "Ranged Equipment",
+        "Hunter Supplies",
+        "Consumables"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Red spiders' eggs",
+      "tags": [
+        "Herblore Supplies"
+      ],
+      "primary": "Herblore Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Redwood logs",
+      "tags": [
+        "Logs",
+        "Woodcutting",
+        "Firemaking"
+      ],
+      "primary": "Logs",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Restore potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Revenant cave teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Revenant ether",
+      "tags": [
+        "Special Items",
+        "Combat Supplies"
+      ],
+      "primary": "Combat Supplies",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Ring of dueling(8)",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Ring of endurance (uncharged)",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ring of recoil",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ring of suffering",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ring of the elements",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ring of the gods",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Ring of wealth (5)",
+      "tags": [
+        "Potions",
+        "Consumables",
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 4
+    },
+    {
+      "name": "Robin hood hat",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Ruby",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Ruby bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Ruby bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Ruby dragon bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Rune arrow",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Rune crossbow",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Rune dart",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Rune dart tip",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Rune halberd",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Rune knife",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Rune pouch note",
+      "tags": [
+        "Utility"
+      ],
+      "primary": "Utility",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Runite bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Runite bolts (unf)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Salve graveyard teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Sanfew serum(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Sanguinesti staff (uncharged)",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Sapphire bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Sapphire dragon bolts (e)",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables",
+        "Dragon Equipment"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Ammunition",
+      "tagCount": 4
+    },
+    {
+      "name": "Sarachnis cudgel",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Saradomin brew(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Saradomin chaps",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Saradomin d'hide body",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Saradomin d'hide boots",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Saradomin godsword",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Saradomin godsword ornament kit",
+      "tags": [
+        "Weapons",
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Saradomin sword",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Saturated heart",
+      "tags": [
+        "Special Items",
+        "Combat Supplies",
+        "Slayer Items"
+      ],
+      "primary": "Combat Supplies",
+      "coarse": "Consumables",
+      "tagCount": 3
+    },
+    {
+      "name": "Sea turtle",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Searing page",
+      "tags": [
+        "Books"
+      ],
+      "primary": "Books",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Seers ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Senntisten teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Serpentine helm (uncharged)",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Shark",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Shattered cannon ornament kit",
+      "tags": [
+        "Ranged Equipment",
+        "Consumables",
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Shattered relics void ornament kit",
+      "tags": [
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Smoke battlestaff",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Smoke rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Smouldering stone",
+      "tags": [
+        "Special Items"
+      ],
+      "primary": "Special Items",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Snakeskin bandana",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Snakeskin boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Snapdragon seed",
+      "tags": [
+        "Dragon Equipment",
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Snape grass",
+      "tags": [
+        "Herblore Supplies"
+      ],
+      "primary": "Herblore Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Snape grass seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies",
+        "Herblore Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Soaked page",
+      "tags": [
+        "Books"
+      ],
+      "primary": "Books",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Soft clay",
+      "tags": [
+        "Construction Materials"
+      ],
+      "primary": "Construction Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Soiled page",
+      "tags": [
+        "Books"
+      ],
+      "primary": "Books",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Soul rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Spectral spirit shield",
+      "tags": [
+        "Armour",
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Spider cave teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Spiked manacles",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Spirit shield",
+      "tags": [
+        "Armour",
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Splitbark legs",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Staff of the dead",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Stale baguette",
+      "tags": [
+        "Consumables"
+      ],
+      "primary": "Consumables",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Stamina potion(1)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Stamina potion(3)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Stamina potion(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Steam rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Steel arrowtips",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Steel axe",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Steel bar",
+      "tags": [
+        "Ores & Bars",
+        "Smithing Supplies"
+      ],
+      "primary": "Ores & Bars",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Steel dart tip",
+      "tags": [
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Steel med helm",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Stew",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Stony basalt",
+      "tags": [
+        "Skilling"
+      ],
+      "primary": "Skilling",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Strange old lockpick (full)",
+      "tags": [
+        "Utility"
+      ],
+      "primary": "Utility",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Strawberries(5)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Strawberry seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Sulphur blades",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Summer pie",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Sunfire fanatic armour set",
+      "tags": [
+        "Equipment",
+        "Armour",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Sunfire fanatic chausses",
+      "tags": [
+        "Equipment",
+        "Armour",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Sunfire fanatic cuirass",
+      "tags": [
+        "Equipment",
+        "Armour",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Sunfire fanatic helm",
+      "tags": [
+        "Armour",
+        "Equipment",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Sunfire splinters",
+      "tags": [
+        "Equipment",
+        "Armour",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Sunlight antler bolts",
+      "tags": [
+        "Ammunition",
+        "Ranged Equipment",
+        "Consumables"
+      ],
+      "primary": "Ammunition",
+      "coarse": "Ammunition",
+      "tagCount": 3
+    },
+    {
+      "name": "Sunlight moth mix (2)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Super combat potion(1)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Super combat potion(3)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Super energy(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Super restore(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Superantipoison(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Supercompost",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Swampbark body",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Swampbark helm",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Swampbark legs",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Swift blade",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Tai bwo wannai teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Tarromin",
+      "tags": [
+        "Herbs",
+        "Herblore Supplies"
+      ],
+      "primary": "Herbs",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Tarromin potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Teak bird house",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Teak logs",
+      "tags": [
+        "Logs",
+        "Woodcutting",
+        "Firemaking"
+      ],
+      "primary": "Logs",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Teleport to house",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Thammaron's sceptre (u)",
+      "tags": [
+        "Magic Equipment",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Tinderbox",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Toadflax seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Toktz-ket-xil",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Toktz-xil-ak",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Tomatoes(5)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Tome of fire (empty)",
+      "tags": [
+        "Magic Equipment",
+        "Books"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 2
+    },
+    {
+      "name": "Tome of water (empty)",
+      "tags": [
+        "Magic Equipment",
+        "Books"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 2
+    },
+    {
+      "name": "Tonalztics of ralos (uncharged)",
+      "tags": [
+        "Magic Equipment",
+        "Special Items",
+        "Tombs of Amascut Items"
+      ],
+      "primary": "Tombs of Amascut Items",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Torag's platebody",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Torag's platelegs",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Tormented bracelet",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Tormented ornament kit",
+      "tags": [
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Tormented synapse",
+      "tags": [
+        "Special Items",
+        "Combat Supplies"
+      ],
+      "primary": "Combat Supplies",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Torstol potion (unf)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Torstol seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Torture ornament kit",
+      "tags": [
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Toxic blowpipe (empty)",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Toxic staff (uncharged)",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Trailblazer reloaded blowpipe ornament kit",
+      "tags": [
+        "Ranged Equipment",
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "Trailblazer reloaded bulwark ornament kit",
+      "tags": [
+        "Ornament Kits",
+        "Special Items"
+      ],
+      "primary": "Ornament Kits",
+      "coarse": "Special Gear",
+      "tagCount": 2
+    },
+    {
+      "name": "Trident of the seas (full)",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Trouver parchment",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Tuna potato",
+      "tags": [
+        "Food",
+        "Consumables"
+      ],
+      "primary": "Food",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Twinflame staff",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Twisted buckler",
+      "tags": [
+        "Raids Equipment",
+        "Armour",
+        "Equipment"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Tyrannical ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Tzhaar-ket-om",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Ultor ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Uncharged toxic trident",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Uncharged toxic trident (e)",
+      "tags": [
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 1
+    },
+    {
+      "name": "Uncut diamond",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Uncut dragonstone",
+      "tags": [
+        "Dragon Equipment",
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Dragon Equipment",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Uncut emerald",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Uncut opal",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Uncut red topaz",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Uncut ruby",
+      "tags": [
+        "Gems",
+        "Crafting Materials"
+      ],
+      "primary": "Gems",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Unicorn horn dust",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Unlit torch",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Unpowered orb",
+      "tags": [
+        "Crafting Materials",
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 2
+    },
+    {
+      "name": "Ursine chainmace (u)",
+      "tags": [
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Crafting Materials",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Varrock teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Venator bow (uncharged)",
+      "tags": [
+        "Ranged Equipment"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Venator ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Verac's armour set",
+      "tags": [
+        "Barrows Equipment"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Special Gear",
+      "tagCount": 1
+    },
+    {
+      "name": "Verac's plateskirt",
+      "tags": [
+        "Barrows Equipment",
+        "Armour"
+      ],
+      "primary": "Barrows Equipment",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Vial of blood",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Vile ashes",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Virtus armour set",
+      "tags": [
+        "Magic Equipment",
+        "Armour",
+        "Desert Treasure Items"
+      ],
+      "primary": "Desert Treasure Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Virtus mask",
+      "tags": [
+        "Magic Equipment",
+        "Armour",
+        "Desert Treasure Items"
+      ],
+      "primary": "Desert Treasure Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Virtus robe bottom",
+      "tags": [
+        "Magic Equipment",
+        "Armour",
+        "Desert Treasure Items"
+      ],
+      "primary": "Desert Treasure Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Virtus robe top",
+      "tags": [
+        "Magic Equipment",
+        "Armour",
+        "Desert Treasure Items"
+      ],
+      "primary": "Desert Treasure Items",
+      "coarse": "Armour",
+      "tagCount": 3
+    },
+    {
+      "name": "Voidwaker",
+      "tags": [
+        "Weapons",
+        "Special Items"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Volatile orb",
+      "tags": [
+        "Crafting Materials",
+        "Magic Equipment",
+        "Special Items",
+        "Raids Equipment"
+      ],
+      "primary": "Raids Equipment",
+      "coarse": "Magic",
+      "tagCount": 4
+    },
+    {
+      "name": "Warrior ring",
+      "tags": [
+        "Jewellery",
+        "Equipment"
+      ],
+      "primary": "Jewellery",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Watchtower teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Water orb",
+      "tags": [
+        "Crafting Materials",
+        "Magic Equipment"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 2
+    },
+    {
+      "name": "Waterbirth teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Watermelon seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Waterskin(4)",
+      "tags": [
+        "Potions",
+        "Consumables"
+      ],
+      "primary": "Potions",
+      "coarse": "Consumables",
+      "tagCount": 2
+    },
+    {
+      "name": "Weapon poison(+)",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Webweaver bow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Ranged Equipment",
+      "coarse": "Weapons",
+      "tagCount": 3
+    },
+    {
+      "name": "West ardougne teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "White berries",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "White lily seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Wildblood seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Wilderness crabs teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Willow bird house",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Willow longbow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Wizard boots",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Wrath rune",
+      "tags": [
+        "Runes",
+        "Magic Equipment",
+        "Consumables"
+      ],
+      "primary": "Magic Equipment",
+      "coarse": "Magic",
+      "tagCount": 3
+    },
+    {
+      "name": "Wyrmling bones",
+      "tags": [
+        "Bones & Prayer"
+      ],
+      "primary": "Bones & Prayer",
+      "coarse": "Prayer",
+      "tagCount": 1
+    },
+    {
+      "name": "Xerician hat",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Xerician top",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Yanillian hops",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Yanillian seed",
+      "tags": [
+        "Seeds",
+        "Farming Supplies"
+      ],
+      "primary": "Seeds",
+      "coarse": "Skilling",
+      "tagCount": 2
+    },
+    {
+      "name": "Yew logs",
+      "tags": [
+        "Logs",
+        "Woodcutting",
+        "Firemaking"
+      ],
+      "primary": "Logs",
+      "coarse": "Skilling",
+      "tagCount": 3
+    },
+    {
+      "name": "Yew longbow",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Yew longbow (u)",
+      "tags": [
+        "Ranged Equipment",
+        "Weapons",
+        "Unfinished Items",
+        "Crafting Materials"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 4
+    },
+    {
+      "name": "Yew sapling",
+      "tags": [
+        "Farming Supplies"
+      ],
+      "primary": "Farming Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Young impling jar",
+      "tags": [
+        "Hunter Supplies"
+      ],
+      "primary": "Hunter Supplies",
+      "coarse": "Skilling",
+      "tagCount": 1
+    },
+    {
+      "name": "Zamorak chaps",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Zamorak d'hide boots",
+      "tags": [
+        "Armour",
+        "Crafting Materials"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 2
+    },
+    {
+      "name": "Zamorak godsword",
+      "tags": [
+        "Weapons"
+      ],
+      "primary": "Weapons",
+      "coarse": "Weapons",
+      "tagCount": 1
+    },
+    {
+      "name": "Zamorakian hasta",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Zaryte vambraces",
+      "tags": [
+        "Armour",
+        "Ranged Equipment"
+      ],
+      "primary": "Armour",
+      "coarse": "Weapons",
+      "tagCount": 2
+    },
+    {
+      "name": "Zombie axe",
+      "tags": [
+        "Tools"
+      ],
+      "primary": "Tools",
+      "coarse": "Utility",
+      "tagCount": 1
+    },
+    {
+      "name": "Zombie helmet",
+      "tags": [
+        "Armour"
+      ],
+      "primary": "Armour",
+      "coarse": "Armour",
+      "tagCount": 1
+    },
+    {
+      "name": "Zombie pirate key",
+      "tags": [
+        "Other"
+      ],
+      "primary": "Other",
+      "coarse": "Other",
+      "tagCount": 1
+    },
+    {
+      "name": "Zul-andra teleport",
+      "tags": [
+        "Teleports",
+        "Utility"
+      ],
+      "primary": "Teleports",
+      "coarse": "Utility",
+      "tagCount": 2
+    },
+    {
+      "name": "Zulrah's scales",
+      "tags": [
+        "Combat Supplies",
+        "Consumables"
+      ],
+      "primary": "Combat Supplies",
+      "coarse": "Consumables",
+      "tagCount": 2
+    }
+  ]
+}

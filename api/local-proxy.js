@@ -26,7 +26,7 @@ console.log('Environment variables loaded:', {
 // Enable CORS for your dev server
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
   })
 );
@@ -381,6 +381,70 @@ Choose the most appropriate display type based on the query:
   }
 });
 
+// Build structured prompt for hybrid queries
+function buildStructuredPrompt(spec, temporalContext) {
+  return `You are generating SQL for a structured query specification.
+
+CURRENT DATE CONTEXT:
+- Today: ${temporalContext?.currentDate || 'N/A'} (${temporalContext?.dayName || 'N/A'})
+- Current year: ${temporalContext?.currentYear || new Date().getFullYear()}
+- Timezone: ${temporalContext?.timezone || 'N/A'}
+
+STRUCTURED QUERY SPECIFICATION:
+- Intent: ${spec.intent}
+- Metrics: ${JSON.stringify(spec.metrics)}
+- Dimensions: ${JSON.stringify(spec.dimensions || [])}
+- Filters: ${JSON.stringify(spec.filters || [])}
+- Time Range: ${JSON.stringify(spec.timeRange || {})}
+- Sort: ${JSON.stringify(spec.sort || [])}
+${spec.limit ? `LIMIT: ${spec.limit} (MANDATORY: Include "LIMIT ${spec.limit}" at the end)` : ''}
+- Include Columns: ${JSON.stringify(spec.includeColumns || [])}
+
+${
+  temporalContext
+    ? `
+RECENT DAY DATES:
+${Object.entries(temporalContext.recentDays || {})
+  .map(([key, value]) => `- ${key}: ${value}`)
+  .join('\n')}
+`
+    : ''
+}
+
+Table schema:
+CREATE TABLE flips (
+  id INTEGER,
+  item TEXT NOT NULL,
+  buy_price INTEGER,
+  sell_price INTEGER,
+  profit INTEGER,
+  roi REAL,
+  quantity INTEGER,
+  buy_time TEXT,
+  sell_time TEXT,
+  account TEXT,
+  flip_duration_minutes INTEGER,
+  date TEXT -- Format: YYYY-MM-DD
+);
+
+IMPORTANT RULES:
+1. Return ONLY the SQL query, no explanations
+2. ALWAYS respect the LIMIT specification if provided
+3. Use proper column names as specified
+4. When Dimensions are specified (GROUP BY), only include:
+   - The dimension columns (e.g., item)
+   - Aggregated metrics (e.g., SUM(profit), AVG(roi), COUNT(*))
+   - DO NOT include individual transaction columns like buy_price, sell_price, quantity, date in SELECT when grouping
+5. Apply all filters as specified in WHERE clause
+6. Use appropriate aggregation for metrics as specified
+7. Never select the 'id' field
+8. For item analysis with dimensions=["item"], the SELECT should be:
+   - item (the grouping column)
+   - Aggregated metrics only (SUM(profit), AVG(roi), COUNT(*))
+
+Generate the SQL query based on this specification:`;
+}
+
 // SQL Generation endpoint for AI queries
 app.post('/api/generate-sql', async (req, res) => {
   const apiKey = process.env.VITE_CLAUDE_API_KEY;
@@ -401,7 +465,14 @@ app.post('/api/generate-sql', async (req, res) => {
   }
 
   try {
-    const { query, previousQuery, previousSQL, temporalContext } = req.body;
+    const { query, previousQuery, previousSQL, temporalContext, structuredSpec, isHybridQuery } =
+      req.body;
+
+    // Log the type of request
+    console.log(`🔍 SQL Generation Request: ${isHybridQuery ? 'Hybrid' : 'Legacy'}`);
+    if (isHybridQuery && structuredSpec) {
+      console.log('📋 Structured Spec:', JSON.stringify(structuredSpec, null, 2));
+    }
 
     // Input validation
     if (!query || query.length < 3) {
@@ -416,11 +487,14 @@ app.post('/api/generate-sql', async (req, res) => {
       });
     }
 
-    // Build prompt based on whether this is a follow-up
+    // Build prompt based on query type
     const isFollowUp = !!previousQuery;
 
-    const prompt = isFollowUp
-      ? `
+    const prompt =
+      isHybridQuery && structuredSpec
+        ? buildStructuredPrompt(structuredSpec, temporalContext)
+        : isFollowUp
+          ? `
 You are refining a previous SQL query based on user feedback.
 
 CURRENT DATE CONTEXT:
@@ -483,7 +557,7 @@ NOTE:
 
 Return ONLY the updated SQL query:
 `
-      : `
+          : `
 You are a helpful SQL query generator for OSRS flipping data.
 
 CURRENT DATE CONTEXT:

@@ -112,12 +112,29 @@ export default async function handler(req) {
     );
   }
 
-  let query, previousQuery, previousSQL, sessionId, isOwner, temporalContext;
+  let query,
+    previousQuery,
+    previousSQL,
+    sessionId,
+    isOwner,
+    temporalContext,
+    structuredSpec,
+    isHybridQuery;
   try {
-    ({ query, previousQuery, previousSQL, sessionId, isOwner, temporalContext } = await req.json());
+    ({
+      query,
+      previousQuery,
+      previousSQL,
+      sessionId,
+      isOwner,
+      temporalContext,
+      structuredSpec,
+      isHybridQuery,
+    } = await req.json());
 
-    if (!query) {
-      return new Response(JSON.stringify({ error: 'Query is required' }), {
+    // Support both original API and new hybrid approach
+    if (!query && !structuredSpec) {
+      return new Response(JSON.stringify({ error: 'Query or structured spec is required' }), {
         status: 400,
         headers: { 'content-type': 'application/json' },
       });
@@ -125,8 +142,18 @@ export default async function handler(req) {
 
     const isFollowUp = !!previousQuery;
 
-    const prompt = isFollowUp
-      ? `
+    // Choose prompt type based on request
+    console.log('Request type check:', {
+      isHybridQuery,
+      hasStructuredSpec: !!structuredSpec,
+      isFollowUp,
+    });
+
+    const prompt =
+      isHybridQuery && structuredSpec
+        ? buildStructuredPrompt(structuredSpec, temporalContext)
+        : isFollowUp
+          ? `
 You are refining a previous SQL query based on user feedback.
 
 CURRENT DATE CONTEXT:
@@ -189,7 +216,7 @@ NOTE:
 
 Return ONLY the updated SQL query:
 `
-      : `
+          : `
 You are a helpful SQL query generator for OSRS flipping data.
 
 CURRENT DATE CONTEXT:
@@ -362,6 +389,38 @@ FUZZY MATCHING EXAMPLES:
 
 Generate SQL for the user request:`;
 
+    // Function to build structured prompt for hybrid queries (90% token reduction)
+    function buildStructuredPrompt(spec, temporalContext) {
+      console.log('Building structured prompt for spec:', JSON.stringify(spec, null, 2));
+
+      const prompt = `Generate SQL for this structured query specification:
+
+INTENT: ${spec.intent}
+
+METRICS: ${spec.metrics.map(m => `${m.op}(${m.metric})`).join(', ')}
+
+${spec.dimensions ? `DIMENSIONS: ${spec.dimensions.join(', ')}` : ''}
+
+${spec.timeRange ? `TIME_RANGE: ${JSON.stringify(spec.timeRange)}` : ''}
+
+${spec.filters ? `FILTERS: ${spec.filters.map(f => `${f.field} ${f.op} ${f.value}`).join(', ')}` : ''}
+
+${spec.sort ? `SORT: ${spec.sort.map(s => `${s.by} ${s.order}`).join(', ')}` : ''}
+
+${spec.limit ? `LIMIT: ${spec.limit} (MANDATORY: Include "LIMIT ${spec.limit}" at the end)` : ''}
+
+${temporalContext ? `CURRENT_DATE: ${temporalContext.currentDate}` : ''}
+
+Table: flips (item, buy_price, sell_price, profit, roi, quantity, flip_duration_minutes, date, account)
+
+IMPORTANT: If LIMIT is specified above, you MUST include the exact LIMIT clause in your SQL.
+
+Return only the SQL query:`;
+
+      console.log('Generated structured prompt:', prompt);
+      return prompt;
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -371,7 +430,7 @@ Generate SQL for the user request:`;
       },
       body: JSON.stringify({
         model: 'claude-3-haiku-20240307',
-        max_tokens: 500,
+        max_tokens: isHybridQuery ? 300 : 500, // Smaller token limit for structured queries
         messages: [
           {
             role: 'user',
@@ -390,7 +449,9 @@ Generate SQL for the user request:`;
     const sql = data.content[0].text.trim();
 
     // Log successful generation to Discord
-    await logToDiscord(query, sql, true, null, sessionId, isOwner, temporalContext);
+    const queryForLogging =
+      query || (structuredSpec ? `Hybrid Query: ${structuredSpec.intent}` : 'Unknown');
+    await logToDiscord(queryForLogging, sql, true, null, sessionId, isOwner, temporalContext);
 
     return new Response(JSON.stringify({ sql }), {
       status: 200,

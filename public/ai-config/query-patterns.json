@@ -1,0 +1,325 @@
+{
+  "patterns": {
+    "top_items_by_profit": {
+      "examples": [
+        "best items by profit",
+        "top profitable flips",
+        "most money makers",
+        "highest profit items",
+        "top 10 items",
+        "best performing items",
+        "most profitable items",
+        "top 10 most profitable items",
+        "top profitable items"
+      ],
+      "intent": "top_items_by_profit",
+      "defaultSpec": {
+        "metrics": [{ "metric": "profit", "op": "sum" }],
+        "dimensions": ["item"],
+        "sort": [{ "by": "profit", "order": "desc" }],
+        "limit": 10
+      },
+      "variations": {
+        "withCount": {
+          "patterns": ["top items with count", "best items by volume"],
+          "additionalMetrics": [{ "metric": "flips", "op": "count" }]
+        },
+        "withROI": {
+          "patterns": ["top items by roi", "best roi items"],
+          "sort": [{ "by": "roi", "order": "desc" }],
+          "additionalMetrics": [{ "metric": "roi", "op": "avg" }]
+        }
+      }
+    },
+    "recent_activity": {
+      "examples": [
+        "recent flips",
+        "what have I been trading",
+        "latest activity",
+        "last week flips",
+        "what did I flip recently"
+      ],
+      "intent": "recent_activity",
+      "defaultSpec": {
+        "timeRange": { "preset": "last_7d" },
+        "metrics": [
+          { "metric": "flips", "op": "count" },
+          { "metric": "profit", "op": "sum" }
+        ],
+        "dimensions": ["date"],
+        "sort": [{ "by": "date", "order": "desc" }]
+      }
+    },
+    "item_performance": {
+      "examples": [
+        "dragon bolt performance",
+        "how are whips doing",
+        "bandos tasset stats",
+        "abyssal whip analysis",
+        "dragon items performance"
+      ],
+      "intent": "item_analysis",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "roi", "op": "avg" },
+          { "metric": "flips", "op": "count" }
+        ],
+        "dimensions": ["item"],
+        "sort": [{ "by": "profit", "order": "desc" }]
+      },
+      "requiresItemFilter": true
+    },
+    "item_flips_summary": {
+      "examples": [
+        "weapon flips",
+        "armor flips",
+        "food flips",
+        "my weapon flips",
+        "show me my armor flips",
+        "dragon item flips",
+        "rune flips",
+        "bandos flips"
+      ],
+      "intent": "item_analysis",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "roi", "op": "avg" },
+          { "metric": "flips", "op": "count" }
+        ],
+        "dimensions": ["item"],
+        "sort": [{ "by": "profit", "order": "desc" }],
+        "includeColumns": ["buy_price", "sell_price", "quantity", "date"]
+      },
+      "requiresItemFilter": true
+    },
+    "profit_analysis": {
+      "examples": ["total profit", "how much profit", "money made", "earnings", "profit summary"],
+      "intent": "profit_summary",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "flips", "op": "count" },
+          { "metric": "roi", "op": "avg" }
+        ]
+      }
+    },
+    "time_comparison": {
+      "examples": [
+        "weekend vs weekday",
+        "weekday vs weekend roi",
+        "monday vs friday",
+        "compare time periods",
+        "weekend profits"
+      ],
+      "intent": "time_comparison",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "flips", "op": "count" },
+          { "metric": "weighted_roi", "op": "calculate" }
+        ],
+        "dimensions": ["time_period"],
+        "sort": [{ "by": "profit", "order": "desc" }]
+      },
+      "requiresTimeComparison": true
+    },
+    "account_comparison": {
+      "examples": [
+        "profit by account",
+        "compare accounts",
+        "account performance",
+        "which account is best",
+        "account stats"
+      ],
+      "intent": "account_comparison",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "roi", "op": "avg" },
+          { "metric": "flips", "op": "count" }
+        ],
+        "dimensions": ["account"],
+        "sort": [{ "by": "profit", "order": "desc" }]
+      }
+    },
+    "duration_analysis": {
+      "examples": [
+        "flips longer than 24 hours",
+        "quick flips",
+        "slow flips",
+        "flip duration",
+        "time held analysis",
+        "flips over 1 day"
+      ],
+      "intent": "duration_analysis",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "avg_hold_time", "op": "avg" }
+        ],
+        "dimensions": ["item"],
+        "sort": [{ "by": "flip_duration_minutes", "order": "desc" }],
+        "includeColumns": ["flip_duration_minutes"]
+      },
+      "requiresDurationFilter": true
+    },
+    "roi_analysis": {
+      "examples": ["best roi items", "highest return", "roi over 50%", "most efficient flips", "return on investment"],
+      "intent": "roi_analysis",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "roi", "op": "avg" },
+          { "metric": "profit", "op": "sum" },
+          { "metric": "flips", "op": "count" }
+        ],
+        "dimensions": ["item"],
+        "sort": [{ "by": "roi", "order": "desc" }]
+      }
+    },
+    "loss_analysis": {
+      "examples": ["worst losses", "biggest losses", "negative profit", "losing flips", "bad investments"],
+      "intent": "loss_analysis",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "roi", "op": "avg" }
+        ],
+        "dimensions": ["item"],
+        "filters": [{ "field": "profit", "op": "<", "value": 0 }],
+        "sort": [{ "by": "profit", "order": "asc" }]
+      }
+    },
+    "volume_analysis": {
+      "examples": ["most traded items", "highest volume", "items I flip most", "trading frequency", "most flipped"],
+      "intent": "volume_analysis",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "flips", "op": "count" },
+          { "metric": "volume", "op": "sum" },
+          { "metric": "profit", "op": "sum" }
+        ],
+        "dimensions": ["item"],
+        "sort": [{ "by": "flips", "order": "desc" }]
+      }
+    },
+    "expensive_flips": {
+      "examples": ["expensive flips", "high value trades", "big money flips", "over 1m profit", "million gp flips"],
+      "intent": "expensive_flips",
+      "defaultSpec": {
+        "metrics": [
+          { "metric": "profit", "op": "sum" },
+          { "metric": "roi", "op": "avg" }
+        ],
+        "dimensions": ["item"],
+        "filters": [{ "field": "profit", "op": ">", "value": 100000 }],
+        "sort": [{ "by": "profit", "order": "desc" }]
+      }
+    }
+  },
+  "extractionPatterns": {
+    "timeRanges": {
+      "last_7d": ["last week", "past week", "recent", "last 7 days"],
+      "last_30d": ["last month", "past month", "last 30 days"],
+      "this_week": ["this week", "current week"],
+      "this_month": ["this month", "current month"],
+      "all_time": ["all time", "ever", "total", "overall"]
+    },
+    "dayOfWeek": {
+      "monday": ["monday", "mon"],
+      "tuesday": ["tuesday", "tue", "tues"],
+      "wednesday": ["wednesday", "wed"],
+      "thursday": ["thursday", "thu", "thurs"],
+      "friday": ["friday", "fri"],
+      "saturday": ["saturday", "sat"],
+      "sunday": ["sunday", "sun"]
+    },
+    "timeComparisons": {
+      "weekend_vs_weekday": {
+        "patterns": ["weekend vs weekday", "weekday vs weekend"],
+        "groups": {
+          "weekend": "strftime('%w', date) IN ('0','6')",
+          "weekday": "strftime('%w', date) IN ('1','2','3','4','5')"
+        }
+      }
+    },
+    "limits": {
+      "patterns": [
+        { "regex": "top (\\d+)", "group": 1 },
+        { "regex": "first (\\d+)", "group": 1 },
+        { "regex": "best (\\d+)", "group": 1 },
+        { "regex": "show (\\d+)", "group": 1 }
+      ],
+      "defaults": {
+        "top": 10,
+        "best": 10,
+        "analysis": 20
+      }
+    },
+    "profitThresholds": {
+      "patterns": [
+        { "regex": "over ([\\d,]+)\\s*(k|m|gp)?", "multipliers": { "k": 1000, "m": 1000000, "gp": 1 } },
+        { "regex": "above ([\\d,]+)\\s*(k|m|gp)?", "multipliers": { "k": 1000, "m": 1000000, "gp": 1 } },
+        { "regex": "more than ([\\d,]+)\\s*(k|m|gp)?", "multipliers": { "k": 1000, "m": 1000000, "gp": 1 } }
+      ]
+    },
+    "roiThresholds": {
+      "patterns": [
+        { "regex": "roi over (\\d+)%?", "group": 1 },
+        { "regex": "return over (\\d+)%?", "group": 1 },
+        { "regex": "more than (\\d+)%", "group": 1 }
+      ]
+    },
+    "durationThresholds": {
+      "patterns": [
+        {
+          "regex": "longer than (\\d+) (hour|hours|day|days)",
+          "conversions": { "hour": 60, "hours": 60, "day": 1440, "days": 1440 }
+        },
+        {
+          "regex": "more than (\\d+) (hour|hours|day|days)",
+          "conversions": { "hour": 60, "hours": 60, "day": 1440, "days": 1440 }
+        },
+        {
+          "regex": "over (\\d+) (hour|hours|day|days)",
+          "conversions": { "hour": 60, "hours": 60, "day": 1440, "days": 1440 }
+        }
+      ]
+    }
+  },
+  "refinementPatterns": {
+    "exclude": {
+      "patterns": ["exclude", "without", "not", "except"],
+      "common": {
+        "ammo": "item NOT LIKE '%bolt%' AND item NOT LIKE '%arrow%'",
+        "armor": "item NOT LIKE '%plate%' AND item NOT LIKE '%helm%'",
+        "weapons": "item NOT LIKE '%sword%' AND item NOT LIKE '%scimitar%'"
+      }
+    },
+    "include": {
+      "patterns": ["only", "just", "include", "with"],
+      "common": {
+        "profitable": "profit > 0",
+        "positive": "profit > 0",
+        "successful": "profit > 0"
+      }
+    },
+    "sort": {
+      "patterns": ["sort by", "order by", "arrange by"],
+      "options": {
+        "profit": "profit DESC",
+        "roi": "roi DESC",
+        "date": "date DESC",
+        "time": "flip_duration_minutes DESC",
+        "count": "flip_count DESC"
+      }
+    },
+    "limit": {
+      "patterns": ["show all", "all results", "everything"],
+      "actions": {
+        "remove_limit": true
+      }
+    }
+  }
+}
