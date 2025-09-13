@@ -1097,7 +1097,33 @@ export default function GuestDashboard() {
           </div>
 
           <Suspense fallback={<div className="text-gray-300">Loading AI interface...</div>}>
-            <AIQueryInterface guestData={guestData} />
+            <AIQueryInterface
+              flips={(() => {
+                // Convert flipsByDate to flat array for AI interface
+                const allFlips = [];
+                if (guestData?.flipsByDate) {
+                  Object.entries(guestData.flipsByDate).forEach(([date, dayData]) => {
+                    const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
+                    flips.forEach(flip => {
+                      allFlips.push({
+                        ...flip,
+                        date,
+                        // Ensure consistent property names
+                        item: flip.item,
+                        buy_price: flip.avgBuyPrice || flip.avg_buy_price,
+                        sell_price: flip.avgSellPrice || flip.avg_sell_price,
+                        profit: flip.profit,
+                        roi: flip.roi,
+                        quantity: flip.quantity || flip.bought || flip.sold,
+                        account: flip.accountId || flip.account,
+                        flip_duration_minutes: flip.flip_duration_minutes || 0,
+                      });
+                    });
+                  });
+                }
+                return allFlips;
+              })()}
+            />
           </Suspense>
         </div>
       )}
