@@ -44,6 +44,38 @@ const OSRS_ABBREVIATIONS = {
   'barrows gloves': 'barrows gloves',
   'd boots': 'dragon boots',
 
+  // Ammunition & Arrows
+  'rune arrow': 'rune arrow',
+  'rune arrows': 'rune arrow',
+  'adamant arrow': 'adamant arrow',
+  'adamant arrows': 'adamant arrow',
+  'mithril arrow': 'mithril arrow',
+  'mithril arrows': 'mithril arrow',
+  'steel arrow': 'steel arrow',
+  'steel arrows': 'steel arrow',
+  'iron arrow': 'iron arrow',
+  'iron arrows': 'iron arrow',
+  'bronze arrow': 'bronze arrow',
+  'bronze arrows': 'bronze arrow',
+  'dragon arrow': 'dragon arrow',
+  'dragon arrows': 'dragon arrow',
+  'amethyst arrow': 'amethyst arrow',
+  'amethyst arrows': 'amethyst arrow',
+  'broad arrow': 'broad arrow',
+  'broad arrows': 'broad arrow',
+
+  // Bolts
+  'rune bolt': 'rune bolt',
+  'rune bolts': 'rune bolt',
+  'adamant bolt': 'adamant bolt',
+  'adamant bolts': 'adamant bolt',
+  'mithril bolt': 'mithril bolt',
+  'mithril bolts': 'mithril bolt',
+  'dragon bolt': 'dragon bolt',
+  'dragon bolts': 'dragon bolt',
+  'broad bolt': 'broad bolt',
+  'broad bolts': 'broad bolt',
+
   // Potions & Consumables
   'super combat': 'super combat potion',
   'ranging pot': 'ranging potion',
