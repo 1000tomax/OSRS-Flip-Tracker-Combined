@@ -20,7 +20,7 @@ import GuestHeatMap from '../components/GuestHeatMap';
 import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
 import GuestDatePicker from '../components/GuestDatePicker';
 import GuestDailySummary from '../components/GuestDailySummary';
-import { AIQueryInterface } from '../components/AIQueryInterface';
+// import { AIQueryInterface } from '../components/AIQueryInterface';
 
 // Import new performance components
 const GuestPerformanceAnalysis = lazy(() => import('../components/GuestPerformanceAnalysis'));
@@ -1075,7 +1075,13 @@ export default function GuestDashboard() {
         </div>
       )}
 
-      {activeTab === 'ai' && <AIQueryInterface flips={guestData.allFlips} />}
+      {activeTab === 'ai' && (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-lg">
+            AI Search temporarily disabled for maintenance
+          </div>
+        </div>
+      )}
 
       {activeTab === 'summary' && (
         <GuestDailySummary guestData={guestData} onDateSelect={handleDateSelect} />
