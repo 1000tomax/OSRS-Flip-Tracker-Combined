@@ -20,7 +20,7 @@ import GuestHeatMap from '../components/GuestHeatMap';
 import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
 import GuestDatePicker from '../components/GuestDatePicker';
 import GuestDailySummary from '../components/GuestDailySummary';
-// import { AIQueryInterface } from '../components/AIQueryInterface';
+import { AIQueryInterface } from '../components/AIQueryInterface';
 
 // Import new performance components
 const GuestPerformanceAnalysis = lazy(() => import('../components/GuestPerformanceAnalysis'));
@@ -1076,10 +1076,29 @@ export default function GuestDashboard() {
       )}
 
       {activeTab === 'ai' && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg">
-            AI Search temporarily disabled for maintenance
+        <div className="space-y-8">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-xl font-bold text-white mb-4">AI-Powered Query Interface</h3>
+            <p className="text-gray-300 mb-4">
+              Use natural language to query your flip data. Ask questions like:
+            </p>
+            <ul className="text-gray-400 text-sm space-y-1 mb-4">
+              <li>• "Show my top 10 most profitable items"</li>
+              <li>• "What weapon flips did I make last week?"</li>
+              <li>• "Compare my weekday vs weekend profits"</li>
+              <li>• "Show items with ROI over 20%"</li>
+            </ul>
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded p-3">
+              <p className="text-blue-200 text-sm">
+                💡 <strong>New:</strong> Enhanced AI system with 90% cost reduction and instant
+                local processing for common queries.
+              </p>
+            </div>
           </div>
+
+          <Suspense fallback={<div className="text-gray-300">Loading AI interface...</div>}>
+            <AIQueryInterface guestData={guestData} />
+          </Suspense>
         </div>
       )}
 

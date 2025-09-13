@@ -90,6 +90,60 @@ async function logToDiscord(
   }
 }
 
+// Rate limiting for SQL endpoint
+const sqlRateLimits = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const userLimits = sqlRateLimits.get(ip) || { count: 0, resetAt: now + 60000 };
+
+  if (now > userLimits.resetAt) {
+    userLimits.count = 0;
+    userLimits.resetAt = now + 60000;
+  }
+
+  if (userLimits.count >= 20) {
+    return false;
+  }
+
+  userLimits.count++;
+  sqlRateLimits.set(ip, userLimits);
+
+  if (sqlRateLimits.size > 1000) {
+    sqlRateLimits.clear();
+  }
+
+  return true;
+}
+
+function validateSQL(sql) {
+  const forbidden = [
+    'DROP',
+    'DELETE',
+    'INSERT',
+    'UPDATE',
+    'ALTER',
+    'CREATE',
+    'TRUNCATE',
+    'EXEC',
+    'EXECUTE',
+  ];
+
+  const upperSQL = sql.toUpperCase();
+  for (const keyword of forbidden) {
+    if (upperSQL.includes(keyword)) {
+      return { safe: false, reason: `Forbidden keyword: ${keyword}` };
+    }
+  }
+
+  const trimmedSQL = upperSQL.trim();
+  if (!trimmedSQL.startsWith('SELECT') && !trimmedSQL.startsWith('WITH')) {
+    return { safe: false, reason: 'Only SELECT and CTE (WITH) queries allowed' };
+  }
+
+  return { safe: true };
+}
+
 export default async function handler(req) {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', {
@@ -107,6 +161,20 @@ export default async function handler(req) {
       }),
       {
         status: 500,
+        headers: { 'content-type': 'application/json' },
+      }
+    );
+  }
+
+  // Rate limiting
+  const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return new Response(
+      JSON.stringify({
+        error: 'Too many requests. Please wait a minute.',
+      }),
+      {
+        status: 429,
         headers: { 'content-type': 'application/json' },
       }
     );
@@ -138,6 +206,33 @@ export default async function handler(req) {
         status: 400,
         headers: { 'content-type': 'application/json' },
       });
+    }
+
+    // Input validation for text queries
+    if (query && !structuredSpec) {
+      if (query.length < 3) {
+        return new Response(
+          JSON.stringify({
+            error: 'Query too short',
+          }),
+          {
+            status: 400,
+            headers: { 'content-type': 'application/json' },
+          }
+        );
+      }
+
+      if (query.length > 500) {
+        return new Response(
+          JSON.stringify({
+            error: 'Query too long. Please keep under 500 characters.',
+          }),
+          {
+            status: 400,
+            headers: { 'content-type': 'application/json' },
+          }
+        );
+      }
     }
 
     const isFollowUp = !!previousQuery;
@@ -393,43 +488,67 @@ Generate SQL for the user request:`;
     function buildStructuredPrompt(spec, temporalContext) {
       console.log('Building structured prompt for spec:', JSON.stringify(spec, null, 2));
 
-      // Convert metrics to SQL-friendly format
-      const formatMetric = m => {
-        if (m.metric === '*' && m.op === 'count') {
-          return 'COUNT(*)';
-        }
-        return `${m.op}(${m.metric})`;
-      };
+      return `You are generating SQL for a structured query specification.
 
-      const prompt = `Generate SQL for this structured query specification:
+CURRENT DATE CONTEXT:
+- Today: ${temporalContext?.currentDate || 'N/A'} (${temporalContext?.dayName || 'N/A'})
+- Current year: ${temporalContext?.currentYear || new Date().getFullYear()}
+- Timezone: ${temporalContext?.timezone || 'N/A'}
 
-INTENT: ${spec.intent}
-
-METRICS: ${spec.metrics.map(formatMetric).join(', ')}
-
-${spec.dimensions ? `DIMENSIONS: ${spec.dimensions.join(', ')}` : ''}
-
-${spec.timeRange ? `TIME_RANGE: ${JSON.stringify(spec.timeRange)}` : ''}
-
-${spec.filters ? `FILTERS: ${spec.filters.map(f => `${f.field} ${f.op} ${f.value}`).join(', ')}` : ''}
-
-${spec.sort ? `SORT: ${spec.sort.map(s => `${s.by} ${s.order}`).join(', ')}` : ''}
-
+STRUCTURED QUERY SPECIFICATION:
+- Intent: ${spec.intent}
+- Metrics: ${JSON.stringify(spec.metrics)}
+- Dimensions: ${JSON.stringify(spec.dimensions || [])}
+- Filters: ${JSON.stringify(spec.filters || [])}
+- Time Range: ${JSON.stringify(spec.timeRange || {})}
+- Sort: ${JSON.stringify(spec.sort || [])}
 ${spec.limit ? `LIMIT: ${spec.limit} (MANDATORY: Include "LIMIT ${spec.limit}" at the end)` : ''}
+- Include Columns: ${JSON.stringify(spec.includeColumns || [])}
 
-${temporalContext ? `CURRENT_DATE: ${temporalContext.currentDate}` : ''}
+${
+  temporalContext
+    ? `
+RECENT DAY DATES:
+${Object.entries(temporalContext.recentDays || {})
+  .map(([key, value]) => `- ${key}: ${value}`)
+  .join('\n')}
+`
+    : ''
+}
 
-Table: flips (item, buy_price, sell_price, profit, roi, quantity, flip_duration_minutes, date, account)
+Table schema:
+CREATE TABLE flips (
+  id INTEGER,
+  item TEXT NOT NULL,
+  buy_price INTEGER,
+  sell_price INTEGER,
+  profit INTEGER,
+  roi REAL,
+  quantity INTEGER,
+  buy_time TEXT,
+  sell_time TEXT,
+  account TEXT,
+  flip_duration_minutes INTEGER,
+  date TEXT -- Format: YYYY-MM-DD
+);
 
-IMPORTANT:
-- If LIMIT is specified above, you MUST include the exact LIMIT clause in your SQL
-- When metric is "*" with operation "count", use COUNT(*) in SQL
-- Use proper SQL aggregation functions
+IMPORTANT RULES:
+1. Return ONLY the SQL query, no explanations
+2. ALWAYS respect the LIMIT specification if provided
+3. Use proper column names as specified
+4. When metric is "*" with operation "count", use COUNT(*) in SQL
+6. When Dimensions are specified (GROUP BY), only include:
+   - The dimension columns (e.g., item)
+   - Aggregated metrics (e.g., SUM(profit), AVG(roi), COUNT(*))
+   - DO NOT include individual transaction columns like buy_price, sell_price, quantity, date in SELECT when grouping
+7. Apply all filters as specified in WHERE clause
+6. Use appropriate aggregation for metrics as specified
+7. Never select the 'id' field
+8. For item analysis with dimensions=["item"], the SELECT should be:
+   - item (the grouping column)
+   - Aggregated metrics only (SUM(profit), AVG(roi), COUNT(*))
 
-Return only the SQL query:`;
-
-      console.log('Generated structured prompt:', prompt);
-      return prompt;
+Generate the SQL query based on this specification:`;
     }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -458,6 +577,25 @@ Return only the SQL query:`;
 
     const data = await response.json();
     const sql = data.content[0].text.trim();
+
+    // Log the generated SQL for debugging
+    console.log('🔍 Generated SQL:', sql);
+
+    // Validate SQL
+    const validation = validateSQL(sql);
+    if (!validation.safe) {
+      console.log('❌ SQL Safety Check Failed:', validation.reason);
+      return new Response(
+        JSON.stringify({
+          error: 'Generated SQL failed safety check',
+          reason: validation.reason,
+        }),
+        {
+          status: 400,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
+    }
 
     // Log successful generation to Discord
     const queryForLogging =
