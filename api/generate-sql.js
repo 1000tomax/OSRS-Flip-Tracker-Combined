@@ -393,11 +393,19 @@ Generate SQL for the user request:`;
     function buildStructuredPrompt(spec, temporalContext) {
       console.log('Building structured prompt for spec:', JSON.stringify(spec, null, 2));
 
+      // Convert metrics to SQL-friendly format
+      const formatMetric = m => {
+        if (m.metric === '*' && m.op === 'count') {
+          return 'COUNT(*)';
+        }
+        return `${m.op}(${m.metric})`;
+      };
+
       const prompt = `Generate SQL for this structured query specification:
 
 INTENT: ${spec.intent}
 
-METRICS: ${spec.metrics.map(m => `${m.op}(${m.metric})`).join(', ')}
+METRICS: ${spec.metrics.map(formatMetric).join(', ')}
 
 ${spec.dimensions ? `DIMENSIONS: ${spec.dimensions.join(', ')}` : ''}
 
@@ -413,7 +421,10 @@ ${temporalContext ? `CURRENT_DATE: ${temporalContext.currentDate}` : ''}
 
 Table: flips (item, buy_price, sell_price, profit, roi, quantity, flip_duration_minutes, date, account)
 
-IMPORTANT: If LIMIT is specified above, you MUST include the exact LIMIT clause in your SQL.
+IMPORTANT:
+- If LIMIT is specified above, you MUST include the exact LIMIT clause in your SQL
+- When metric is "*" with operation "count", use COUNT(*) in SQL
+- Use proper SQL aggregation functions
 
 Return only the SQL query:`;
 

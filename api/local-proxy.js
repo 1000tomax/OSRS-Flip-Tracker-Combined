@@ -431,11 +431,12 @@ IMPORTANT RULES:
 1. Return ONLY the SQL query, no explanations
 2. ALWAYS respect the LIMIT specification if provided
 3. Use proper column names as specified
-4. When Dimensions are specified (GROUP BY), only include:
+4. When metric is "*" with operation "count", use COUNT(*) in SQL
+6. When Dimensions are specified (GROUP BY), only include:
    - The dimension columns (e.g., item)
    - Aggregated metrics (e.g., SUM(profit), AVG(roi), COUNT(*))
    - DO NOT include individual transaction columns like buy_price, sell_price, quantity, date in SELECT when grouping
-5. Apply all filters as specified in WHERE clause
+7. Apply all filters as specified in WHERE clause
 6. Use appropriate aggregation for metrics as specified
 7. Never select the 'id' field
 8. For item analysis with dimensions=["item"], the SELECT should be:
