@@ -88,7 +88,7 @@
     "errorMessage": "Invalid date or time period specified"
   },
   "metricValidation": {
-    "validMetrics": ["profit", "roi", "flips", "volume", "avg_hold_time"],
+    "validMetrics": ["profit", "roi", "flips", "*", "volume", "avg_hold_time"],
     "validOperations": ["sum", "avg", "count", "min", "max"],
     "metricConstraints": {
       "roi": {
