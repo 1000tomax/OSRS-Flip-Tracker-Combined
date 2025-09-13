@@ -22,7 +22,7 @@
       "variations": {
         "withCount": {
           "patterns": ["top items with count", "best items by volume"],
-          "additionalMetrics": [{ "metric": "flips", "op": "count" }]
+          "additionalMetrics": [{ "metric": "*", "op": "count" }]
         },
         "withROI": {
           "patterns": ["top items by roi", "best roi items"],
@@ -43,7 +43,7 @@
       "defaultSpec": {
         "timeRange": { "preset": "last_7d" },
         "metrics": [
-          { "metric": "flips", "op": "count" },
+          { "metric": "*", "op": "count" },
           { "metric": "profit", "op": "sum" }
         ],
         "dimensions": ["date"],
@@ -63,7 +63,7 @@
         "metrics": [
           { "metric": "profit", "op": "sum" },
           { "metric": "roi", "op": "avg" },
-          { "metric": "flips", "op": "count" }
+          { "metric": "*", "op": "count" }
         ],
         "dimensions": ["item"],
         "sort": [{ "by": "profit", "order": "desc" }]
@@ -86,7 +86,7 @@
         "metrics": [
           { "metric": "profit", "op": "sum" },
           { "metric": "roi", "op": "avg" },
-          { "metric": "flips", "op": "count" }
+          { "metric": "*", "op": "count" }
         ],
         "dimensions": ["item"],
         "sort": [{ "by": "profit", "order": "desc" }],
@@ -100,7 +100,7 @@
       "defaultSpec": {
         "metrics": [
           { "metric": "profit", "op": "sum" },
-          { "metric": "flips", "op": "count" },
+          { "metric": "*", "op": "count" },
           { "metric": "roi", "op": "avg" }
         ]
       }
@@ -117,7 +117,7 @@
       "defaultSpec": {
         "metrics": [
           { "metric": "profit", "op": "sum" },
-          { "metric": "flips", "op": "count" },
+          { "metric": "*", "op": "count" },
           { "metric": "weighted_roi", "op": "calculate" }
         ],
         "dimensions": ["time_period"],
@@ -138,7 +138,7 @@
         "metrics": [
           { "metric": "profit", "op": "sum" },
           { "metric": "roi", "op": "avg" },
-          { "metric": "flips", "op": "count" }
+          { "metric": "*", "op": "count" }
         ],
         "dimensions": ["account"],
         "sort": [{ "by": "profit", "order": "desc" }]
@@ -172,7 +172,7 @@
         "metrics": [
           { "metric": "roi", "op": "avg" },
           { "metric": "profit", "op": "sum" },
-          { "metric": "flips", "op": "count" }
+          { "metric": "*", "op": "count" }
         ],
         "dimensions": ["item"],
         "sort": [{ "by": "roi", "order": "desc" }]
@@ -196,7 +196,7 @@
       "intent": "volume_analysis",
       "defaultSpec": {
         "metrics": [
-          { "metric": "flips", "op": "count" },
+          { "metric": "*", "op": "count" },
           { "metric": "volume", "op": "sum" },
           { "metric": "profit", "op": "sum" }
         ],

@@ -252,7 +252,7 @@ export class HybridQueryProcessor {
       } else if (lowerAnswer.includes('roi')) {
         updatedSpec.metrics = [{ metric: 'roi', op: 'avg' }];
       } else if (lowerAnswer.includes('number of flips')) {
-        updatedSpec.metrics = [{ metric: 'flips', op: 'count' }];
+        updatedSpec.metrics = [{ metric: '*', op: 'count' }];
       }
 
       // Item clarifications - add item filter when specific item is chosen
@@ -283,7 +283,7 @@ export class HybridQueryProcessor {
         updatedSpec.metrics = [
           { metric: 'profit', op: 'sum' },
           { metric: 'roi', op: 'avg' },
-          { metric: 'flips', op: 'count' },
+          { metric: '*', op: 'count' },
         ];
 
         // For grouped item analysis, we don't need includeColumns since we're aggregating

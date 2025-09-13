@@ -155,7 +155,7 @@ export class SpecBuilder {
       return { metric: 'roi', op: 'avg' };
     }
     if (lower.includes('count') || lower.includes('number') || lower.includes('flips')) {
-      return { metric: 'flips', op: 'count' };
+      return { metric: '*', op: 'count' };
     }
     if (lower.includes('volume') || lower.includes('invested')) {
       return { metric: 'volume', op: 'sum' };
@@ -404,7 +404,7 @@ export class SpecBuilder {
           const operation = this.getOperationDisplayName(m.op);
 
           // Special handling for common combinations
-          if (m.metric === 'flips' && m.op === 'count') {
+          if ((m.metric === 'flips' || m.metric === '*') && m.op === 'count') {
             return 'flip count';
           } else if (m.metric === 'profit' && m.op === 'sum') {
             return 'total profit';
@@ -461,6 +461,7 @@ export class SpecBuilder {
       profit: 'profit',
       roi: 'ROI',
       flips: 'flip count',
+      '*': 'flip count',
       volume: 'trading volume',
       avg_hold_time: 'average hold time',
       weighted_roi: 'weighted ROI',
@@ -588,7 +589,7 @@ export class SpecBuilder {
         defaultSpec: {
           metrics: [
             { metric: 'profit', op: 'sum' },
-            { metric: 'flips', op: 'count' },
+            { metric: '*', op: 'count' },
           ],
           dimensions: ['item'],
         },
