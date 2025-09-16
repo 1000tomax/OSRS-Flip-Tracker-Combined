@@ -16,7 +16,9 @@ function computeSignature(data, selectedAccounts = []) {
   const to = data?.metadata?.dateRange?.to || '';
   const totalFlips = data?.totalFlips || 0;
   const uniqueItems = data?.uniqueItems || 0;
-  const accountsKey = Array.isArray(selectedAccounts) ? selectedAccounts.slice().sort().join(',') : '';
+  const accountsKey = Array.isArray(selectedAccounts)
+    ? selectedAccounts.slice().sort().join(',')
+    : '';
   return `${from}|${to}|${totalFlips}|${uniqueItems}|${accountsKey}`;
 }
 
@@ -27,7 +29,12 @@ export function ItemsAnalysisProvider({ children }) {
 
   const initialSig = computeSignature(filteredData, selectedAccounts);
   const [sig, setSig] = useState(initialSig);
-  const [ui, setUi] = useState({ view: 'list', sortKey: 'profit', sortDir: 'desc', terms: [], filters: new Set() });
+  const [ui, setUi] = useState({
+    sortKey: 'profit',
+    sortDir: 'desc',
+    terms: [],
+    filters: new Set(),
+  });
   const [baseItems, setBaseItems] = useState([]); // array of base metrics from itemStats
   const [progressive, setProgressive] = useState({ ready: false, byItem: new Map() });
 
@@ -42,16 +49,19 @@ export function ItemsAnalysisProvider({ children }) {
     }
   }, [filteredData, selectedAccounts, sig]);
 
-  const value = useMemo(() => ({
-    signature: sig,
-    getSignature: computeSignature,
-    ui,
-    setUi,
-    baseItems,
-    setBaseItems,
-    progressive,
-    setProgressive,
-  }), [sig, ui, baseItems, progressive]);
+  const value = useMemo(
+    () => ({
+      signature: sig,
+      getSignature: computeSignature,
+      ui,
+      setUi,
+      baseItems,
+      setBaseItems,
+      progressive,
+      setProgressive,
+    }),
+    [sig, ui, baseItems, progressive]
+  );
 
   return <ItemsAnalysisContext.Provider value={value}>{children}</ItemsAnalysisContext.Provider>;
 }

@@ -16,7 +16,6 @@ describe('Navigation', () => {
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Items')).toBeInTheDocument();
     expect(screen.getByText('Charts')).toBeInTheDocument();
-    expect(screen.getByText('Query')).toBeInTheDocument();
     expect(screen.getByText('Performance')).toBeInTheDocument();
     expect(screen.getByText('Heat Map')).toBeInTheDocument();
     expect(screen.getByText('Flip Logs')).toBeInTheDocument();

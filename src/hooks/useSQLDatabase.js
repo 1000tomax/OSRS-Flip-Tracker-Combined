@@ -127,20 +127,42 @@ export function useSQLDatabase(flips) {
     };
   }, [flips]);
 
-  const executeQuery = sql => {
+  const executeQuery = (sql, params = []) => {
     if (!db) {
       throw new Error('Database not initialized');
     }
 
+    let stmt;
     try {
-      const result = db.exec(sql);
-      if (result.length === 0) {
-        return { columns: [], values: [] };
+      stmt = db.prepare(sql);
+
+      if (Array.isArray(params) && params.length > 0) {
+        stmt.bind(params);
       }
-      return result[0];
+
+      const columnNames = stmt.getColumnNames();
+      const rows = [];
+      while (stmt.step()) {
+        const rowObject = stmt.getAsObject();
+        const rowArray = columnNames.map(col => rowObject[col]);
+        rows.push(rowArray);
+      }
+
+      if (rows.length === 0) {
+        return { columns: columnNames, values: [] };
+      }
+      return { columns: columnNames, values: rows };
     } catch (err) {
       console.error('SQL execution error:', err);
       throw err;
+    } finally {
+      if (stmt) {
+        try {
+          stmt.free();
+        } catch (freeErr) {
+          console.warn('Failed to free statement:', freeErr);
+        }
+      }
     }
   };
 

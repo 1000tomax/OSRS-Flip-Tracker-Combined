@@ -32,6 +32,8 @@ function useItemMetrics(guestData) {
         wins: 0,
         losses: 0,
         spark: [],
+        heldMinutesTotal: 0,
+        heldCount: 0,
       });
     });
 
@@ -49,6 +51,7 @@ function useItemMetrics(guestData) {
         successRate,
         avgProfit,
         sparkData,
+        avgHeldMinutes: 0,
       };
     });
   }, [guestData]);
@@ -76,7 +79,6 @@ export default function GuestItemsList() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { baseItems, setBaseItems, progressive, setProgressive, ui, setUi } = useItemsAnalysis();
-  const [view, setView] = useState(searchParams.get('view') || ui.view || 'list'); // 'list' | 'grid'
   const [sortKey, setSortKey] = useState(searchParams.get('sort') || ui.sortKey || 'profit');
   const [sortDir, setSortDir] = useState(searchParams.get('dir') || ui.sortDir || 'desc');
   const [filters, setFilters] = useState(() => {
@@ -114,7 +116,6 @@ export default function GuestItemsList() {
   // Keep URL + context UI in sync for persistence between list and detail
   useEffect(() => {
     const sp = new URLSearchParams(searchParams);
-    sp.set('view', view);
     sp.set('sort', sortKey);
     sp.set('dir', sortDir);
     if (filters.size > 0) sp.set('filters', Array.from(filters).join(','));
@@ -122,8 +123,8 @@ export default function GuestItemsList() {
     if (terms.length > 0) sp.set('q', terms.join(','));
     else sp.delete('q');
     setSearchParams(sp, { replace: true });
-    setUi({ view, sortKey, sortDir, filters, terms });
-  }, [view, sortKey, sortDir, filters, terms]);
+    setUi({ sortKey, sortDir, filters, terms });
+  }, [sortKey, sortDir, filters, terms]);
 
   const allItemsBaseComputed = useItemMetrics(guestData);
   useEffect(() => {
@@ -166,12 +167,45 @@ export default function GuestItemsList() {
         const name = f?.item || f?.item_name;
         if (!name) continue;
         const profit = Number(f.profit) || 0;
-        if (!byItem.has(name)) byItem.set(name, { wins: 0, losses: 0, spark: [] });
+        if (!byItem.has(name))
+          byItem.set(name, { wins: 0, losses: 0, spark: [], heldMinutesTotal: 0, heldCount: 0 });
         const m = byItem.get(name);
         if (profit > 0) m.wins += 1;
         else if (profit < 0) m.losses += 1;
         m.spark.push(profit);
         if (m.spark.length > 40) m.spark = m.spark.slice(-40);
+
+        const startIso =
+          f.firstBuyTime ||
+          f.first_buy_time ||
+          f.startTime ||
+          f.buy_time ||
+          f.buyTime ||
+          f.opened_time ||
+          f.openedTime;
+        const endIso =
+          f.lastSellTime ||
+          f.last_sell_time ||
+          f.endTime ||
+          f.sell_time ||
+          f.sellTime ||
+          f.closed_time ||
+          f.closedTime;
+
+        const durationMinutesRaw =
+          Number(
+            f.flip_duration_minutes ??
+              f.flipDurationMinutes ??
+              f.durationMinutes ??
+              f.durationMin ??
+              f.duration_min ??
+              (typeof f.durationHours === 'number' ? f.durationHours * 60 : undefined)
+          ) ||
+          (startIso && endIso ? (Date.parse(endIso) - Date.parse(startIso)) / (1000 * 60) : null);
+        if (Number.isFinite(durationMinutesRaw) && durationMinutesRaw > 0) {
+          m.heldMinutesTotal += durationMinutesRaw;
+          m.heldCount += 1;
+        }
       }
 
       // Push partial results so UI updates smoothly
@@ -214,7 +248,9 @@ export default function GuestItemsList() {
       const denom = wl > 0 ? wl : m.flipCount || 0;
       const successRate = denom > 0 ? (p.wins / denom) * 100 : 0;
       const sparkData = (p.spark || []).map((v, i) => ({ x: i, profit: v }));
-      return { ...m, successRate, sparkData };
+      const heldCount = p.heldCount || 0;
+      const avgHeldMinutes = heldCount > 0 ? p.heldMinutesTotal / heldCount : m.avgHeldMinutes || 0;
+      return { ...m, successRate, sparkData, avgHeldMinutes };
     });
   }, [allItemsBase, progressive]);
 
@@ -246,8 +282,12 @@ export default function GuestItemsList() {
       switch (sortKey) {
         case 'flips':
           return dir * ((a.flipCount || 0) - (b.flipCount || 0));
-        case 'success':
-          return dir * ((a.successRate || 0) - (b.successRate || 0));
+        case 'success': {
+          const primary = dir * ((a.successRate || 0) - (b.successRate || 0));
+          if (primary !== 0) return primary;
+          const profitDiff = (b.totalProfit || 0) - (a.totalProfit || 0);
+          return profitDiff;
+        }
         case 'name':
           return dir * a.item.localeCompare(b.item);
         case 'profit':
@@ -285,6 +325,16 @@ export default function GuestItemsList() {
 
   const countDisplay =
     terms.length > 0 ? `${sorted.length} of ${allItems.length}` : `${allItems.length}`;
+
+  const formatHeldDuration = minutes => {
+    if (!minutes || !Number.isFinite(minutes)) return '—';
+    if (minutes >= 60) {
+      const hours = minutes / 60;
+      if (hours >= 10) return `${Math.round(hours)}h`;
+      return `${hours.toFixed(1)}h`;
+    }
+    return `${Math.round(minutes)}m`;
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-8">
@@ -329,22 +379,6 @@ export default function GuestItemsList() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
             <ItemSearch onSearch={vals => updateTerms(vals)} placeholder="Search items..." />
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex rounded-lg bg-gray-700 p-1">
-              <button
-                onClick={() => setView('list')}
-                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${view === 'list' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}`}
-              >
-                List
-              </button>
-              <button
-                onClick={() => setView('grid')}
-                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${view === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white'}`}
-              >
-                Grid
-              </button>
-            </div>
           </div>
         </div>
 
@@ -398,95 +432,63 @@ export default function GuestItemsList() {
       </div>
 
       {/* Results */}
-      {view === 'list' ? (
-        <div className="rounded-lg border border-gray-700">
-          <div className="grid grid-cols-12 bg-gray-700 text-sm sticky top-0 z-10">
-            <div className="col-span-4 px-4 py-2 text-left">Item</div>
-            <div className="col-span-2 px-4 py-2 text-right">Total Profit</div>
-            <div className="col-span-2 px-4 py-2 text-right">Flips</div>
-            <div className="col-span-1 px-4 py-2 text-right">Success</div>
-            <div className="col-span-1 px-4 py-2 text-right">Avg/Flip</div>
-            <div className="col-span-2 px-4 py-2 text-right">Recent</div>
-          </div>
-          <VirtualList
-            height={Math.min(600, Math.max(200, sorted.length * 56))}
-            itemCount={sorted.length}
-            itemSize={56}
-            width={'100%'}
-            className="block"
-          >
-            {({ index, style }) => {
-              const i = sorted[index];
-              if (!i) return null;
-              return (
-                <div
-                  style={style}
-                  className="grid grid-cols-12 border-t border-gray-700 hover:bg-gray-800 cursor-pointer items-center text-sm"
-                  onClick={() => onClickItem(i.item)}
-                >
-                  <div className="col-span-4 px-4 py-2">
-                    <ItemWithIcon itemName={i.item} textClassName="text-white font-medium" />
-                  </div>
-                  <div className="col-span-2 px-4 py-2 text-right">
-                    <span className={i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}>
-                      {formatGP(i.totalProfit)}
-                    </span>
-                  </div>
-                  <div className="col-span-2 px-4 py-2 text-right text-gray-200">
-                    {i.flipCount?.toLocaleString?.() || i.flipCount}
-                  </div>
-                  <div className="col-span-1 px-4 py-2 text-right">
-                    <ItemSuccessRateBadge value={i.successRate} />
-                  </div>
-                  <div className="col-span-1 px-4 py-2 text-right text-gray-200">
-                    {formatGP(i.avgProfit)}
-                  </div>
-                  <div className="col-span-2 px-4 py-2">
-                    <ItemProfitSparkline data={i.sparkData} />
-                  </div>
-                </div>
-              );
-            }}
-          </VirtualList>
-          {sorted.length === 0 && (
-            <div className="text-center text-gray-400 py-8">No items found.</div>
-          )}
+      <div className="rounded-lg border border-gray-700">
+        <div className="grid grid-cols-12 bg-gray-700 text-sm sticky top-0 z-10">
+          <div className="col-span-4 px-4 py-2 text-left">Item</div>
+          <div className="col-span-2 px-4 py-2 text-right">Total Profit</div>
+          <div className="col-span-1 px-4 py-2 text-right">Flips</div>
+          <div className="col-span-1 px-4 py-2 text-right">Success</div>
+          <div className="col-span-1 px-4 py-2 text-right">Avg/Flip</div>
+          <div className="col-span-1 px-4 py-2 text-right">Avg Held</div>
+          <div className="col-span-2 px-4 py-2 text-right">Recent</div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sorted.map(i => (
-            <button
-              key={i.item}
-              onClick={() => onClickItem(i.item)}
-              className="text-left bg-gray-800 rounded-lg p-4 border border-transparent hover:border-blue-500"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <ItemWithIcon itemName={i.item} textClassName="text-white font-semibold" />
-                <ItemSuccessRateBadge value={i.successRate} />
-              </div>
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <div
-                    className={`text-sm ${i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}
-                  >
-                    {formatGP(i.totalProfit)}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {i.flipCount?.toLocaleString?.() || i.flipCount} flips • {formatGP(i.avgProfit)}{' '}
-                    avg
-                  </div>
+        <VirtualList
+          height={Math.min(600, Math.max(200, sorted.length * 56))}
+          itemCount={sorted.length}
+          itemSize={56}
+          width={'100%'}
+          className="block"
+        >
+          {({ index, style }) => {
+            const i = sorted[index];
+            if (!i) return null;
+            return (
+              <div
+                style={style}
+                className="grid grid-cols-12 border-t border-gray-700 hover:bg-gray-800 cursor-pointer items-center text-sm"
+                onClick={() => onClickItem(i.item)}
+              >
+                <div className="col-span-4 px-4 py-2">
+                  <ItemWithIcon itemName={i.item} textClassName="text-white font-medium" />
                 </div>
-                <div className="flex-1">
+                <div className="col-span-2 px-4 py-2 text-right">
+                  <span className={i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}>
+                    {formatGP(i.totalProfit)}
+                  </span>
+                </div>
+                <div className="col-span-1 px-4 py-2 text-right text-gray-200">
+                  {i.flipCount?.toLocaleString?.() || i.flipCount}
+                </div>
+                <div className="col-span-1 px-4 py-2 text-right">
+                  <ItemSuccessRateBadge value={i.successRate} />
+                </div>
+                <div className="col-span-1 px-4 py-2 text-right text-gray-200">
+                  {formatGP(i.avgProfit)}
+                </div>
+                <div className="col-span-1 px-4 py-2 text-right text-gray-200">
+                  {formatHeldDuration(i.avgHeldMinutes)}
+                </div>
+                <div className="col-span-2 px-4 py-2">
                   <ItemProfitSparkline data={i.sparkData} />
                 </div>
               </div>
-            </button>
-          ))}
-          {sorted.length === 0 && (
-            <div className="col-span-full text-center text-gray-400 py-8">No items found.</div>
-          )}
-        </div>
-      )}
+            );
+          }}
+        </VirtualList>
+        {sorted.length === 0 && (
+          <div className="text-center text-gray-400 py-8">No items found.</div>
+        )}
+      </div>
     </div>
   );
 }

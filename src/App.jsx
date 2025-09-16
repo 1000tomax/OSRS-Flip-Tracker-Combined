@@ -14,7 +14,6 @@ const FlipLogs = lazy(() => import('./pages/FlipLogs'));
 const Charts = lazy(() => import('./pages/Charts'));
 const StrategyBattle = lazy(() => import('./pages/StrategyBattle'));
 const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
-// const QueryPage = lazy(() => import('./pages/QueryPage'));
 const IconTest = lazy(() => import('./pages/IconTest'));
 const TestDiscordReport = lazy(() => import('./pages/TestDiscordReport'));
 
@@ -48,7 +47,6 @@ function AppContent() {
             <Route path="/items" element={<Items />} />
             <Route path="/flip-logs" element={<FlipLogs />} />
             <Route path="/charts" element={<Charts />} />
-            {/* <Route path="/query" element={<QueryPage />} /> */}
             <Route path="/performance" element={<ProfitVelocity />} />
             <Route path="/volume" element={<StrategyBattle />} />
             <Route path="/profit-velocity" element={<ProfitVelocity />} />

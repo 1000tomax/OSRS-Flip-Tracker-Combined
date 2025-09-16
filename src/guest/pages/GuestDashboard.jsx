@@ -20,7 +20,6 @@ import GuestHeatMap from '../components/GuestHeatMap';
 import GuestFlipLogViewer from '../components/GuestFlipLogViewer';
 import GuestDatePicker from '../components/GuestDatePicker';
 import GuestDailySummary from '../components/GuestDailySummary';
-// import { AIQueryInterface } from '../components/AIQueryInterface';
 
 // Import new performance components
 const GuestPerformanceAnalysis = lazy(() => import('../components/GuestPerformanceAnalysis'));
@@ -179,7 +178,7 @@ export default function GuestDashboard() {
   const [chartViewMode, setChartViewMode] = useState('combined'); // 'combined' or 'individual'
 
   // Tab navigation state
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'performance', 'fliplogs', 'ai', 'summary'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'performance', 'fliplogs', 'summary'
   const [selectedDate, setSelectedDate] = useState(null); // For flip log viewer
   const [selectedDayHour, setSelectedDayHour] = useState(null); // For heatmap cell clicks
 
@@ -677,16 +676,6 @@ export default function GuestDashboard() {
             >
               Transaction Logs
             </button>
-            <button
-              onClick={() => setActiveTab('ai')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'ai'
-                  ? 'border-blue-500 text-blue-400'
-                  : 'border-transparent text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              AI Search
-            </button>
             {hasFrequencyTestAccounts && (
               <button
                 onClick={() => navigate('/guest/dashboard/frequency-comparison')}
@@ -1071,17 +1060,6 @@ export default function GuestDashboard() {
             <Suspense fallback={<div className="text-gray-300">Loading flip volume…</div>}>
               <GuestFlipVolumeChart guestData={guestData} originalData={originalData} />
             </Suspense>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'ai' && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg">
-            AI Search temporarily disabled for development testing
-          </div>
-          <div className="text-gray-500 text-sm mt-4">
-            Please use the development environment for AI feature testing
           </div>
         </div>
       )}
