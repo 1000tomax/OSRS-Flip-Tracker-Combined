@@ -1,56 +1,767 @@
 [
   {
+    "name": "Coal",
+    "x": 0.06022,
+    "y": -0.09618,
+    "profit": 129266,
+    "stable": 0.3571,
+    "holdMin": 7,
+    "margin": 5
+  },
+  {
     "name": "Sunfire fanatic cuirass",
-    "x": 0.43129,
-    "y": -0.2585,
-    "profit": 234815,
+    "x": 0.19307,
+    "y": 0.15141,
+    "profit": 24980,
     "stable": 0.5,
-    "holdMin": 6,
-    "margin": 234815
+    "holdMin": 37,
+    "margin": 24980
   },
   {
-    "name": "Imbued heart",
-    "x": 1.71838,
-    "y": 1.02381,
-    "profit": 743169,
+    "name": "Ankou top",
+    "x": -1.26334,
+    "y": -1.53514,
+    "profit": 319829,
+    "stable": 0.0002,
+    "holdMin": 88,
+    "margin": 159915
+  },
+  {
+    "name": "Diamond bolts (e)",
+    "x": 0.27714,
+    "y": 0.24382,
+    "profit": 22000,
     "stable": 0.5,
+    "holdMin": 23,
+    "margin": 2
+  },
+  {
+    "name": "Primordial boots",
+    "x": -0.76875,
+    "y": -1.18232,
+    "profit": 315751,
+    "stable": 0.0001,
+    "holdMin": 13,
+    "margin": 64234
+  },
+  {
+    "name": "Venator bow (uncharged)",
+    "x": 0.96937,
+    "y": -1.05362,
+    "profit": 347436,
+    "stable": 0.5,
+    "holdMin": 14,
+    "margin": 347436
+  },
+  {
+    "name": "Odium ward",
+    "x": -0.74538,
+    "y": -1.13447,
+    "profit": 102545,
+    "stable": 0,
+    "holdMin": 8,
+    "margin": 51273
+  },
+  {
+    "name": "Death rune",
+    "x": 1.68052,
+    "y": 1.42893,
+    "profit": 150000,
+    "stable": 1,
     "holdMin": 5,
-    "margin": 743169
+    "margin": 2
   },
   {
-    "name": "Yew longbow (u)",
-    "x": -1.94222,
-    "y": 0.92824,
-    "profit": 39424,
+    "name": "Snape grass seed",
+    "x": -1.21664,
+    "y": -0.93141,
+    "profit": 91063,
+    "stable": 0.0044,
+    "holdMin": 52,
+    "margin": 316
+  },
+  {
+    "name": "Adamant arrow",
+    "x": 0.29369,
+    "y": 0.1655,
+    "profit": 75984,
+    "stable": 0.4673,
+    "holdMin": 12,
+    "margin": 3
+  },
+  {
+    "name": "Revenant ether",
+    "x": 1.24822,
+    "y": 1.43172,
+    "profit": 120000,
+    "stable": 1,
+    "holdMin": 54,
+    "margin": 2
+  },
+  {
+    "name": "Basilisk jaw",
+    "x": 0.57594,
+    "y": -0.02813,
+    "profit": 145120,
     "stable": 0.5,
-    "holdMin": 577,
+    "holdMin": 4,
+    "margin": 72560
+  },
+  {
+    "name": "Runite bolts",
+    "x": 0.38709,
+    "y": 0.24311,
+    "profit": 56912,
+    "stable": 0.5,
+    "holdMin": 11,
+    "margin": 3
+  },
+  {
+    "name": "Dragonfire ward",
+    "x": -0.80432,
+    "y": -1.10953,
+    "profit": 45523,
+    "stable": 0,
+    "holdMin": 13,
+    "margin": 44662
+  },
+  {
+    "name": "Sunfire fanatic helm",
+    "x": 0.2804,
+    "y": 0.09861,
+    "profit": 39016,
+    "stable": 0.5,
+    "holdMin": 30,
+    "margin": 39016
+  },
+  {
+    "name": "Noxious halberd",
+    "x": 0.97554,
+    "y": -0.82705,
+    "profit": 286545,
+    "stable": 0.5,
+    "holdMin": 1,
+    "margin": 286545
+  },
+  {
+    "name": "Cosmic rune",
+    "x": 0.49297,
+    "y": 0.37439,
+    "profit": 95888,
+    "stable": 0.5552,
+    "holdMin": 14,
+    "margin": 2
+  },
+  {
+    "name": "Steel bar",
+    "x": 0.3766,
+    "y": 0.24316,
+    "profit": 20531,
+    "stable": 0.5,
+    "holdMin": 12,
+    "margin": 7
+  },
+  {
+    "name": "Saradomin brew(4)",
+    "x": 0.37121,
+    "y": 0.24304,
+    "profit": 98000,
+    "stable": 0.5,
+    "holdMin": 12,
+    "margin": 49
+  },
+  {
+    "name": "Rune arrow",
+    "x": 0.36004,
+    "y": 0.24329,
+    "profit": 99000,
+    "stable": 0.5,
+    "holdMin": 14,
+    "margin": 3
+  },
+  {
+    "name": "Twinflame staff",
+    "x": 0.51109,
+    "y": -0.05247,
+    "profit": 79214,
+    "stable": 0.5,
+    "holdMin": 12,
+    "margin": 79214
+  },
+  {
+    "name": "Osmumten's fang",
+    "x": -6.72596,
+    "y": 0.16432,
+    "profit": -2298983,
+    "stable": 0,
+    "holdMin": 615,
+    "margin": -287373
+  },
+  {
+    "name": "Dragon hunter crossbow",
+    "x": 0.48885,
+    "y": -0.19704,
+    "profit": 118099,
+    "stable": 0.5,
+    "holdMin": 22,
+    "margin": 118099
+  },
+  {
+    "name": "Oathplate chest",
+    "x": 0.29676,
+    "y": 0.1399,
+    "profit": 27893,
+    "stable": 0.5,
+    "holdMin": 26,
+    "margin": 27893
+  },
+  {
+    "name": "Diamond dragon bolts (e)",
+    "x": 0.38799,
+    "y": 0.24308,
+    "profit": 4675,
+    "stable": 0.5,
+    "holdMin": 10,
+    "margin": 11
+  },
+  {
+    "name": "Ancient godsword",
+    "x": 0.9234,
+    "y": -1.1744,
+    "profit": 379970,
+    "stable": 0.5,
+    "holdMin": 25,
+    "margin": 379970
+  },
+  {
+    "name": "Masori mask (f)",
+    "x": 0.29943,
+    "y": -0.32509,
+    "profit": 152836,
+    "stable": 0.5,
+    "holdMin": 51,
+    "margin": 152836
+  },
+  {
+    "name": "Nature rune",
+    "x": 1.51132,
+    "y": 1.43003,
+    "profit": 36000,
+    "stable": 1,
+    "holdMin": 24,
+    "margin": 1
+  },
+  {
+    "name": "Astral rune",
+    "x": -0.4957,
+    "y": -0.3627,
+    "profit": 130066,
+    "stable": 0.244,
+    "holdMin": 38,
+    "margin": 3
+  },
+  {
+    "name": "Blood rune",
+    "x": -0.14364,
+    "y": -0.30353,
+    "profit": 174995,
+    "stable": 0.2697,
+    "holdMin": 6,
+    "margin": 2
+  },
+  {
+    "name": "Virtus armour set",
+    "x": 1.04414,
+    "y": -1.70522,
+    "profit": 522398,
+    "stable": 0.5,
+    "holdMin": 40,
+    "margin": 522398
+  },
+  {
+    "name": "Archers ring",
+    "x": 0.40934,
+    "y": 0.13013,
+    "profit": 30323,
+    "stable": 0.5,
+    "holdMin": 14,
+    "margin": 30323
+  },
+  {
+    "name": "Cannonball",
+    "x": 0.04226,
+    "y": -0.07465,
+    "profit": 231000,
+    "stable": 0.366,
+    "holdMin": 12,
+    "margin": 6
+  },
+  {
+    "name": "Anglerfish",
+    "x": 0.42198,
+    "y": 0.24285,
+    "profit": 11578,
+    "stable": 0.5,
+    "holdMin": 7,
     "margin": 14
   },
   {
-    "name": "Ursine chainmace (u)",
-    "x": -0.04138,
-    "y": -0.38294,
-    "profit": 233356,
+    "name": "Raw summer pie",
+    "x": -1.00322,
+    "y": 0.25192,
+    "profit": 1656,
     "stable": 0.5,
-    "holdMin": 62,
-    "margin": 116678
+    "holdMin": 167,
+    "margin": 46
   },
   {
-    "name": "Tormented synapse",
-    "x": 0.11666,
-    "y": -0.57927,
-    "profit": 327306,
+    "name": "Monkfish",
+    "x": -0.50855,
+    "y": 0.24889,
+    "profit": 19696,
+    "stable": 0.5,
+    "holdMin": 112,
+    "margin": 4
+  },
+  {
+    "name": "Trailblazer reloaded bulwark ornament kit",
+    "x": 0.54402,
+    "y": -0.41684,
+    "profit": 177066,
+    "stable": 0.5,
+    "holdMin": 28,
+    "margin": 177066
+  },
+  {
+    "name": "Ranarr seed",
+    "x": -0.69621,
+    "y": -0.77906,
+    "profit": 89200,
+    "stable": 0.0693,
+    "holdMin": 12,
+    "margin": 143
+  },
+  {
+    "name": "Voidwaker",
+    "x": -0.69762,
+    "y": -1.52133,
+    "profit": 310298,
+    "stable": 0,
+    "holdMin": 23,
+    "margin": 155149
+  },
+  {
+    "name": "Chaos rune",
+    "x": 1.1142,
+    "y": 1.32208,
+    "profit": 73235,
+    "stable": 0.9537,
+    "holdMin": 56,
+    "margin": 2
+  },
+  {
+    "name": "Demon tear",
+    "x": 0.72379,
+    "y": 0.56091,
+    "profit": 182000,
+    "stable": 0.634,
+    "holdMin": 10,
+    "margin": 5
+  },
+  {
+    "name": "Berserker ring",
+    "x": -1.07419,
+    "y": -0.98973,
+    "profit": 200203,
+    "stable": 0.0005,
+    "holdMin": 37,
+    "margin": 13254
+  },
+  {
+    "name": "Eternal boots",
+    "x": 0.49216,
+    "y": 0.13511,
+    "profit": 28843,
+    "stable": 0.5,
+    "holdMin": 4,
+    "margin": 28843
+  },
+  {
+    "name": "Shark",
+    "x": -0.26946,
+    "y": 0.24734,
+    "profit": 50000,
+    "stable": 0.5,
+    "holdMin": 85,
+    "margin": 5
+  },
+  {
+    "name": "Zulrah's scales",
+    "x": 1.56341,
+    "y": 1.42969,
+    "profit": 69740,
+    "stable": 1,
+    "holdMin": 19,
+    "margin": 2
+  },
+  {
+    "name": "Blood moon chestplate",
+    "x": -3.59716,
+    "y": -1.02931,
+    "profit": 135070,
+    "stable": 0.0001,
+    "holdMin": 325,
+    "margin": 28030
+  },
+  {
+    "name": "Masori armour set (f)",
+    "x": 1.36296,
+    "y": -1.72465,
+    "profit": 527066,
     "stable": 0.5,
     "holdMin": 5,
-    "margin": 109102
+    "margin": 527066
   },
   {
-    "name": "Prayer potion(4)",
-    "x": -0.28273,
-    "y": -0.73133,
-    "profit": -2000,
+    "name": "Amethyst arrow",
+    "x": 0.47236,
+    "y": 0.24255,
+    "profit": 66000,
     "stable": 0.5,
-    "holdMin": 44,
+    "holdMin": 1,
+    "margin": 6
+  },
+  {
+    "name": "Stamina potion(4)",
+    "x": 0.42057,
+    "y": 0.24271,
+    "profit": 13662,
+    "stable": 0.5,
+    "holdMin": 7,
+    "margin": 54
+  },
+  {
+    "name": "Yew longbow (u)",
+    "x": 0.50232,
+    "y": 0.44724,
+    "profit": 82625,
+    "stable": 0.5858,
+    "holdMin": 22,
+    "margin": 6
+  },
+  {
+    "name": "Dark crab",
+    "x": 0.29818,
+    "y": 0.24358,
+    "profit": 5458,
+    "stable": 0.5,
+    "holdMin": 21,
+    "margin": 32
+  },
+  {
+    "name": "Atlatl dart",
+    "x": -0.26561,
+    "y": 0.24731,
+    "profit": 73254,
+    "stable": 0.5,
+    "holdMin": 84,
+    "margin": 7
+  },
+  {
+    "name": "Super restore(4)",
+    "x": -0.79368,
+    "y": -0.92299,
+    "profit": 215940,
+    "stable": 0.0088,
+    "holdMin": 5,
+    "margin": 131
+  },
+  {
+    "name": "Soul rune",
+    "x": 0.14189,
+    "y": -0.00044,
+    "profit": 152659,
+    "stable": 0.3974,
+    "holdMin": 9,
+    "margin": 4
+  },
+  {
+    "name": "Toxic blowpipe (empty)",
+    "x": -1.04684,
+    "y": -1.06171,
+    "profit": 121696,
+    "stable": 0,
+    "holdMin": 38,
+    "margin": 32250
+  },
+  {
+    "name": "Mahogany plank",
+    "x": 0.05536,
+    "y": 0.24521,
+    "profit": 195000,
+    "stable": 0.5,
+    "holdMin": 48,
+    "margin": 15
+  },
+  {
+    "name": "Dharok's armour set",
+    "x": -0.89473,
+    "y": -0.97934,
+    "profit": 20210,
+    "stable": 0.0001,
+    "holdMin": 16,
+    "margin": 9873
+  },
+  {
+    "name": "Adamant dart tip",
+    "x": 0.46082,
+    "y": 0.24264,
+    "profit": 40000,
+    "stable": 0.5,
+    "holdMin": 2,
+    "margin": 2
+  },
+  {
+    "name": "Oathplate armour set",
+    "x": 0.59443,
+    "y": -1.43815,
+    "profit": 451414,
+    "stable": 0.5,
+    "holdMin": 77,
+    "margin": 451414
+  },
+  {
+    "name": "Adamant bolts",
+    "x": 0.26679,
+    "y": 0.2439,
+    "profit": -5910,
+    "stable": 0.5,
+    "holdMin": 24,
     "margin": -1
+  },
+  {
+    "name": "Ring of suffering",
+    "x": 0.63817,
+    "y": -0.3546,
+    "profit": 160178,
+    "stable": 0.5,
+    "holdMin": 14,
+    "margin": 160178
+  },
+  {
+    "name": "Antidote++(4)",
+    "x": 0.30794,
+    "y": 0.24349,
+    "profit": 11113,
+    "stable": 0.5,
+    "holdMin": 19,
+    "margin": 39
+  },
+  {
+    "name": "Adamant dart",
+    "x": 1.11116,
+    "y": 0.96294,
+    "profit": 47808,
+    "stable": 0.8033,
+    "holdMin": 14,
+    "margin": 2
+  },
+  {
+    "name": "Iron ore",
+    "x": 0.08149,
+    "y": 0.24509,
+    "profit": 5864,
+    "stable": 0.5,
+    "holdMin": 45,
+    "margin": 0
+  },
+  {
+    "name": "Ankou's leggings",
+    "x": 0.06704,
+    "y": -0.58841,
+    "profit": 223996,
+    "stable": 0.5,
+    "holdMin": 91,
+    "margin": 223996
+  },
+  {
+    "name": "Serpentine helm (uncharged)",
+    "x": -0.31878,
+    "y": 0.14841,
+    "profit": 80025,
+    "stable": 0.5,
+    "holdMin": 95,
+    "margin": 26675
+  },
+  {
+    "name": "Teleport to house",
+    "x": -0.6677,
+    "y": 0.24991,
+    "profit": 60000,
+    "stable": 0.5,
+    "holdMin": 130,
+    "margin": 4
+  },
+  {
+    "name": "Eclipse atlatl",
+    "x": -1.37289,
+    "y": 0.31427,
+    "profit": -80325,
+    "stable": 0.5,
+    "holdMin": 206,
+    "margin": -16065
+  },
+  {
+    "name": "Ring of wealth (5)",
+    "x": -0.00325,
+    "y": 0.24516,
+    "profit": 188760,
+    "stable": 0.5,
+    "holdMin": 55,
+    "margin": 130
+  },
+  {
+    "name": "Ring of endurance (uncharged)",
+    "x": 0.58376,
+    "y": -0.04975,
+    "profit": 78356,
+    "stable": 0.5,
+    "holdMin": 4,
+    "margin": 78356
+  },
+  {
+    "name": "Amulet of fury",
+    "x": -0.82908,
+    "y": -1.10081,
+    "profit": 314342,
+    "stable": 0,
+    "holdMin": 15,
+    "margin": 42383
+  },
+  {
+    "name": "Varrock teleport",
+    "x": 0.32976,
+    "y": 0.24346,
+    "profit": 8720,
+    "stable": 0.5,
+    "holdMin": 17,
+    "margin": 10
+  },
+  {
+    "name": "Willow longbow (u)",
+    "x": -0.84341,
+    "y": 0.25107,
+    "profit": -3090,
+    "stable": 0.5,
+    "holdMin": 149,
+    "margin": -2
+  },
+  {
+    "name": "Essence impling jar",
+    "x": 0.2465,
+    "y": 0.24382,
+    "profit": 2016,
+    "stable": 0.5,
+    "holdMin": 26,
+    "margin": 56
+  },
+  {
+    "name": "Rune dart",
+    "x": -0.11756,
+    "y": 0.24638,
+    "profit": -1221,
+    "stable": 0.5,
+    "holdMin": 67,
+    "margin": 0
+  },
+  {
+    "name": "Amethyst dart",
+    "x": 0.42418,
+    "y": 0.24287,
+    "profit": 33000,
+    "stable": 0.5,
+    "holdMin": 6,
+    "margin": 3
+  },
+  {
+    "name": "Abyssal whip",
+    "x": 0.41676,
+    "y": 0.22578,
+    "profit": 13827,
+    "stable": 0.5,
+    "holdMin": 8,
+    "margin": 4609
+  },
+  {
+    "name": "Bandos tassets",
+    "x": 0.34528,
+    "y": 0.18673,
+    "profit": 60904,
+    "stable": 0.5,
+    "holdMin": 18,
+    "margin": 15226
+  },
+  {
+    "name": "Aldarium",
+    "x": -0.18583,
+    "y": 0.24713,
+    "profit": -90904,
+    "stable": 0.5,
+    "holdMin": 75,
+    "margin": -84
+  },
+  {
+    "name": "Torstol seed",
+    "x": 0.39339,
+    "y": 0.24256,
+    "profit": 16497,
+    "stable": 0.5,
+    "holdMin": 10,
+    "margin": 141
+  },
+  {
+    "name": "Kwuarm seed",
+    "x": 0.33153,
+    "y": 0.24315,
+    "profit": 17600,
+    "stable": 0.5,
+    "holdMin": 17,
+    "margin": 88
+  },
+  {
+    "name": "Antifire potion(4)",
+    "x": 0.21509,
+    "y": 0.24389,
+    "profit": 74428,
+    "stable": 0.5,
+    "holdMin": 30,
+    "margin": 92
+  },
+  {
+    "name": "Unpowered orb",
+    "x": 0.33448,
+    "y": 0.24345,
+    "profit": 25086,
+    "stable": 0.5,
+    "holdMin": 16,
+    "margin": 3
+  },
+  {
+    "name": "Eldritch orb",
+    "x": -2.8858,
+    "y": 6.4845,
+    "profit": -1671435,
+    "stable": 0.5,
+    "holdMin": 48,
+    "margin": -1671435
+  },
+  {
+    "name": "Necklace of anguish",
+    "x": 0.51694,
+    "y": -0.27235,
+    "profit": 276572,
+    "stable": 0.5,
+    "holdMin": 23,
+    "margin": 138286
   }
 ]

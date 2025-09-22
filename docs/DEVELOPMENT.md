@@ -1,6 +1,7 @@
 # Development Guide 🛠️
 
-Complete guide for setting up and contributing to the OSRS Flip Dashboard project.
+Complete guide for setting up and contributing to the OSRS Flip Dashboard
+project.
 
 ## 📋 Table of Contents
 
@@ -33,7 +34,7 @@ OS: Windows 10+, macOS 12+, Ubuntu 20.04+
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/your-username/osrs-flip-dashboard.git
+git clone https://github.com/1000tomax/OSRS-Flip-Tracker-Combined.git
 cd osrs-flip-dashboard
 
 # 2. Install dependencies
@@ -104,11 +105,12 @@ Create `.vscode/settings.json`:
 ```
 
 Recommended extensions:
+
 ```json
 {
   "recommendations": [
     "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint", 
+    "dbaeumer.vscode-eslint",
     "bradlc.vscode-tailwindcss",
     "ms-vscode.vscode-typescript-next",
     "ms-vscode.vscode-json",
@@ -205,11 +207,11 @@ src/
 export default function PageName() {
   // 1. Data fetching
   const { data, loading, error } = usePageData();
-  
+
   // 2. Early returns for states
   if (loading) return <LoadingLayout />;
   if (error) return <ErrorLayout error={error} />;
-  
+
   // 3. Main render with layout composition
   return (
     <PageContainer>
@@ -228,13 +230,13 @@ export default function PageName() {
 // Pattern: Custom hooks for data logic
 function usePageData() {
   const { data: rawData, loading, error } = useApiData('/api/endpoint');
-  
+
   // Business logic transformation
   const processedData = useMemo(() => {
     if (!rawData) return null;
     return transformData(rawData);
   }, [rawData]);
-  
+
   return { data: processedData, loading, error };
 }
 ```
@@ -358,20 +360,20 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
     'react/prop-types': 'off', // Using TypeScript instead
-    
+
     // TypeScript
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'warn',
-    
+
     // Code quality
     'prefer-const': 'error',
     'no-var': 'error',
     'no-console': 'off', // Allowed for debugging
-    
+
     // Accessibility
     'jsx-a11y/alt-text': 'warn',
     'jsx-a11y/aria-props': 'warn',
-  }
+  },
 };
 ```
 
@@ -445,7 +447,7 @@ const handleClick = useCallback(() => {
 ```
 # React components
 PascalCase.jsx/tsx          # MyComponent.jsx
-  
+
 # Hooks
 camelCase.js/ts             # useMyHook.ts
 
@@ -482,28 +484,28 @@ import MyComponent from '../MyComponent';
 
 describe('MyComponent', () => {
   let queryClient: QueryClient;
-  
+
   beforeEach(() => {
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } }
     });
   });
-  
+
   it('should render correctly', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <MyComponent data={mockData} />
       </QueryClientProvider>
     );
-    
+
     expect(screen.getByText('Expected Text')).toBeInTheDocument();
   });
-  
+
   it('should handle user interactions', async () => {
     render(<MyComponent />);
-    
+
     fireEvent.click(screen.getByRole('button'));
-    
+
     await waitFor(() => {
       expect(screen.getByText('Updated Text')).toBeInTheDocument();
     });
@@ -565,8 +567,8 @@ npm test -- --updateSnapshot
 import { CacheUtils } from '../utils/cacheManager';
 
 // In browser console:
-CacheUtils.getAllStats();  // Get cache statistics
-CacheUtils.clearAll();     // Clear all caches
+CacheUtils.getAllStats(); // Get cache statistics
+CacheUtils.clearAll(); // Clear all caches
 ```
 
 ### Logging
@@ -587,6 +589,7 @@ localStorage.setItem('debug', 'osrs:*');
 ### Common Issues
 
 **Build Errors**:
+
 ```bash
 # Clear everything and rebuild
 rm -rf node_modules package-lock.json dist
@@ -595,6 +598,7 @@ npm run build
 ```
 
 **TypeScript Errors**:
+
 ```bash
 # Check TypeScript version
 npx tsc --version
@@ -606,6 +610,7 @@ npm run typecheck
 ```
 
 **Performance Issues**:
+
 ```bash
 # Analyze bundle size
 npm run build:analyze
@@ -674,11 +679,11 @@ function useCustomHook(param: string) {
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     // Hook logic
   }, [param]);
-  
+
   return { state, loading, error };
 }
 ```
@@ -691,13 +696,13 @@ import { renderHook, act } from '@testing-library/react';
 
 test('useCustomHook should work', () => {
   const { result } = renderHook(() => useCustomHook('test'));
-  
+
   expect(result.current.loading).toBe(false);
-  
+
   act(() => {
     // Trigger hook action
   });
-  
+
   expect(result.current.state).toBe('expected');
 });
 ```
@@ -719,4 +724,5 @@ function onRenderCallback(id, phase, actualDuration) {
 
 ---
 
-This development guide should help you get up and running quickly while maintaining high code quality and performance standards. Happy coding! 🚀
+This development guide should help you get up and running quickly while
+maintaining high code quality and performance standards. Happy coding! 🚀

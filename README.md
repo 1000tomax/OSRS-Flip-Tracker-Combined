@@ -1,15 +1,18 @@
-claude# OSRS Flip Dashboard 📈
+# OSRS Flip Dashboard 📈
 
-A professional Old School RuneScape trading analytics dashboard built with React
-and modern web technologies. Track your flipping performance, analyze profit
-trends, and optimize your trading strategies with comprehensive data
-visualization and advanced caching.
+> A professional Old School RuneScape trading analytics dashboard for tracking
+> and optimizing your flipping performance.
 
-![OSRS Flip Dashboard](https://img.shields.io/badge/OSRS-Flip%20Dashboard-blue)
-![React](https://img.shields.io/badge/React-18.3.1-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-Enabled-blue)
-![Vite](https://img.shields.io/badge/Vite-7.1.2-purple)
-![PWA](https://img.shields.io/badge/PWA-Ready-green)
+[![React](https://img.shields.io/badge/React-18.3.1-blue)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Enabled-blue)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.0+-purple)](https://vitejs.dev/)
+[![PWA](https://img.shields.io/badge/PWA-Ready-green)](https://web.dev/progressive-web-apps/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+**Built with React, TypeScript, and modern web technologies.** Track your
+flipping performance, analyze profit trends, and optimize your trading
+strategies with comprehensive data visualization, advanced caching, and
+AI-powered insights.
 
 ## ✨ Features
 
@@ -291,6 +294,31 @@ localStorage.setItem('debug', 'osrs:*');
 - **[Development Guide](./docs/DEVELOPMENT.md)** - Detailed development setup
 - **[API Reference](./docs/API.md)** - Component and hook documentation
 - **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment details
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE)
+file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major
+changes, please open an issue first to discuss what you would like to change.
+
+## 📞 Support
+
+If you encounter any issues or have questions:
+
+1. Check the [troubleshooting section](#-troubleshooting)
+2. Search existing
+   [GitHub Issues](https://github.com/1000tomax/OSRS-Flip-Tracker-Combined/issues)
+3. Open a new issue with detailed information
+
+## 🙏 Acknowledgments
+
+- Old School RuneScape trading community for inspiration and feedback
+- [Jagex](https://www.jagex.com/) for creating Old School RuneScape
+- Open source libraries that make this project possible
 
 ---
 

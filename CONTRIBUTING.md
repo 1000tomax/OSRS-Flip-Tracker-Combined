@@ -1,6 +1,7 @@
 # Contributing Guide 🤝
 
-Thank you for your interest in contributing to the OSRS Flip Dashboard! This guide will help you get started with contributing to this project.
+Thank you for your interest in contributing to the OSRS Flip Dashboard! This
+guide will help you get started with contributing to this project.
 
 ## 📋 Table of Contents
 
@@ -16,11 +17,15 @@ Thank you for your interest in contributing to the OSRS Flip Dashboard! This gui
 
 ### Our Pledge
 
-We are committed to providing a friendly, safe, and welcoming environment for all contributors, regardless of level of experience, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
+We are committed to providing a friendly, safe, and welcoming environment for
+all contributors, regardless of level of experience, gender identity and
+expression, sexual orientation, disability, personal appearance, body size,
+race, ethnicity, age, religion, or nationality.
 
 ### Our Standards
 
 **Positive behaviors include:**
+
 - Using welcoming and inclusive language
 - Being respectful of differing viewpoints and experiences
 - Gracefully accepting constructive criticism
@@ -28,6 +33,7 @@ We are committed to providing a friendly, safe, and welcoming environment for al
 - Showing empathy towards other community members
 
 **Unacceptable behaviors include:**
+
 - The use of sexualized language or imagery
 - Trolling, insulting/derogatory comments, and personal attacks
 - Public or private harassment
@@ -36,7 +42,9 @@ We are committed to providing a friendly, safe, and welcoming environment for al
 
 ### Enforcement
 
-Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
+Project maintainers are responsible for clarifying the standards of acceptable
+behavior and are expected to take appropriate and fair corrective action in
+response to any instances of unacceptable behavior.
 
 ## 🚀 Getting Started
 
@@ -63,11 +71,11 @@ React DevTools browser extension
 # Click the "Fork" button on the main repository page
 
 # 2. Clone your fork
-git clone https://github.com/YOUR-USERNAME/osrs-flip-dashboard.git
-cd osrs-flip-dashboard
+git clone https://github.com/YOUR-USERNAME/OSRS-Flip-Tracker-Combined.git
+cd OSRS-Flip-Tracker-Combined
 
 # 3. Add upstream remote
-git remote add upstream https://github.com/ORIGINAL-OWNER/osrs-flip-dashboard.git
+git remote add upstream https://github.com/1000tomax/OSRS-Flip-Tracker-Combined.git
 
 # 4. Install dependencies
 npm install
@@ -89,7 +97,7 @@ cp .env.example .env.local
 
 # Verify everything works
 npm run lint        # Should pass
-npm test           # Should run test suite  
+npm test           # Should run test suite
 npm run typecheck  # Should pass TypeScript checks
 npm run build      # Should create production build
 ```
@@ -156,7 +164,8 @@ git push origin feature/your-feature-name
 
 ### Commit Message Convention
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/) specification:
+We follow [Conventional Commits](https://www.conventionalcommits.org/)
+specification:
 
 ```bash
 # Format: <type>[optional scope]: <description>
@@ -205,29 +214,36 @@ When creating a pull request, use this template:
 
 ```markdown
 ## Description
+
 Brief description of what this PR does.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Breaking change (fix or feature that would cause existing functionality to
+      not work as expected)
 - [ ] Documentation update
 
 ## Changes Made
+
 - List the main changes
 - Include any new components or utilities
 - Mention any breaking changes
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual testing completed
 - [ ] Test coverage maintained/improved
 
 ## Screenshots (if applicable)
+
 Before/after screenshots for UI changes.
 
 ## Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Tests added for new functionality
@@ -291,20 +307,20 @@ interface Props {
 
 function FlipTable({ data, onItemClick }: Props) {
   const [sortField, setSortField] = useState<keyof FlipData>('profit');
-  
+
   // 2. Extract custom hooks for complex logic
   const sortedData = useSortedData(data, sortField);
-  
+
   // 3. Use memo for expensive computations
   const totalProfit = useMemo(() => {
     return data.reduce((sum, flip) => sum + flip.profit, 0);
   }, [data]);
-  
+
   // 4. Use callback for event handlers
   const handleRowClick = useCallback((flip: FlipData) => {
     onItemClick(flip);
   }, [onItemClick]);
-  
+
   return (
     <table>
       {sortedData.map(flip => (
@@ -393,13 +409,13 @@ import { mockFlipData } from '../../tests/utils/mockData';
 
 describe('FlipTable', () => {
   let queryClient: QueryClient;
-  
+
   beforeEach(() => {
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } }
     });
   });
-  
+
   const renderWithProviders = (component: React.ReactElement) => {
     return render(
       <QueryClientProvider client={queryClient}>
@@ -407,22 +423,22 @@ describe('FlipTable', () => {
       </QueryClientProvider>
     );
   };
-  
+
   it('should display flip data correctly', () => {
     renderWithProviders(<FlipTable data={mockFlipData} />);
-    
+
     expect(screen.getByText('Abyssal whip')).toBeInTheDocument();
     expect(screen.getByText('250,000 GP')).toBeInTheDocument();
   });
-  
+
   it('should handle item click events', async () => {
     const handleClick = jest.fn();
     renderWithProviders(
       <FlipTable data={mockFlipData} onItemClick={handleClick} />
     );
-    
+
     fireEvent.click(screen.getByText('Abyssal whip'));
-    
+
     await waitFor(() => {
       expect(handleClick).toHaveBeenCalledWith(mockFlipData[0]);
     });
@@ -441,31 +457,31 @@ import { mockFetchSuccess } from '../../tests/utils/testUtils';
 
 describe('useApiData', () => {
   let queryClient: QueryClient;
-  
+
   beforeEach(() => {
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } }
     });
   });
-  
+
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       {children}
     </QueryClientProvider>
   );
-  
+
   it('should fetch and return data', async () => {
     const mockData = { message: 'Hello World' };
     mockFetchSuccess(mockData);
-    
+
     const { result } = renderHook(() => useApiData('/api/test'), { wrapper });
-    
+
     expect(result.current.loading).toBe(true);
-    
+
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
-    
+
     expect(result.current.data).toEqual(mockData);
     expect(result.current.error).toBeNull();
   });
@@ -483,14 +499,14 @@ describe('useApiData', () => {
 
 ### Code Documentation
 
-```typescript
+````typescript
 /**
  * Processes trading data and calculates profit metrics
- * 
+ *
  * @param flips - Array of trading flip data
  * @param options - Configuration options for processing
  * @returns Processed data with calculated metrics
- * 
+ *
  * @example
  * ```typescript
  * const processed = processFlipData(rawFlips, {
@@ -500,23 +516,23 @@ describe('useApiData', () => {
  * ```
  */
 function processFlipData(
-  flips: FlipData[], 
+  flips: FlipData[],
   options: ProcessingOptions = {}
 ): ProcessedFlipData[] {
   // Implementation
 }
-```
+````
 
 ### Component Documentation
 
-```typescript
+````typescript
 /**
  * Trading table component with sorting and filtering capabilities
- * 
+ *
  * @component
  * @example
  * ```tsx
- * <FlipTable 
+ * <FlipTable
  *   data={flips}
  *   onItemClick={(item) => console.log(item)}
  *   sortable={true}
@@ -535,25 +551,29 @@ interface FlipTableProps {
 function FlipTable({ data, onItemClick, sortable = true }: FlipTableProps) {
   // Implementation
 }
-```
+````
 
 ### README Updates
 
 When adding new features, update the README.md:
 
-```markdown
+````markdown
 # Add new feature to features list
+
 - **New Feature Name** - Brief description of what it does
 
 # Add usage example if needed
+
 ### Using the New Feature
 
 ```typescript
 // Example code
 ```
+````
 
 # Update table of contents if needed
-```
+
+````
 
 ## 🚨 Common Issues and Solutions
 
@@ -564,7 +584,7 @@ When adding new features, update the README.md:
 npm run typecheck
 # Fix all TypeScript errors before committing
 
-# Issue: Linting errors  
+# Issue: Linting errors
 npm run lint:fix
 # Fix remaining errors manually
 
@@ -575,7 +595,7 @@ npm test
 # Issue: Bundle size increase
 npm run build:analyze
 # Investigate and optimize large bundles
-```
+````
 
 ### Development Issues
 
@@ -600,18 +620,21 @@ npm run dev
 We welcome contributions in these areas:
 
 ### High Priority
+
 - **Bug Fixes** - Fix existing issues and improve reliability
 - **Performance** - Optimize bundle size and runtime performance
 - **Accessibility** - Improve screen reader support and keyboard navigation
 - **Testing** - Increase test coverage and add integration tests
 
 ### Medium Priority
+
 - **Features** - Add new trading analysis features
 - **Documentation** - Improve guides and API documentation
 - **TypeScript** - Complete TypeScript migration
 - **UI/UX** - Enhance user interface and experience
 
 ### Low Priority
+
 - **Refactoring** - Code quality improvements
 - **Tooling** - Development experience enhancements
 - **Examples** - Add more usage examples
@@ -627,13 +650,16 @@ We welcome contributions in these areas:
 
 ### Questions?
 
-- Check existing [GitHub Issues](https://github.com/your-username/osrs-flip-dashboard/issues)
-- Search [GitHub Discussions](https://github.com/your-username/osrs-flip-dashboard/discussions)
+- Check existing
+  [GitHub Issues](https://github.com/1000tomax/OSRS-Flip-Tracker-Combined/issues)
+- Search
+  [GitHub Discussions](https://github.com/1000tomax/OSRS-Flip-Tracker-Combined/discussions)
 - Create a new issue with the "question" label
 
 ### Mentorship
 
 New contributors are welcome! Maintainers are happy to:
+
 - Review your first PR with detailed feedback
 - Help you find good first issues to work on
 - Provide guidance on project architecture
@@ -641,4 +667,5 @@ New contributors are welcome! Maintainers are happy to:
 
 ---
 
-Thank you for contributing to the OSRS Flip Dashboard! Your contributions help make this tool better for the entire OSRS trading community. 🚀
+Thank you for contributing to the OSRS Flip Dashboard! Your contributions help
+make this tool better for the entire OSRS trading community. 🚀

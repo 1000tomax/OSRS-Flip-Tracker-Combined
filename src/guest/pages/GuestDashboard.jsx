@@ -558,8 +558,31 @@ export default function GuestDashboard() {
     }
   };
 
+  // Check if this is demo data
+  const isDemoData =
+    originalData?.metadata?.filename?.includes('demo') ||
+    originalData?.allFlips?.some(
+      flip => flip.account === 'Mreedon97' || flip.account === '1000tomax'
+    );
+
   return (
     <div className="max-w-7xl mx-auto p-8">
+      {/* Demo data banner */}
+      {isDemoData && (
+        <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🎮</span>
+            <div>
+              <p className="text-green-200 font-semibold mb-1">Demo Mode - Sample Trading Data</p>
+              <p className="text-green-300 text-sm">
+                You're viewing sample OSRS trading data to showcase the dashboard features. Upload
+                your own Flipping Copilot CSV to analyze your personal trading performance.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Warning about refreshing */}
       <div className="bg-orange-900/50 border border-orange-500 rounded-lg p-3 mb-6">
         <p className="text-orange-200 text-sm">

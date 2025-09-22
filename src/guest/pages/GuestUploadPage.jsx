@@ -25,43 +25,72 @@ export default function GuestUploadPage() {
   // If user already has data and came back to upload page
   const hasExistingData = !!guestData;
 
-  const handleFileSelect = async file => {
+  const handleDemoLoad = async () => {
     try {
-      // VALIDATION 1: File size check (prevent worker crashes)
-      const maxFileSize = 2.5 * 1024 * 1024; // 2.5MB limit (conservative)
-      if (file.size > maxFileSize) {
-        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-        const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1);
+      setStep('processing');
+      guestAnalytics.uploadStarted('demo_data');
 
-        guestAnalytics.uploadFailed('file_too_large');
-        toast.error(
-          `File too large: ${fileSizeMB}MB\n` +
-            `Maximum allowed: ${maxSizeMB}MB\n\n` +
-            `Your file has ${Math.round(file.size / 112).toLocaleString()} estimated rows.\n` +
-            `Try exporting a shorter date range (3-6 months) from Flipping Copilot.`
-        );
-        return;
+      // Fetch the demo CSV file
+      const response = await fetch('/flips.csv');
+      if (!response.ok) {
+        throw new Error('Failed to load demo data');
       }
 
-      // VALIDATION 2: File type check
-      if (!file.name.toLowerCase().endsWith('.csv')) {
-        guestAnalytics.uploadFailed('invalid_file_type');
-        toast.error('Please upload a .csv file from Flipping Copilot');
-        return;
-      }
+      const csvText = await response.text();
 
-      // VALIDATION 3: Basic CSV format check (quick peek)
-      const sampleSize = Math.min(file.size, 1024); // Read first 1KB
-      const sampleText = await file.slice(0, sampleSize).text();
-      const sampleLower = sampleText.toLowerCase();
+      // Create a virtual file object from the CSV text
+      const demoFile = new File([csvText], 'demo-flips.csv', { type: 'text/csv' });
 
-      if (!sampleLower.includes('first buy time') || !sampleLower.includes('last sell time')) {
-        guestAnalytics.uploadFailed('not_copilot_csv');
-        toast.error(
-          "This doesn't appear to be a Flipping Copilot export.\n\n" +
-            "Make sure you're uploading the flips.csv file from the plugin."
-        );
-        return;
+      // Process it like a regular file upload
+      await processFile(demoFile, true);
+    } catch (error) {
+      console.error('Demo data loading failed:', error);
+      guestAnalytics.uploadFailed('demo_load_error');
+      toast.error('Failed to load demo data. Please try again.');
+      setStep('upload');
+    }
+  };
+
+  const processFile = async (file, isDemoData = false) => {
+    try {
+      // Skip validations for demo data
+      if (!isDemoData) {
+        // VALIDATION 1: File size check (prevent worker crashes)
+        const maxFileSize = 2.5 * 1024 * 1024; // 2.5MB limit (conservative)
+        if (file.size > maxFileSize) {
+          const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+          const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1);
+
+          guestAnalytics.uploadFailed('file_too_large');
+          toast.error(
+            `File too large: ${fileSizeMB}MB\n` +
+              `Maximum allowed: ${maxSizeMB}MB\n\n` +
+              `Your file has ${Math.round(file.size / 112).toLocaleString()} estimated rows.\n` +
+              `Try exporting a shorter date range (3-6 months) from Flipping Copilot.`
+          );
+          return;
+        }
+
+        // VALIDATION 2: File type check
+        if (!file.name.toLowerCase().endsWith('.csv')) {
+          guestAnalytics.uploadFailed('invalid_file_type');
+          toast.error('Please upload a .csv file from Flipping Copilot');
+          return;
+        }
+
+        // VALIDATION 3: Basic CSV format check (quick peek)
+        const sampleSize = Math.min(file.size, 1024); // Read first 1KB
+        const sampleText = await file.slice(0, sampleSize).text();
+        const sampleLower = sampleText.toLowerCase();
+
+        if (!sampleLower.includes('first buy time') || !sampleLower.includes('last sell time')) {
+          guestAnalytics.uploadFailed('not_copilot_csv');
+          toast.error(
+            "This doesn't appear to be a Flipping Copilot export.\n\n" +
+              "Make sure you're uploading the flips.csv file from the plugin."
+          );
+          return;
+        }
       }
 
       // console.debug('File selected', { name: file.name, size: file.size, type: file.type });
@@ -78,8 +107,10 @@ export default function GuestUploadPage() {
         // console.debug('User confirmed data replacement');
       }
 
-      // Track upload started
-      guestAnalytics.uploadStarted();
+      // Track upload started (unless it's demo data, already tracked)
+      if (!isDemoData) {
+        guestAnalytics.uploadStarted();
+      }
       const uploadStartTime = Date.now(); // Store for error handling
 
       setStep('processing');
@@ -281,6 +312,10 @@ export default function GuestUploadPage() {
     }
   };
 
+  const handleFileSelect = async file => {
+    await processFile(file, false);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-8">
       <h1 className="text-4xl font-bold mb-2 text-white">Upload Your Flips</h1>
@@ -304,7 +339,9 @@ export default function GuestUploadPage() {
         </div>
       )}
 
-      {step === 'upload' && <CsvDropzone onFileSelect={handleFileSelect} />}
+      {step === 'upload' && (
+        <CsvDropzone onFileSelect={handleFileSelect} onDemoLoad={handleDemoLoad} />
+      )}
 
       {step === 'processing' && <ProcessingStatus stats={processingStats} />}
 

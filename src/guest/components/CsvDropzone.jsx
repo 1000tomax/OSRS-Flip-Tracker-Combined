@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-export default function CsvDropzone({ onFileSelect }) {
+export default function CsvDropzone({ onFileSelect, onDemoLoad }) {
   const onDrop = useCallback(
     acceptedFiles => {
       const file = acceptedFiles[0];
@@ -54,6 +54,29 @@ export default function CsvDropzone({ onFileSelect }) {
         {/* Browser compatibility note */}
         <p className="text-xs text-gray-600 mt-6">
           Works best in Chrome on desktop. Mobile and other browsers may have issues.
+        </p>
+      </div>
+
+      {/* Demo Data Option */}
+      <div className="mt-6 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-600"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-gray-900 text-gray-400">or</span>
+          </div>
+        </div>
+
+        <button
+          onClick={onDemoLoad}
+          className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200 inline-flex items-center gap-2"
+        >
+          <span>📊</span>
+          Load Demo Data
+        </button>
+        <p className="text-sm text-gray-500 mt-2">
+          Explore with sample trading data to see all features
         </p>
       </div>
     </div>
