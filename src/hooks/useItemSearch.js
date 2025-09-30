@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { queryCache } from '../lib/queryCache';
+import { getItemStats } from '../utils/supabaseClient';
 
 export const useItemSearch = () => {
   const [suggestions, setSuggestions] = useState([]);
@@ -7,23 +8,11 @@ export const useItemSearch = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const debounceTimer = useRef(null);
 
-  // Load all unique item names from item-stats
+  // Load all unique item names from Supabase
   const getAllItemNames = async () => {
     return queryCache.getCachedItemStats('item-names-list', async () => {
-      const response = await fetch('/data/item-stats.csv');
-      const text = await response.text();
-      const lines = text.trim().split('\n');
-      const itemNames = [];
-
-      // Skip header, extract item names
-      for (let i = 1; i < lines.length; i++) {
-        const itemName = lines[i].split(',')[0];
-        if (itemName) {
-          itemNames.push(itemName);
-        }
-      }
-
-      return itemNames;
+      const itemStats = await getItemStats();
+      return itemStats.map(stat => stat.item_name);
     });
   };
 

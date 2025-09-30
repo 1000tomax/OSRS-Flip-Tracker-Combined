@@ -259,15 +259,14 @@ class ItemFuzzySearch {
     if (this.initialized) return;
 
     try {
-      // Load item names from the existing item-stats.csv
-      const response = await fetch('/data/item-stats.csv');
-      const text = await response.text();
-      const lines = text.trim().split('\n');
+      // Load item names from Supabase
+      const { getItemStats } = await import('../utils/supabaseClient');
+      const itemStats = await getItemStats();
 
-      // Skip header, extract item names
+      // Extract item names and create search index
       this.itemsList = [];
-      for (let i = 1; i < lines.length; i++) {
-        const itemName = lines[i].split(',')[0];
+      for (const stat of itemStats) {
+        const itemName = stat.item_name;
         if (itemName) {
           const variations = this.createItemVariations(itemName);
           this.itemsList.push({
