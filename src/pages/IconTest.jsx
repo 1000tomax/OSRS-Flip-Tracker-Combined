@@ -1,12 +1,12 @@
 /**
  * Icon Test Page
- * 
+ *
  * Bulk testing page to verify OSRS item icons are loading correctly.
  * Shows all items with their icons and load status.
  */
 
 import React, { useState } from 'react';
-import { useCsvData } from '../hooks/useCsvData';
+import useItemStats from '../hooks/useItemStats';
 import { clearAllIconCache } from '../utils/itemIcons';
 import ItemIcon from '../components/ItemIcon';
 import {
@@ -18,7 +18,7 @@ import {
 } from '../components/layouts';
 
 export default function IconTest() {
-  const { data: items, loading, error } = useCsvData('/data/item-stats.csv');
+  const { items, loading, error } = useItemStats();
   const [iconStatuses, setIconStatuses] = useState({});
   const [filter, setFilter] = useState('all'); // all, working, broken
   const [testing, setTesting] = useState(false);
@@ -26,10 +26,10 @@ export default function IconTest() {
   // Test all icons
   const testAllIcons = async () => {
     if (!items || testing) return;
-    
+
     setTesting(true);
     const statuses = {};
-    
+
     // Pool concurrency for faster checks without overwhelming
     const CONCURRENCY = 20;
     let idx = 0;
@@ -70,16 +70,20 @@ export default function IconTest() {
     };
 
     await Promise.all(Array.from({ length: Math.min(CONCURRENCY, items.length) }, worker));
-    
+
     setTesting(false);
   };
 
   // Get unique items
-  const uniqueItems = items ? 
-    [...new Map(items.map(item => {
-      const name = item.item_name || item.item;
-      return [name, { item_name: name }];
-    })).values()].filter(item => item.item_name) 
+  const uniqueItems = items
+    ? [
+        ...new Map(
+          items.map(item => {
+            const name = item.item_name || item.item;
+            return [name, { item_name: name }];
+          })
+        ).values(),
+      ].filter(item => item.item_name)
     : [];
 
   // Filter items based on status
@@ -118,7 +122,7 @@ export default function IconTest() {
     <PageContainer>
       <CardContainer>
         <PageHeader title="OSRS Icon Test" icon="🧪" />
-        
+
         {/* Controls */}
         <div className="bg-gray-800 rounded-lg p-4 mb-6">
           <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -127,14 +131,14 @@ export default function IconTest() {
                 onClick={testAllIcons}
                 disabled={testing}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
-                  testing 
-                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                  testing
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
               >
                 {testing ? `Testing... (${stats.tested}/${stats.total})` : 'Test All Icons'}
               </button>
-              
+
               {stats.tested > 0 && (
                 <button
                   onClick={() => {
@@ -146,7 +150,7 @@ export default function IconTest() {
                   Clear Results
                 </button>
               )}
-              
+
               <button
                 onClick={() => {
                   clearAllIconCache();
@@ -158,7 +162,7 @@ export default function IconTest() {
                 Clear Cache
               </button>
             </div>
-            
+
             {/* Filter buttons */}
             <div className="flex gap-2">
               {['all', 'working', 'broken', 'untested'].map(f => (
@@ -166,8 +170,8 @@ export default function IconTest() {
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
-                    filter === f 
-                      ? 'bg-blue-600 text-white' 
+                    filter === f
+                      ? 'bg-blue-600 text-white'
                       : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
                   }`}
                 >
@@ -180,7 +184,7 @@ export default function IconTest() {
               ))}
             </div>
           </div>
-          
+
           {/* Statistics */}
           {stats.tested > 0 && (
             <div className="mt-4 grid grid-cols-4 gap-4">
@@ -203,25 +207,23 @@ export default function IconTest() {
             </div>
           )}
         </div>
-        
+
         {/* Items Grid */}
         <div className="bg-gray-800 rounded-lg p-4">
-          <h2 className="text-lg font-bold text-white mb-4">
-            Items ({filteredItems.length})
-          </h2>
-          
+          <h2 className="text-lg font-bold text-white mb-4">Items ({filteredItems.length})</h2>
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 max-h-[600px] overflow-y-auto">
             {filteredItems.map(item => {
               const name = item.item_name;
               const status = iconStatuses[name];
-              
+
               return (
                 <div
                   key={name}
                   className={`bg-gray-900 rounded-lg p-3 border ${
-                    status 
-                      ? status.works 
-                        ? 'border-green-600' 
+                    status
+                      ? status.works
+                        ? 'border-green-600'
                         : 'border-red-600'
                       : 'border-gray-700'
                   }`}
@@ -233,7 +235,9 @@ export default function IconTest() {
                         {name}
                       </div>
                       {status && (
-                        <div className={`text-xs mt-1 ${status.works ? 'text-green-400' : 'text-red-400'}`}>
+                        <div
+                          className={`text-xs mt-1 ${status.works ? 'text-green-400' : 'text-red-400'}`}
+                        >
                           {status.works ? '✓ Working' : '✗ Broken'}
                         </div>
                       )}
@@ -244,11 +248,11 @@ export default function IconTest() {
                       )}
                       {status && (
                         <div className="mt-1">
-                          <img 
-                            src={status.url} 
-                            alt="Direct test" 
+                          <img
+                            src={status.url}
+                            alt="Direct test"
                             className="w-6 h-6 inline-block"
-                            onError={(e) => e.target.style.display = 'none'}
+                            onError={e => (e.target.style.display = 'none')}
                           />
                         </div>
                       )}
@@ -258,15 +262,17 @@ export default function IconTest() {
               );
             })}
           </div>
-          
+
           {filter === 'broken' && filteredItems.length > 0 && (
             <div className="mt-4 p-4 bg-gray-900 rounded-lg">
               <h3 className="text-sm font-bold text-white mb-2">Broken Items URLs:</h3>
               <pre className="text-xs text-gray-400 overflow-x-auto">
-                {filteredItems.map(item => {
-                  const status = iconStatuses[item.item_name];
-                  return status && !status.works ? `${item.item_name}: ${status.url}\n` : '';
-                }).join('')}
+                {filteredItems
+                  .map(item => {
+                    const status = iconStatuses[item.item_name];
+                    return status && !status.works ? `${item.item_name}: ${status.url}\n` : '';
+                  })
+                  .join('')}
               </pre>
             </div>
           )}

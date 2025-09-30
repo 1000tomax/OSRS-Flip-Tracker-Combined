@@ -1,12 +1,12 @@
 // src/components/ItemLeaderboard.jsx - Mobile Optimized with Polished Buttons
 import React, { useState } from 'react';
-import { useCsvData } from '../hooks/useCsvData';
+import useItemStats from '../hooks/useItemStats';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatPercent } from '../lib/utils';
 import { formatGP } from '../utils/formatUtils';
 
 export default function ItemLeaderboard() {
-  const { data: items, loading, error } = useCsvData('/data/item-stats.csv');
+  const { items, loading, error } = useItemStats();
   const [mode, setMode] = useState('profit'); // default = profit
   const [filter, setFilter] = useState('positive'); // default = positive
 
