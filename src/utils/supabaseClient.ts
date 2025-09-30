@@ -106,10 +106,13 @@ export async function getItemStats() {
 }
 
 export async function getDailySummaries(startDate?: string, endDate?: string) {
-  const { data, error } = await supabase.rpc('get_daily_summaries', {
-    start_date: startDate || null,
-    end_date: endDate || null,
-  });
+  const params: Record<string, any> = {};
+
+  // Only include parameters if they're provided
+  if (startDate) params.start_date = startDate;
+  if (endDate) params.end_date = endDate;
+
+  const { data, error } = await supabase.rpc('get_daily_summaries', params);
 
   if (error) throw error;
   return data as DailySummary[];
