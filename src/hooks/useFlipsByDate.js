@@ -24,20 +24,27 @@ export default function useFlipsByDate(date) {
         const [month, day, year] = date.split('-');
         const isoDate = `${year}-${month}-${day}`;
 
-        console.log('Fetching flips for date:', { original: date, isoDate });
         const flips = await getFlipsByDate(isoDate);
-        console.log('Received flips:', flips.length);
 
         if (!cancelled) {
-          // Transform to match old CSV format
+          // Transform to match expected format (keep original fields + add calculated ones)
           const transformed = flips.map(flip => ({
+            // Original Supabase fields (needed by FlipLogs component)
             item_name: flip.item_name,
             account_id: flip.account_id,
+            status: flip.status,
+            spent: flip.spent,
+            received_post_tax: flip.received_post_tax,
+            closed_quantity: flip.closed_quantity,
+            opened_quantity: flip.opened_quantity,
+            opened_time: flip.opened_time,
+            closed_time: flip.closed_time,
+            profit: flip.profit,
+            // Calculated fields for compatibility
             buy_price: Math.floor((flip.spent || 0) / (flip.opened_quantity || 1)),
             sell_price: flip.closed_quantity
               ? Math.floor((flip.received_post_tax || 0) / flip.closed_quantity)
               : null,
-            profit: flip.profit,
             roi: flip.spent ? ((flip.profit || 0) / flip.spent) * 100 : 0,
             quantity: flip.opened_quantity,
             buy_time: flip.opened_time,
@@ -46,7 +53,6 @@ export default function useFlipsByDate(date) {
               flip.opened_time && flip.closed_time
                 ? Math.floor((new Date(flip.closed_time) - new Date(flip.opened_time)) / 1000 / 60)
                 : null,
-            status: flip.status,
           }));
 
           setData(transformed);
