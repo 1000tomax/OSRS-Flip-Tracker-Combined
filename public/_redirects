@@ -1,0 +1,7 @@
+# Cloudflare Pages redirects and routing
+
+# API routes - handled by Workers Functions (functions/api/feedback.js)
+# These are automatically routed by Cloudflare Pages
+
+# SPA fallback - serve index.html for all non-file routes
+/*    /index.html   200

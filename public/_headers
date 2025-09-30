@@ -1,0 +1,39 @@
+# Cloudflare Pages headers configuration
+
+# JavaScript assets
+/assets/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# CSS assets
+/assets/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images and fonts
+/assets/*.{png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf,eot}
+  Cache-Control: public, max-age=31536000, immutable
+
+# Data files (shorter cache for updates)
+/data/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# CSV files
+/data/*.csv
+  Content-Type: text/csv
+
+# JSON files
+/data/*.json
+  Content-Type: application/json
+
+# WASM files
+/*.wasm
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML - no cache to allow updates
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: interest-cohort=()
+  Cache-Control: public, max-age=0, must-revalidate

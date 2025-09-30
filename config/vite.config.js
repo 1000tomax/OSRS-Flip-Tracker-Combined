@@ -40,10 +40,22 @@ export default defineConfig({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'data-cache',
-              networkTimeoutSeconds: 3,
+              networkTimeoutSeconds: 10, // Increased timeout
               expiration: {
                 maxEntries: 200,
                 maxAgeSeconds: 60 * 30, // 30 minutes
+              },
+              // Add rate limiting for service worker requests
+              fetchOptions: {
+                mode: 'cors',
+                credentials: 'same-origin',
+              },
+              // Queue failed requests instead of hammering
+              backgroundSync: {
+                name: 'data-queue',
+                options: {
+                  maxRetentionTime: 24 * 60, // Retry for up to 24 hours
+                },
               },
             },
           },

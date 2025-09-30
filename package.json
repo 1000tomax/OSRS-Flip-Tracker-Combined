@@ -34,10 +34,11 @@
     "prebuild": "node -e \"if(!process.env.RUN_DATA_BUILD){process.exit(0)}\" && npm run build:data",
     "prepare": "husky",
     "qa": "git fetch origin && git rebase --autostash origin/main || true && RUN_DATA_BUILD=1 npm run build",
-    "qa:full": "npm run type-check && npm run lint && npm run build"
+    "qa:full": "npm run type-check && npm run lint && npm run build",
+    "pages:dev": "wrangler pages dev dist --compatibility-date=2024-01-01",
+    "pages:deploy": "npm run build && wrangler pages deploy dist"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.5.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
