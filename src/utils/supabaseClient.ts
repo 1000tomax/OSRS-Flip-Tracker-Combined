@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+// Hardcode credentials temporarily to bypass Cloudflare Pages Secret env var limitation
+// The anon key is safe to expose - it's designed for client-side use
+// Security is enforced by Supabase Row Level Security (RLS) policies
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://fmmdulnvciiafuuogwfu.supabase.co';
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtbWR1bG52Y2lpYWZ1dW9nd2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjQ2MDcsImV4cCI6MjA3NDgwMDYwN30.qwInC3vYLz7Ybx8oJUI3Dp-Sc2vbyuvMNtEsg8Z4xnw';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
