@@ -24,7 +24,9 @@ export default function useFlipsByDate(date) {
         const [month, day, year] = date.split('-');
         const isoDate = `${year}-${month}-${day}`;
 
+        console.log('Fetching flips for date:', { original: date, isoDate });
         const flips = await getFlipsByDate(isoDate);
+        console.log('Received flips:', flips.length);
 
         if (!cancelled) {
           // Transform to match old CSV format
