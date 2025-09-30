@@ -29,15 +29,6 @@ function AppContent() {
   const location = useLocation();
   const isGuestMode = location.pathname.startsWith('/guest');
 
-  // Handle SPA redirect from 404.html
-  useEffect(() => {
-    const redirect = sessionStorage.getItem('redirect');
-    if (redirect) {
-      sessionStorage.removeItem('redirect');
-      window.history.replaceState(null, '', redirect);
-    }
-  }, []);
-
   return (
     <div className="min-h-screen bg-white dark:bg-black">
       {!isGuestMode && <Navigation />}
