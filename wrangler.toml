@@ -1,21 +1,10 @@
 # Cloudflare Pages configuration
-name = "osrs-flip-dashboard"
+name = "osrs-flip-tracker-combined"
 compatibility_date = "2024-01-01"
 
 # Pages configuration
 pages_build_output_dir = "dist"
 
-[build]
-command = "npm run build"
-cwd = "."
-
 # Environment variables (set these in Cloudflare dashboard)
 # DISCORD_WEBHOOK_URL - for feedback API
 # VITE_* variables - for build-time injection
-
-# Asset handling
-[site]
-bucket = "./dist"
-
-# Workers compatibility
-compatibility_flags = ["nodejs_compat"]
