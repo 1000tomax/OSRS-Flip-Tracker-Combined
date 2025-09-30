@@ -1,11 +1,11 @@
 // Middleware to handle SPA routing for Cloudflare Pages
 export async function onRequest(context) {
-  const { request, next, env } = context;
+  const { request, env } = context;
   const url = new URL(request.url);
 
   // Let API routes pass through to their handlers
   if (url.pathname.startsWith('/api/')) {
-    return next();
+    return context.next();
   }
 
   // Let asset files pass through
@@ -25,29 +25,15 @@ export async function onRequest(context) {
     '.eot',
   ];
   if (assetExtensions.some(ext => url.pathname.endsWith(ext))) {
-    return next();
+    return context.next();
   }
 
   // Let /assets/ and /data/ directories pass through
   if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/data/')) {
-    return next();
+    return context.next();
   }
 
-  // For all other routes, serve index.html (SPA routing)
-  try {
-    const response = await next();
-
-    // If we get a 404, serve index.html instead for SPA routing
-    const NOT_FOUND = 404;
-    if (response.status === NOT_FOUND) {
-      const indexUrl = new URL('/index.html', url.origin);
-      return env.ASSETS.fetch(indexUrl);
-    }
-
-    return response;
-  } catch (_error) {
-    // If anything fails, try to serve index.html
-    const indexUrl = new URL('/index.html', url.origin);
-    return env.ASSETS.fetch(indexUrl);
-  }
+  // For all other routes (/, /items, /charts, etc.), serve index.html
+  // This enables SPA routing without waiting for a 404
+  return env.ASSETS.fetch(new URL('/index.html', url.origin));
 }
