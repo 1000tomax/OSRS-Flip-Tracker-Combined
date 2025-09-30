@@ -9,7 +9,9 @@
       "Bash(mv:*)",
       "Bash(curl:*)",
       "Bash(git commit:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(nslookup:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

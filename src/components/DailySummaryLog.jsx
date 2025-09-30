@@ -1,24 +1,11 @@
 import React, { useState, useRef } from 'react';
 import html2canvas from 'html2canvas-pro';
 import useDailySummaries from '../hooks/useDailySummaries';
-import { useJsonData } from '../hooks/useJsonData';
 import { useETACalculator } from './ETACalculator';
 import LoadingSpinner, { ErrorMessage } from './LoadingSpinner';
 import { formatGP, DateUtils } from '../utils';
 import UI from '@/config/constants';
 import { isIncompleteDay } from '../lib/utils';
-
-function timeAgo(isoString) {
-  const now = new Date();
-  const then = new Date(isoString);
-  const diffMs = now - then;
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-  if (hours >= 1) return `(${hours} hr${hours !== 1 ? 's' : ''} ago)`;
-  if (minutes >= 1) return `(${minutes} min${minutes !== 1 ? 's' : ''} ago)`;
-  return `(${seconds} sec${seconds !== 1 ? 's' : ''} ago)`;
-}
 
 // Helper function to convert date format for flip link using centralized utility
 function formatDateForFlipLink(dateStr) {
@@ -32,31 +19,29 @@ export default function DailySummaryLog() {
     error: summariesError,
     refetch: refetchSummaries,
   } = useDailySummaries();
-  const {
-    data: meta,
-    loading: metaLoading,
-    error: metaError,
-    refetch: refetchMeta,
-  } = useJsonData('/data/meta.json');
   const [showDayNumber, setShowDayNumber] = useState(true);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 7;
   const screenshotRef = useRef(null);
 
-  // Show loading if either is loading
-  const isLoading = summariesLoading || metaLoading;
-  const hasError = summariesError || metaError;
+  // Show loading
+  const isLoading = summariesLoading;
+  const hasError = summariesError;
 
   // Only process data if it exists
   const completeSummaries = summaries
     ? summaries.filter(day => !isIncompleteDay(day, summaries))
     : [];
-  const etaData = useETACalculator(completeSummaries, meta?.net_worth || 0);
+
+  // Get current net worth from most recent summary
+  const currentNetWorth =
+    summaries && summaries.length > 0 ? summaries[summaries.length - 1].net_worth || 0 : 0;
+
+  const etaData = useETACalculator(completeSummaries, currentNetWorth);
 
   // Keep for error states only
   const handleRetry = () => {
     refetchSummaries();
-    refetchMeta();
   };
 
   // Helper function to group daily summaries into weeks for screenshot
@@ -145,7 +130,7 @@ export default function DailySummaryLog() {
       <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
         <ErrorMessage
           title="Failed to load flip data"
-          error={summariesError || metaError}
+          error={summariesError}
           onRetry={handleRetry}
         />
       </div>
@@ -155,7 +140,7 @@ export default function DailySummaryLog() {
   // Safe array operations only after loading is complete
   const reversedSummaries = summaries ? [...summaries].reverse() : [];
   const pagedSummaries = reversedSummaries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  const percentToGoal = meta?.net_worth ? (meta.net_worth / 2147483647) * 100 : 0;
+  const percentToGoal = currentNetWorth ? (currentNetWorth / 2147483647) * 100 : 0;
   const totalPages = Math.ceil((summaries?.length || 0) / PAGE_SIZE);
 
   return (
@@ -174,23 +159,9 @@ export default function DailySummaryLog() {
 
       <h2 className="text-xl sm:text-2xl font-bold mb-4 text-white">📅 Daily Summary Log</h2>
 
-      {/* Last Updated Section */}
-      {meta?.last_updated && (
+      {/* Progress Bar Section */}
+      {summaries && summaries.length > 0 && (
         <div className="border-b border-gray-700 pb-4 mb-6 text-sm space-y-3">
-          <div className="text-sm sm:text-base text-gray-300">
-            🕒 Last Data Upload:{' '}
-            <span className="font-medium text-white">
-              {new Date(meta.last_updated).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-              })}{' '}
-              <span className="text-gray-400">{timeAgo(meta.last_updated)}</span>
-            </span>
-          </div>
-
           {/* Progress Bar */}
           <div>
             <div className="flex justify-between items-center mb-2">
