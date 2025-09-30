@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { VitePWA } from 'vite-plugin-pwa';
+// import { VitePWA } from 'vite-plugin-pwa'; // Temporarily disabled
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -22,46 +22,39 @@ export default defineConfig({
       template: 'treemap', // 'treemap', 'sunburst', 'network'
     }),
 
-    // PWA capabilities for offline support
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['flipping-copilot-logo.png', 'icon-192.png', 'icon-512.png'],
-      manifest: false, // use the static /public/manifest.json
-      injectRegister: 'auto',
-      workbox: {
-        cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
-        navigateFallback: null, // Disable navigate fallback to prevent caching issues
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /\/data\/.*\.(json|csv)$/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'data-cache',
-              networkTimeoutSeconds: 10, // Increased timeout
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 30, // 30 minutes
-              },
-              // Add rate limiting for service worker requests
-              fetchOptions: {
-                mode: 'cors',
-                credentials: 'same-origin',
-              },
-              // Queue failed requests instead of hammering
-              backgroundSync: {
-                name: 'data-queue',
-                options: {
-                  maxRetentionTime: 24 * 60, // Retry for up to 24 hours
-                },
-              },
-            },
-          },
-        ],
-      },
-    }),
+    // PWA capabilities for offline support - TEMPORARILY DISABLED due to Cloudflare rate limiting
+    // TODO: Re-enable once Cloudflare rate limits are configured
+    // VitePWA({
+    //   registerType: 'autoUpdate',
+    //   includeAssets: ['flipping-copilot-logo.png', 'icon-192.png', 'icon-512.png'],
+    //   manifest: false, // use the static /public/manifest.json
+    //   injectRegister: 'auto',
+    //   workbox: {
+    //     cleanupOutdatedCaches: true,
+    //     skipWaiting: true,
+    //     clientsClaim: true,
+    //     navigateFallback: null,
+    //     globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+    //     runtimeCaching: [
+    //       {
+    //         urlPattern: /\/data\/.*\.(json|csv)$/,
+    //         handler: 'NetworkFirst',
+    //         options: {
+    //           cacheName: 'data-cache',
+    //           networkTimeoutSeconds: 10,
+    //           expiration: {
+    //             maxEntries: 200,
+    //             maxAgeSeconds: 60 * 30,
+    //           },
+    //           fetchOptions: {
+    //             mode: 'cors',
+    //             credentials: 'same-origin',
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   },
+    // }),
   ],
 
   resolve: {
