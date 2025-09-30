@@ -25,12 +25,12 @@
 
 import React, { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useCsvData } from '../hooks/useCsvData';
-import { useJsonData } from '../hooks/useJsonData';
+import useFlipsByDate from '../hooks/useFlipsByDate';
+import useAvailableDates from '../hooks/useAvailableDates';
 import DateNavigation from '../components/DateNavigation';
 import HeatMap from '../components/HeatMap';
 import SortableTable from '../components/SortableTable';
-import { parseDateParts, formatDuration } from '../lib/utils';
+import { formatDuration } from '../lib/utils';
 import { formatGP } from '../utils/formatUtils';
 import { ItemWithIcon } from '../components/ItemIcon';
 import {
@@ -60,20 +60,10 @@ export default function FlipLogs() {
 
   // Data loading hooks
   // Load the summary index to know which dates have data available
-  const {
-    data: summaryDates,
-    loading: summaryLoading,
-    error: summaryError,
-  } = useJsonData('/data/summary-index.json');
+  const { data: summaryDates, loading: summaryLoading, error: summaryError } = useAvailableDates();
 
-  // Parse the selected date into components for building file path
-  const { month, day, year } = date ? parseDateParts(date) : {};
-
-  // Build path to the specific day's flip data CSV file
-  const csvPath = date ? `/data/processed-flips/${year}/${month}/${day}/flips.csv` : null;
-
-  // Load the flip data for the selected date
-  const { data: flips, loading: flipsLoading, error: flipsError } = useCsvData(csvPath);
+  // Load the flip data for the selected date from Supabase
+  const { data: flips, loading: flipsLoading, error: flipsError } = useFlipsByDate(date);
 
   // Combine loading and error states from both data sources
   const isLoading = summaryLoading || flipsLoading;
@@ -116,10 +106,7 @@ export default function FlipLogs() {
       headerClass: 'text-left', // Header cell styling
       cellClass: 'text-left', // Data cell styling
       render: value => (
-        <ItemWithIcon 
-          itemName={value || 'Unknown Item'} 
-          textClassName="text-white font-medium"
-        />
+        <ItemWithIcon itemName={value || 'Unknown Item'} textClassName="text-white font-medium" />
       ),
     },
 

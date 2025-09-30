@@ -25,7 +25,7 @@
  */
 
 import React, { useState } from 'react';
-import { useCsvData } from '../hooks/useCsvData';
+import useItemStats from '../hooks/useItemStats';
 import SearchControls, { ResultsCount } from '../components/SearchControls';
 import ItemCards from '../components/ItemCards';
 import { itemStatsColumns } from '../lib/columnConfigs.jsx';
@@ -53,7 +53,7 @@ import { toast } from 'sonner';
  */
 export default function Items() {
   // Data loading and component state
-  const { data: items, loading, error } = useCsvData('/data/item-stats.csv'); // Load item statistics
+  const { data: items, loading, error } = useItemStats(); // Load item statistics from Supabase
   const [query, setQuery] = useState(''); // Search query for filtering items
   const [viewMode, setViewMode] = useState('table'); // Display mode: "table" or "cards"
 
@@ -128,10 +128,7 @@ export default function Items() {
       label: 'Item Name',
       render: value => (
         <div className="flex items-center gap-2 max-w-[200px]">
-          <ItemWithIcon 
-            itemName={value} 
-            textClassName="font-medium truncate"
-          />
+          <ItemWithIcon itemName={value} textClassName="font-medium truncate" />
         </div>
       ),
     },
