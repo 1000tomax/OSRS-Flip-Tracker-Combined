@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { getItemStats } from '../utils/supabaseClient';
 
 export default function useItemStats() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -44,5 +44,5 @@ export default function useItemStats() {
     };
   }, []);
 
-  return { data, loading, error };
+  return { items: data, loading, error };
 }
