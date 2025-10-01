@@ -13,9 +13,18 @@ export default function useDailySummaries() {
     try {
       const data = await getDailySummaries();
       // Data already comes in the correct format from the RPC function
-      setSummaries(data || []);
+      // Ensure we always set an array, never undefined/null
+      if (Array.isArray(data)) {
+        setSummaries(data);
+      } else {
+        console.error('getDailySummaries returned non-array:', data);
+        setSummaries([]);
+        setError('Invalid data format received from server');
+      }
     } catch (err) {
+      console.error('getDailySummaries error:', err);
       setError(err.message);
+      setSummaries([]); // Ensure summaries is always an array even on error
     } finally {
       setLoading(false);
     }
