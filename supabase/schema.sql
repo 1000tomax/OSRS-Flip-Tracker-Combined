@@ -98,31 +98,71 @@ CREATE OR REPLACE FUNCTION get_daily_summaries(
 )
 RETURNS TABLE (
     date DATE,
-    total_flips BIGINT,
-    total_profit BIGINT,
+    day BIGINT,
+    flips BIGINT,
+    items_flipped BIGINT,
+    profit BIGINT,
+    net_worth BIGINT,
+    percent_change NUMERIC,
+    percent_to_goal NUMERIC,
     total_spent BIGINT,
     avg_profit NUMERIC,
     avg_roi NUMERIC
 ) AS $$
+DECLARE
+    starting_balance BIGINT := 1000; -- Initial starting balance
 BEGIN
     RETURN QUERY
+    WITH daily_data AS (
+        SELECT
+            DATE(opened_time) as date,
+            COUNT(*) as flips,
+            COUNT(DISTINCT item_name) as items_flipped,
+            SUM(f.profit) as profit,
+            SUM(f.spent) as total_spent,
+            AVG(f.profit)::NUMERIC as avg_profit,
+            CASE
+                WHEN SUM(f.spent) > 0 THEN ((SUM(received_post_tax)::FLOAT / SUM(f.spent)::FLOAT - 1) * 100)::NUMERIC
+                ELSE 0
+            END as avg_roi
+        FROM flips f
+        WHERE status = 'FINISHED'
+            AND f.profit IS NOT NULL
+            AND (start_date IS NULL OR DATE(opened_time) >= start_date)
+            AND (end_date IS NULL OR DATE(opened_time) <= end_date)
+        GROUP BY DATE(opened_time)
+        ORDER BY DATE(opened_time) ASC
+    ),
+    cumulative_data AS (
+        SELECT
+            d.date,
+            ROW_NUMBER() OVER (ORDER BY d.date) as day,
+            d.flips,
+            d.items_flipped,
+            d.profit,
+            d.total_spent,
+            d.avg_profit,
+            d.avg_roi,
+            starting_balance + SUM(d.profit) OVER (ORDER BY d.date) as net_worth
+        FROM daily_data d
+    )
     SELECT
-        DATE(opened_time) as date,
-        COUNT(*) as total_flips,
-        SUM(profit) as total_profit,
-        SUM(spent) as total_spent,
-        AVG(profit)::NUMERIC as avg_profit,
+        cd.date,
+        cd.day,
+        cd.flips,
+        cd.items_flipped,
+        cd.profit,
+        cd.net_worth,
         CASE
-            WHEN SUM(spent) > 0 THEN ((SUM(received_post_tax)::FLOAT / SUM(spent)::FLOAT - 1) * 100)::NUMERIC
-            ELSE 0
-        END as avg_roi
-    FROM flips
-    WHERE status = 'FINISHED'
-        AND profit IS NOT NULL
-        AND (start_date IS NULL OR DATE(opened_time) >= start_date)
-        AND (end_date IS NULL OR DATE(opened_time) <= end_date)
-    GROUP BY DATE(opened_time)
-    ORDER BY date DESC;
+            WHEN cd.day = 1 THEN ((cd.net_worth::FLOAT - starting_balance::FLOAT) / starting_balance::FLOAT * 100)::NUMERIC
+            ELSE ((cd.net_worth::FLOAT - LAG(cd.net_worth) OVER (ORDER BY cd.date)::FLOAT) / LAG(cd.net_worth) OVER (ORDER BY cd.date)::FLOAT * 100)::NUMERIC
+        END as percent_change,
+        (cd.net_worth::FLOAT / 2147483647::FLOAT * 100)::NUMERIC as percent_to_goal,
+        cd.total_spent,
+        cd.avg_profit,
+        cd.avg_roi
+    FROM cumulative_data cd
+    ORDER BY cd.date DESC;
 END;
 $$ LANGUAGE plpgsql STABLE;
 

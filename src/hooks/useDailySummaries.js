@@ -12,16 +12,8 @@ export default function useDailySummaries() {
     setError(null);
     try {
       const data = await getDailySummaries();
-      // Transform Supabase data to match expected format
-      const transformed = data.map(item => ({
-        date: item.date,
-        total_profit: Number(item.total_profit) || 0,
-        total_flips: Number(item.total_flips) || 0,
-        avg_profit: Number(item.avg_profit) || 0,
-        avg_roi: Number(item.avg_roi) || 0,
-        total_spent: Number(item.total_spent) || 0,
-      }));
-      setSummaries(transformed);
+      // Data already comes in the correct format from the RPC function
+      setSummaries(data || []);
     } catch (err) {
       setError(err.message);
     } finally {

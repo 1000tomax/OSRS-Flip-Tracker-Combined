@@ -43,8 +43,13 @@ export interface ItemStat {
 
 export interface DailySummary {
   date: string;
-  total_flips: number;
-  total_profit: number;
+  day: number;
+  flips: number;
+  items_flipped: number;
+  profit: number;
+  net_worth: number;
+  percent_change: number;
+  percent_to_goal: number;
   total_spent: number;
   avg_profit: number;
   avg_roi: number;
@@ -106,14 +111,19 @@ export async function getItemStats() {
 }
 
 export async function getDailySummaries(startDate?: string, endDate?: string) {
-  const params: Record<string, any> = {};
+  let result;
 
-  // Only include parameters if they're provided
-  if (startDate) params.start_date = startDate;
-  if (endDate) params.end_date = endDate;
+  // Call RPC with or without parameters
+  if (startDate || endDate) {
+    result = await supabase.rpc('get_daily_summaries', {
+      start_date: startDate,
+      end_date: endDate,
+    });
+  } else {
+    result = await supabase.rpc('get_daily_summaries');
+  }
 
-  const { data, error } = await supabase.rpc('get_daily_summaries', params);
-
+  const { data, error } = result;
   if (error) throw error;
   return data as DailySummary[];
 }
