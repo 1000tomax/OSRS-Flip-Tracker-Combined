@@ -73,9 +73,8 @@ export default function NetWorthChart() {
 
   // Prepare data for chart
   const chartData = completeSummaries.map(day => {
-    // Parse MM-DD-YYYY format correctly
-    const [mm, dd, yyyy] = day.date.split('-');
-    const fullDate = new Date(yyyy, mm - 1, dd).toLocaleDateString('en-US', {
+    // Parse YYYY-MM-DD format from PostgreSQL DATE type
+    const fullDate = new Date(`${day.date}T00:00:00`).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',

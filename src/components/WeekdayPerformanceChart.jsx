@@ -67,13 +67,12 @@ export default function WeekdayPerformanceChart() {
   summaries
     .filter(day => day.day >= ANALYTICS.ROI_EXCLUSION_DAYS) // Exclude first week (days 1-7)
     .forEach(day => {
-      // Parse date and get day of week
-      const [mm, dd, yyyy] = day.date.split('-');
-      const date = new Date(yyyy, mm - 1, dd); // Month is 0-indexed
+      // Parse date and get day of week (YYYY-MM-DD from PostgreSQL)
+      const date = new Date(`${day.date}T00:00:00`);
       const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
 
       // Use the existing ROI calculation from daily summaries
-      const dailyROI = day.roi_percent;
+      const dailyROI = day.avg_roi;
 
       if (!weekdayData[dayName]) {
         weekdayData[dayName] = [];
