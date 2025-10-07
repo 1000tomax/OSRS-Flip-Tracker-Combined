@@ -187,7 +187,7 @@ BEGIN
             WHEN cd.day = 1 THEN ((cd.net_worth::FLOAT - starting_balance::FLOAT) / starting_balance::FLOAT * 100)::NUMERIC
             ELSE ((cd.net_worth::FLOAT - LAG(cd.net_worth) OVER (ORDER BY cd.date)::FLOAT) / LAG(cd.net_worth) OVER (ORDER BY cd.date)::FLOAT * 100)::NUMERIC
         END as percent_change,
-        (cd.net_worth::FLOAT / 2147483647::FLOAT * 100)::NUMERIC as percent_to_goal,
+        (cd.net_worth::FLOAT / 2147000000::FLOAT * 100)::NUMERIC as percent_to_goal,
         cd.total_spent,
         cd.avg_profit,
         cd.avg_roi

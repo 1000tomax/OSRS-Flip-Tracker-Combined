@@ -50,14 +50,16 @@ export default function DailySummaryLog() {
     const remainingDays = [];
 
     // Group complete weeks (7 days each)
-    for (let i = 0; i < Math.floor(summaries.length / 7); i++) {
+    const totalWeeks = Math.floor(summaries.length / 7);
+    for (let i = 0; i < totalWeeks; i++) {
       const weekStart = i * 7;
       const weekEnd = weekStart + 7;
       const weekDays = summaries.slice(weekStart, weekEnd);
 
       // Calculate weekly aggregates
+      // Week numbers count DOWN to match day numbers (Week 10 = Days 70-64, Week 1 = Days 7-1)
       const weekData = {
-        weekNumber: i + 1,
+        weekNumber: totalWeeks - i,
         startDay: weekDays[0].day,
         endDay: weekDays[6].day,
         days: weekDays,
