@@ -12,15 +12,15 @@ set "FLIPS_CSV=%USERPROFILE%\Documents\flips.csv"
 if exist "%FLIPS_CSV%" (
     echo Found flips.csv in Windows Documents
     echo Copying to WSL project...
-    wsl -u mreedon cp "/mnt/c/Users/18159/Documents/flips.csv" "~/Documents/flips.csv"
+    wsl cp "/mnt/c/Users/18159/Documents/flips.csv" "~/Documents/flips.csv"
     echo.
 )
 
 echo Starting deployment in WSL...
 echo.
 
-REM Run the script as the correct WSL user (not root)
-wsl -u mreedon bash -c "cd ~/projects/OSRS-Flip-Tracker-Combined && ./deploy-flips.sh"
+REM Run the script (using default WSL user)
+wsl bash -c "cd ~/projects/OSRS-Flip-Tracker-Combined && ./deploy-flips.sh"
 
 echo.
 echo ========================================
