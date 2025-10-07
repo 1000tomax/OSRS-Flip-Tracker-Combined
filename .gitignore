@@ -38,6 +38,7 @@ coverage
 
 # Claude configuration
 CLAUDE.md
+.claude/settings.local.json
 
 # OS files
 Thumbs.db
