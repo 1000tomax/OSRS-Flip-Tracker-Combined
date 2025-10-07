@@ -10,4 +10,10 @@ echo Starting deployment in WSL...
 echo.
 
 REM Run the script as the correct WSL user (not root)
-wsl -u mreedon bash -c "cd ~/projects/OSRS-Flip-Tracker-Combined && ./deploy-flips.sh; echo ''; echo '========================================'; echo 'Press Enter to close this window...'; read dummy"
+wsl -u mreedon bash -c "cd ~/projects/OSRS-Flip-Tracker-Combined && ./deploy-flips.sh"
+
+echo.
+echo ========================================
+echo Deployment finished!
+echo ========================================
+pause
