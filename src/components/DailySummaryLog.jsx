@@ -138,8 +138,8 @@ export default function DailySummaryLog() {
   }
 
   // Safe array operations only after loading is complete
-  const reversedSummaries = summaries ? [...summaries].reverse() : [];
-  const pagedSummaries = reversedSummaries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  // Data already comes in DESC order from RPC, no need to reverse
+  const pagedSummaries = summaries ? summaries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) : [];
   const percentToGoal = currentNetWorth ? (currentNetWorth / 2147483647) * 100 : 0;
   const totalPages = Math.ceil((summaries?.length || 0) / PAGE_SIZE);
 

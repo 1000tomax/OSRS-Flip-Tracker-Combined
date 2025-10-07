@@ -131,7 +131,37 @@ BEGIN
             AND (start_date IS NULL OR DATE(opened_time) >= start_date)
             AND (end_date IS NULL OR DATE(opened_time) <= end_date)
         GROUP BY DATE(opened_time)
-        ORDER BY DATE(opened_time) ASC
+    ),
+    date_range AS (
+        SELECT
+            COALESCE(
+                (SELECT MIN(date) FROM daily_data),
+                CURRENT_DATE
+            ) as min_date,
+            COALESCE(
+                (SELECT MAX(date) FROM daily_data),
+                CURRENT_DATE
+            ) as max_date
+    ),
+    all_dates AS (
+        SELECT generate_series(
+            (SELECT min_date FROM date_range),
+            (SELECT max_date FROM date_range),
+            '1 day'::INTERVAL
+        )::DATE as date
+    ),
+    filled_data AS (
+        SELECT
+            ad.date,
+            COALESCE(dd.flips, 0) as flips,
+            COALESCE(dd.items_flipped, 0) as items_flipped,
+            COALESCE(dd.profit, 0) as profit,
+            COALESCE(dd.total_spent, 0) as total_spent,
+            COALESCE(dd.avg_profit, 0) as avg_profit,
+            COALESCE(dd.avg_roi, 0) as avg_roi
+        FROM all_dates ad
+        LEFT JOIN daily_data dd ON ad.date = dd.date
+        ORDER BY ad.date ASC
     ),
     cumulative_data AS (
         SELECT
@@ -144,7 +174,7 @@ BEGIN
             d.avg_profit,
             d.avg_roi,
             starting_balance + SUM(d.profit) OVER (ORDER BY d.date) as net_worth
-        FROM daily_data d
+        FROM filled_data d
     )
     SELECT
         cd.date,
