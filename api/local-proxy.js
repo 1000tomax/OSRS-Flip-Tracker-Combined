@@ -26,7 +26,14 @@ console.log('Environment variables loaded:', {
 // Enable CORS for your dev server
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3001'],
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
+      'http://127.0.0.1:5173',
+    ],
     credentials: true,
   })
 );
@@ -45,6 +52,65 @@ app.post('/api/translate-query', (_req, res) => {
   res.status(410).json({
     error: 'AI query service disabled',
   });
+});
+
+// Blocklist filter generation endpoint
+app.post('/api/generate-blocklist-filter', async (req, res) => {
+  const apiKey = process.env.VITE_CLAUDE_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      error: 'Server configuration error',
+      message: 'VITE_CLAUDE_API_KEY not set in .env file',
+    });
+  }
+
+  try {
+    const { prompt } = req.body;
+
+    if (!prompt || prompt.length < 3) {
+      return res.status(400).json({
+        error: 'Prompt too short',
+      });
+    }
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const jsonText = data.content[0].text.trim();
+
+    res.status(200).json({
+      response: jsonText,
+    });
+  } catch (error) {
+    console.error('Blocklist filter generation error:', error);
+
+    res.status(500).json({
+      error: 'Failed to generate blocklist filter',
+    });
+  }
 });
 
 // SQL Generation endpoint for AI queries
@@ -541,6 +607,9 @@ app
     console.log(`🤖 Claude API endpoint: http://localhost:${PORT}/api/claude`);
     console.log(`🔤 Query translation endpoint: http://localhost:${PORT}/api/translate-query`);
     console.log(`📊 SQL generation endpoint: http://localhost:${PORT}/api/generate-sql`);
+    console.log(
+      `🔧 Blocklist filter endpoint: http://localhost:${PORT}/api/generate-blocklist-filter`
+    );
     console.log(`💬 Feedback endpoint: http://localhost:${PORT}/api/feedback`);
   })
   .on('error', err => {
