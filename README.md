@@ -95,10 +95,8 @@ npm run build:data       # Build embeddings and summary index
 ```
 OSRS-Flip-Tracker-Combined/
 ├── public/                     # Static assets
-│   ├── data/                  # Trading data files
-│   │   ├── processed-flips/   # Daily flip CSV files
-│   │   ├── item-stats.csv     # Aggregated item statistics
-│   │   └── summary-index.json # Data index
+│   ├── data/                  # Demo data for Guest Mode
+│   ├── flips.csv              # Demo CSV for Guest Mode
 │   └── manifest.json          # PWA manifest
 ├── src/
 │   ├── components/            # React components
@@ -106,15 +104,20 @@ OSRS-Flip-Tracker-Combined/
 │   │   ├── charts/           # Chart components
 │   │   └── ui/               # Basic UI components
 │   ├── pages/                # Page components (route handlers)
+│   ├── guest/                # Guest Mode (client-side processing)
 │   ├── hooks/                # Custom React hooks
 │   ├── utils/                # Utility functions
-│   │   ├── cacheManager.ts   # Advanced caching system
+│   │   ├── supabaseClient.ts # Supabase client & API
 │   │   ├── dateUtils.ts      # Date manipulation utilities
 │   │   └── analytics.ts      # Privacy-focused analytics
 │   ├── types/                # TypeScript type definitions
 │   └── tests/                # Test files and utilities
+├── supabase/                 # Supabase schema and migrations
+│   └── schema.sql            # Database schema & RPC functions
 ├── docs/                     # Documentation
-└── scripts/                  # Build and data processing scripts
+├── scripts/                  # Build and data processing scripts
+│   └── upload-new-flips.mjs  # Supabase upload utility
+└── deploy-flips.sh           # One-shot deployment script
 ```
 
 ## 🔧 Configuration
@@ -195,6 +198,51 @@ npm test useApiData.test.tsx
 # Generate coverage report
 npm run test:coverage
 ```
+
+## 📤 Data Deployment Workflow
+
+### One-Shot Supabase Upload
+
+The dashboard uses Supabase as its primary data store. To upload new flip data:
+
+```bash
+# 1. Export flips.csv from FlipOS RuneLite plugin to:
+#    - ~/Documents/flips.csv (WSL/Linux)
+#    - OR /mnt/c/Users/YOUR_USERNAME/Documents/flips.csv (Windows via WSL)
+
+# 2. Run the deployment script
+./deploy-flips.sh
+
+# The script will:
+# - Process the CSV into the correct format
+# - Upload to Supabase database
+# - Refresh materialized views
+# - Clean up temporary files
+```
+
+### Environment Setup
+
+Create a `.env` file with your Supabase credentials:
+
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-service-role-key
+```
+
+**Note**: The service role key is required for uploads. Find it in Supabase
+Dashboard → Settings → API → service_role key.
+
+### Data Architecture
+
+- **Main Dashboard**: 100% powered by Supabase
+  - Daily summaries from `get_daily_summaries()` RPC
+  - Flip logs from `flips` table
+  - Item stats from `item_stats` materialized view
+
+- **Guest Mode**: Client-side CSV processing
+  - No database required
+  - Users upload CSV files directly
+  - Processing happens in browser via Web Workers
 
 ## 🚀 Deployment
 

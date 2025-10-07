@@ -1,11 +1,10 @@
-// src/App.jsx - Enhanced with cache monitoring
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Suspense, lazy, useEffect } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navigation from './components/Navigation';
 import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
-import CacheMonitor from './components/CacheMonitor';
 
 // Lazy load most page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -102,8 +101,6 @@ function App() {
       <Router>
         <SEO />
         <AppContent />
-        {/* Cache monitoring for development */}
-        <CacheMonitor />
       </Router>
     </ErrorBoundary>
   );

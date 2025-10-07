@@ -48,9 +48,13 @@ desktop.ini
 *.temp
 .cache
 
-# Personal data (be careful with these!)
-# Uncomment if you have personal flip data you don't want public:
-# data-processing/raw-input/
-# public/data/processed-flips/
-# public/data/daily-summary/
-# public/data/item-stats.csv
+# Generated data files (now stored in Supabase)
+public/data/*
+!public/data/.gitkeep
+
+# Processing artifacts
+data-processing/raw-input/
+
+# Temporary CSV files
+flips.csv
+*.csv.bak
