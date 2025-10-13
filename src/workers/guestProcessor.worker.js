@@ -57,11 +57,11 @@ self.onmessage = async e => {
     const { file, timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } = e.data;
 
     // EARLY EXIT: File size check to prevent crashes
-    if (file.size > 3 * 1024 * 1024) {
-      // 3MB limit
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
       self.postMessage({
         type: 'ERROR',
-        message: `File too large: ${(file.size / (1024 * 1024)).toFixed(1)}MB. Maximum: 3MB. Try exporting a shorter date range.`,
+        message: `File too large: ${(file.size / (1024 * 1024)).toFixed(1)}MB. Maximum: 5MB. Try exporting a shorter date range.`,
       });
       return;
     }

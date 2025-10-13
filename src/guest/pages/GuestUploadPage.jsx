@@ -56,7 +56,7 @@ export default function GuestUploadPage() {
       // Skip validations for demo data
       if (!isDemoData) {
         // VALIDATION 1: File size check (prevent worker crashes)
-        const maxFileSize = 2.5 * 1024 * 1024; // 2.5MB limit (conservative)
+        const maxFileSize = 5 * 1024 * 1024; // 5MB limit
         if (file.size > maxFileSize) {
           const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
           const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1);
