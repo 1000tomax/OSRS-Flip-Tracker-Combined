@@ -1,19 +1,39 @@
 import { useState, useMemo } from 'react';
 
-export default function ItemSelectorPage({ items, priceData, volumeData, onDownload, onBack }) {
+// Time constants for timestamp formatting
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 3600;
+const SECONDS_PER_DAY = 86400;
+
+export default function ItemSelectorPage({
+  items,
+  priceData,
+  volumeData,
+  userItemStats = {},
+  onDownload,
+  onBack,
+}) {
   const [mode, setMode] = useState('trade'); // 'trade' or 'block'
   const [checkedItems, setCheckedItems] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [showMembersOnly, setShowMembersOnly] = useState(false);
   const [showF2POnly, setShowF2POnly] = useState(false);
-  const [sortBy, setSortBy] = useState('name'); // 'name', 'price', 'volume'
+  const [showTradedOnly, setShowTradedOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('name'); // 'name', 'price', 'volume', 'userGpPerHour', 'userFlipCount'
   const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [minVolume, setMinVolume] = useState('');
   const [maxVolume, setMaxVolume] = useState('');
+  const [minUserGpPerHour, setMinUserGpPerHour] = useState('');
+  const [maxUserGpPerHour, setMaxUserGpPerHour] = useState('');
+  const [minUserFlipCount, setMinUserFlipCount] = useState('');
+  const [maxUserFlipCount, setMaxUserFlipCount] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 100;
+
+  // Check if user has any flip data
+  const hasUserData = Object.keys(userItemStats).length > 0;
 
   // Filter and sort items
   const filteredItems = useMemo(() => {
@@ -26,6 +46,9 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
       // Members filter
       if (showMembersOnly && !item.members) return false;
       if (showF2POnly && item.members) return false;
+
+      // Traded only filter
+      if (showTradedOnly && !userItemStats[item.name]) return false;
 
       // Price range filter
       const price = priceData[item.id]?.high;
@@ -45,6 +68,21 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
       } else {
         // If no volume data and user set volume filters, exclude item
         if (minVolume || maxVolume) return false;
+      }
+
+      // User GP/hour range filter
+      const userStats = userItemStats[item.name];
+      if (minUserGpPerHour || maxUserGpPerHour) {
+        const gpPerHour = userStats?.gpPerHour || 0;
+        if (minUserGpPerHour && gpPerHour < parseFloat(minUserGpPerHour)) return false;
+        if (maxUserGpPerHour && gpPerHour > parseFloat(maxUserGpPerHour)) return false;
+      }
+
+      // User flip count range filter
+      if (minUserFlipCount || maxUserFlipCount) {
+        const flipCount = userStats?.flipCount || 0;
+        if (minUserFlipCount && flipCount < parseFloat(minUserFlipCount)) return false;
+        if (maxUserFlipCount && flipCount > parseFloat(maxUserFlipCount)) return false;
       }
 
       return true;
@@ -70,6 +108,20 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
         const result = volumeA - volumeB;
         return sortDirection === 'asc' ? result : -result;
       });
+    } else if (sortBy === 'userGpPerHour') {
+      filtered.sort((a, b) => {
+        const gpPerHourA = userItemStats[a.name]?.gpPerHour || 0;
+        const gpPerHourB = userItemStats[b.name]?.gpPerHour || 0;
+        const result = gpPerHourA - gpPerHourB;
+        return sortDirection === 'asc' ? result : -result;
+      });
+    } else if (sortBy === 'userFlipCount') {
+      filtered.sort((a, b) => {
+        const flipCountA = userItemStats[a.name]?.flipCount || 0;
+        const flipCountB = userItemStats[b.name]?.flipCount || 0;
+        const result = flipCountA - flipCountB;
+        return sortDirection === 'asc' ? result : -result;
+      });
     }
 
     return filtered;
@@ -78,14 +130,20 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
     searchQuery,
     showMembersOnly,
     showF2POnly,
+    showTradedOnly,
     minPrice,
     maxPrice,
     minVolume,
     maxVolume,
+    minUserGpPerHour,
+    maxUserGpPerHour,
+    minUserFlipCount,
+    maxUserFlipCount,
     sortBy,
     sortDirection,
     priceData,
     volumeData,
+    userItemStats,
   ]);
 
   // Paginate filtered items
@@ -182,6 +240,11 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
         </p>
         <p className="text-xs text-gray-500 mt-2">
           📊 Loaded {items.length} items • {Object.keys(priceData).length} with prices
+          {hasUserData && (
+            <span className="ml-2 text-green-400">
+              • ✅ Your flip data: {Object.keys(userItemStats).length} items traded
+            </span>
+          )}
         </p>
       </div>
 
@@ -292,7 +355,7 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
         </div>
 
         {/* Type Filters */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
             <input
               type="checkbox"
@@ -319,6 +382,20 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
             />
             F2P Only
           </label>
+          {hasUserData && (
+            <label className="flex items-center gap-2 text-sm text-green-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showTradedOnly}
+                onChange={e => {
+                  setShowTradedOnly(e.target.checked);
+                  setCurrentPage(1);
+                }}
+                className="h-4 w-4"
+              />
+              Items I've Traded Only
+            </label>
+          )}
         </div>
 
         {/* Price Range Filters */}
@@ -381,6 +458,77 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
           </div>
         </div>
 
+        {/* User Performance Filters - Only show if user has data */}
+        {hasUserData && (
+          <>
+            <div className="pt-4 border-t border-green-900/30">
+              <h4 className="text-sm font-semibold text-green-400 mb-3">
+                Your Performance Filters
+              </h4>
+
+              {/* GP/Hour Range Filters */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm text-green-300 mb-2">Min GP/Hour</label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 100000"
+                    value={minUserGpPerHour}
+                    onChange={e => {
+                      setMinUserGpPerHour(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-4 py-2 bg-gray-900 border border-green-700/50 rounded text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-green-300 mb-2">Max GP/Hour</label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 1000000"
+                    value={maxUserGpPerHour}
+                    onChange={e => {
+                      setMaxUserGpPerHour(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-4 py-2 bg-gray-900 border border-green-700/50 rounded text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+
+              {/* Flip Count Range Filters */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-green-300 mb-2">Min Flip Count</label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 5"
+                    value={minUserFlipCount}
+                    onChange={e => {
+                      setMinUserFlipCount(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-4 py-2 bg-gray-900 border border-green-700/50 rounded text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-green-300 mb-2">Max Flip Count</label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 100"
+                    value={maxUserFlipCount}
+                    onChange={e => {
+                      setMaxUserFlipCount(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-4 py-2 bg-gray-900 border border-green-700/50 rounded text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Results count */}
         <div className="text-sm text-gray-400 pt-2 border-t border-gray-700">
           Showing {filteredItems.length} of {items.length} items
@@ -426,22 +574,55 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
                     {sortBy === 'volume' && <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>}
                   </div>
                 </th>
+                {hasUserData && (
+                  <th className="px-4 py-3 text-right text-xs font-medium text-green-400 uppercase tracking-wider w-48">
+                    <div className="flex flex-col items-end gap-1">
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer hover:text-green-300 select-none flex items-center gap-1"
+                        onClick={() => handleSort('userGpPerHour')}
+                        onKeyDown={e => e.key === 'Enter' && handleSort('userGpPerHour')}
+                      >
+                        Your GP/Hour
+                        {sortBy === 'userGpPerHour' && (
+                          <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </div>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer hover:text-green-300 select-none flex items-center gap-1"
+                        onClick={() => handleSort('userFlipCount')}
+                        onKeyDown={e => e.key === 'Enter' && handleSort('userFlipCount')}
+                      >
+                        Your Flips
+                        {sortBy === 'userFlipCount' && (
+                          <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </div>
+                    </div>
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
               {paginatedItems.map(item => {
                 const price = priceData[item.id];
                 const volume = volumeData[item.id];
+                const userStats = userItemStats[item.name];
                 const isChecked = checkedItems.has(item.id);
 
                 // Format timestamp
                 let timeAgo = 'N/A';
                 if (price?.highTime) {
                   const secondsAgo = Math.floor(Date.now() / 1000) - price.highTime;
-                  if (secondsAgo < 60) timeAgo = `${secondsAgo}s ago`;
-                  else if (secondsAgo < 3600) timeAgo = `${Math.floor(secondsAgo / 60)}m ago`;
-                  else if (secondsAgo < 86400) timeAgo = `${Math.floor(secondsAgo / 3600)}h ago`;
-                  else timeAgo = `${Math.floor(secondsAgo / 86400)}d ago`;
+                  if (secondsAgo < SECONDS_PER_MINUTE) timeAgo = `${secondsAgo}s ago`;
+                  else if (secondsAgo < SECONDS_PER_HOUR)
+                    timeAgo = `${Math.floor(secondsAgo / SECONDS_PER_MINUTE)}m ago`;
+                  else if (secondsAgo < SECONDS_PER_DAY)
+                    timeAgo = `${Math.floor(secondsAgo / SECONDS_PER_HOUR)}h ago`;
+                  else timeAgo = `${Math.floor(secondsAgo / SECONDS_PER_DAY)}d ago`;
                 }
 
                 return (
@@ -482,6 +663,30 @@ export default function ItemSelectorPage({ items, priceData, volumeData, onDownl
                         {volume?.highPriceVolume ? volume.highPriceVolume.toLocaleString() : 'N/A'}
                       </div>
                     </td>
+                    {hasUserData && (
+                      <td className="px-4 py-3 text-right">
+                        {userStats ? (
+                          <div>
+                            <div className="text-sm text-green-300 font-mono font-semibold">
+                              {userStats.gpPerHour.toLocaleString()} gp/h
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {userStats.flipCount} flip{userStats.flipCount !== 1 ? 's' : ''}
+                              {userStats.flipCount < 5 && (
+                                <span
+                                  className="ml-1 text-yellow-400"
+                                  title="Small sample size - results may not be reliable"
+                                >
+                                  ⚠️
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-500 italic">Not traded</div>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })}
