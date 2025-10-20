@@ -132,6 +132,56 @@ export default function BlocklistGeneratorPage() {
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Show upload prompt if no guest data */}
+        {!guestData && (
+          <div className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border-2 border-green-500/60 rounded-lg p-6 mb-6">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">💡</span>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-green-200 mb-3">Unlock Advanced Features!</h3>
+                <p className="text-green-100 mb-4">
+                  Upload your Flipping Copilot CSV first to unlock personalized features:
+                </p>
+                <ul className="space-y-2 text-green-200 mb-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 font-bold">✓</span>
+                    <span>
+                      <strong>Your GP/Hour:</strong> See your actual profit rates for each item
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 font-bold">✓</span>
+                    <span>
+                      <strong>Your Flip Count:</strong> See how many times you've traded each item
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 font-bold">✓</span>
+                    <span>
+                      <strong>Advanced Filtering:</strong> Filter by your personal performance
+                      metrics
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 font-bold">✓</span>
+                    <span>
+                      <strong>"Items I've Traded" Filter:</strong> Focus on items you have
+                      experience with
+                    </span>
+                  </li>
+                </ul>
+                <button
+                  onClick={() => navigate('/guest')}
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2"
+                >
+                  <span>📤</span>
+                  <span>Upload Your Flips First</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <ItemSelectorPage
           items={itemsData}
           priceData={priceData}
