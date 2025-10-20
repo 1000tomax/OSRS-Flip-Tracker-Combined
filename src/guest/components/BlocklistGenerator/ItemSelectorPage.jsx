@@ -222,6 +222,20 @@ export default function ItemSelectorPage({
         : Array.from(checkedItems);
 
     onDownload(blockedItemIds, profileName.trim());
+
+    // Show installation instructions after download
+    setTimeout(() => {
+      // eslint-disable-next-line no-alert
+      alert(
+        '✅ Profile downloaded!\n\n' +
+          '📁 Installation Instructions:\n\n' +
+          '1. Locate the downloaded .profile.json file\n' +
+          '2. Move it to: %USERPROFILE%\\.runelite\\flipping-copilot\n' +
+          '   (Windows: C:\\Users\\YourName\\.runelite\\flipping-copilot)\n\n' +
+          '3. Restart RuneLite or reload the Flipping Copilot plugin\n' +
+          '4. Your custom blocklist will appear in the plugin settings!'
+      );
+    }, 100);
   };
 
   return (
@@ -246,6 +260,28 @@ export default function ItemSelectorPage({
             </span>
           )}
         </p>
+      </div>
+
+      {/* Installation Instructions Banner */}
+      <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 mb-6">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">📁</span>
+          <div>
+            <p className="text-blue-200 font-semibold mb-2">Installation Instructions</p>
+            <p className="text-blue-300 text-sm mb-2">
+              After downloading your profile, save it to:{' '}
+              <code className="bg-blue-950/50 px-2 py-1 rounded text-blue-100 font-mono text-xs">
+                %USERPROFILE%\.runelite\flipping-copilot
+              </code>
+            </p>
+            <p className="text-blue-400 text-xs">
+              Windows:{' '}
+              <code className="bg-blue-950/50 px-1 py-0.5 rounded font-mono">
+                C:\Users\YourName\.runelite\flipping-copilot
+              </code>
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Mode Toggle */}
