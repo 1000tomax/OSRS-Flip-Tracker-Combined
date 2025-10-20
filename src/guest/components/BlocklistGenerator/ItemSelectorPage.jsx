@@ -232,8 +232,8 @@ export default function ItemSelectorPage({
           '1. Locate the downloaded .profile.json file\n' +
           '2. Move it to: %USERPROFILE%\\.runelite\\flipping-copilot\n' +
           '   (Windows: C:\\Users\\YourName\\.runelite\\flipping-copilot)\n\n' +
-          '3. Restart RuneLite or reload the Flipping Copilot plugin\n' +
-          '4. Your custom blocklist will appear in the plugin settings!'
+          '3. Open the Manage panel in Flipping Copilot\n' +
+          '4. Your custom blocklist will appear in the profile list!'
       );
     }, 100);
   };
