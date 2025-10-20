@@ -616,14 +616,13 @@ export default function GuestDashboard() {
         </div>
 
         <div className="flex gap-4">
-          {/* TODO: Uncomment when Copilot plugin update goes live */}
-          {/* <button
+          <button
             onClick={() => navigate('/guest/blocklist-generator')}
             className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-500 flex items-center gap-2"
           >
             <span>🔧</span>
             <span>Blocklist Generator</span>
-          </button> */}
+          </button>
           <button
             onClick={() => {
               // eslint-disable-next-line no-alert
