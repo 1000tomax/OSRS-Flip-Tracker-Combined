@@ -250,7 +250,10 @@ export default function GuestItemsList() {
       const sparkData = (p.spark || []).map((v, i) => ({ x: i, profit: v }));
       const heldCount = p.heldCount || 0;
       const avgHeldMinutes = heldCount > 0 ? p.heldMinutesTotal / heldCount : m.avgHeldMinutes || 0;
-      return { ...m, successRate, sparkData, avgHeldMinutes };
+      // Calculate profit per hour: total profit divided by total hours held
+      const totalHoursHeld = (p.heldMinutesTotal || 0) / 60;
+      const profitPerHour = totalHoursHeld > 0 ? m.totalProfit / totalHoursHeld : 0;
+      return { ...m, successRate, sparkData, avgHeldMinutes, profitPerHour };
     });
   }, [allItemsBase, progressive]);
 
@@ -288,6 +291,8 @@ export default function GuestItemsList() {
           const profitDiff = (b.totalProfit || 0) - (a.totalProfit || 0);
           return profitDiff;
         }
+        case 'profitPerHour':
+          return dir * ((a.profitPerHour || 0) - (b.profitPerHour || 0));
         case 'name':
           return dir * a.item.localeCompare(b.item);
         case 'profit':
@@ -391,6 +396,12 @@ export default function GuestItemsList() {
             Profit {sortKey === 'profit' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
           </button>
           <button
+            onClick={() => toggleSort('profitPerHour')}
+            className={`text-xs px-2 py-1 rounded ${sortKey === 'profitPerHour' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
+          >
+            GP/Hr {sortKey === 'profitPerHour' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </button>
+          <button
             onClick={() => toggleSort('flips')}
             className={`text-xs px-2 py-1 rounded ${sortKey === 'flips' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
           >
@@ -433,14 +444,15 @@ export default function GuestItemsList() {
 
       {/* Results */}
       <div className="rounded-lg border border-gray-700">
-        <div className="grid grid-cols-12 bg-gray-700 text-sm sticky top-0 z-10">
-          <div className="col-span-4 px-4 py-2 text-left">Item</div>
-          <div className="col-span-2 px-4 py-2 text-right">Total Profit</div>
-          <div className="col-span-1 px-4 py-2 text-right">Flips</div>
-          <div className="col-span-1 px-4 py-2 text-right">Success</div>
-          <div className="col-span-1 px-4 py-2 text-right">Avg/Flip</div>
-          <div className="col-span-1 px-4 py-2 text-right">Avg Held</div>
-          <div className="col-span-2 px-4 py-2 text-right">Recent</div>
+        <div className="grid grid-cols-[2fr_1fr_0.6fr_0.6fr_0.8fr_0.8fr_0.9fr_1fr] bg-gray-700 text-sm sticky top-0 z-10">
+          <div className="px-4 py-2 text-left">Item</div>
+          <div className="px-4 py-2 text-right">Total Profit</div>
+          <div className="px-4 py-2 text-right">Flips</div>
+          <div className="px-4 py-2 text-right">Success</div>
+          <div className="px-4 py-2 text-right">Avg/Flip</div>
+          <div className="px-4 py-2 text-right">Avg Held</div>
+          <div className="px-4 py-2 text-right">GP/Hr</div>
+          <div className="px-4 py-2 text-right">Recent</div>
         </div>
         <VirtualList
           height={Math.min(600, Math.max(200, sorted.length * 56))}
@@ -455,30 +467,33 @@ export default function GuestItemsList() {
             return (
               <div
                 style={style}
-                className="grid grid-cols-12 border-t border-gray-700 hover:bg-gray-800 cursor-pointer items-center text-sm"
+                className="grid grid-cols-[2fr_1fr_0.6fr_0.6fr_0.8fr_0.8fr_0.9fr_1fr] border-t border-gray-700 hover:bg-gray-800 cursor-pointer items-center text-sm"
                 onClick={() => onClickItem(i.item)}
               >
-                <div className="col-span-4 px-4 py-2">
+                <div className="px-4 py-2">
                   <ItemWithIcon itemName={i.item} textClassName="text-white font-medium" />
                 </div>
-                <div className="col-span-2 px-4 py-2 text-right">
+                <div className="px-4 py-2 text-right">
                   <span className={i.totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}>
                     {formatGP(i.totalProfit)}
                   </span>
                 </div>
-                <div className="col-span-1 px-4 py-2 text-right text-gray-200">
+                <div className="px-4 py-2 text-right text-gray-200">
                   {i.flipCount?.toLocaleString?.() || i.flipCount}
                 </div>
-                <div className="col-span-1 px-4 py-2 text-right">
+                <div className="px-4 py-2 text-right">
                   <ItemSuccessRateBadge value={i.successRate} />
                 </div>
-                <div className="col-span-1 px-4 py-2 text-right text-gray-200">
-                  {formatGP(i.avgProfit)}
-                </div>
-                <div className="col-span-1 px-4 py-2 text-right text-gray-200">
+                <div className="px-4 py-2 text-right text-gray-200">{formatGP(i.avgProfit)}</div>
+                <div className="px-4 py-2 text-right text-gray-200">
                   {formatHeldDuration(i.avgHeldMinutes)}
                 </div>
-                <div className="col-span-2 px-4 py-2">
+                <div className="px-4 py-2 text-right">
+                  <span className={i.profitPerHour >= 0 ? 'text-green-400' : 'text-red-400'}>
+                    {formatGP(i.profitPerHour)}
+                  </span>
+                </div>
+                <div className="px-4 py-2">
                   <ItemProfitSparkline data={i.sparkData} />
                 </div>
               </div>
