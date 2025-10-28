@@ -53,7 +53,7 @@ import { toast } from 'sonner';
  */
 export default function Items() {
   // Data loading and component state
-  const { data: items, loading, error } = useItemStats(); // Load item statistics from Supabase
+  const { items, loading, error } = useItemStats(); // Load item statistics from Supabase
   const [query, setQuery] = useState(''); // Search query for filtering items
   const [viewMode, setViewMode] = useState('table'); // Display mode: "table" or "cards"
 
