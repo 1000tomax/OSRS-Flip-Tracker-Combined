@@ -55,21 +55,41 @@ function parseCSV(content) {
 
 // Transform CSV row to database format
 function transformFlip(csvRow) {
+  // Support both Copilot export format and processed format
+  const accountId = csvRow.account_id || csvRow.Account;
+  const itemName = csvRow.item_name || csvRow.Item;
+  const status = csvRow.status || csvRow.Status || 'FINISHED';
+  const openedQty = csvRow.opened_quantity || csvRow.Bought;
+  const closedQty = csvRow.closed_quantity || csvRow.Sold;
+  const openedTime = csvRow.opened_time || csvRow['First buy time'];
+  const closedTime = csvRow.closed_time || csvRow['Last sell time'];
+
+  // Calculate values from Copilot format
+  const avgBuyPrice = parseFloat(csvRow['Avg. buy price']) || 0;
+  const avgSellPrice = parseFloat(csvRow['Avg. sell price']) || 0;
+  const bought = parseInt(openedQty) || 0;
+  const sold = parseInt(closedQty) || 0;
+  const spent = csvRow.spent ? parseInt(csvRow.spent) : (avgBuyPrice * bought);
+  const received = avgSellPrice * sold;
+  const tax = csvRow.tax_paid || csvRow.Tax ? parseInt(csvRow.tax_paid || csvRow.Tax) : 0;
+  const receivedPostTax = csvRow.received_post_tax ? parseInt(csvRow.received_post_tax) : (received - tax);
+  const profit = csvRow.profit || csvRow.Profit ? parseInt(csvRow.profit || csvRow.Profit) : (receivedPostTax - spent);
+
   return {
-    account_id: csvRow.account_id,
-    item_name: csvRow.item_name,
-    status: csvRow.status || 'FINISHED',
-    opened_quantity: parseInt(csvRow.opened_quantity) || 0,
-    spent: parseInt(csvRow.spent) || 0,
-    closed_quantity: csvRow.closed_quantity ? parseInt(csvRow.closed_quantity) : null,
-    received_post_tax: csvRow.received_post_tax ? parseInt(csvRow.received_post_tax) : null,
-    tax_paid: csvRow.tax_paid ? parseInt(csvRow.tax_paid) : null,
-    profit: csvRow.profit ? parseInt(csvRow.profit) : null,
-    opened_time: csvRow.opened_time,
-    closed_time: csvRow.closed_time || null,
-    updated_time: csvRow.updated_time || csvRow.closed_time || csvRow.opened_time,
+    account_id: accountId,
+    item_name: itemName,
+    status: status,
+    opened_quantity: bought,
+    spent: Math.round(spent),
+    closed_quantity: sold || null,
+    received_post_tax: sold ? Math.round(receivedPostTax) : null,
+    tax_paid: sold ? Math.round(tax) : null,
+    profit: sold ? Math.round(profit) : null,
+    opened_time: openedTime,
+    closed_time: closedTime || null,
+    updated_time: csvRow.updated_time || closedTime || openedTime,
     flip_hash: csvRow.flip_hash || createHash('sha256')
-      .update(`${csvRow.account_id}-${csvRow.item_name}-${csvRow.opened_time}`)
+      .update(`${accountId}-${itemName}-${openedTime}`)
       .digest('hex'),
   };
 }
