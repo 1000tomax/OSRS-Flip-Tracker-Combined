@@ -1,67 +1,188 @@
 // scripts/build-summary-index.cjs
-// Scan public/data/daily-summary/*.json → write /public/data/summary-index.json
-const fs = require('fs');
-const path = require('path');
+// Fetch flips from Supabase, compute daily summaries, upload to daily_summaries table
 
-const ROOT = process.cwd();
-const SRC_DIR = process.env.SUMMARY_DIR
-  ? path.resolve(ROOT, process.env.SUMMARY_DIR)
-  : path.join(ROOT, 'public', 'data', 'daily-summary');
-const OUT = path.join(ROOT, 'public', 'data', 'summary-index.json');
+// Load .env.local first (takes precedence), then .env
+require('dotenv').config({ path: '.env.local', override: true });
+require('dotenv').config({ override: true });
 
-const toNum = v => {
-  if (v == null || v === '') return NaN;
-  const s = String(v).trim().replace(/,/g, '');
-  const isPct = s.endsWith('%');
-  const n = parseFloat(isPct ? s.slice(0, -1) : s);
-  return isPct ? n / 100 : n;
-};
-const toISO = mmddyyyy => {
-  const m = String(mmddyyyy || '').match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
-  if (!m) return mmddyyyy;
-  const [_, mm, dd, yy] = m;
-  return `${yy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
-};
+const DEBUG = !!process.env.DEBUG;
 
-function listJson(dir) {
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter(f => f.toLowerCase().endsWith('.json'))
-    .map(f => path.join(dir, f));
+// Get credentials after dotenv is loaded
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('[build-summary-index] ❌ Missing SUPABASE_URL or SUPABASE_KEY in .env');
+  process.exit(1);
 }
 
-const files = listJson(SRC_DIR);
-if (!files.length) {
-  console.warn('[build-summary-index] No daily JSONs found:', SRC_DIR);
-  fs.mkdirSync(path.dirname(OUT), { recursive: true });
-  fs.writeFileSync(OUT, JSON.stringify({ days: [] }, null, 2));
-  process.exit(0);
+// --- fetch from Supabase ---------------------------------------------------
+async function fetchFlips() {
+  console.log('[build-summary-index] 🔄 Fetching flips from Supabase...');
+
+  // Fetch all flips with pagination
+  const allFlips = [];
+  let offset = 0;
+  const limit = 1000;
+
+  while (true) {
+    const url = `${SUPABASE_URL}/rest/v1/flips?select=*&limit=${limit}&offset=${offset}`;
+    const response = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to fetch flips: ${error}`);
+    }
+
+    const data = await response.json();
+    allFlips.push(...data);
+
+    if (DEBUG) {
+      console.log(`[build-summary-index] Fetched ${data.length} flips (total: ${allFlips.length})`);
+    }
+
+    if (data.length < limit) break;
+    offset += limit;
+  }
+
+  console.log(`[build-summary-index] ✓ Fetched ${allFlips.length} flips from Supabase`);
+  return allFlips;
 }
 
-const days = [];
-for (const file of files) {
+// --- compute daily summaries -----------------------------------------------
+function computeDailySummaries(flips) {
+  const byDate = new Map();
+
+  for (const flip of flips) {
+    // Extract date from opened_time or closed_time
+    const dateStr = flip.closed_time || flip.opened_time;
+    if (!dateStr) continue;
+
+    const date = dateStr.split('T')[0]; // Get YYYY-MM-DD part
+
+    if (!byDate.has(date)) {
+      byDate.set(date, {
+        date,
+        flips: [],
+        totalProfit: 0,
+        totalSpent: 0,
+      });
+    }
+
+    const day = byDate.get(date);
+    day.flips.push(flip);
+
+    const profit = parseInt(flip.profit) || 0;
+    const spent = parseInt(flip.spent) || 0;
+
+    day.totalProfit += profit;
+    day.totalSpent += spent;
+  }
+
+  // Convert to array and compute ROI
+  const summaries = [];
+  let cumulativeNetWorth = 0;
+
+  const sortedDates = Array.from(byDate.keys()).sort();
+
+  for (const date of sortedDates) {
+    const day = byDate.get(date);
+    cumulativeNetWorth += day.totalProfit;
+
+    const roi_decimal = day.totalSpent > 0
+      ? (day.totalProfit / day.totalSpent)
+      : 0;
+
+    const percent_change = roi_decimal * 100;
+
+    summaries.push({
+      date,
+      net_worth: Math.round(cumulativeNetWorth),
+      profit: Math.round(day.totalProfit),
+      percent_change: +percent_change.toFixed(2),
+      roi_decimal: +roi_decimal.toFixed(4),
+    });
+  }
+
+  if (DEBUG) {
+    console.log(`[build-summary-index] Computed ${summaries.length} daily summaries`);
+  }
+
+  return summaries;
+}
+
+// --- upload to Supabase ----------------------------------------------------
+async function uploadSummaries(summaries) {
+  console.log('[build-summary-index] 🔄 Uploading summaries to Supabase...');
+
+  // Clear existing summaries first
+  const deleteResponse = await fetch(`${SUPABASE_URL}/rest/v1/daily_summaries?id=not.eq.00000000-0000-0000-0000-000000000000`, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+    },
+  });
+
+  if (DEBUG || !deleteResponse.ok) {
+    console.log('[build-summary-index] Cleared existing summaries (status:', deleteResponse.status, ')');
+  }
+
+  // Upload in batches
+  const BATCH_SIZE = 100;
+  let uploaded = 0;
+
+  for (let i = 0; i < summaries.length; i += BATCH_SIZE) {
+    const batch = summaries.slice(i, i + BATCH_SIZE);
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/daily_summaries`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=ignore-duplicates',
+      },
+      body: JSON.stringify(batch),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to upload batch ${i / BATCH_SIZE + 1}: ${error}`);
+    }
+
+    uploaded += batch.length;
+    if (DEBUG) {
+      console.log(`[build-summary-index] Uploaded ${uploaded}/${summaries.length} summaries`);
+    }
+  }
+
+  console.log(`[build-summary-index] ✅ Uploaded ${uploaded} daily summaries to Supabase`);
+}
+
+// --- main ------------------------------------------------------------------
+async function main() {
   try {
-    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
-    const dateFromFile = path.basename(file, '.json');
-    const date = toISO(j.date || dateFromFile);
+    const flips = await fetchFlips();
 
-    const net = toNum(j.net_worth ?? j.netWorth);
-    const profit = toNum(j.profit ?? j.gp_per_day);
-    const rawPC = toNum(j.percent_change ?? j.percentChange ?? j.roi_percent);
+    if (!flips.length) {
+      console.warn('[build-summary-index] No flips found');
+      return;
+    }
 
-    // Normalize: if >1, treat as percent and divide by 100
-    const roi_decimal = Number.isFinite(rawPC) ? (Math.abs(rawPC) > 1 ? rawPC / 100 : rawPC) : null;
+    const summaries = computeDailySummaries(flips);
+    await uploadSummaries(summaries);
 
-    days.push({ date, netWorth: net, profit, percentChange: rawPC, roi_decimal });
-  } catch (e) {
-    console.warn('[build-summary-index] failed parsing', file, e.message);
+    console.log(`[build-summary-index] ✅ Completed: ${summaries.length} daily summaries uploaded`);
+  } catch (error) {
+    console.error('[build-summary-index] ❌ Fatal error:', error.message);
+    process.exit(1);
   }
 }
 
-// sort ascending by date
-days.sort((a, b) => String(a.date).localeCompare(String(b.date)));
-
-fs.mkdirSync(path.dirname(OUT), { recursive: true });
-fs.writeFileSync(OUT, JSON.stringify({ days }, null, 2));
-console.log(`[build-summary-index] Wrote ${days.length} days → ${path.relative(ROOT, OUT)}`);
+main();

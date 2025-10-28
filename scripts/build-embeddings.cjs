@@ -1,10 +1,7 @@
 // scripts/build-embeddings.cjs
 // Fetches flip data from Supabase
 // Aggregates per-item features (total profit, median margin_each, median hold minutes)
-// PCA -> /public/data/item-embeddings.json
-
-const fs = require('fs');
-const path = require('path');
+// PCA -> uploads to Supabase item_embeddings table
 
 // Load .env.local first (takes precedence), then .env
 // Use override:true to override any existing shell environment variables
@@ -14,8 +11,6 @@ require('dotenv').config({ override: true });
 const PCApkg = require('ml-pca');
 const PCA = PCApkg.default || PCApkg.PCA || PCApkg;
 
-const ROOT = process.cwd();
-const OUT = path.join(ROOT, 'public', 'data', 'item-embeddings.json');
 const DEBUG = !!process.env.DEBUG;
 
 // Get credentials after dotenv is loaded
@@ -85,6 +80,66 @@ async function fetchFlips() {
   return allFlips;
 }
 
+// --- upload embeddings to Supabase -----------------------------------------
+async function uploadEmbeddings(embeddings) {
+  console.log('[build-embeddings] 🔄 Uploading embeddings to Supabase...');
+
+  // Clear existing embeddings first
+  const deleteResponse = await fetch(`${SUPABASE_URL}/rest/v1/item_embeddings?id=not.eq.00000000-0000-0000-0000-000000000000`, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+    },
+  });
+
+  if (DEBUG || !deleteResponse.ok) {
+    console.log('[build-embeddings] Cleared existing embeddings (status:', deleteResponse.status, ')');
+  }
+
+  // Transform to database format (snake_case)
+  const dbRecords = embeddings.map(e => ({
+    name: e.name,
+    x: e.x,
+    y: e.y,
+    profit: e.profit,
+    stable: e.stable,
+    hold_min: e.holdMin,
+    margin: e.margin,
+  }));
+
+  // Upload in batches
+  const BATCH_SIZE = 100;
+  let uploaded = 0;
+
+  for (let i = 0; i < dbRecords.length; i += BATCH_SIZE) {
+    const batch = dbRecords.slice(i, i + BATCH_SIZE);
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/item_embeddings`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=ignore-duplicates',
+      },
+      body: JSON.stringify(batch),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to upload batch ${i / BATCH_SIZE + 1}: ${error}`);
+    }
+
+    uploaded += batch.length;
+    if (DEBUG) {
+      console.log(`[build-embeddings] Uploaded ${uploaded}/${dbRecords.length} embeddings`);
+    }
+  }
+
+  console.log(`[build-embeddings] ✅ Uploaded ${uploaded} embeddings to Supabase`);
+}
+
 // --- run -------------------------------------------------------------------
 async function main() {
   let rows;
@@ -97,8 +152,6 @@ async function main() {
 
   if (!rows.length) {
     console.warn('[build-embeddings] No flips found in Supabase');
-    fs.mkdirSync(path.dirname(OUT), { recursive: true });
-    fs.writeFileSync(OUT, JSON.stringify([], null, 2));
     process.exit(0);
   }
 
@@ -208,9 +261,14 @@ async function main() {
     }));
   }
 
-  fs.mkdirSync(path.dirname(OUT), { recursive: true });
-  fs.writeFileSync(OUT, JSON.stringify(out, null, 2));
-  console.log(`[build-embeddings] ${out.length} items → ${path.relative(ROOT, OUT)}`);
+  // Upload to Supabase
+  try {
+    await uploadEmbeddings(out);
+    console.log(`[build-embeddings] ✅ Completed: ${out.length} items uploaded to Supabase`);
+  } catch (error) {
+    console.error('[build-embeddings] ❌ Failed to upload embeddings:', error.message);
+    process.exit(1);
+  }
 }
 
 main().catch(err => {
