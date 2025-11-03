@@ -206,10 +206,11 @@ export async function getItemVolumes() {
   // Get last update time
   const lastUpdated = data && data.length > 0 ? data[0].last_updated : null;
 
-  // Fetch all volumes
+  // Fetch all volumes (set high limit to avoid default 1000 row cap)
   const { data: volumes, error: volumesError } = await supabase
     .from('osrs_item_volumes')
-    .select('item_id, item_name, volume_24h');
+    .select('item_id, item_name, volume_24h')
+    .limit(10000);
 
   if (volumesError) throw volumesError;
 
