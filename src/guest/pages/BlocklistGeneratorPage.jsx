@@ -161,8 +161,8 @@ export default function BlocklistGeneratorPage() {
               <span className="text-blue-400 text-xl">ℹ️</span>
               <div className="flex-1">
                 <p className="text-blue-200 text-sm">
-                  <strong>24-hour trading volumes</strong> are updated twice daily (6 AM & 6 PM
-                  UTC).
+                  <strong>24-hour trading volumes</strong> are updated every 6 hours (12 AM, 6 AM,
+                  12 PM, 6 PM UTC).
                 </p>
                 <p className="text-blue-300 text-xs mt-1">
                   Last updated: <strong>{formatLastUpdated(volumeLastUpdated)}</strong>
