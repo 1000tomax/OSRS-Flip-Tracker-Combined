@@ -11,18 +11,33 @@ const {
 } = require('./utils.cjs');
 
 async function runParser() {
-  const inputPath = path.resolve(
-	  process.env.HOME || process.env.USERPROFILE,
-	  'Documents',
-	  'flips.csv'
-	);
-	let csvText;
-	try {
-	  csvText = await fs.promises.readFile(inputPath, 'utf8');
-	} catch (err) {
-	  console.error(`❌ Could not find flips.csv in Documents folder: ${inputPath}`);
-	  throw err;
-}
+  // Look for flips.csv in project root first, then fall back to Documents folder
+  const projectRootPath = path.resolve(__dirname, '..', 'flips.csv');
+  const documentsPath = path.resolve(
+    process.env.HOME || process.env.USERPROFILE,
+    'Documents',
+    'flips.csv'
+  );
+
+  let inputPath = projectRootPath;
+  let csvText;
+
+  try {
+    csvText = await fs.promises.readFile(projectRootPath, 'utf8');
+    console.log(`📍 Using flips.csv from project root`);
+  } catch (err) {
+    // If not in project root, try Documents folder
+    try {
+      csvText = await fs.promises.readFile(documentsPath, 'utf8');
+      inputPath = documentsPath;
+      console.log(`📍 Using flips.csv from Documents folder`);
+    } catch (err2) {
+      console.error(`❌ Could not find flips.csv in either location:`);
+      console.error(`   - Project root: ${projectRootPath}`);
+      console.error(`   - Documents: ${documentsPath}`);
+      throw err2;
+    }
+  }
 
 
   const { header, records } = parseCSV(csvText);

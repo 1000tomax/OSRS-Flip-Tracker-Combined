@@ -4,6 +4,7 @@
  * Usage: SUPABASE_URL=xxx SUPABASE_KEY=xxx node scripts/upload-new-flips.mjs path/to/flips.csv
  */
 
+import 'dotenv/config';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createHash } from 'crypto';
