@@ -38,8 +38,11 @@ async function fetch24HourVolume() {
   const now = Math.floor(Date.now() / 1000);
   const oneHour = 3600;
 
-  // Generate timestamps for last 24 hours
-  const timestamps = Array.from({ length: 24 }, (_, i) => now - i * oneHour);
+  // Round down to the nearest hour boundary
+  const currentHourStart = Math.floor(now / oneHour) * oneHour;
+
+  // Generate timestamps for last 24 hours (aligned to hour boundaries)
+  const timestamps = Array.from({ length: 24 }, (_, i) => currentHourStart - i * oneHour);
 
   console.log(`📊 Fetching ${timestamps.length} hourly snapshots...`);
 
