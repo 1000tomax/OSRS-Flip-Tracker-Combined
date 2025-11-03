@@ -5,6 +5,38 @@ const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
 const SECONDS_PER_DAY = 86400;
 
+/**
+ * Parse shorthand notation for numbers (e.g., 1m, 1.5m, 10k, 1b)
+ * @param {string} value - The input value (e.g., "1m", "10k", "100000")
+ * @returns {number | null} - The parsed number or null if invalid
+ */
+function parseShorthandNumber(value) {
+  if (!value || typeof value !== 'string') return null;
+
+  const trimmed = value.trim().toLowerCase();
+  if (trimmed === '') return null;
+
+  // Check for shorthand notation
+  const match = trimmed.match(/^(\d+\.?\d*)\s*([kmb]?)$/i);
+  if (!match) return null;
+
+  const num = parseFloat(match[1]);
+  const suffix = match[2];
+
+  if (isNaN(num)) return null;
+
+  switch (suffix) {
+    case 'k':
+      return num * 1000;
+    case 'm':
+      return num * 1000000;
+    case 'b':
+      return num * 1000000000;
+    default:
+      return num;
+  }
+}
+
 export default function ItemSelectorPage({
   items,
   priceData,
@@ -53,8 +85,10 @@ export default function ItemSelectorPage({
       // Price range filter
       const price = priceData[item.id]?.high;
       if (price !== undefined) {
-        if (minPrice && price < parseFloat(minPrice)) return false;
-        if (maxPrice && price > parseFloat(maxPrice)) return false;
+        const minPriceParsed = parseShorthandNumber(minPrice);
+        const maxPriceParsed = parseShorthandNumber(maxPrice);
+        if (minPriceParsed !== null && price < minPriceParsed) return false;
+        if (maxPriceParsed !== null && price > maxPriceParsed) return false;
       } else {
         // If no price data and user set price filters, exclude item
         if (minPrice || maxPrice) return false;
@@ -63,8 +97,10 @@ export default function ItemSelectorPage({
       // Volume range filter (24h volume is stored as a simple number)
       const volume = volumeData[item.id];
       if (volume !== undefined && volume !== null) {
-        if (minVolume && volume < parseFloat(minVolume)) return false;
-        if (maxVolume && volume > parseFloat(maxVolume)) return false;
+        const minVolumeParsed = parseShorthandNumber(minVolume);
+        const maxVolumeParsed = parseShorthandNumber(maxVolume);
+        if (minVolumeParsed !== null && volume < minVolumeParsed) return false;
+        if (maxVolumeParsed !== null && volume > maxVolumeParsed) return false;
       } else {
         // If no volume data and user set volume filters, exclude item
         if (minVolume || maxVolume) return false;
@@ -74,15 +110,19 @@ export default function ItemSelectorPage({
       const userStats = userItemStats[item.name];
       if (minUserGpPerHour || maxUserGpPerHour) {
         const gpPerHour = userStats?.gpPerHour || 0;
-        if (minUserGpPerHour && gpPerHour < parseFloat(minUserGpPerHour)) return false;
-        if (maxUserGpPerHour && gpPerHour > parseFloat(maxUserGpPerHour)) return false;
+        const minGpPerHourParsed = parseShorthandNumber(minUserGpPerHour);
+        const maxGpPerHourParsed = parseShorthandNumber(maxUserGpPerHour);
+        if (minGpPerHourParsed !== null && gpPerHour < minGpPerHourParsed) return false;
+        if (maxGpPerHourParsed !== null && gpPerHour > maxGpPerHourParsed) return false;
       }
 
       // User flip count range filter
       if (minUserFlipCount || maxUserFlipCount) {
         const flipCount = userStats?.flipCount || 0;
-        if (minUserFlipCount && flipCount < parseFloat(minUserFlipCount)) return false;
-        if (maxUserFlipCount && flipCount > parseFloat(maxUserFlipCount)) return false;
+        const minFlipCountParsed = parseShorthandNumber(minUserFlipCount);
+        const maxFlipCountParsed = parseShorthandNumber(maxUserFlipCount);
+        if (minFlipCountParsed !== null && flipCount < minFlipCountParsed) return false;
+        if (maxFlipCountParsed !== null && flipCount > maxFlipCountParsed) return false;
       }
 
       return true;
@@ -439,8 +479,8 @@ export default function ItemSelectorPage({
           <div>
             <label className="block text-sm text-gray-400 mb-2">Min Price (gp)</label>
             <input
-              type="number"
-              placeholder="e.g., 100000"
+              type="text"
+              placeholder="e.g., 1m, 100k, 500000"
               value={minPrice}
               onChange={e => {
                 setMinPrice(e.target.value);
@@ -452,8 +492,8 @@ export default function ItemSelectorPage({
           <div>
             <label className="block text-sm text-gray-400 mb-2">Max Price (gp)</label>
             <input
-              type="number"
-              placeholder="e.g., 5000000"
+              type="text"
+              placeholder="e.g., 5m, 1.5b, 10000000"
               value={maxPrice}
               onChange={e => {
                 setMaxPrice(e.target.value);
@@ -469,8 +509,8 @@ export default function ItemSelectorPage({
           <div>
             <label className="block text-sm text-gray-400 mb-2">Min Volume (24h)</label>
             <input
-              type="number"
-              placeholder="e.g., 2400"
+              type="text"
+              placeholder="e.g., 1k, 2.4k, 2400"
               value={minVolume}
               onChange={e => {
                 setMinVolume(e.target.value);
@@ -482,8 +522,8 @@ export default function ItemSelectorPage({
           <div>
             <label className="block text-sm text-gray-400 mb-2">Max Volume (24h)</label>
             <input
-              type="number"
-              placeholder="e.g., 240000"
+              type="text"
+              placeholder="e.g., 240k, 1m, 240000"
               value={maxVolume}
               onChange={e => {
                 setMaxVolume(e.target.value);
@@ -507,8 +547,8 @@ export default function ItemSelectorPage({
                 <div>
                   <label className="block text-sm text-green-300 mb-2">Min GP/Hour</label>
                   <input
-                    type="number"
-                    placeholder="e.g., 100000"
+                    type="text"
+                    placeholder="e.g., 100k, 1m, 500000"
                     value={minUserGpPerHour}
                     onChange={e => {
                       setMinUserGpPerHour(e.target.value);
@@ -520,8 +560,8 @@ export default function ItemSelectorPage({
                 <div>
                   <label className="block text-sm text-green-300 mb-2">Max GP/Hour</label>
                   <input
-                    type="number"
-                    placeholder="e.g., 1000000"
+                    type="text"
+                    placeholder="e.g., 1m, 10m, 1000000"
                     value={maxUserGpPerHour}
                     onChange={e => {
                       setMaxUserGpPerHour(e.target.value);
