@@ -60,9 +60,9 @@ export default function ItemSelectorPage({
         if (minPrice || maxPrice) return false;
       }
 
-      // Volume range filter
-      const volume = volumeData[item.id]?.highPriceVolume;
-      if (volume !== undefined) {
+      // Volume range filter (24h volume is stored as a simple number)
+      const volume = volumeData[item.id];
+      if (volume !== undefined && volume !== null) {
         if (minVolume && volume < parseFloat(minVolume)) return false;
         if (maxVolume && volume > parseFloat(maxVolume)) return false;
       } else {
@@ -103,8 +103,8 @@ export default function ItemSelectorPage({
       });
     } else if (sortBy === 'volume') {
       filtered.sort((a, b) => {
-        const volumeA = volumeData[a.id]?.highPriceVolume || 0;
-        const volumeB = volumeData[b.id]?.highPriceVolume || 0;
+        const volumeA = volumeData[a.id] || 0;
+        const volumeB = volumeData[b.id] || 0;
         const result = volumeA - volumeB;
         return sortDirection === 'asc' ? result : -result;
       });
@@ -467,10 +467,10 @@ export default function ItemSelectorPage({
         {/* Volume Range Filters */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Min Volume (1h)</label>
+            <label className="block text-sm text-gray-400 mb-2">Min Volume (24h)</label>
             <input
               type="number"
-              placeholder="e.g., 100"
+              placeholder="e.g., 2400"
               value={minVolume}
               onChange={e => {
                 setMinVolume(e.target.value);
@@ -480,10 +480,10 @@ export default function ItemSelectorPage({
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Max Volume (1h)</label>
+            <label className="block text-sm text-gray-400 mb-2">Max Volume (24h)</label>
             <input
               type="number"
-              placeholder="e.g., 10000"
+              placeholder="e.g., 240000"
               value={maxVolume}
               onChange={e => {
                 setMaxVolume(e.target.value);
@@ -606,7 +606,7 @@ export default function ItemSelectorPage({
                   onClick={() => handleSort('volume')}
                 >
                   <div className="flex items-center justify-end gap-1">
-                    Volume (1h)
+                    Volume (24h)
                     {sortBy === 'volume' && <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>}
                   </div>
                 </th>
@@ -645,7 +645,7 @@ export default function ItemSelectorPage({
             <tbody className="divide-y divide-gray-700">
               {paginatedItems.map(item => {
                 const price = priceData[item.id];
-                const volume = volumeData[item.id];
+                const volume24h = volumeData[item.id]; // This is now just a number (24h total)
                 const userStats = userItemStats[item.name];
                 const isChecked = checkedItems.has(item.id);
 
@@ -696,7 +696,7 @@ export default function ItemSelectorPage({
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="text-sm text-gray-300 font-mono">
-                        {volume?.highPriceVolume ? volume.highPriceVolume.toLocaleString() : 'N/A'}
+                        {volume24h ? volume24h.toLocaleString() : 'N/A'}
                       </div>
                     </td>
                     {hasUserData && (
