@@ -79,8 +79,29 @@ export default function GuestItemsList() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { baseItems, setBaseItems, progressive, setProgressive, ui, setUi } = useItemsAnalysis();
-  const [sortKey, setSortKey] = useState(searchParams.get('sort') || ui.sortKey || 'profit');
-  const [sortDir, setSortDir] = useState(searchParams.get('dir') || ui.sortDir || 'desc');
+
+  // Multi-column sorting: array of { key, dir } objects
+  const [sortCriteria, setSortCriteria] = useState(() => {
+    // Try to parse from URL first (format: "profit:desc,flips:asc")
+    const sortParam = searchParams.get('sort');
+    if (sortParam) {
+      const parsed = sortParam
+        .split(',')
+        .map(s => {
+          const [key, dir = 'desc'] = s.split(':');
+          return { key, dir };
+        })
+        .filter(s => s.key);
+      if (parsed.length > 0) return parsed;
+    }
+    // Fall back to UI context
+    if (Array.isArray(ui.sortCriteria) && ui.sortCriteria.length > 0) {
+      return ui.sortCriteria;
+    }
+    // Default: sort by profit descending
+    return [{ key: 'profit', dir: 'desc' }];
+  });
+
   const [filters, setFilters] = useState(() => {
     if (ui.filters instanceof Set && ui.filters.size > 0) return new Set(Array.from(ui.filters));
     return new Set((searchParams.get('filters') || '').split(',').filter(Boolean));
@@ -116,15 +137,16 @@ export default function GuestItemsList() {
   // Keep URL + context UI in sync for persistence between list and detail
   useEffect(() => {
     const sp = new URLSearchParams(searchParams);
-    sp.set('sort', sortKey);
-    sp.set('dir', sortDir);
+    // Encode sortCriteria as "key:dir,key:dir,..."
+    const sortString = sortCriteria.map(s => `${s.key}:${s.dir}`).join(',');
+    sp.set('sort', sortString);
     if (filters.size > 0) sp.set('filters', Array.from(filters).join(','));
     else sp.delete('filters');
     if (terms.length > 0) sp.set('q', terms.join(','));
     else sp.delete('q');
     setSearchParams(sp, { replace: true });
-    setUi({ sortKey, sortDir, filters, terms });
-  }, [sortKey, sortDir, filters, terms]);
+    setUi({ sortCriteria, filters, terms });
+  }, [sortCriteria, filters, terms]);
 
   const allItemsBaseComputed = useItemMetrics(guestData);
   useEffect(() => {
@@ -280,32 +302,49 @@ export default function GuestItemsList() {
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
-    const dir = sortDir === 'asc' ? 1 : -1;
-    arr.sort((a, b) => {
-      switch (sortKey) {
+
+    // Helper to get sort value for a given key
+    const getSortValue = (item, key) => {
+      switch (key) {
         case 'flips':
-          return dir * ((a.flipCount || 0) - (b.flipCount || 0));
-        case 'success': {
-          const primary = dir * ((a.successRate || 0) - (b.successRate || 0));
-          if (primary !== 0) return primary;
-          const profitDiff = (b.totalProfit || 0) - (a.totalProfit || 0);
-          return profitDiff;
-        }
+          return item.flipCount || 0;
+        case 'success':
+          return item.successRate || 0;
         case 'avgProfit':
-          return dir * ((a.avgProfit || 0) - (b.avgProfit || 0));
+          return item.avgProfit || 0;
         case 'avgHeld':
-          return dir * ((a.avgHeldMinutes || 0) - (b.avgHeldMinutes || 0));
+          return item.avgHeldMinutes || 0;
         case 'profitPerHour':
-          return dir * ((a.profitPerHour || 0) - (b.profitPerHour || 0));
+          return item.profitPerHour || 0;
         case 'name':
-          return dir * a.item.localeCompare(b.item);
+          return item.item;
         case 'profit':
         default:
-          return dir * ((a.totalProfit || 0) - (b.totalProfit || 0));
+          return item.totalProfit || 0;
       }
+    };
+
+    arr.sort((a, b) => {
+      // Apply each sort criterion in order until we get a non-zero result
+      for (const { key, dir } of sortCriteria) {
+        const dirMultiplier = dir === 'asc' ? 1 : -1;
+        const valA = getSortValue(a, key);
+        const valB = getSortValue(b, key);
+
+        let result;
+        if (typeof valA === 'string' && typeof valB === 'string') {
+          result = valA.localeCompare(valB);
+        } else {
+          result = (valA || 0) - (valB || 0);
+        }
+
+        result *= dirMultiplier;
+        if (result !== 0) return result;
+      }
+      return 0;
     });
     return arr;
-  }, [filtered, sortKey, sortDir]);
+  }, [filtered, sortCriteria]);
 
   const toggleFilter = key => {
     const next = new Set(filters);
@@ -319,12 +358,38 @@ export default function GuestItemsList() {
     setFilters(next);
   };
 
-  const toggleSort = key => {
-    if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    else {
-      setSortKey(key);
-      setSortDir('desc');
-    }
+  const toggleSort = (key, shiftKey = false) => {
+    setSortCriteria(current => {
+      const existingIndex = current.findIndex(s => s.key === key);
+
+      // Normal click: replace entire sort with this column
+      if (!shiftKey) {
+        if (existingIndex === 0 && current.length === 1) {
+          // Toggle direction if clicking the same single sort
+          return [{ key, dir: current[0].dir === 'asc' ? 'desc' : 'asc' }];
+        }
+        // Otherwise, start fresh with this column descending
+        return [{ key, dir: 'desc' }];
+      }
+
+      // Shift+Click: add secondary/tertiary sort
+      if (existingIndex >= 0) {
+        // Already in list: toggle its direction
+        const updated = [...current];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          dir: updated[existingIndex].dir === 'asc' ? 'desc' : 'asc',
+        };
+        return updated;
+      }
+
+      // Not in list: add it (max 3 sorts)
+      if (current.length >= 3) {
+        // Replace the last sort
+        return [...current.slice(0, 2), { key, dir: 'desc' }];
+      }
+      return [...current, { key, dir: 'desc' }];
+    });
   };
 
   const onClickItem = name => {
@@ -343,6 +408,23 @@ export default function GuestItemsList() {
       return `${hours.toFixed(1)}h`;
     }
     return `${Math.round(minutes)}m`;
+  };
+
+  // Helper to get sort indicator for a column
+  const getSortIndicator = key => {
+    const index = sortCriteria.findIndex(s => s.key === key);
+    if (index === -1) return null;
+
+    const { dir } = sortCriteria[index];
+    const arrow = dir === 'asc' ? '↑' : '↓';
+    const priority = sortCriteria.length > 1 ? ['①', '②', '③'][index] : '';
+
+    return (
+      <span className="ml-1">
+        {priority}
+        {arrow}
+      </span>
+    );
   };
 
   return (
@@ -413,6 +495,16 @@ export default function GuestItemsList() {
           </button>
           <span className="ml-auto text-xs text-gray-400">Items: {countDisplay}</span>
         </div>
+
+        {/* Multi-sort hint */}
+        <div className="mt-3 text-xs text-gray-400 flex items-center gap-2">
+          <span>💡 Tip:</span>
+          <span>
+            Click column headers to sort. Hold{' '}
+            <kbd className="px-1 py-0.5 bg-gray-700 rounded text-gray-300">Shift</kbd> and click to
+            add secondary sorts (up to 3).
+          </span>
+        </div>
       </div>
 
       {/* Results */}
@@ -420,52 +512,52 @@ export default function GuestItemsList() {
         <div className="grid grid-cols-[2fr_1fr_0.6fr_0.6fr_0.8fr_0.8fr_0.9fr_1fr] bg-gray-700 text-sm sticky top-0 z-10">
           <div
             className="px-4 py-2 text-left cursor-pointer hover:bg-gray-600 select-none flex items-center gap-1"
-            onClick={() => toggleSort('name')}
+            onClick={e => toggleSort('name', e.shiftKey)}
           >
             Item
-            {sortKey === 'name' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            {getSortIndicator('name')}
           </div>
           <div
             className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
-            onClick={() => toggleSort('profit')}
+            onClick={e => toggleSort('profit', e.shiftKey)}
           >
             Total Profit
-            {sortKey === 'profit' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            {getSortIndicator('profit')}
           </div>
           <div
             className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
-            onClick={() => toggleSort('flips')}
+            onClick={e => toggleSort('flips', e.shiftKey)}
           >
             Flips
-            {sortKey === 'flips' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            {getSortIndicator('flips')}
           </div>
           <div
             className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
-            onClick={() => toggleSort('success')}
+            onClick={e => toggleSort('success', e.shiftKey)}
           >
             Success
-            {sortKey === 'success' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            {getSortIndicator('success')}
           </div>
           <div
             className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
-            onClick={() => toggleSort('avgProfit')}
+            onClick={e => toggleSort('avgProfit', e.shiftKey)}
           >
             Avg/Flip
-            {sortKey === 'avgProfit' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            {getSortIndicator('avgProfit')}
           </div>
           <div
             className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
-            onClick={() => toggleSort('avgHeld')}
+            onClick={e => toggleSort('avgHeld', e.shiftKey)}
           >
             Avg Held
-            {sortKey === 'avgHeld' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            {getSortIndicator('avgHeld')}
           </div>
           <div
             className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
-            onClick={() => toggleSort('profitPerHour')}
+            onClick={e => toggleSort('profitPerHour', e.shiftKey)}
           >
             GP/Hr
-            {sortKey === 'profitPerHour' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            {getSortIndicator('profitPerHour')}
           </div>
           <div className="px-4 py-2 text-right text-gray-400">Recent</div>
         </div>
