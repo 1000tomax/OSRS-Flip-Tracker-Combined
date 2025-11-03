@@ -343,6 +343,7 @@ export default function GuestItemsList() {
       }
       return 0;
     });
+
     return arr;
   }, [filtered, sortCriteria]);
 
