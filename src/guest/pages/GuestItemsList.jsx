@@ -291,6 +291,10 @@ export default function GuestItemsList() {
           const profitDiff = (b.totalProfit || 0) - (a.totalProfit || 0);
           return profitDiff;
         }
+        case 'avgProfit':
+          return dir * ((a.avgProfit || 0) - (b.avgProfit || 0));
+        case 'avgHeld':
+          return dir * ((a.avgHeldMinutes || 0) - (b.avgHeldMinutes || 0));
         case 'profitPerHour':
           return dir * ((a.profitPerHour || 0) - (b.profitPerHour || 0));
         case 'name':
@@ -388,38 +392,7 @@ export default function GuestItemsList() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mt-2">
-          <span className="text-xs text-gray-400">Sort:</span>
-          <button
-            onClick={() => toggleSort('profit')}
-            className={`text-xs px-2 py-1 rounded ${sortKey === 'profit' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
-          >
-            Profit {sortKey === 'profit' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-          </button>
-          <button
-            onClick={() => toggleSort('profitPerHour')}
-            className={`text-xs px-2 py-1 rounded ${sortKey === 'profitPerHour' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
-          >
-            GP/Hr {sortKey === 'profitPerHour' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-          </button>
-          <button
-            onClick={() => toggleSort('flips')}
-            className={`text-xs px-2 py-1 rounded ${sortKey === 'flips' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
-          >
-            Flips {sortKey === 'flips' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-          </button>
-          <button
-            onClick={() => toggleSort('success')}
-            className={`text-xs px-2 py-1 rounded ${sortKey === 'success' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
-          >
-            Success {sortKey === 'success' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-          </button>
-          <button
-            onClick={() => toggleSort('name')}
-            className={`text-xs px-2 py-1 rounded ${sortKey === 'name' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}
-          >
-            Name {sortKey === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-          </button>
-          <span className="ml-4 text-xs text-gray-400">Filters:</span>
+          <span className="text-xs text-gray-400">Filters:</span>
           <button
             onClick={() => toggleFilter('profit')}
             className={`text-xs px-2 py-1 rounded ${filters.has('profit') ? 'bg-green-700 text-green-100' : 'bg-gray-700 text-gray-200'}`}
@@ -445,14 +418,56 @@ export default function GuestItemsList() {
       {/* Results */}
       <div className="rounded-lg border border-gray-700">
         <div className="grid grid-cols-[2fr_1fr_0.6fr_0.6fr_0.8fr_0.8fr_0.9fr_1fr] bg-gray-700 text-sm sticky top-0 z-10">
-          <div className="px-4 py-2 text-left">Item</div>
-          <div className="px-4 py-2 text-right">Total Profit</div>
-          <div className="px-4 py-2 text-right">Flips</div>
-          <div className="px-4 py-2 text-right">Success</div>
-          <div className="px-4 py-2 text-right">Avg/Flip</div>
-          <div className="px-4 py-2 text-right">Avg Held</div>
-          <div className="px-4 py-2 text-right">GP/Hr</div>
-          <div className="px-4 py-2 text-right">Recent</div>
+          <div
+            className="px-4 py-2 text-left cursor-pointer hover:bg-gray-600 select-none flex items-center gap-1"
+            onClick={() => toggleSort('name')}
+          >
+            Item
+            {sortKey === 'name' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+          </div>
+          <div
+            className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
+            onClick={() => toggleSort('profit')}
+          >
+            Total Profit
+            {sortKey === 'profit' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+          </div>
+          <div
+            className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
+            onClick={() => toggleSort('flips')}
+          >
+            Flips
+            {sortKey === 'flips' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+          </div>
+          <div
+            className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
+            onClick={() => toggleSort('success')}
+          >
+            Success
+            {sortKey === 'success' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+          </div>
+          <div
+            className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
+            onClick={() => toggleSort('avgProfit')}
+          >
+            Avg/Flip
+            {sortKey === 'avgProfit' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+          </div>
+          <div
+            className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
+            onClick={() => toggleSort('avgHeld')}
+          >
+            Avg Held
+            {sortKey === 'avgHeld' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+          </div>
+          <div
+            className="px-4 py-2 text-right cursor-pointer hover:bg-gray-600 select-none flex items-center justify-end gap-1"
+            onClick={() => toggleSort('profitPerHour')}
+          >
+            GP/Hr
+            {sortKey === 'profitPerHour' && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+          </div>
+          <div className="px-4 py-2 text-right text-gray-400">Recent</div>
         </div>
         <VirtualList
           height={Math.min(600, Math.max(200, sorted.length * 56))}
