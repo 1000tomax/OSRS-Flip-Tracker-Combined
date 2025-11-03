@@ -46,27 +46,42 @@ async function fetch24HourVolume() {
 
   console.log(`📊 Fetching ${timestamps.length} hourly snapshots...`);
 
-  // Fetch all 24 hours in parallel
+  // Fetch all 24 hours in parallel with error handling
   const hourlySnapshots = await Promise.all(
     timestamps.map(async (ts, index) => {
-      const response = await fetch(`${BASE_URL}/1h?timestamp=${ts}`, { headers });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch hour ${index + 1}: ${response.status} ${response.statusText}`);
+      try {
+        const response = await fetch(`${BASE_URL}/1h?timestamp=${ts}`, { headers });
+        if (!response.ok) {
+          console.log(`  ⚠ Hour ${index + 1}/24 failed: ${response.status} ${response.statusText}`);
+          return null;
+        }
+        const json = await response.json();
+        console.log(`  ✓ Hour ${index + 1}/24 fetched`);
+        return json.data;
+      } catch (error) {
+        console.log(`  ⚠ Hour ${index + 1}/24 failed: ${error.message}`);
+        return null;
       }
-      const json = await response.json();
-      console.log(`  ✓ Hour ${index + 1}/24 fetched`);
-      return json.data;
     })
   );
 
-  console.log('✅ All hourly snapshots fetched\n');
+  // Count successful vs failed fetches
+  const successfulSnapshots = hourlySnapshots.filter(s => s !== null);
+  const failedCount = hourlySnapshots.length - successfulSnapshots.length;
+
+  console.log(`✅ Successfully fetched ${successfulSnapshots.length}/24 hourly snapshots`);
+  if (failedCount > 0) {
+    console.log(`⚠ ${failedCount} snapshot(s) failed - continuing with available data\n`);
+  } else {
+    console.log();
+  }
+
   console.log('🔄 Aggregating 24-hour volumes...');
 
-  // Aggregate volumes across all hours
+  // Aggregate volumes across all successful hours
   const volume24h = {};
-  const itemNames = {};
 
-  hourlySnapshots.forEach(snapshot => {
+  successfulSnapshots.forEach(snapshot => {
     Object.entries(snapshot).forEach(([itemId, data]) => {
       if (!volume24h[itemId]) {
         volume24h[itemId] = 0;
