@@ -55,6 +55,14 @@ export interface DailySummary {
   avg_roi: number;
 }
 
+export interface ItemVolume {
+  item_id: string;
+  item_name: string | null;
+  volume_24h: number;
+  last_updated: string;
+  created_at: string;
+}
+
 // API Functions
 export async function getFlips({
   limit = 100,
@@ -183,4 +191,36 @@ export async function getFlipsCount(filters?: {
 
   if (error) throw error;
   return count || 0;
+}
+
+// Get OSRS item volumes (cached 24h data)
+export async function getItemVolumes() {
+  const { data, error } = await supabase
+    .from('osrs_item_volumes')
+    .select('*')
+    .order('last_updated', { ascending: false })
+    .limit(1);
+
+  if (error) throw error;
+
+  // Get last update time
+  const lastUpdated = data && data.length > 0 ? data[0].last_updated : null;
+
+  // Fetch all volumes
+  const { data: volumes, error: volumesError } = await supabase
+    .from('osrs_item_volumes')
+    .select('item_id, item_name, volume_24h');
+
+  if (volumesError) throw volumesError;
+
+  // Convert to object keyed by item_id for easy lookup
+  const volumeMap: Record<string, number> = {};
+  volumes?.forEach((vol: ItemVolume) => {
+    volumeMap[vol.item_id] = vol.volume_24h;
+  });
+
+  return {
+    volumes: volumeMap,
+    lastUpdated,
+  };
 }

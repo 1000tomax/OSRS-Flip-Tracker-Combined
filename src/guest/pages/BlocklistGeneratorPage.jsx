@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchItemMapping, fetchLatestPrices, fetch1HourVolume } from '../utils/osrsWikiApi';
+import { fetchItemMapping, fetchLatestPrices } from '../utils/osrsWikiApi';
 import { downloadProfile } from '../components/BlocklistGenerator';
 import ItemSelectorPage from '../components/BlocklistGenerator/ItemSelectorPage';
 import { useGuestData } from '../contexts/GuestDataContext';
+import { getItemVolumes } from '../../utils/supabaseClient';
 
 export default function BlocklistGeneratorPage() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function BlocklistGeneratorPage() {
   const [itemsData, setItemsData] = useState([]);
   const [priceData, setPriceData] = useState({});
   const [volumeData, setVolumeData] = useState({});
+  const [volumeLastUpdated, setVolumeLastUpdated] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   // Calculate user's performance stats per item
@@ -73,12 +75,12 @@ export default function BlocklistGeneratorPage() {
     const loadData = async () => {
       try {
         setDataLoading(true);
-        const [items, prices, volume] = await Promise.all([
+        const [items, prices, volumeResult] = await Promise.all([
           fetchItemMapping(),
           fetchLatestPrices(),
-          fetch1HourVolume().catch(err => {
+          getItemVolumes().catch(err => {
             console.warn('Volume data unavailable:', err);
-            return {};
+            return { volumes: {}, lastUpdated: null };
           }), // Volume is optional
         ]);
 
@@ -86,12 +88,14 @@ export default function BlocklistGeneratorPage() {
         console.log('OSRS Data loaded:', {
           totalItems: items.length,
           itemsWithPrices: Object.keys(prices).length,
-          itemsWithVolume: Object.keys(volume).length,
+          itemsWithVolume: Object.keys(volumeResult.volumes).length,
+          volumeLastUpdated: volumeResult.lastUpdated,
         });
 
         setItemsData(items);
         setPriceData(prices);
-        setVolumeData(volume);
+        setVolumeData(volumeResult.volumes);
+        setVolumeLastUpdated(volumeResult.lastUpdated);
       } catch (err) {
         console.error('Failed to load OSRS data:', err);
         // eslint-disable-next-line no-alert
@@ -129,9 +133,45 @@ export default function BlocklistGeneratorPage() {
     );
   }
 
+  // Helper to format last updated time
+  const formatLastUpdated = timestamp => {
+    if (!timestamp) return 'Unknown';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+    if (diffHours < 1) {
+      return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    } else {
+      return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    }
+  };
+
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Volume data info banner */}
+        {volumeLastUpdated && (
+          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <span className="text-blue-400 text-xl">ℹ️</span>
+              <div className="flex-1">
+                <p className="text-blue-200 text-sm">
+                  <strong>24-hour trading volumes</strong> are updated twice daily (6 AM & 6 PM
+                  UTC).
+                </p>
+                <p className="text-blue-300 text-xs mt-1">
+                  Last updated: <strong>{formatLastUpdated(volumeLastUpdated)}</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Show upload prompt if no guest data */}
         {!guestData && (
           <div className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border-2 border-green-500/60 rounded-lg p-6 mb-6">
