@@ -64,6 +64,11 @@ export default function ItemSelectorPage({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 100;
 
+  // Text import state
+  const [showTextImport, setShowTextImport] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importResults, setImportResults] = useState(null);
+
   // Check if user has any flip data
   const hasUserData = Object.keys(userItemStats).length > 0;
 
@@ -244,6 +249,48 @@ export default function ItemSelectorPage({
     setCurrentPage(1);
   };
 
+  const handleTextImport = () => {
+    if (!importText.trim()) {
+      setImportResults({ matched: [], unmatched: [] });
+      return;
+    }
+
+    // Search the entire text for any known item names
+    // This handles duplicates, split lines, and any formatting
+    const textLower = importText.toLowerCase();
+    const matchedSet = new Set(); // Use Set to avoid duplicate matches
+
+    items.forEach(item => {
+      // Check if the item name appears anywhere in the text (case-insensitive)
+      if (textLower.includes(item.name.toLowerCase())) {
+        matchedSet.add(item.id);
+      }
+    });
+
+    // Convert matched IDs back to item objects
+    const matched = items.filter(item => matchedSet.has(item.id));
+
+    setImportResults({ matched, unmatched: [] });
+  };
+
+  const handleApplyImport = addToExisting => {
+    if (!importResults || importResults.matched.length === 0) return;
+
+    const matchedIds = new Set(importResults.matched.map(item => item.id));
+
+    if (addToExisting) {
+      // Add to existing selection
+      setCheckedItems(new Set([...checkedItems, ...matchedIds]));
+    } else {
+      // Replace selection
+      setCheckedItems(matchedIds);
+    }
+
+    // Clear import
+    setImportText('');
+    setImportResults(null);
+  };
+
   const handleDownload = () => {
     // Prompt user for profile name
     // eslint-disable-next-line no-alert
@@ -411,6 +458,74 @@ export default function ItemSelectorPage({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Text Import Section (Collapsible) */}
+      <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+        <button
+          onClick={() => setShowTextImport(!showTextImport)}
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-750 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📋</span>
+            <span className="text-white font-medium">Import from Text</span>
+            <span className="text-xs text-gray-400">(Paste item list from another tool)</span>
+          </div>
+          <span className="text-gray-400">{showTextImport ? '▼' : '▶'}</span>
+        </button>
+
+        {showTextImport && (
+          <div className="p-4 border-t border-gray-700 space-y-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">
+                Paste your text below (any format works - we'll find item names automatically)
+              </label>
+              <textarea
+                value={importText}
+                onChange={e => setImportText(e.target.value)}
+                placeholder="Twisted bow&#10;Abyssal whip&#10;Dragon claws&#10;...or paste from spreadsheet"
+                className="w-full h-32 px-3 py-2 bg-gray-900 border border-gray-600 rounded text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono text-sm"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleTextImport}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+              >
+                Parse Items
+              </button>
+              {importResults && (
+                <>
+                  <button
+                    onClick={() => handleApplyImport(false)}
+                    disabled={importResults.matched.length === 0}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:opacity-50 text-white rounded transition-colors"
+                  >
+                    Replace Selection ({importResults.matched.length})
+                  </button>
+                  <button
+                    onClick={() => handleApplyImport(true)}
+                    disabled={importResults.matched.length === 0}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:opacity-50 text-white rounded transition-colors"
+                  >
+                    Add to Selection (+{importResults.matched.length})
+                  </button>
+                </>
+              )}
+            </div>
+
+            {importResults && (
+              <div className="bg-gray-900 border border-gray-600 rounded p-3">
+                <div className="text-sm">
+                  <span className="text-green-400 font-semibold">
+                    ✓ Found {importResults.matched.length} items in your text
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Search and Filters */}
