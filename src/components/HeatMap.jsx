@@ -133,7 +133,8 @@ export default function HeatMap({ flips }) {
               }`}
               style={{
                 height: `${height}%`,
-                opacity: intensity > 0 ? Math.max(HEATMAP.MIN_OPACITY, intensity) : HEATMAP.EMPTY_OPACITY,
+                opacity:
+                  intensity > 0 ? Math.max(HEATMAP.MIN_OPACITY, intensity) : HEATMAP.EMPTY_OPACITY,
               }}
             >
               {/* Custom tooltip */}

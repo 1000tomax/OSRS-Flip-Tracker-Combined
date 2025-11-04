@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ReactElement } from 'react';
 import { render, RenderOptions, RenderResult, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -47,7 +45,7 @@ export const createMockFlipData = (overrides: Partial<FlipData> = {}): FlipData 
     received_post_tax: 120000,
     closed_quantity: 100,
     ...overrides,
-  } as unknown as FlipData);
+  }) as unknown as FlipData;
 
 export const createMockItemStats = (overrides: Partial<ItemStats> = {}): ItemStats =>
   ({
@@ -59,7 +57,7 @@ export const createMockItemStats = (overrides: Partial<ItemStats> = {}): ItemSta
     avg_profit_per_flip: 200,
     last_flipped: '2024-01-15',
     ...overrides,
-  } as unknown as ItemStats);
+  }) as unknown as ItemStats;
 
 export const createMockDailySummary = (overrides: Partial<DailySummary> = {}): DailySummary =>
   ({
@@ -73,7 +71,7 @@ export const createMockDailySummary = (overrides: Partial<DailySummary> = {}): D
       { item_name: 'Shark', profit: 1500 },
     ],
     ...overrides,
-  } as unknown as DailySummary);
+  }) as unknown as DailySummary;
 
 // Mock CSV data
 export const mockCsvData = [

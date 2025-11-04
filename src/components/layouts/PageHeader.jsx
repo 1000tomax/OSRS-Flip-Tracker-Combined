@@ -32,16 +32,10 @@ import PropTypes from 'prop-types';
  * @param {number} [props.level] - Heading level (1-6) for semantic HTML
  * @returns {JSX.Element} - Styled page header
  */
-const PageHeader = ({ 
-  title, 
-  description, 
-  icon, 
-  className = '', 
-  level = 1 
-}) => {
+const PageHeader = ({ title, description, icon, className = '', level = 1 }) => {
   // Create the appropriate heading element based on level
   const HeadingComponent = `h${level}`;
-  
+
   const displayTitle = icon ? `${icon} ${title}` : title;
 
   return (
@@ -49,11 +43,7 @@ const PageHeader = ({
       <HeadingComponent className="text-2xl sm:text-3xl font-bold mb-2 text-white">
         {displayTitle}
       </HeadingComponent>
-      {description && (
-        <p className="text-gray-300 text-sm sm:text-base">
-          {description}
-        </p>
-      )}
+      {description && <p className="text-gray-300 text-sm sm:text-base">{description}</p>}
     </div>
   );
 };

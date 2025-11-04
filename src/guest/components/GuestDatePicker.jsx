@@ -9,7 +9,7 @@ export default function GuestDatePicker({ guestData, selectedDate, onDateSelect 
     return Object.entries(guestData.flipsByDate)
       .map(([date, dayData]) => {
         // Handle both old format (array) and new format (object with flips array)
-        const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
+        const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
         const totalProfit = flips.reduce((sum, flip) => sum + (flip.profit || 0), 0);
         const totalFlips = flips.length;
         const uniqueItems = new Set(flips.map(flip => flip.item)).size;

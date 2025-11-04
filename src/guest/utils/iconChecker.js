@@ -1,6 +1,6 @@
 /**
  * Icon Checker for Guest Uploads
- * 
+ *
  * Checks icons for uploaded data and reports failures
  */
 
@@ -13,18 +13,20 @@ import { reportFailedIcons } from '../../utils/iconReporting';
  */
 export async function checkUploadedItemIcons(items) {
   if (!items || items.length === 0) return;
-  
+
   // Extract unique item names
-  const uniqueItems = [...new Set(
-    items
-      .map(item => item.item || item.item_name || item.itemName)
-      .filter(name => name && typeof name === 'string')
-  )];
-  
+  const uniqueItems = [
+    ...new Set(
+      items
+        .map(item => item.item || item.item_name || item.itemName)
+        .filter(name => name && typeof name === 'string')
+    ),
+  ];
+
   if (uniqueItems.length === 0) return;
-  
+
   console.log(`Checking icons for ${uniqueItems.length} unique items from upload...`);
-  
+
   const failedItems = [];
   // Bounded concurrency pool to avoid overwhelming network
   const CONCURRENCY = 10;
@@ -44,7 +46,7 @@ export async function checkUploadedItemIcons(items) {
   };
 
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, uniqueItems.length) }, worker));
-  
+
   // Report failed items if any
   if (failedItems.length > 0) {
     console.log(`Found ${failedItems.length} items with missing icons`);
@@ -52,10 +54,10 @@ export async function checkUploadedItemIcons(items) {
   } else {
     console.log('All icons found successfully');
   }
-  
+
   return {
     total: uniqueItems.length,
     failed: failedItems.length,
-    failedItems
+    failedItems,
   };
 }

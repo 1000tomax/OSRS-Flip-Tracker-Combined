@@ -85,9 +85,7 @@ jobs:
 
       - name: Build project
         run: npm run build
-        env:
-          # Disable data build for CI
-          RUN_DATA_BUILD: false
+        # Note: RUN_DATA_BUILD is not set, so prebuild will skip data generation
 
       - name: Check build output
         run: |

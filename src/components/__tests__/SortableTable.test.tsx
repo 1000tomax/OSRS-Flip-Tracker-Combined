@@ -22,7 +22,8 @@ const mockColumns = [
   {
     key: 'score',
     label: 'Score',
-    render: (value: number | undefined) => (typeof value === 'number' ? `${value.toFixed(1)}%` : '-'),
+    render: (value: number | undefined) =>
+      typeof value === 'number' ? `${value.toFixed(1)}%` : '-',
   },
 ];
 

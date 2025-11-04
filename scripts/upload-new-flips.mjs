@@ -18,7 +18,9 @@ const BATCH_SIZE = 100;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error('❌ Missing environment variables!');
-  console.error('Usage: SUPABASE_URL=xxx SUPABASE_KEY=xxx node scripts/upload-new-flips.mjs path/to/flips.csv');
+  console.error(
+    'Usage: SUPABASE_URL=xxx SUPABASE_KEY=xxx node scripts/upload-new-flips.mjs path/to/flips.csv'
+  );
   process.exit(1);
 }
 
@@ -70,11 +72,16 @@ function transformFlip(csvRow) {
   const avgSellPrice = parseFloat(csvRow['Avg. sell price']) || 0;
   const bought = parseInt(openedQty) || 0;
   const sold = parseInt(closedQty) || 0;
-  const spent = csvRow.spent ? parseInt(csvRow.spent) : (avgBuyPrice * bought);
+  const spent = csvRow.spent ? parseInt(csvRow.spent) : avgBuyPrice * bought;
   const received = avgSellPrice * sold;
   const tax = csvRow.tax_paid || csvRow.Tax ? parseInt(csvRow.tax_paid || csvRow.Tax) : 0;
-  const receivedPostTax = csvRow.received_post_tax ? parseInt(csvRow.received_post_tax) : (received - tax);
-  const profit = csvRow.profit || csvRow.Profit ? parseInt(csvRow.profit || csvRow.Profit) : (receivedPostTax - spent);
+  const receivedPostTax = csvRow.received_post_tax
+    ? parseInt(csvRow.received_post_tax)
+    : received - tax;
+  const profit =
+    csvRow.profit || csvRow.Profit
+      ? parseInt(csvRow.profit || csvRow.Profit)
+      : receivedPostTax - spent;
 
   return {
     account_id: accountId,
@@ -89,9 +96,9 @@ function transformFlip(csvRow) {
     opened_time: openedTime,
     closed_time: closedTime || null,
     updated_time: csvRow.updated_time || closedTime || openedTime,
-    flip_hash: csvRow.flip_hash || createHash('sha256')
-      .update(`${accountId}-${itemName}-${openedTime}`)
-      .digest('hex'),
+    flip_hash:
+      csvRow.flip_hash ||
+      createHash('sha256').update(`${accountId}-${itemName}-${openedTime}`).digest('hex'),
   };
 }
 
@@ -101,9 +108,9 @@ async function insertBatch(flips, batchNum, totalBatches) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': 'resolution=ignore-duplicates',
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      Prefer: 'resolution=ignore-duplicates',
     },
     body: JSON.stringify(flips),
   });
@@ -154,7 +161,9 @@ async function upload() {
     try {
       await insertBatch(batch, batchNum, batches.length);
       successCount += batch.length;
-      process.stdout.write(`\r✓ Batch ${batchNum}/${batches.length} - ${successCount}/${flips.length} flips uploaded`);
+      process.stdout.write(
+        `\r✓ Batch ${batchNum}/${batches.length} - ${successCount}/${flips.length} flips uploaded`
+      );
     } catch (error) {
       if (error.message.includes('duplicate') || error.message.includes('23505')) {
         duplicateCount += batch.length;
@@ -185,8 +194,8 @@ async function upload() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
       },
     });
 

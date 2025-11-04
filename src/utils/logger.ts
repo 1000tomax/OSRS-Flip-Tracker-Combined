@@ -5,9 +5,8 @@
 
 // Removed import - types are defined inline
 
-const nodeEnv = (
-  (globalThis as unknown as { process?: { env?: { NODE_ENV?: string } } }).process?.env?.NODE_ENV
-);
+const nodeEnv = (globalThis as unknown as { process?: { env?: { NODE_ENV?: string } } }).process
+  ?.env?.NODE_ENV;
 const isDevelopment = import.meta.env.DEV || nodeEnv === 'development';
 
 type LogFunction = (...args: unknown[]) => void;

@@ -28,8 +28,6 @@ jobs:
 
       - name: Build project
         run: npm run build
-        env:
-          RUN_DATA_BUILD: false
 
       - name: Run Lighthouse CI
         id: lighthouse

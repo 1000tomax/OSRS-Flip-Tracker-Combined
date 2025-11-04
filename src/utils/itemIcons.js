@@ -1,6 +1,6 @@
 /**
  * OSRS Item Icon Utilities
- * 
+ *
  * Handles fetching and caching of OSRS item icons from the Wiki.
  * Uses localStorage for persistent caching to improve performance.
  */
@@ -14,7 +14,7 @@ const FAILED_CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 day for failed fetches
 const ITEM_NAME_MAPPINGS = {
   // Seeds typically use _5 variant (without _detail)
   'Snapdragon seed': 'Snapdragon_seed_5',
-  'Ranarr seed': 'Ranarr_seed_5', 
+  'Ranarr seed': 'Ranarr_seed_5',
   'Torstol seed': 'Torstol_seed_5',
   'Lantadyme seed': 'Lantadyme_seed_5',
   'Dwarf weed seed': 'Dwarf_weed_seed_5',
@@ -24,10 +24,10 @@ const ITEM_NAME_MAPPINGS = {
   'Irit seed': 'Irit_seed_5',
   'Toadflax seed': 'Toadflax_seed_5',
   'Guam seed': 'Guam_seed_5',
-  
+
   // Darts and projectiles
   'Atlatl dart': 'Atlatl_dart_5',
-  
+
   // Items with charges use base image
   'Ring of dueling(8)': 'Ring_of_dueling',
   'Ring of wealth (5)': 'Ring_of_wealth',
@@ -35,7 +35,7 @@ const ITEM_NAME_MAPPINGS = {
   'Combat bracelet(6)': 'Combat_bracelet',
   'Burning amulet(5)': 'Burning_amulet',
   'Waterskin(4)': 'Waterskin',
-  
+
   // Teleport tablets (these typically don't use _detail)
   'Teleport to house': 'Teleport_to_house_(tablet)',
   'Varrock teleport': 'Varrock_teleport_(tablet)',
@@ -44,11 +44,11 @@ const ITEM_NAME_MAPPINGS = {
   'Lumbridge teleport': 'Lumbridge_teleport_(tablet)',
   'Camelot teleport': 'Camelot_teleport_(tablet)',
   'Watchtower teleport': 'Watchtower_teleport_(tablet)',
-  
+
   // Special arrows (use _5 variant)
   'Dragon arrow(p++)': 'Dragon_arrow%28p%2B%2B%29_5',
   'Dragon arrow(p+)': 'Dragon_arrow%28p%2B%29_5',
-  
+
   // Newer items that use numbered variants
   'Sunfire splinters': 'Sunfire_splinters_1',
   'Sunlight antler bolts': 'Sunlight_antler_bolts',
@@ -56,7 +56,7 @@ const ITEM_NAME_MAPPINGS = {
   'Calcified moth': 'Calcified_moth_1',
   'Crushed infernal shale': 'Crushed_infernal_shale_1',
   'Zombie pirate key': 'Zombie_pirate_key_1',
-  
+
   // Spell tablets
   'Bones to peaches': 'Bones_to_peaches_%28tablet%29',
 };
@@ -68,15 +68,15 @@ const ITEM_NAME_MAPPINGS = {
  */
 function formatItemNameForWiki(itemName) {
   if (!itemName) return '';
-  
+
   // Check for known mappings first
   if (ITEM_NAME_MAPPINGS[itemName]) {
     return ITEM_NAME_MAPPINGS[itemName];
   }
-  
+
   // Trim and handle basic formatting
   const formattedName = itemName.trim();
-  
+
   // Standard formatting: replace spaces with underscores and encode special chars
   // Note: The Wiki uses underscores for spaces and URL encoding for special characters
   return formattedName
@@ -107,46 +107,45 @@ export function getItemIconUrl(itemName, useDetailVersion = true) {
  */
 export function getPossibleIconUrls(itemName) {
   if (!itemName) return [];
-  
+
   const urls = [];
   const formattedName = formatItemNameForWiki(itemName);
-  
+
   // Many items have numbered variations on the Wiki
   // Seeds often use _5, darts use _5, etc.
   const variations = [];
-  
+
   // Check if it's a known item type that uses numbers
-  const needsNumber = 
+  const needsNumber =
     itemName.includes('seed') ||
     itemName.includes('dart') ||
     itemName.includes('arrow') ||
     itemName.includes('bolt') ||
     itemName.includes('splinters');
-  
+
   // Check if it's a teleport tablet
-  const isTeleport = itemName.includes('teleport') || 
-                     itemName.includes('Teleport');
-  
+  const isTeleport = itemName.includes('teleport') || itemName.includes('Teleport');
+
   // For items with charges/doses in parentheses, remove them for base image
   const baseNameMatch = itemName.match(/^([^(]+)(?:\(\d+\))?$/);
   const baseName = baseNameMatch ? baseNameMatch[1].trim() : itemName;
   const formattedBaseName = formatItemNameForWiki(baseName);
-  
+
   // Standard variations to try
   variations.push(formattedName); // Original name
   variations.push(formattedBaseName); // Without parentheses
-  
+
   if (isTeleport) {
     // Teleport tablets use _(tablet) suffix
     variations.push(`${formattedBaseName}_%28tablet%29`);
   }
-  
+
   if (needsNumber) {
     // Try with common number suffixes for these item types
     variations.push(`${formattedBaseName}_5`);
     variations.push(`${formattedBaseName}_1`);
   }
-  
+
   // For each variation, try different suffixes
   // Order matters - we'll try these in sequence
   variations.forEach(variant => {
@@ -160,7 +159,7 @@ export function getPossibleIconUrls(itemName) {
       urls.push(`https://oldschool.runescape.wiki/images/${variant}.png`);
     }
   });
-  
+
   // Remove duplicates while preserving order
   return [...new Set(urls)];
 }
@@ -172,13 +171,13 @@ export function getPossibleIconUrls(itemName) {
  */
 function isCacheValid(cacheEntry) {
   if (!cacheEntry || !cacheEntry.timestamp) return false;
-  
+
   const now = Date.now();
   const age = now - cacheEntry.timestamp;
-  
+
   // Use different cache duration for successful vs failed fetches
   const maxAge = cacheEntry.failed ? FAILED_CACHE_DURATION : CACHE_DURATION;
-  
+
   return age < maxAge;
 }
 
@@ -191,15 +190,15 @@ export function getCachedIconUrl(itemName) {
   try {
     const cacheKey = CACHE_KEY_PREFIX + itemName.toLowerCase();
     const cached = localStorage.getItem(cacheKey);
-    
+
     if (!cached) return null;
-    
+
     const cacheEntry = JSON.parse(cached);
-    
+
     if (isCacheValid(cacheEntry)) {
       return cacheEntry.failed ? null : cacheEntry.url;
     }
-    
+
     // Remove expired cache
     localStorage.removeItem(cacheKey);
     return null;
@@ -221,14 +220,14 @@ export function cacheIconUrl(itemName, url, failed = false) {
     const cacheEntry = {
       url,
       timestamp: Date.now(),
-      failed
+      failed,
     };
-    
+
     localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
   } catch (error) {
     // Handle localStorage quota exceeded or other errors
     console.error('Error caching icon URL:', error);
-    
+
     // Try to clear old cache entries if storage is full
     if (error.name === 'QuotaExceededError') {
       clearOldIconCache();
@@ -242,7 +241,7 @@ export function cacheIconUrl(itemName, url, failed = false) {
 export function clearOldIconCache() {
   try {
     const keys = Object.keys(localStorage);
-    
+
     keys.forEach(key => {
       if (key.startsWith(CACHE_KEY_PREFIX)) {
         try {
@@ -284,13 +283,13 @@ export function clearAllIconCache() {
  * @returns {Promise<boolean>} - Whether the image loaded successfully
  */
 export function preloadImage(url) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const img = new Image();
-    
+
     // Set up event handlers
     img.onload = () => resolve(true);
     img.onerror = () => resolve(false);
-    
+
     // For Wiki images, we need to actually test them
     // The browser can load them despite CORS
     img.src = url;
@@ -304,14 +303,14 @@ export function preloadImage(url) {
  */
 export async function getValidatedIconUrl(itemName) {
   if (!itemName) return null;
-  
+
   // Check cache first
   const cached = getCachedIconUrl(itemName);
   if (cached !== null) return cached;
-  
+
   // Try multiple possible URLs
   const possibleUrls = getPossibleIconUrls(itemName);
-  
+
   for (const url of possibleUrls) {
     const isValid = await preloadImage(url);
     if (isValid) {
@@ -319,7 +318,7 @@ export async function getValidatedIconUrl(itemName) {
       return url;
     }
   }
-  
+
   // None of the URLs worked, cache the failure
   cacheIconUrl(itemName, '', true);
   return null;
@@ -332,19 +331,19 @@ export async function getValidatedIconUrl(itemName) {
  */
 export async function batchFetchIcons(itemNames) {
   const results = new Map();
-  
+
   // Process in parallel but with a limit to avoid overwhelming the server
   const batchSize = 10;
   for (let i = 0; i < itemNames.length; i += batchSize) {
     const batch = itemNames.slice(i, i + batchSize);
-    const promises = batch.map(async (itemName) => {
+    const promises = batch.map(async itemName => {
       const url = await getValidatedIconUrl(itemName);
       results.set(itemName, url);
     });
-    
+
     await Promise.all(promises);
   }
-  
+
   return results;
 }
 

@@ -276,15 +276,22 @@ export function analyzeCategoryPerformance(flips) {
 }
 
 function categorizeItem(itemName) {
-
   // Fallback to old heuristic
   const name = String(itemName || '').toLowerCase();
   if (name.includes('bolt') || name.includes('arrow') || name.includes('dart')) return 'Ammunition';
   if (name.includes('rune') && !name.includes('runite')) return 'Magic';
   if (name.includes('potion') || name.includes('herb')) return 'Consumables';
-  if (name.includes('seed') || name.includes('ore') || name.includes('bar') || name.includes('log') || name.includes('plank')) return 'Skilling';
+  if (
+    name.includes('seed') ||
+    name.includes('ore') ||
+    name.includes('bar') ||
+    name.includes('log') ||
+    name.includes('plank')
+  )
+    return 'Skilling';
   if (name.includes('bone') || name.includes('ashes')) return 'Prayer';
-  if (name.includes('dragon') || name.includes('rune') || name.includes('adamant')) return 'Equipment';
+  if (name.includes('dragon') || name.includes('rune') || name.includes('adamant'))
+    return 'Equipment';
   return 'Other';
 }
 

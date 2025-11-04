@@ -210,6 +210,7 @@ This project uses GitHub Actions for continuous integration and deployment.
 ### Automated Workflows
 
 **On Every Pull Request:**
+
 - ✅ Code quality checks (linting, formatting, type checking)
 - 🧪 Full test suite with coverage reporting
 - 🏗️ Production build verification
@@ -219,27 +220,33 @@ This project uses GitHub Actions for continuous integration and deployment.
 - 🏷️ Automatic PR labeling
 
 **On Merge to Main:**
+
 - 🚀 Automatic deployment to Cloudflare Pages
 - 🔐 Weekly security scans
 
 **Scheduled Tasks:**
+
 - 📊 OSRS volume data updates (every 6 hours)
 - 🧹 Stale issue/PR management (daily)
 
 ### Deployment Previews
 
-Every pull request automatically gets a preview deployment on Cloudflare Pages. The preview URL is posted as a comment on the PR, allowing you to test changes before merging.
+Every pull request automatically gets a preview deployment on Cloudflare Pages.
+The preview URL is posted as a comment on the PR, allowing you to test changes
+before merging.
 
 ### Required Secrets
 
-For workflows to function properly, configure these secrets in **Settings → Secrets and variables → Actions**:
+For workflows to function properly, configure these secrets in **Settings →
+Secrets and variables → Actions**:
 
 - `CLOUDFLARE_API_TOKEN`: For automated deployments
 - `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account identifier
 - `SUPABASE_URL`: Supabase project URL
 - `SUPABASE_KEY`: Supabase service role key
 
-For detailed workflow documentation, see [.github/workflows/README.md](./.github/workflows/README.md).
+For detailed workflow documentation, see
+[.github/workflows/README.md](./.github/workflows/README.md).
 
 ## 📤 Data Deployment Workflow
 

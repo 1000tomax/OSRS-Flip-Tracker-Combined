@@ -68,7 +68,7 @@ class CacheManager {
 
     // Set up periodic cleanup
     this.startCleanupTimer();
-    
+
     // Initialize IndexedDB if needed
     if (this.config.storage === 'indexedDB') {
       this.initIndexedDB();
@@ -158,7 +158,7 @@ class CacheManager {
 
     // Remove from all storage layers
     this.memoryCache.delete(fullKey);
-    
+
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(fullKey);
     }
@@ -198,7 +198,7 @@ class CacheManager {
   getStats(): CacheStats & { hitRate: number; memoryUsage: string } {
     const totalRequests = this.stats.hits + this.stats.misses;
     const hitRate = totalRequests > 0 ? (this.stats.hits / totalRequests) * 100 : 0;
-    
+
     return {
       ...this.stats,
       hitRate: Math.round(hitRate * 100) / 100,
@@ -317,7 +317,7 @@ class CacheManager {
    */
   private isValidEntry(entry: CacheEntry): boolean {
     const now = Date.now();
-    return (now - entry.timestamp) < entry.ttl;
+    return now - entry.timestamp < entry.ttl;
   }
 
   private updateAccessStats(entry: CacheEntry): void {
@@ -356,7 +356,7 @@ class CacheManager {
           const stored = localStorage.getItem(key);
           if (stored) {
             const entry = JSON.parse(stored);
-            if ((now - entry.timestamp) >= entry.ttl) {
+            if (now - entry.timestamp >= entry.ttl) {
               keysToRemove.push(key);
             }
           }
@@ -371,9 +371,12 @@ class CacheManager {
   }
 
   private startCleanupTimer(): void {
-    setInterval(() => {
-      this.cleanup();
-    }, 5 * 60 * 1000); // Cleanup every 5 minutes
+    setInterval(
+      () => {
+        this.cleanup();
+      },
+      5 * 60 * 1000
+    ); // Cleanup every 5 minutes
   }
 
   private cleanup(): void {
@@ -387,7 +390,7 @@ class CacheManager {
     }
 
     keysToDelete.forEach(key => this.memoryCache.delete(key));
-    
+
     if (keysToDelete.length > 0) {
       logger.debug(`Cleaned up ${keysToDelete.length} expired memory cache entries`);
       this.updateCacheStats();
@@ -399,8 +402,10 @@ class CacheManager {
 
   private updateCacheStats(): void {
     this.stats.entryCount = this.memoryCache.size;
-    this.stats.totalSize = Array.from(this.memoryCache.values())
-      .reduce((total, entry) => total + entry.size, 0);
+    this.stats.totalSize = Array.from(this.memoryCache.values()).reduce(
+      (total, entry) => total + entry.size,
+      0
+    );
   }
 
   private estimateSize(data: unknown): number {
@@ -484,7 +489,7 @@ export const CacheUtils = {
   async invalidateStaleData(): Promise<void> {
     const today = DateUtils.formatDate(new Date());
     await this.invalidateDate(today);
-    
+
     // Also invalidate recent data that might have been updated
     const yesterday = DateUtils.formatDate(DateUtils.addDays(new Date(), -1));
     await this.invalidateDate(yesterday);

@@ -30,14 +30,15 @@ function buildInsightsPayload(guestData) {
   const prev7 = last14.slice(0, Math.max(0, last14.length - 7));
   if (curr7.length === 0 || prev7.length === 0) return null;
 
-  const sumBlock = (arr) => {
+  const sumBlock = arr => {
     const flips = arr.reduce((s, d) => s + (d.flipCount || d.total_flips || 0), 0);
     const profit = arr.reduce((s, d) => s + (d.totalProfit ?? d.total_profit ?? 0), 0);
     // Estimate winRate using flipsByDate if present (fallback to 0)
     let wins = 0;
     let total = 0;
     arr.forEach(d => {
-      const flipsForDay = guestData?.flipsByDate?.[d.date]?.flips || guestData?.flipsByDate?.[d.date] || [];
+      const flipsForDay =
+        guestData?.flipsByDate?.[d.date]?.flips || guestData?.flipsByDate?.[d.date] || [];
       if (Array.isArray(flipsForDay)) {
         wins += flipsForDay.filter(f => (f.profit || 0) > 0).length;
         total += flipsForDay.length;
@@ -147,10 +148,13 @@ export default function InsightsCard({ guestData }) {
     }
   };
 
-  const saveCache = (data) => {
+  const saveCache = data => {
     if (!cacheKey) return;
     try {
-      localStorage.setItem(cacheKey, JSON.stringify({ ...data, cachedAt: new Date().toISOString() }));
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({ ...data, cachedAt: new Date().toISOString() })
+      );
     } catch (_e) {
       // noop
     }
@@ -212,7 +216,9 @@ export default function InsightsCard({ guestData }) {
       {payload && (
         <div className="mt-2 text-xs text-gray-400">
           Period: {payload.range.from} → {payload.range.to}
-          <span className="mx-1">(prev {payload.range.prevFrom} → {payload.range.prevTo})</span>
+          <span className="mx-1">
+            (prev {payload.range.prevFrom} → {payload.range.prevTo})
+          </span>
         </div>
       )}
 
@@ -230,7 +236,9 @@ export default function InsightsCard({ guestData }) {
         </div>
       )}
       {!payload && (
-        <div className="mt-3 text-xs text-gray-400">Upload at least 14 days to enable insights.</div>
+        <div className="mt-3 text-xs text-gray-400">
+          Upload at least 14 days to enable insights.
+        </div>
       )}
     </div>
   );

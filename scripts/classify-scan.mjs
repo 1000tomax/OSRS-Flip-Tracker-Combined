@@ -4,7 +4,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { parse } from 'csv-parse/sync';
-import { classifyItem, getCoarseCategory, choosePrimaryCategory } from '../src/lib/classification.js';
+import {
+  classifyItem,
+  getCoarseCategory,
+  choosePrimaryCategory,
+} from '../src/lib/classification.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,7 +92,17 @@ function main() {
   fs.mkdirSync(path.dirname(OUT_JSON), { recursive: true });
   fs.writeFileSync(
     OUT_JSON,
-    JSON.stringify({ totalItems: items.length, coarseSummary, overTagged: overTagged.slice(0, 100), others: others.slice(0, 200), rows }, null, 2)
+    JSON.stringify(
+      {
+        totalItems: items.length,
+        coarseSummary,
+        overTagged: overTagged.slice(0, 100),
+        others: others.slice(0, 200),
+        rows,
+      },
+      null,
+      2
+    )
   );
 
   // Console summary
@@ -108,4 +122,3 @@ function main() {
 }
 
 main();
-

@@ -32,11 +32,7 @@ import LoadingSpinner from '../LoadingSpinner';
  * @param {string} [props.className] - Additional CSS classes for the container
  * @returns {JSX.Element} - Complete loading layout
  */
-const LoadingLayout = ({ 
-  text = 'Loading...', 
-  size = 'large',
-  className = '' 
-}) => {
+const LoadingLayout = ({ text = 'Loading...', size = 'large', className = '' }) => {
   return (
     <PageContainer className={className}>
       <CardContainer>

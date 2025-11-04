@@ -1,6 +1,6 @@
 /**
  * Report Icon Button Component
- * 
+ *
  * Allows users to manually report missing icons
  */
 
@@ -14,15 +14,15 @@ export default function ReportIconButton({ itemName, className = '' }) {
 
   const handleReport = async () => {
     if (isReporting || reported) return;
-    
+
     setIsReporting(true);
-    
+
     try {
-      const success = await reportFailedIcon(itemName, { 
+      const success = await reportFailedIcon(itemName, {
         source: 'Manual Report',
-        username: 'User'
+        username: 'User',
       });
-      
+
       if (success) {
         setReported(true);
         // Show success feedback
@@ -38,11 +38,7 @@ export default function ReportIconButton({ itemName, className = '' }) {
   };
 
   if (reported) {
-    return (
-      <span className={`text-green-400 text-xs ${className}`}>
-        ✓ Reported
-      </span>
-    );
+    return <span className={`text-green-400 text-xs ${className}`}>✓ Reported</span>;
   }
 
   return (

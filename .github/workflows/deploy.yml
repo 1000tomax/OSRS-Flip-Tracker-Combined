@@ -30,8 +30,6 @@ jobs:
 
       - name: Build project
         run: npm run build
-        env:
-          RUN_DATA_BUILD: false
 
       - name: Deploy to Cloudflare Pages
         id: deploy

@@ -30,12 +30,7 @@ import PropTypes from 'prop-types';
  * @param {boolean} [props.overflow] - Whether to allow horizontal overflow
  * @returns {JSX.Element} - Styled card container
  */
-const CardContainer = ({ 
-  children, 
-  className = '', 
-  padding = 'normal',
-  overflow = true 
-}) => {
+const CardContainer = ({ children, className = '', padding = 'normal', overflow = true }) => {
   const paddingClasses = {
     compact: 'p-3 sm:p-4',
     normal: 'p-3 sm:p-6',

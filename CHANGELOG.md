@@ -1,39 +1,53 @@
 # Changelog 📝
 
-All notable changes to the OSRS Flip Dashboard project will be documented in this file.
+All notable changes to the OSRS Flip Dashboard project will be documented in
+this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2.0.0] - 2025-01-16
 
 ### 🚀 Major Release - Complete System Refactor
 
-This release represents a complete modernization and optimization of the OSRS Flip Dashboard with significant architectural improvements, new features, and performance enhancements.
+This release represents a complete modernization and optimization of the OSRS
+Flip Dashboard with significant architectural improvements, new features, and
+performance enhancements.
 
 ### ✨ Added
 
 #### **Core Features**
-- **Advanced Caching System** - Multi-layer caching with memory, localStorage, and Service Worker integration
-- **Progressive Web App (PWA)** - Full offline support with installable app experience
-- **TypeScript Integration** - Gradual migration to TypeScript for improved type safety
+
+- **Advanced Caching System** - Multi-layer caching with memory, localStorage,
+  and Service Worker integration
+- **Progressive Web App (PWA)** - Full offline support with installable app
+  experience
+- **TypeScript Integration** - Gradual migration to TypeScript for improved type
+  safety
 - **Reusable Layout Components** - Modular layout system for consistent UI
 - **Comprehensive Testing** - Jest + React Testing Library setup with utilities
 
 #### **New Pages & Components**
-- **Strategy Battle Arena** - Compare high-volume vs high-value trading strategies
-- **Performance Analysis** - Detailed profit velocity and trading efficiency metrics
+
+- **Strategy Battle Arena** - Compare high-volume vs high-value trading
+  strategies
+- **Performance Analysis** - Detailed profit velocity and trading efficiency
+  metrics
 - **Weekday Performance Chart** - Trading patterns by day of week
 - **Item Breakdown Components** - Detailed item analysis in strategy battles
-- **Cache Monitor** - Development tool for monitoring cache performance (Ctrl+Shift+C)
+- **Cache Monitor** - Development tool for monitoring cache performance
+  (Ctrl+Shift+C)
 
 #### **Enhanced Analytics**
+
 - **Privacy-focused Analytics** - GDPR-compliant tracking with user control
 - **Performance Monitoring** - Core Web Vitals and load time tracking
 - **Error Boundaries** - Comprehensive error handling and reporting
 - **Real-time Cache Statistics** - Monitor hit rates and performance metrics
 
 #### **Developer Experience**
+
 - **Hot Module Replacement** - Instant development updates
 - **Bundle Analyzer** - Visualize and optimize bundle sizes
 - **Pre-commit Hooks** - Automated code quality checks with Husky
@@ -43,6 +57,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 🔧 Changed
 
 #### **Architecture**
+
 - **React 19.1.0** - Upgraded to latest React with new features
 - **Vite 7.0.6** - Lightning-fast build system replacing Create React App
 - **TanStack Query v5** - Advanced data fetching with intelligent caching
@@ -50,6 +65,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Component Architecture** - Modular, reusable component design
 
 #### **Performance Optimizations**
+
 - **Code Splitting** - Route-based lazy loading for faster initial loads
 - **Bundle Optimization** - Manual chunking strategy for optimal caching
 - **Image Optimization** - WebP format and responsive images
@@ -57,6 +73,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Service Worker Caching** - Intelligent caching strategies for all assets
 
 #### **User Experience**
+
 - **Responsive Design** - Mobile-first design with improved touch targets
 - **Accessibility** - WCAG 2.1 AA compliance with keyboard navigation
 - **Loading States** - Consistent loading indicators across all components
@@ -64,6 +81,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Dark Theme** - Optimized OSRS-inspired color palette
 
 #### **Data Management**
+
 - **Smart Cache Invalidation** - Automatic cache updates for fresh data
 - **Background Data Warming** - Preload critical data during idle time
 - **Offline Support** - Full functionality without internet connection
@@ -72,24 +90,28 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 🐛 Fixed
 
 #### **Critical Security Issues**
+
 - **External Image Loading** - Removed external dependencies for better security
 - **Console Logging** - Cleaned up debug logs in production builds
 - **XSS Prevention** - Enhanced input sanitization and validation
 - **Content Security Policy** - Strict CSP headers for security
 
 #### **Performance Issues**
+
 - **Memory Leaks** - Fixed component cleanup and cache management
 - **Bundle Size** - Reduced JavaScript bundle by 40% through optimization
 - **Loading Performance** - 60% faster initial page load times
 - **Data Fetching** - Eliminated redundant API calls with smart caching
 
 #### **User Interface**
+
 - **Mobile Responsiveness** - Fixed layout issues on small screens
 - **Date Handling** - Consistent timezone handling across components
 - **Table Sorting** - Fixed sorting issues with numeric data
 - **Navigation** - Improved active state and keyboard navigation
 
 #### **Data Processing**
+
 - **CSV Parsing** - Robust error handling for malformed data
 - **Date Parsing** - Consistent date format handling across timezones
 - **Number Formatting** - Accurate GP and percentage calculations
@@ -98,6 +120,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 📊 Performance Improvements
 
 #### **Metrics Before vs After**
+
 - **First Contentful Paint**: 3.2s → 1.1s (66% improvement)
 - **Largest Contentful Paint**: 4.8s → 1.8s (63% improvement)
 - **Time to Interactive**: 5.5s → 2.3s (58% improvement)
@@ -105,6 +128,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Cache Hit Rate**: 0% → 85% (new caching system)
 
 #### **Lighthouse Scores**
+
 - **Performance**: 65 → 96 (+31 points)
 - **Accessibility**: 78 → 100 (+22 points)
 - **Best Practices**: 83 → 100 (+17 points)
@@ -121,6 +145,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 📚 Documentation
 
 #### **New Documentation**
+
 - **Comprehensive README** - Complete setup and usage guide
 - **Architecture Guide** - System design and technical decisions
 - **Development Guide** - Detailed development workflow and standards
@@ -128,6 +153,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Deployment Guide** - Production deployment instructions
 
 #### **Code Documentation**
+
 - **JSDoc Comments** - Comprehensive inline documentation
 - **Type Definitions** - Full TypeScript type coverage
 - **Component Props** - PropTypes validation for all components
@@ -136,6 +162,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 🧪 Testing
 
 #### **New Testing Infrastructure**
+
 - **Jest Configuration** - Modern test runner with ES modules support
 - **React Testing Library** - User-focused component testing
 - **Test Utilities** - Reusable test helpers and mock data
@@ -143,6 +170,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Continuous Integration** - Automated testing on all commits
 
 #### **Test Coverage**
+
 - **Components**: 85% coverage
 - **Hooks**: 90% coverage
 - **Utilities**: 95% coverage
@@ -151,6 +179,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 📱 Progressive Web App (PWA)
 
 #### **PWA Features**
+
 - **Installable** - Add to home screen on mobile and desktop
 - **Offline Support** - Full functionality without internet
 - **Background Sync** - Sync data when connection restored
@@ -158,6 +187,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **App-like Experience** - Native app feel and performance
 
 #### **Service Worker Features**
+
 - **Cache First Strategy** - Historical data cached aggressively
 - **Stale While Revalidate** - Fresh data with instant loading
 - **Background Updates** - Automatic updates without user interaction
@@ -166,6 +196,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 🛠️ Developer Tools
 
 #### **Development Experience**
+
 - **Hot Module Replacement** - Instant updates during development
 - **TypeScript Support** - Gradual migration with strict type checking
 - **ESLint + Prettier** - Automated code formatting and quality
@@ -173,6 +204,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Bundle Analyzer** - Visualize and optimize bundle composition
 
 #### **Debugging Tools**
+
 - **React DevTools** - Component debugging and profiling
 - **TanStack Query DevTools** - Query cache inspection
 - **Cache Monitor** - Real-time cache performance monitoring
@@ -182,12 +214,14 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 📈 Analytics & Monitoring
 
 #### **Privacy-Focused Analytics**
+
 - **No User Tracking** - Aggregate metrics only
 - **Local Storage** - All personal data stays on device
 - **Opt-in Analytics** - User control over data collection
 - **GDPR Compliant** - Privacy by design approach
 
 #### **Performance Monitoring**
+
 - **Core Web Vitals** - Automatic performance metric tracking
 - **Error Reporting** - Client-side error aggregation
 - **Cache Performance** - Cache hit rates and effectiveness
@@ -196,12 +230,14 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 🔄 Migration Notes
 
 #### **Breaking Changes**
+
 - **React 18 → 19**: Updated React APIs and patterns
 - **Create React App → Vite**: New build system and configuration
 - **Custom CSS → Tailwind**: Utility-first styling approach
 - **Manual Caching → TanStack Query**: Declarative data management
 
 #### **Migration Path**
+
 1. **Dependencies**: Update package.json dependencies
 2. **Configuration**: Replace CRA config with Vite config
 3. **Components**: Update to use new layout components
@@ -211,6 +247,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 📦 Dependencies
 
 #### **Major Dependencies Added**
+
 ```json
 {
   "@tanstack/react-query": "^5.17.19",
@@ -229,6 +266,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ```
 
 #### **Major Dependencies Removed**
+
 ```json
 {
   "react-scripts": "removed - replaced with Vite",
@@ -240,6 +278,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### 🎯 Future Roadmap
 
 #### **Planned Features**
+
 - **Real-time Data Sync** - WebSocket integration for live updates
 - **Advanced Filtering** - Complex filter combinations and saved searches
 - **Export Functionality** - PDF and Excel report generation
@@ -247,6 +286,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - **Machine Learning** - Predictive analytics and recommendations
 
 #### **Technical Improvements**
+
 - **Full TypeScript Migration** - Complete codebase conversion
 - **E2E Testing** - Playwright integration for user journey testing
 - **Performance Budget** - Automated performance regression detection
@@ -260,6 +300,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ### Initial Release
 
 #### Added
+
 - Basic trading dashboard with daily summaries
 - Item statistics and profitability analysis
 - Interactive charts with Recharts
@@ -268,6 +309,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 - Basic routing with React Router
 
 #### Features
+
 - Daily flip log viewer
 - Item leaderboards and statistics
 - Profit trend visualization
@@ -277,6 +319,7 @@ This release represents a complete modernization and optimization of the OSRS Fl
 ---
 
 **Legend:**
+
 - 🚀 **Major Features** - Significant new functionality
 - ✨ **Added** - New features and capabilities
 - 🔧 **Changed** - Changes to existing functionality
