@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Navigation from './components/Navigation';
 import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
+import SupportButton from './components/Footer';
 
 // Lazy load most page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -72,6 +73,7 @@ function AppContent() {
           </Routes>
         </Suspense>
       </main>
+      <SupportButton />
     </div>
   );
 }
