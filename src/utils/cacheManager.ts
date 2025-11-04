@@ -88,7 +88,7 @@ class CacheManager {
         this.updateAccessStats(memoryEntry);
         this.stats.hits++;
         logger.debug(`Cache HIT (memory): ${key}`);
-        return memoryEntry.data;
+        return memoryEntry.data as T;
       }
 
       // 2. Try localStorage (medium speed)
