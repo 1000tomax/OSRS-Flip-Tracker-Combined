@@ -143,7 +143,7 @@ export default function SortableTable({
                   // Check if this is an item column that should have an icon
                   const isItemColumn = ['item', 'item_name', 'itemName'].includes(column.key);
                   const value = row[column.key];
-                  
+
                   return (
                     <td
                       key={column.key}
@@ -153,10 +153,7 @@ export default function SortableTable({
                       {column.render ? (
                         column.render(row[column.key], row)
                       ) : isItemColumn && value ? (
-                        <ItemWithIcon 
-                          itemName={value} 
-                          textClassName="text-white font-medium"
-                        />
+                        <ItemWithIcon itemName={value} textClassName="text-white font-medium" />
                       ) : (
                         row[column.key]
                       )}

@@ -1,6 +1,7 @@
 # API Reference 📚
 
-Complete reference for components, hooks, utilities, and types used in the OSRS Flip Dashboard.
+Complete reference for components, hooks, utilities, and types used in the OSRS
+Flip Dashboard.
 
 ## 📋 Table of Contents
 
@@ -16,7 +17,8 @@ Complete reference for components, hooks, utilities, and types used in the OSRS 
 
 #### PageContainer
 
-Provides the foundational page layout with gradient background and responsive padding.
+Provides the foundational page layout with gradient background and responsive
+padding.
 
 ```typescript
 interface PageContainerProps {
@@ -25,10 +27,11 @@ interface PageContainerProps {
   padding?: 'normal' | 'compact' | 'none';
 }
 
-function PageContainer(props: PageContainerProps): JSX.Element
+function PageContainer(props: PageContainerProps): JSX.Element;
 ```
 
 **Usage:**
+
 ```jsx
 <PageContainer padding="normal">
   <div>Your page content</div>
@@ -36,6 +39,7 @@ function PageContainer(props: PageContainerProps): JSX.Element
 ```
 
 **Props:**
+
 - `children` - Content to render inside the container
 - `className` - Additional CSS classes to apply
 - `padding` - Padding variant for different page types
@@ -54,10 +58,11 @@ interface CardContainerProps {
   overflow?: boolean;
 }
 
-function CardContainer(props: CardContainerProps): JSX.Element
+function CardContainer(props: CardContainerProps): JSX.Element;
 ```
 
 **Usage:**
+
 ```jsx
 <CardContainer padding="normal" overflow={true}>
   <h2>Card Title</h2>
@@ -80,13 +85,14 @@ interface PageHeaderProps {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-function PageHeader(props: PageHeaderProps): JSX.Element
+function PageHeader(props: PageHeaderProps): JSX.Element;
 ```
 
 **Usage:**
+
 ```jsx
-<PageHeader 
-  title="Trading Statistics" 
+<PageHeader
+  title="Trading Statistics"
   description="Comprehensive trading analytics"
   icon="📊"
   level={1}
@@ -102,15 +108,23 @@ Flexible grid layout with predefined responsive patterns.
 ```typescript
 interface ResponsiveGridProps {
   children: React.ReactNode;
-  variant?: 'auto' | 'twoColumn' | 'equal' | 'threeEqual' | 'fourColumn' | 'sidebar' | 'cards';
+  variant?:
+    | 'auto'
+    | 'twoColumn'
+    | 'equal'
+    | 'threeEqual'
+    | 'fourColumn'
+    | 'sidebar'
+    | 'cards';
   gap?: 'none' | 'small' | 'normal' | 'large';
   className?: string;
 }
 
-function ResponsiveGrid(props: ResponsiveGridProps): JSX.Element
+function ResponsiveGrid(props: ResponsiveGridProps): JSX.Element;
 ```
 
 **Usage:**
+
 ```jsx
 <ResponsiveGrid variant="twoColumn" gap="normal">
   <MainContent />
@@ -131,7 +145,7 @@ interface LoadingLayoutProps {
   className?: string;
 }
 
-function LoadingLayout(props: LoadingLayoutProps): JSX.Element
+function LoadingLayout(props: LoadingLayoutProps): JSX.Element;
 ```
 
 ---
@@ -148,7 +162,7 @@ interface ErrorLayoutProps {
   className?: string;
 }
 
-function ErrorLayout(props: ErrorLayoutProps): JSX.Element
+function ErrorLayout(props: ErrorLayoutProps): JSX.Element;
 ```
 
 ### UI Components
@@ -164,7 +178,7 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-function LoadingSpinner(props: LoadingSpinnerProps): JSX.Element
+function LoadingSpinner(props: LoadingSpinnerProps): JSX.Element;
 ```
 
 ---
@@ -191,31 +205,32 @@ interface SortableTableProps<T> {
   className?: string;
 }
 
-function SortableTable<T>(props: SortableTableProps<T>): JSX.Element
+function SortableTable<T>(props: SortableTableProps<T>): JSX.Element;
 ```
 
 **Usage:**
+
 ```jsx
 const columns = [
   {
     key: 'name',
     label: 'Item Name',
-    render: (value) => <span className="font-bold">{value}</span>
+    render: value => <span className="font-bold">{value}</span>,
   },
   {
     key: 'profit',
     label: 'Profit',
-    sortValue: (row) => row.profit,
-    render: (value) => <span className="text-green-400">{formatGP(value)}</span>
-  }
+    sortValue: row => row.profit,
+    render: value => <span className="text-green-400">{formatGP(value)}</span>,
+  },
 ];
 
-<SortableTable 
+<SortableTable
   data={items}
   columns={columns}
   initialSortField="profit"
   initialSortDirection="desc"
-/>
+/>;
 ```
 
 ---
@@ -235,7 +250,7 @@ interface SearchControlsProps {
   className?: string;
 }
 
-function SearchControls(props: SearchControlsProps): JSX.Element
+function SearchControls(props: SearchControlsProps): JSX.Element;
 ```
 
 ---
@@ -253,7 +268,7 @@ interface DateNavigationProps {
   onDateChange?: (date: string) => void;
 }
 
-function DateNavigation(props: DateNavigationProps): JSX.Element
+function DateNavigation(props: DateNavigationProps): JSX.Element;
 ```
 
 ### Chart Components
@@ -272,7 +287,7 @@ interface NetWorthChartProps {
   className?: string;
 }
 
-function NetWorthChart(props: NetWorthChartProps): JSX.Element
+function NetWorthChart(props: NetWorthChartProps): JSX.Element;
 ```
 
 ---
@@ -291,7 +306,7 @@ interface DailyProfitChartProps {
   className?: string;
 }
 
-function DailyProfitChart(props: DailyProfitChartProps): JSX.Element
+function DailyProfitChart(props: DailyProfitChartProps): JSX.Element;
 ```
 
 ## 🎣 Hooks
@@ -323,10 +338,14 @@ interface DataHookResult<T> {
   refetch: () => void;
 }
 
-function useApiData<T>(url: string, options?: ApiDataOptions): DataHookResult<T>
+function useApiData<T>(
+  url: string,
+  options?: ApiDataOptions
+): DataHookResult<T>;
 ```
 
 **Usage:**
+
 ```typescript
 // JSON data
 const { data, loading, error } = useApiData('/api/summary.json');
@@ -335,7 +354,7 @@ const { data, loading, error } = useApiData('/api/summary.json');
 const { data: flips } = useApiData('/data/flips.csv', {
   parser: 'csv',
   cacheStrategy: 'aggressive',
-  transform: (data) => data.filter(flip => flip.profit > 0)
+  transform: data => data.filter(flip => flip.profit > 0),
 });
 ```
 
@@ -347,9 +366,9 @@ Specialized hook for CSV file processing.
 
 ```typescript
 function useCsvData<T>(
-  filePath: string, 
+  filePath: string,
   options?: Omit<ApiDataOptions, 'parser'>
-): DataHookResult<T[]>
+): DataHookResult<T[]>;
 ```
 
 ---
@@ -362,7 +381,7 @@ Specialized hook for JSON data loading.
 function useJsonData<T>(
   filePath: string,
   options?: Omit<ApiDataOptions, 'parser'>
-): DataHookResult<T>
+): DataHookResult<T>;
 ```
 
 ### Business Logic Hooks
@@ -380,7 +399,7 @@ interface AllFlipsResult {
   progress: number;
 }
 
-function useAllFlips(): AllFlipsResult
+function useAllFlips(): AllFlipsResult;
 ```
 
 ---
@@ -398,7 +417,10 @@ interface StrategyAnalysisResult {
   error?: string;
 }
 
-function useStrategyAnalysis(flips: FlipData[], date: string): StrategyAnalysisResult
+function useStrategyAnalysis(
+  flips: FlipData[],
+  date: string
+): StrategyAnalysisResult;
 ```
 
 ---
@@ -423,7 +445,7 @@ function useDailySummaries(): {
   data: DailySummaryData[] | null;
   loading: boolean;
   error: string | null;
-}
+};
 ```
 
 ### Analytics Hooks
@@ -442,7 +464,7 @@ interface AnalyticsHook {
   trackPreference: (setting: string, value: string) => void;
 }
 
-function useAnalytics(): AnalyticsHook
+function useAnalytics(): AnalyticsHook;
 ```
 
 ## 🛠️ Utilities
@@ -457,23 +479,23 @@ Comprehensive date manipulation utilities.
 class DateUtils {
   // Format date to string
   static formatDate(date: Date): string;
-  
+
   // Parse date parts
   static parseDateParts(dateString: string): {
     month: string;
     day: string;
     year: string;
   };
-  
+
   // Add/subtract days
   static addDays(date: Date, days: number): Date;
-  
+
   // Get Chicago timezone date
   static toChicagoTime(date: Date): Date;
-  
+
   // Check if date is today
   static isToday(date: Date): boolean;
-  
+
   // Get date range
   static getDateRange(start: Date, end: Date): Date[];
 }
@@ -509,13 +531,13 @@ Advanced multi-layer caching system.
 ```typescript
 class CacheManager {
   constructor(config: CacheConfig);
-  
+
   // Cache operations
   async get<T>(key: string): Promise<T | null>;
   async set<T>(key: string, data: T, customTtl?: number): Promise<void>;
   async invalidate(key: string): Promise<void>;
   async invalidatePattern(pattern: string): Promise<void>;
-  
+
   // Statistics
   getStats(): CacheStats & { hitRate: number; memoryUsage: string };
 }
@@ -537,19 +559,19 @@ Privacy-focused analytics system.
 class Analytics {
   // Track page views
   trackPageView(event: PageViewEvent): void;
-  
+
   // Track custom events
   trackEvent(event: AnalyticsEvent): void;
-  
+
   // Track trading-specific events
   trackTradingEvent(action: string, details?: any): void;
-  
+
   // Track user engagement
   trackEngagement(action: string, context: string): void;
-  
+
   // Track performance metrics
   trackPerformance(metric: string, value: number): void;
-  
+
   // Track errors
   trackError(error: Error, context: string): void;
 }
@@ -694,13 +716,13 @@ import { useQueryClient } from '@tanstack/react-query';
 
 function MyComponent() {
   const queryClient = useQueryClient();
-  
+
   // Invalidate queries
   queryClient.invalidateQueries(['api-data']);
-  
+
   // Get cached data
   const cachedData = queryClient.getQueryData(['api-data', '/endpoint']);
-  
+
   // Set query data
   queryClient.setQueryData(['api-data', '/endpoint'], newData);
 }
@@ -712,13 +734,13 @@ function MyComponent() {
 
 ```tsx
 import React, { useState } from 'react';
-import { 
-  PageContainer, 
-  CardContainer, 
-  PageHeader, 
-  LoadingLayout, 
+import {
+  PageContainer,
+  CardContainer,
+  PageHeader,
+  LoadingLayout,
   ErrorLayout,
-  ResponsiveGrid 
+  ResponsiveGrid,
 } from '../components/layouts';
 import { SearchControls, SortableTable } from '../components/ui';
 import { useCsvData } from '../hooks/useApiData';
@@ -727,55 +749,55 @@ import { formatGP, formatPercent } from '../utils/formatUtils';
 export default function ItemsPage() {
   const [query, setQuery] = useState('');
   const { data: items, loading, error } = useCsvData('/data/item-stats.csv');
-  
+
   if (loading) return <LoadingLayout text="Loading item statistics..." />;
   if (error) return <ErrorLayout title="Failed to load items" error={error} />;
-  
-  const filteredItems = items.filter(item => 
+
+  const filteredItems = items.filter(item =>
     item.item_name.toLowerCase().includes(query.toLowerCase())
   );
-  
+
   const columns = [
     {
       key: 'item_name',
       label: 'Item Name',
-      render: (value) => <span className="font-medium">{value}</span>
+      render: value => <span className="font-medium">{value}</span>,
     },
     {
       key: 'total_profit',
       label: 'Total Profit',
-      render: (value) => (
+      render: value => (
         <span className={value >= 0 ? 'text-green-400' : 'text-red-400'}>
           {formatGP(value)} GP
         </span>
-      )
+      ),
     },
     {
       key: 'roi_percent',
       label: 'ROI %',
-      render: (value) => (
+      render: value => (
         <span className={value >= 0 ? 'text-green-400' : 'text-red-400'}>
           {formatPercent(value)}
         </span>
-      )
-    }
+      ),
+    },
   ];
-  
+
   return (
     <PageContainer>
       <CardContainer>
-        <PageHeader 
-          title="Item Statistics" 
+        <PageHeader
+          title="Item Statistics"
           description="Comprehensive trading performance by item"
           icon="📊"
         />
-        
+
         <SearchControls
           query={query}
           onQueryChange={setQuery}
           placeholder="Search items..."
         />
-        
+
         <SortableTable
           data={filteredItems}
           columns={columns}
@@ -790,4 +812,6 @@ export default function ItemsPage() {
 
 ---
 
-This API reference provides complete documentation for all major components, hooks, and utilities in the OSRS Flip Dashboard. Use it as a reference when developing new features or integrating existing functionality.
+This API reference provides complete documentation for all major components,
+hooks, and utilities in the OSRS Flip Dashboard. Use it as a reference when
+developing new features or integrating existing functionality.

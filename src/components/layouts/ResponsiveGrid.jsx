@@ -30,32 +30,27 @@ import PropTypes from 'prop-types';
  * @param {string} [props.className] - Additional CSS classes
  * @returns {JSX.Element} - Responsive grid container
  */
-const ResponsiveGrid = ({ 
-  children, 
-  variant = 'auto',
-  gap = 'normal',
-  className = '' 
-}) => {
+const ResponsiveGrid = ({ children, variant = 'auto', gap = 'normal', className = '' }) => {
   // Grid layout variants for different use cases
   const gridVariants = {
     // Auto-fit grid that adapts to content
     auto: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    
+
     // Two column layout (used in Home page)
     twoColumn: 'flex flex-col xl:grid xl:grid-cols-[2fr_1fr]',
-    
+
     // Equal columns that stack on mobile
     equal: 'grid-cols-1 md:grid-cols-2',
-    
+
     // Three equal columns
     threeEqual: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    
+
     // Four columns for dense content
     fourColumn: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-    
+
     // Sidebar layout (main content + narrow sidebar)
     sidebar: 'grid-cols-1 lg:grid-cols-[1fr_300px]',
-    
+
     // Cards layout for statistics/metrics
     cards: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
   };
@@ -85,7 +80,7 @@ ResponsiveGrid.propTypes = {
   children: PropTypes.node.isRequired,
   variant: PropTypes.oneOf([
     'auto',
-    'twoColumn', 
+    'twoColumn',
     'equal',
     'threeEqual',
     'fourColumn',

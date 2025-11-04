@@ -1,6 +1,6 @@
 /**
  * ItemIcon Component
- * 
+ *
  * Displays OSRS item icons with lazy loading and error handling.
  * Fetches icons from the OSRS Wiki and caches them for performance.
  */
@@ -33,8 +33,8 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
     }
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             setIsVisible(true);
             observer.disconnect();
@@ -63,7 +63,7 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
 
       try {
         const url = await getValidatedIconUrl(itemName);
-        
+
         if (!cancelled) {
           if (url) {
             setIconUrl(url);
@@ -133,24 +133,24 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
 
 /**
  * ItemWithIcon Component
- * 
+ *
  * Convenience component that displays an item name with its icon.
  * Used in tables and lists for consistent formatting.
  */
-export function ItemWithIcon({ itemName, size = 24, className = '', textClassName = '', showReportButton = false }) {
+export function ItemWithIcon({
+  itemName,
+  size = 24,
+  className = '',
+  textClassName = '',
+  showReportButton = false,
+}) {
   const [iconFailed, setIconFailed] = useState(false);
-  
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <ItemIcon 
-        itemName={itemName} 
-        size={size}
-        onError={() => setIconFailed(true)}
-      />
+      <ItemIcon itemName={itemName} size={size} onError={() => setIconFailed(true)} />
       <span className={textClassName}>{itemName}</span>
-      {showReportButton && iconFailed && (
-        <ReportIconButton itemName={itemName} />
-      )}
+      {showReportButton && iconFailed && <ReportIconButton itemName={itemName} />}
     </div>
   );
 }

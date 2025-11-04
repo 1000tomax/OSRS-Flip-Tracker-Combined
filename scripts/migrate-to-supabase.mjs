@@ -58,9 +58,11 @@ function transformFlip(csvRow) {
     opened_time: csvRow.opened_time,
     closed_time: csvRow.closed_time || null,
     updated_time: csvRow.updated_time || csvRow.closed_time || csvRow.opened_time,
-    flip_hash: csvRow.flip_hash || createHash('sha256')
-      .update(`${csvRow.account_id}-${csvRow.item_name}-${csvRow.opened_time}`)
-      .digest('hex'),
+    flip_hash:
+      csvRow.flip_hash ||
+      createHash('sha256')
+        .update(`${csvRow.account_id}-${csvRow.item_name}-${csvRow.opened_time}`)
+        .digest('hex'),
   };
 }
 
@@ -92,9 +94,9 @@ async function insertBatch(flips, batchNum, totalBatches) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': 'resolution=ignore-duplicates', // Skip duplicates based on flip_hash
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      Prefer: 'resolution=ignore-duplicates', // Skip duplicates based on flip_hash
     },
     body: JSON.stringify(flips),
   });
@@ -167,7 +169,9 @@ async function migrate() {
     try {
       await insertBatch(batch, batchNum, batches.length);
       successCount += batch.length;
-      process.stdout.write(`\r✓ Batch ${batchNum}/${batches.length} - ${successCount}/${totalFlips} flips migrated`);
+      process.stdout.write(
+        `\r✓ Batch ${batchNum}/${batches.length} - ${successCount}/${totalFlips} flips migrated`
+      );
     } catch (error) {
       errorCount += batch.length;
       console.error(`\n❌ Batch ${batchNum} failed:`, error.message);
@@ -190,8 +194,8 @@ async function migrate() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
       },
     });
 

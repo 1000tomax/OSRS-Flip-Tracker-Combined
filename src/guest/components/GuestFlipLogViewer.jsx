@@ -115,10 +115,7 @@ export default function GuestFlipLogViewer({
       headerClass: 'text-left',
       cellClass: 'text-left',
       render: value => (
-        <ItemWithIcon 
-          itemName={value || 'Unknown Item'} 
-          textClassName="text-white font-medium"
-        />
+        <ItemWithIcon itemName={value || 'Unknown Item'} textClassName="text-white font-medium" />
       ),
     },
     {

@@ -63,8 +63,8 @@ class Analytics {
     this.trackEvent({
       category: 'Trading',
       action,
-      label: details?.item_name || details?.strategy || 'general',
-      value: details?.profit || details?.quantity || 1,
+      label: (details?.item_name as string) || (details?.strategy as string) || 'general',
+      value: (details?.profit as number) || (details?.quantity as number) || 1,
     });
   }
 

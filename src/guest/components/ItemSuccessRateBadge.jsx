@@ -21,4 +21,3 @@ export default function ItemSuccessRateBadge({ value }) {
 ItemSuccessRateBadge.propTypes = {
   value: PropTypes.number,
 };
-

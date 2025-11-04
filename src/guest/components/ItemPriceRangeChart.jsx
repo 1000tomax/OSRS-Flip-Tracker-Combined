@@ -3,9 +3,12 @@ import { formatGP } from '../../utils/formatUtils';
 import PropTypes from 'prop-types';
 
 function computeQuartiles(values) {
-  const xs = values.filter(v => Number.isFinite(v)).slice().sort((a,b) => a-b);
+  const xs = values
+    .filter(v => Number.isFinite(v))
+    .slice()
+    .sort((a, b) => a - b);
   if (xs.length === 0) return null;
-  const q = (p) => {
+  const q = p => {
     const idx = (xs.length - 1) * p;
     const lo = Math.floor(idx);
     const hi = Math.ceil(idx);
@@ -24,10 +27,13 @@ function computeQuartiles(values) {
 
 export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] }) {
   const [showInfo, setShowInfo] = useState(false);
-  const stats = useMemo(() => ({
-    buy: computeQuartiles(buyPrices),
-    sell: computeQuartiles(sellPrices),
-  }), [buyPrices, sellPrices]);
+  const stats = useMemo(
+    () => ({
+      buy: computeQuartiles(buyPrices),
+      sell: computeQuartiles(sellPrices),
+    }),
+    [buyPrices, sellPrices]
+  );
 
   if (!stats.buy && !stats.sell) {
     return <div className="bg-gray-800 p-4 rounded text-gray-300">No price data available</div>;
@@ -44,7 +50,7 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
   const height = 120;
   const pad = 20;
 
-  const scaleX = (v) => {
+  const scaleX = v => {
     if (vMax === vMin) return pad + (width - 2 * pad) / 2;
     return pad + ((v - vMin) / (vMax - vMin)) * (width - 2 * pad);
   };
@@ -62,11 +68,20 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
         <line x1={xMin} y1={y} x2={xQ1} y2={y} stroke="#9CA3AF" strokeWidth="2" />
         <line x1={xQ3} y1={y} x2={xMax} y2={y} stroke="#9CA3AF" strokeWidth="2" />
         {/* box */}
-        <rect x={xQ1} y={y - 10} width={Math.max(2, xQ3 - xQ1)} height={20} fill="#374151" stroke="#60a5fa" />
+        <rect
+          x={xQ1}
+          y={y - 10}
+          width={Math.max(2, xQ3 - xQ1)}
+          height={20}
+          fill="#374151"
+          stroke="#60a5fa"
+        />
         {/* median */}
         <line x1={xMed} y1={y - 12} x2={xMed} y2={y + 12} stroke="#60a5fa" strokeWidth="2" />
         {/* label */}
-        <text x={pad} y={y - 16} fill="#E5E7EB" fontSize="12">{label} (n={s.count})</text>
+        <text x={pad} y={y - 16} fill="#E5E7EB" fontSize="12">
+          {label} (n={s.count})
+        </text>
       </g>
     );
   };
@@ -89,22 +104,12 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
       </div>
       {showInfo && (
         <div className="mb-3 text-xs text-gray-300 bg-gray-700/50 border border-gray-600 rounded p-3">
-          <p className="mb-2">
-            This box plot summarizes the prices you actually traded at:
-          </p>
+          <p className="mb-2">This box plot summarizes the prices you actually traded at:</p>
           <ul className="list-disc ml-5 space-y-1">
-            <li>
-              Box = middle 50% of prices (from Q1 to Q3). Line inside the box = median.
-            </li>
-            <li>
-              Whiskers stretch to the minimum and maximum observed prices.
-            </li>
-            <li>
-              Narrow box = consistent prices. Wide box = volatile prices.
-            </li>
-            <li>
-              More separation between Buy and Sell boxes suggests a larger typical margin.
-            </li>
+            <li>Box = middle 50% of prices (from Q1 to Q3). Line inside the box = median.</li>
+            <li>Whiskers stretch to the minimum and maximum observed prices.</li>
+            <li>Narrow box = consistent prices. Wide box = volatile prices.</li>
+            <li>More separation between Buy and Sell boxes suggests a larger typical margin.</li>
           </ul>
           {(stats.buy || stats.sell) && (
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-200">
@@ -112,11 +117,31 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
                 <div className="bg-gray-800/60 rounded p-2">
                   <div className="font-semibold text-xs mb-1">Buy quartiles</div>
                   <div className="grid grid-cols-5 gap-1 text-[11px]">
-                    <div><span className="text-gray-400">Min</span><br />{formatGP(stats.buy.min)}</div>
-                    <div><span className="text-gray-400">Q1</span><br />{formatGP(stats.buy.q1)}</div>
-                    <div><span className="text-gray-400">Med</span><br />{formatGP(stats.buy.median)}</div>
-                    <div><span className="text-gray-400">Q3</span><br />{formatGP(stats.buy.q3)}</div>
-                    <div><span className="text-gray-400">Max</span><br />{formatGP(stats.buy.max)}</div>
+                    <div>
+                      <span className="text-gray-400">Min</span>
+                      <br />
+                      {formatGP(stats.buy.min)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Q1</span>
+                      <br />
+                      {formatGP(stats.buy.q1)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Med</span>
+                      <br />
+                      {formatGP(stats.buy.median)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Q3</span>
+                      <br />
+                      {formatGP(stats.buy.q3)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Max</span>
+                      <br />
+                      {formatGP(stats.buy.max)}
+                    </div>
                   </div>
                 </div>
               )}
@@ -124,11 +149,31 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
                 <div className="bg-gray-800/60 rounded p-2">
                   <div className="font-semibold text-xs mb-1">Sell quartiles</div>
                   <div className="grid grid-cols-5 gap-1 text-[11px]">
-                    <div><span className="text-gray-400">Min</span><br />{formatGP(stats.sell.min)}</div>
-                    <div><span className="text-gray-400">Q1</span><br />{formatGP(stats.sell.q1)}</div>
-                    <div><span className="text-gray-400">Med</span><br />{formatGP(stats.sell.median)}</div>
-                    <div><span className="text-gray-400">Q3</span><br />{formatGP(stats.sell.q3)}</div>
-                    <div><span className="text-gray-400">Max</span><br />{formatGP(stats.sell.max)}</div>
+                    <div>
+                      <span className="text-gray-400">Min</span>
+                      <br />
+                      {formatGP(stats.sell.min)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Q1</span>
+                      <br />
+                      {formatGP(stats.sell.q1)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Med</span>
+                      <br />
+                      {formatGP(stats.sell.median)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Q3</span>
+                      <br />
+                      {formatGP(stats.sell.q3)}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Max</span>
+                      <br />
+                      {formatGP(stats.sell.max)}
+                    </div>
                   </div>
                 </div>
               )}
@@ -141,8 +186,20 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
         <line x1={pad} y1={height - pad} x2={width - pad} y2={height - pad} stroke="#4B5563" />
         {tickVals.map((t, idx) => (
           <g key={idx}>
-            <line x1={scaleX(t)} y1={height - pad} x2={scaleX(t)} y2={height - pad + 4} stroke="#4B5563" />
-            <text x={scaleX(t)} y={height - pad + 14} fill="#9CA3AF" fontSize="10" textAnchor="middle">
+            <line
+              x1={scaleX(t)}
+              y1={height - pad}
+              x2={scaleX(t)}
+              y2={height - pad + 4}
+              stroke="#4B5563"
+            />
+            <text
+              x={scaleX(t)}
+              y={height - pad + 14}
+              fill="#9CA3AF"
+              fontSize="10"
+              textAnchor="middle"
+            >
               {Math.round(t).toLocaleString()} gp
             </text>
           </g>

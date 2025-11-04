@@ -9,6 +9,9 @@
 [![PWA](https://img.shields.io/badge/PWA-Ready-green)](https://web.dev/progressive-web-apps/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
+![CI](https://github.com/1000tomax/OSRS-Flip-Tracker-Combined/workflows/CI/badge.svg)
+![CodeQL](https://github.com/1000tomax/OSRS-Flip-Tracker-Combined/workflows/CodeQL%20Security%20Scan/badge.svg)
+
 **Built with React, TypeScript, and modern web technologies.** Track your
 flipping performance, analyze profit trends, and optimize your trading
 strategies with comprehensive data visualization, advanced caching, and
@@ -31,6 +34,7 @@ AI-powered insights.
 - **Responsive Design** - Optimized for all screen sizes and devices
 - **TypeScript Integration** - Type-safe development with gradual migration
 - **Bundle Optimization** - Code splitting and optimized chunks for fast loading
+- **CI/CD Pipeline** - Automated testing, deployment, and quality checks
 
 ### 🎯 **User Experience**
 
@@ -198,6 +202,51 @@ npm test useApiData.test.tsx
 # Generate coverage report
 npm run test:coverage
 ```
+
+## 🔄 CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment.
+
+### Automated Workflows
+
+**On Every Pull Request:**
+
+- ✅ Code quality checks (linting, formatting, type checking)
+- 🧪 Full test suite with coverage reporting
+- 🏗️ Production build verification
+- 📦 Bundle size analysis and reporting
+- 🔦 Lighthouse performance audits
+- 🔐 CodeQL security scanning
+- 🏷️ Automatic PR labeling
+
+**On Merge to Main:**
+
+- 🚀 Automatic deployment to Cloudflare Pages
+- 🔐 Weekly security scans
+
+**Scheduled Tasks:**
+
+- 📊 OSRS volume data updates (every 6 hours)
+- 🧹 Stale issue/PR management (daily)
+
+### Deployment Previews
+
+Every pull request automatically gets a preview deployment on Cloudflare Pages.
+The preview URL is posted as a comment on the PR, allowing you to test changes
+before merging.
+
+### Required Secrets
+
+For workflows to function properly, configure these secrets in **Settings →
+Secrets and variables → Actions**:
+
+- `CLOUDFLARE_API_TOKEN`: For automated deployments
+- `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account identifier
+- `SUPABASE_URL`: Supabase project URL
+- `SUPABASE_KEY`: Supabase service role key
+
+For detailed workflow documentation, see
+[.github/workflows/README.md](./.github/workflows/README.md).
 
 ## 📤 Data Deployment Workflow
 

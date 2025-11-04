@@ -33,20 +33,11 @@ import { ErrorMessage } from '../LoadingSpinner';
  * @param {string} [props.className] - Additional CSS classes for the container
  * @returns {JSX.Element} - Complete error layout
  */
-const ErrorLayout = ({ 
-  title = 'Something went wrong',
-  error,
-  onRetry,
-  className = '' 
-}) => {
+const ErrorLayout = ({ title = 'Something went wrong', error, onRetry, className = '' }) => {
   return (
     <PageContainer className={className}>
       <CardContainer>
-        <ErrorMessage
-          title={title}
-          error={error}
-          onRetry={onRetry}
-        />
+        <ErrorMessage title={title} error={error} onRetry={onRetry} />
       </CardContainer>
     </PageContainer>
   );
@@ -54,10 +45,7 @@ const ErrorLayout = ({
 
 ErrorLayout.propTypes = {
   title: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.instanceOf(Error),
-    PropTypes.string,
-  ]).isRequired,
+  error: PropTypes.oneOfType([PropTypes.instanceOf(Error), PropTypes.string]).isRequired,
   onRetry: PropTypes.func,
   className: PropTypes.string,
 };

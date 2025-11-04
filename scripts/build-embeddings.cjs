@@ -21,7 +21,7 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error('[build-embeddings] ❌ Missing SUPABASE_URL or SUPABASE_KEY in .env');
   console.error('[build-embeddings] Current values:', {
     SUPABASE_URL: SUPABASE_URL || '(not set)',
-    SUPABASE_KEY: SUPABASE_KEY ? '(set)' : '(not set)'
+    SUPABASE_KEY: SUPABASE_KEY ? '(set)' : '(not set)',
   });
   process.exit(1);
 }
@@ -52,8 +52,8 @@ async function fetchFlips() {
     const url = `${SUPABASE_URL}/rest/v1/flips?select=*&limit=${limit}&offset=${offset}`;
     const response = await fetch(url, {
       headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
       },
     });
 
@@ -85,16 +85,23 @@ async function uploadEmbeddings(embeddings) {
   console.log('[build-embeddings] 🔄 Uploading embeddings to Supabase...');
 
   // Clear existing embeddings first
-  const deleteResponse = await fetch(`${SUPABASE_URL}/rest/v1/item_embeddings?id=not.eq.00000000-0000-0000-0000-000000000000`, {
-    method: 'DELETE',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-    },
-  });
+  const deleteResponse = await fetch(
+    `${SUPABASE_URL}/rest/v1/item_embeddings?id=not.eq.00000000-0000-0000-0000-000000000000`,
+    {
+      method: 'DELETE',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    }
+  );
 
   if (DEBUG || !deleteResponse.ok) {
-    console.log('[build-embeddings] Cleared existing embeddings (status:', deleteResponse.status, ')');
+    console.log(
+      '[build-embeddings] Cleared existing embeddings (status:',
+      deleteResponse.status,
+      ')'
+    );
   }
 
   // Transform to database format (snake_case)
@@ -118,10 +125,10 @@ async function uploadEmbeddings(embeddings) {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/item_embeddings`, {
       method: 'POST',
       headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=ignore-duplicates',
+        Prefer: 'resolution=ignore-duplicates',
       },
       body: JSON.stringify(batch),
     });

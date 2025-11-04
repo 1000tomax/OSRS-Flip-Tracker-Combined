@@ -34,7 +34,8 @@ export function getItemFlips(itemName, flipsByDate) {
       const end = endRaw ? new Date(endRaw) : null;
       const ts = end || start || null;
       const tsMs = ts ? ts.getTime() : 0;
-      const durationMin = start && end ? Math.max(0, (end.getTime() - start.getTime()) / 60000) : null;
+      const durationMin =
+        start && end ? Math.max(0, (end.getTime() - start.getTime()) / 60000) : null;
       const roi = buy > 0 ? (sell - buy) / buy : null;
       const marginPct = buy > 0 ? ((sell - buy) / buy) * 100 : null;
 
@@ -76,7 +77,8 @@ export function calculateItemDeepMetrics(itemName, flipsByDate) {
 
   const individualSeries = flips.map((f, idx) => {
     totalProfit += f.profit || 0;
-    if ((f.profit || 0) > 0) wins += 1; else if ((f.profit || 0) < 0) losses += 1;
+    if ((f.profit || 0) > 0) wins += 1;
+    else if ((f.profit || 0) < 0) losses += 1;
     if (bestFlip === null || (f.profit || 0) > (bestFlip?.profit || -Infinity)) bestFlip = f;
     if (worstFlip === null || (f.profit || 0) < (worstFlip?.profit || Infinity)) worstFlip = f;
     return { x: idx + 1, tsMs: f.tsMs, ts: f.ts, profit: f.profit };
@@ -91,7 +93,8 @@ export function calculateItemDeepMetrics(itemName, flipsByDate) {
   const flipCount = flips.length;
   const avgProfit = flipCount > 0 ? totalProfit / flipCount : 0;
   const wlCount = wins + losses;
-  const successRate = wlCount > 0 ? (wins / wlCount) * 100 : (flipCount > 0 ? (wins / flipCount) * 100 : 0);
+  const successRate =
+    wlCount > 0 ? (wins / wlCount) * 100 : flipCount > 0 ? (wins / flipCount) * 100 : 0;
 
   return {
     flips,
@@ -117,7 +120,9 @@ export function calculateItemDeepMetrics(itemName, flipsByDate) {
  */
 export function getItemTimePatterns(itemName, flipsByDate) {
   const flips = getItemFlips(itemName, flipsByDate);
-  const grid = Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => ({ profit: 0, flips: 0 })));
+  const grid = Array.from({ length: 7 }, () =>
+    Array.from({ length: 24 }, () => ({ profit: 0, flips: 0 }))
+  );
 
   flips.forEach(f => {
     if (!f.ts) return;
@@ -163,19 +168,40 @@ export function calculateItemRisk(itemName, flipsByDate) {
   const volatility = Math.sqrt(variance);
 
   // Streaks
-  let longestWinStreak = 0, longestLossStreak = 0, curWin = 0, curLoss = 0;
+  let longestWinStreak = 0,
+    longestLossStreak = 0,
+    curWin = 0,
+    curLoss = 0;
   profits.forEach(p => {
-    if (p > 0) { curWin += 1; curLoss = 0; } else if (p < 0) { curLoss += 1; curWin = 0; } else { curWin = 0; curLoss = 0; }
+    if (p > 0) {
+      curWin += 1;
+      curLoss = 0;
+    } else if (p < 0) {
+      curLoss += 1;
+      curWin = 0;
+    } else {
+      curWin = 0;
+      curLoss = 0;
+    }
     if (curWin > longestWinStreak) longestWinStreak = curWin;
     if (curLoss > longestLossStreak) longestLossStreak = curLoss;
   });
 
   // Max drawdown from cumulative equity
-  let peak = 0; let trough = 0; let equity = 0; let maxDrawdown = 0;
+  let peak = 0;
+  let trough = 0;
+  let equity = 0;
+  let maxDrawdown = 0;
   const equitySeries = profits.map(p => (equity += p));
   equitySeries.forEach(v => {
-    if (v > peak) { peak = v; trough = v; }
-    if (v < trough) { trough = v; maxDrawdown = Math.min(maxDrawdown, trough - peak); }
+    if (v > peak) {
+      peak = v;
+      trough = v;
+    }
+    if (v < trough) {
+      trough = v;
+      maxDrawdown = Math.min(maxDrawdown, trough - peak);
+    }
   });
 
   // Time to recover (average minutes from local trough to exceed prior peak)
@@ -199,9 +225,8 @@ export function calculateItemRisk(itemName, flipsByDate) {
       lastPeakIndex = i;
     }
   }
-  const timeToRecoverAvgMin = recoveries.length > 0
-    ? recoveries.reduce((a, b) => a + b, 0) / recoveries.length
-    : null;
+  const timeToRecoverAvgMin =
+    recoveries.length > 0 ? recoveries.reduce((a, b) => a + b, 0) / recoveries.length : null;
 
   return { volatility, longestWinStreak, longestLossStreak, maxDrawdown, timeToRecoverAvgMin };
 }
@@ -254,11 +279,19 @@ export function getOptimalQuantityRange(itemName, flipsByDate) {
 function pearson(xs, ys) {
   const n = Math.min(xs.length, ys.length);
   if (n === 0) return 0;
-  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+  let sumX = 0,
+    sumY = 0,
+    sumXY = 0,
+    sumX2 = 0,
+    sumY2 = 0;
   for (let i = 0; i < n; i++) {
     const x = xs[i];
     const y = ys[i];
-    sumX += x; sumY += y; sumXY += x * y; sumX2 += x * x; sumY2 += y * y;
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumX2 += x * x;
+    sumY2 += y * y;
   }
   const numerator = n * sumXY - sumX * sumY;
   const denom = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));

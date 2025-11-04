@@ -62,7 +62,7 @@ describe('guest/utils/dataProcessing', () => {
     expect(flips).toHaveLength(3);
     // ascending by timestamp
     const times = flips.map(f => f.tsMs);
-    expect(times.slice().sort((a,b)=>a-b)).toEqual(times);
+    expect(times.slice().sort((a, b) => a - b)).toEqual(times);
     // fields normalized
     expect(flips[0]).toHaveProperty('avgBuyPrice');
     expect(flips[0]).toHaveProperty('avgSellPrice');
@@ -122,4 +122,3 @@ describe('guest/utils/dataProcessing', () => {
     expect(Array.isArray(res.byBin)).toBe(true);
   });
 });
-

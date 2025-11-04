@@ -4,11 +4,7 @@
 
 import React, { useState } from 'react';
 import { reportFailedIcon, reportFailedIcons, clearReportHistory } from '../utils/iconReporting';
-import {
-  PageContainer,
-  CardContainer,
-  PageHeader,
-} from '../components/layouts';
+import { PageContainer, CardContainer, PageHeader } from '../components/layouts';
 
 export default function TestDiscordReport() {
   const [status, setStatus] = useState('');
@@ -17,13 +13,13 @@ export default function TestDiscordReport() {
   const testSingleReport = async () => {
     setLoading(true);
     setStatus('Sending single item report...');
-    
+
     try {
       const success = await reportFailedIcon('Test Item Name', {
         source: 'Test Page',
-        username: 'Developer Test'
+        username: 'Developer Test',
       });
-      
+
       if (success) {
         setStatus('✅ Single report sent successfully! Check Discord.');
       } else {
@@ -40,18 +36,18 @@ export default function TestDiscordReport() {
   const testBulkReport = async () => {
     setLoading(true);
     setStatus('Sending bulk report...');
-    
+
     const testItems = [
       'Test Item 1',
       'Test Item 2',
       'Test Item 3',
       'Rare Drop Table',
-      'Dragon Claws'
+      'Dragon Claws',
     ];
-    
+
     try {
       const success = await reportFailedIcons(testItems, 'Test Bulk Report');
-      
+
       if (success) {
         setStatus(`✅ Bulk report sent successfully! (${testItems.length} items)`);
       } else {
@@ -74,16 +70,17 @@ export default function TestDiscordReport() {
     <PageContainer>
       <CardContainer>
         <PageHeader title="Discord Report Testing" icon="🧪" />
-        
+
         <div className="bg-gray-800 rounded-lg p-6">
           <h2 className="text-lg font-bold text-white mb-4">Test Discord Webhook</h2>
-          
+
           <div className="space-y-4">
             <div className="bg-gray-900 rounded p-4">
               <p className="text-sm text-gray-400 mb-3">
-                These buttons will send test messages to your Discord webhook to verify it's working.
+                These buttons will send test messages to your Discord webhook to verify it's
+                working.
               </p>
-              
+
               <div className="flex gap-3 flex-wrap">
                 <button
                   onClick={testSingleReport}
@@ -92,7 +89,7 @@ export default function TestDiscordReport() {
                 >
                   Test Single Report
                 </button>
-                
+
                 <button
                   onClick={testBulkReport}
                   disabled={loading}
@@ -100,7 +97,7 @@ export default function TestDiscordReport() {
                 >
                   Test Bulk Report
                 </button>
-                
+
                 <button
                   onClick={clearHistory}
                   disabled={loading}
@@ -110,13 +107,13 @@ export default function TestDiscordReport() {
                 </button>
               </div>
             </div>
-            
+
             {status && (
               <div className="bg-gray-900 rounded p-4">
                 <p className="text-sm font-mono">{status}</p>
               </div>
             )}
-            
+
             <div className="bg-gray-900 rounded p-4">
               <h3 className="text-sm font-bold text-white mb-2">How it works:</h3>
               <ul className="text-sm text-gray-400 space-y-1">
@@ -126,10 +123,11 @@ export default function TestDiscordReport() {
                 <li>• Reports include attempted URLs and context</li>
               </ul>
             </div>
-            
+
             <div className="bg-orange-900/50 border border-orange-500 rounded p-4">
               <p className="text-sm text-orange-200">
-                <strong>Note:</strong> Reports are only sent in production unless VITE_LOG_TO_DISCORD_IN_DEV=true in .env.local
+                <strong>Note:</strong> Reports are only sent in production unless
+                VITE_LOG_TO_DISCORD_IN_DEV=true in .env.local
               </p>
             </div>
           </div>

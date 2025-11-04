@@ -1,6 +1,6 @@
 /**
  * CSV Export Utility
- * 
+ *
  * Provides functionality to export JavaScript data to CSV format.
  * Handles special characters, escaping, and custom column configurations.
  */
@@ -14,15 +14,20 @@ function escapeCsvValue(value) {
   if (value === null || value === undefined) {
     return '';
   }
-  
+
   const stringValue = String(value);
-  
+
   // Check if escaping is needed
-  if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n') || stringValue.includes('\r')) {
+  if (
+    stringValue.includes(',') ||
+    stringValue.includes('"') ||
+    stringValue.includes('\n') ||
+    stringValue.includes('\r')
+  ) {
     // Escape quotes by doubling them and wrap in quotes
     return `"${stringValue.replace(/"/g, '""')}"`;
   }
-  
+
   return stringValue;
 }
 
@@ -40,25 +45,25 @@ export function exportToCsv(data, columns, filename) {
 
   // Extract headers from column labels
   const headers = columns.map(col => col.label || col.key);
-  
+
   // Build CSV content
   const csvRows = [];
-  
+
   // Add headers
   csvRows.push(headers.map(escapeCsvValue).join(','));
-  
+
   // Add data rows
   data.forEach(row => {
     const values = columns.map(col => {
       let value;
-      
+
       // Use sortValue if available (for calculated fields)
       if (col.sortValue) {
         value = col.sortValue(row);
       } else {
         value = row[col.key];
       }
-      
+
       // Handle special formatting for display
       // Note: We export raw values, not formatted HTML
       if (col.key === 'profit' && row.received_post_tax !== undefined && row.spent !== undefined) {
@@ -67,29 +72,29 @@ export function exportToCsv(data, columns, filename) {
         const duration = new Date(row.closed_time).getTime() - new Date(row.opened_time).getTime();
         value = formatDurationForCsv(duration);
       }
-      
+
       return escapeCsvValue(value);
     });
-    
+
     csvRows.push(values.join(','));
   });
-  
+
   // Create CSV content
   const csvContent = csvRows.join('\n');
-  
+
   // Create blob and download
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
-  
+
   link.setAttribute('href', url);
   link.setAttribute('download', filename);
   link.style.visibility = 'hidden';
-  
+
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  
+
   // Clean up
   URL.revokeObjectURL(url);
 }
@@ -126,6 +131,6 @@ export function generateCsvFilename(prefix) {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
-  
+
   return `${prefix}-${year}-${month}-${day}.csv`;
 }

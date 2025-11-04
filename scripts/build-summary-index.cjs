@@ -29,8 +29,8 @@ async function fetchFlips() {
     const url = `${SUPABASE_URL}/rest/v1/flips?select=*&limit=${limit}&offset=${offset}`;
     const response = await fetch(url, {
       headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
       },
     });
 
@@ -94,9 +94,7 @@ function computeDailySummaries(flips) {
     const day = byDate.get(date);
     cumulativeNetWorth += day.totalProfit;
 
-    const roi_decimal = day.totalSpent > 0
-      ? (day.totalProfit / day.totalSpent)
-      : 0;
+    const roi_decimal = day.totalSpent > 0 ? day.totalProfit / day.totalSpent : 0;
 
     const percent_change = roi_decimal * 100;
 
@@ -121,16 +119,23 @@ async function uploadSummaries(summaries) {
   console.log('[build-summary-index] 🔄 Uploading summaries to Supabase...');
 
   // Clear existing summaries first
-  const deleteResponse = await fetch(`${SUPABASE_URL}/rest/v1/daily_summaries?id=not.eq.00000000-0000-0000-0000-000000000000`, {
-    method: 'DELETE',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-    },
-  });
+  const deleteResponse = await fetch(
+    `${SUPABASE_URL}/rest/v1/daily_summaries?id=not.eq.00000000-0000-0000-0000-000000000000`,
+    {
+      method: 'DELETE',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    }
+  );
 
   if (DEBUG || !deleteResponse.ok) {
-    console.log('[build-summary-index] Cleared existing summaries (status:', deleteResponse.status, ')');
+    console.log(
+      '[build-summary-index] Cleared existing summaries (status:',
+      deleteResponse.status,
+      ')'
+    );
   }
 
   // Upload in batches
@@ -143,10 +148,10 @@ async function uploadSummaries(summaries) {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/daily_summaries`, {
       method: 'POST',
       headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=ignore-duplicates',
+        Prefer: 'resolution=ignore-duplicates',
       },
       body: JSON.stringify(batch),
     });

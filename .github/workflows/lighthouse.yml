@@ -1,0 +1,139 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lighthouse:
+    name: Run Lighthouse Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        run: |
+          npm install -g @lhci/cli@0.13.x
+
+          # Start a local server
+          npx serve dist -l 8080 &
+          SERVER_PID=$!
+
+          # Wait for server to be ready
+          sleep 5
+
+          # Run Lighthouse
+          lhci autorun --config=lighthouserc.json || true
+
+          # Stop server
+          kill $SERVER_PID
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results
+          path: .lighthouseci
+        if: always()
+
+      - name: Comment Lighthouse results on PR
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Read Lighthouse results
+            let comment = '## 🔦 Lighthouse Audit Results\n\n';
+
+            try {
+              const resultsPath = '.lighthouseci';
+              if (fs.existsSync(resultsPath)) {
+                const files = fs.readdirSync(resultsPath);
+                const manifestFile = files.find(f => f.includes('manifest.json'));
+
+                if (manifestFile) {
+                  const manifest = JSON.parse(
+                    fs.readFileSync(path.join(resultsPath, manifestFile), 'utf8')
+                  );
+
+                  if (manifest && manifest.length > 0) {
+                    const result = manifest[0];
+                    const summary = result.summary;
+
+                    comment += '| Category | Score |\n';
+                    comment += '|----------|-------|\n';
+                    comment += `| ⚡ Performance | ${Math.round(summary.performance * 100)} |\n`;
+                    comment += `| ♿ Accessibility | ${Math.round(summary.accessibility * 100)} |\n`;
+                    comment += `| 💡 Best Practices | ${Math.round(summary['best-practices'] * 100)} |\n`;
+                    comment += `| 🔍 SEO | ${Math.round(summary.seo * 100)} |\n`;
+                    comment += `| 📱 PWA | ${Math.round(summary.pwa * 100)} |\n\n`;
+
+                    // Add warnings for low scores
+                    const warnings = [];
+                    if (summary.performance < 0.9) warnings.push('⚠️ Performance score below 90');
+                    if (summary.accessibility < 0.9) warnings.push('⚠️ Accessibility score below 90');
+                    if (summary['best-practices'] < 0.9) warnings.push('⚠️ Best Practices score below 90');
+                    if (summary.seo < 0.9) warnings.push('⚠️ SEO score below 90');
+
+                    if (warnings.length > 0) {
+                      comment += '### Warnings\n';
+                      warnings.forEach(w => comment += `${w}\n`);
+                    }
+                  }
+                }
+              } else {
+                comment += '⚠️ Could not find Lighthouse results. Check the workflow logs for details.';
+              }
+            } catch (error) {
+              comment += `⚠️ Error reading Lighthouse results: ${error.message}`;
+            }
+
+            comment += '\n*Lighthouse audits help ensure your app meets performance and quality standards.*';
+
+            // Post comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('🔦 Lighthouse Audit Results')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }

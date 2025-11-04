@@ -9,7 +9,7 @@ export default function Charts() {
   return (
     <PageContainer padding="compact">
       <CardContainer>
-        <PageHeader 
+        <PageHeader
           title="Performance Charts"
           description="Visual insights into your flipping progress and performance trends."
           icon="📈"

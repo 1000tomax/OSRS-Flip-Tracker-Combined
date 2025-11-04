@@ -52,7 +52,9 @@ async function fetch24HourVolume() {
       try {
         const response = await fetch(`${BASE_URL}/1h?timestamp=${ts}`, { headers });
         if (!response.ok) {
-          console.log(`  ⚠ Hour ${index + 1}/24 failed: ${response.status} ${response.statusText}`);
+          console.log(
+            `  ⚠ Hour ${index + 1}/24 failed: ${response.status} ${response.statusText}`
+          );
           return null;
         }
         const json = await response.json();
@@ -144,7 +146,9 @@ async function uploadToSupabase(volumeData, itemNames) {
       throw error;
     }
 
-    console.log(`  ✓ Batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(records.length / batchSize)} uploaded`);
+    console.log(
+      `  ✓ Batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(records.length / batchSize)} uploaded`
+    );
   }
 
   console.log('\n✅ All data uploaded successfully!');

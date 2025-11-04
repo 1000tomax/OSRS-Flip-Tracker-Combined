@@ -66,7 +66,7 @@ export default function GuestHeatMap({ guestData, onCellClick = null }) {
     // Process all flips
     Object.entries(guestData.flipsByDate).forEach(([, dayData]) => {
       // Handle both old format (array) and new format (object with flips array)
-      const flips = Array.isArray(dayData) ? dayData : (dayData.flips || []);
+      const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
       flips.forEach(flip => {
         // Parse the sell time to get day of week and hour
         const lastSellTime = flip.lastSellTime || flip.last_sell_time;

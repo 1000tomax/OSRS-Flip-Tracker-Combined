@@ -102,7 +102,9 @@ describe('FormatUtils', () => {
 
   describe('currency', () => {
     it('formats currency values with options', () => {
-      expect(FormatUtils.currency(1234.56, { currency: 'USD', minimumFractionDigits: 2 })).toMatch(/\$1,234\.56/);
+      expect(FormatUtils.currency(1234.56, { currency: 'USD', minimumFractionDigits: 2 })).toMatch(
+        /\$1,234\.56/
+      );
       const eur = FormatUtils.currency(1000, { currency: 'EUR', minimumFractionDigits: 2 });
       expect(eur).toMatch(/€1,000\.00|1,000\.00\s*€/);
     });

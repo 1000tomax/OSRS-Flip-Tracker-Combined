@@ -8,7 +8,7 @@
  * Available Components:
  * - PageContainer: Full-page wrapper with gradient background
  * - CardContainer: Content card with border and shadow
- * - PageHeader: Standardized page titles and descriptions  
+ * - PageHeader: Standardized page titles and descriptions
  * - LoadingLayout: Consistent loading state presentation
  * - ErrorLayout: Consistent error state presentation
  * - ResponsiveGrid: Flexible grid layouts for various use cases

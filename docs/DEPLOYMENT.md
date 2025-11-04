@@ -37,23 +37,23 @@ The build process includes several optimizations:
 // vite.config.js optimizations
 export default defineConfig({
   build: {
-    target: 'es2020',           // Modern browser support
-    minify: 'terser',          // Advanced minification
-    sourcemap: false,          // No source maps in production
-    cssCodeSplit: true,        // Split CSS for caching
+    target: 'es2020', // Modern browser support
+    minify: 'terser', // Advanced minification
+    sourcemap: false, // No source maps in production
+    cssCodeSplit: true, // Split CSS for caching
     chunkSizeWarningLimit: 500, // Warn on large chunks
-    
+
     rollupOptions: {
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router'],
-          'charts': ['recharts'],
-          'tanstack': ['@tanstack/react-query'],
-          'utils': ['papaparse', 'html2canvas'],
-        }
-      }
-    }
-  }
+          charts: ['recharts'],
+          tanstack: ['@tanstack/react-query'],
+          utils: ['papaparse', 'html2canvas'],
+        },
+      },
+    },
+  },
 });
 ```
 
@@ -78,7 +78,8 @@ dist/
 
 ### Vercel (Recommended)
 
-Vercel provides the best experience for React applications with automatic deployments.
+Vercel provides the best experience for React applications with automatic
+deployments.
 
 #### Initial Setup
 
@@ -234,24 +235,28 @@ aws s3 website s3://your-bucket-name \
 
 ```json
 {
-  "Origins": [{
-    "DomainName": "your-bucket.s3.amazonaws.com",
-    "Id": "S3-your-bucket",
-    "S3OriginConfig": {
-      "OriginAccessIdentity": ""
+  "Origins": [
+    {
+      "DomainName": "your-bucket.s3.amazonaws.com",
+      "Id": "S3-your-bucket",
+      "S3OriginConfig": {
+        "OriginAccessIdentity": ""
+      }
     }
-  }],
+  ],
   "DefaultCacheBehavior": {
     "TargetOriginId": "S3-your-bucket",
     "ViewerProtocolPolicy": "redirect-to-https",
     "CachePolicyId": "managed-caching-optimized",
     "OriginRequestPolicyId": "managed-cors-s3origin"
   },
-  "CustomErrorResponses": [{
-    "ErrorCode": 404,
-    "ResponseCode": 200,
-    "ResponsePagePath": "/index.html"
-  }]
+  "CustomErrorResponses": [
+    {
+      "ErrorCode": 404,
+      "ResponseCode": 200,
+      "ResponsePagePath": "/index.html"
+    }
+  ]
 }
 ```
 
@@ -262,6 +267,7 @@ For shared hosting or VPS deployments.
 #### Server Configuration
 
 **Apache (.htaccess)**:
+
 ```apache
 RewriteEngine On
 RewriteBase /
@@ -284,6 +290,7 @@ Header always set X-XSS-Protection "1; mode=block"
 ```
 
 **Nginx**:
+
 ```nginx
 server {
     listen 80;
@@ -377,6 +384,7 @@ npm run build:analyze
 ### Lighthouse Optimization
 
 Target Lighthouse scores:
+
 - **Performance**: 95+
 - **Accessibility**: 100
 - **Best Practices**: 100
@@ -419,14 +427,14 @@ import { analytics } from './utils/analytics';
 // Track Core Web Vitals
 function trackWebVitals() {
   // First Contentful Paint
-  new PerformanceObserver((list) => {
+  new PerformanceObserver(list => {
     for (const entry of list.getEntries()) {
       analytics.trackPerformance('fcp', entry.startTime);
     }
   }).observe({ entryTypes: ['paint'] });
 
   // Largest Contentful Paint
-  new PerformanceObserver((list) => {
+  new PerformanceObserver(list => {
     const entries = list.getEntries();
     const lastEntry = entries[entries.length - 1];
     analytics.trackPerformance('lcp', lastEntry.startTime);
@@ -442,11 +450,11 @@ Set up error tracking for production:
 
 ```typescript
 // Global error handler
-window.addEventListener('error', (event) => {
+window.addEventListener('error', event => {
   analytics.trackError(event.error, 'global-error');
 });
 
-window.addEventListener('unhandledrejection', (event) => {
+window.addEventListener('unhandledrejection', event => {
   analytics.trackError(event.reason, 'unhandled-promise');
 });
 
@@ -462,7 +470,7 @@ class ProductionErrorBoundary extends React.Component {
 
 ```typescript
 // Track page load performance
-const observer = new PerformanceObserver((list) => {
+const observer = new PerformanceObserver(list => {
   for (const entry of list.getEntries()) {
     if (entry.entryType === 'navigation') {
       analytics.trackPerformance('page-load', entry.loadEventEnd);
@@ -572,7 +580,7 @@ npm run build:analyze
 localStorage.setItem('debug', 'osrs:error,osrs:performance');
 
 // Check service worker status
-navigator.serviceWorker.ready.then((registration) => {
+navigator.serviceWorker.ready.then(registration => {
   console.log('SW registered:', registration);
 });
 
@@ -639,4 +647,6 @@ npm audit --audit-level moderate
 
 ---
 
-This deployment guide ensures your OSRS Flip Dashboard is deployed securely, performantly, and reliably to production. Follow the platform-specific instructions and checklists to achieve optimal results. 🚀
+This deployment guide ensures your OSRS Flip Dashboard is deployed securely,
+performantly, and reliably to production. Follow the platform-specific
+instructions and checklists to achieve optimal results. 🚀

@@ -16,4 +16,3 @@ describe('ItemPriceRangeChart', () => {
     expect(screen.getAllByText(/min/i).length).toBeGreaterThan(0);
   });
 });
-
