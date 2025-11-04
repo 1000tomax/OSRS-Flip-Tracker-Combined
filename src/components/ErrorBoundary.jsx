@@ -8,16 +8,20 @@ class ErrorBoundary extends React.Component {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null,
       errorId: null,
     };
   }
 
   static getDerivedStateFromError(_error) {
     // Update state so the next render will show the fallback UI
+    // Use crypto-safe random for error ID generation
+    const randomValues = new Uint32Array(2);
+    crypto.getRandomValues(randomValues);
+    const randomString = randomValues[0].toString(36) + randomValues[1].toString(36);
+
     return {
       hasError: true,
-      errorId: Date.now().toString(36) + Math.random().toString(36).substr(2),
+      errorId: Date.now().toString(36) + randomString,
     };
   }
 
@@ -33,7 +37,6 @@ class ErrorBoundary extends React.Component {
 
     this.setState({
       error,
-      errorInfo,
     });
 
     // External error reporting removed

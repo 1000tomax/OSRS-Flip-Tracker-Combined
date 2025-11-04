@@ -195,8 +195,8 @@ class ItemFuzzySearch {
     // Remove common prefixes/suffixes that don't affect matching
     normalized = normalized.replace(/^(a|an|the)\s+/i, '');
 
-    // Normalize apostrophes and quotes
-    normalized = normalized.replace(/['`'']/g, '');
+    // Normalize apostrophes and quotes (apostrophe, backtick, left/right smart quotes)
+    normalized = normalized.replace(/['`\u2018\u2019]/g, '');
 
     // Normalize dashes and underscores
     normalized = normalized.replace(/[-–—_]/g, ' ');
@@ -230,7 +230,7 @@ class ItemFuzzySearch {
     variations.add(normalized);
 
     // Add version without apostrophes
-    variations.add(original.replace(/['`'']/g, ''));
+    variations.add(original.replace(/['`\u2018\u2019]/g, ''));
 
     // Add version with common character substitutions
     let withSubstitutions = original;

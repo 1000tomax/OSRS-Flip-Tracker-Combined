@@ -303,21 +303,15 @@ export class FormatUtils {
   /**
    * Format win rate with color indication
    * @param winRate - Win rate as percentage (0-100)
-   * @param includeColor - Whether to include color class
+   * @param _includeColor - Whether to include color class (currently unused)
    * @returns Formatted win rate with optional color
    */
-  static winRate(winRate: number, includeColor: boolean = false): string {
+  static winRate(winRate: number, _includeColor: boolean = false): string {
     const formatted = `${winRate.toFixed(1)}%`;
 
-    if (!includeColor) return formatted;
-
-    // Return object with formatted text and color class
-    let _colorClass = '';
-    if (winRate >= 70) _colorClass = 'text-green-400';
-    else if (winRate >= 50) _colorClass = 'text-yellow-400';
-    else _colorClass = 'text-red-400';
-
-    return formatted; // In actual usage, you'd return { text: formatted, colorClass }
+    // TODO: Color formatting removed - _includeColor parameter currently unused
+    // Consider implementing colored output or removing the parameter
+    return formatted;
   }
 
   /**

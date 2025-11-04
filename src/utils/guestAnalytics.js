@@ -12,7 +12,11 @@ const isOptedOut = () => {
 const getSessionId = () => {
   let sessionId = sessionStorage.getItem('anon-session-id');
   if (!sessionId) {
-    sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // Use crypto-safe random instead of Math.random()
+    const randomValues = new Uint32Array(2);
+    crypto.getRandomValues(randomValues);
+    const randomString = randomValues[0].toString(36) + randomValues[1].toString(36);
+    sessionId = `session-${Date.now()}-${randomString}`;
     sessionStorage.setItem('anon-session-id', sessionId);
   }
   return sessionId;

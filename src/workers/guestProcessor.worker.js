@@ -50,8 +50,17 @@ function toDateKey(iso, timezone) {
   return `${mm}-${dd}-${yyyy}`; // MM-DD-YYYY in user's timezone
 }
 
+// Web Worker message handler
+// Note: Web Workers can only receive messages from the same-origin script that created them,
+// providing inherent origin protection. We validate message structure for defense-in-depth.
 self.onmessage = async e => {
   try {
+    // Validate message structure
+    if (!e.data || typeof e.data !== 'object') {
+      self.postMessage({ type: 'ERROR', message: 'Invalid message format' });
+      return;
+    }
+
     if (e.data.type !== 'START') return;
 
     const { file, timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } = e.data;
