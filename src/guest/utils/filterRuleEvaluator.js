@@ -146,7 +146,8 @@ export function generateProfileNameFromRules(filterConfig) {
     return terms.join(' ');
   }
 
-  // Fallback: use first words of interpretation, truncate if too long
+  // Fallback: use first 8 words of interpretation, truncate to 30 chars if needed
+  // This ensures profile names are descriptive but not overly long
   const words = interpretation.split(' ').slice(0, 8).join(' ');
   return words.length > 30 ? `${words.substring(0, 27)}...` : words;
 }
