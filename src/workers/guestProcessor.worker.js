@@ -56,6 +56,7 @@ function toDateKey(iso, timezone) {
 // same-origin script that created them. This is enforced by the browser's security model.
 // Reference: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
 // We validate message structure below for defense-in-depth against malformed messages.
+// lgtm[js/missing-origin-check]
 self.onmessage = async e => {
   try {
     // Validate message structure (defense-in-depth)
