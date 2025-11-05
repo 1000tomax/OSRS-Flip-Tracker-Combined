@@ -146,7 +146,7 @@ export function generateProfileNameFromRules(filterConfig) {
     return terms.join(' ');
   }
 
-  // Fallback: use first few words of interpretation
-  const words = interpretation.split(' ').slice(0, 4).join(' ');
+  // Fallback: use first words of interpretation, truncate if too long
+  const words = interpretation.split(' ').slice(0, 8).join(' ');
   return words.length > 30 ? `${words.substring(0, 27)}...` : words;
 }
