@@ -1,9 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  formatTimestampWithOffset,
-  parseNumber,
-} = require('./utils.cjs');
+const { parseNumber } = require('./utils.cjs');
 
 async function computeMetaStats() {
   const processedDir = path.join(__dirname, '..', 'public', 'data', 'processed-flips');

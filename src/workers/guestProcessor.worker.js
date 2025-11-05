@@ -51,11 +51,14 @@ function toDateKey(iso, timezone) {
 }
 
 // Web Worker message handler
-// Note: Web Workers can only receive messages from the same-origin script that created them,
-// providing inherent origin protection. We validate message structure for defense-in-depth.
+// Security Note: Web Workers do not have access to event.origin property (only window.postMessage does).
+// Web Workers provide inherent same-origin protection - they can ONLY receive messages from the
+// same-origin script that created them. This is enforced by the browser's security model.
+// Reference: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
+// We validate message structure below for defense-in-depth against malformed messages.
 self.onmessage = async e => {
   try {
-    // Validate message structure
+    // Validate message structure (defense-in-depth)
     if (!e.data || typeof e.data !== 'object') {
       self.postMessage({ type: 'ERROR', message: 'Invalid message format' });
       return;

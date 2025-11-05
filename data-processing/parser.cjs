@@ -157,7 +157,7 @@ async function runParser() {
 
   const now = new Date();
   const archiveDate = formatDate(now);
-  const [amm, add, ayyy] = archiveDate.split('-');
+  const [amm, add] = archiveDate.split('-');
   const rawDir = path.join(__dirname, 'raw-input', amm, add);
   await ensureDir(rawDir);
 
