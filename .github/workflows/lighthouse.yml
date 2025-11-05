@@ -48,7 +48,7 @@ jobs:
           kill $SERVER_PID
 
       - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: lighthouse-results
           path: .lighthouseci
