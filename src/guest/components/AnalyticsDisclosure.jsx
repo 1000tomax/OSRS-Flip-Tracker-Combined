@@ -3,48 +3,46 @@ import { analyticsOptOut } from '../../utils/guestAnalytics';
 import UI from '@/config/constants';
 
 export default function AnalyticsDisclosure() {
-  const [isOptedOut, setIsOptedOut] = useState(false);
-  const [showBanner, setShowBanner] = useState(false);
+  // Initialize state with lazy initializer to avoid setState in effect
+  const [isOptedOut, setIsOptedOut] = useState(() => analyticsOptOut.isOptedOut());
+  const [showBanner, setShowBanner] = useState(() => {
+    // Show banner if user hasn't made a choice yet
+    return !localStorage.getItem('analytics-banner-seen');
+  });
 
   useEffect(() => {
-    // Check opt-out status
-    setIsOptedOut(analyticsOptOut.isOptedOut());
+    // Skip effect if banner shouldn't be shown
+    if (!showBanner) return;
 
-    // Show banner if user hasn't made a choice yet
-    const hasSeenBanner = localStorage.getItem('analytics-banner-seen');
-    if (!hasSeenBanner) {
-      setShowBanner(true);
+    // Auto-dismiss banner after user interaction (implied consent)
+    const handleUserInteraction = () => {
+      // Only auto-accept if they haven't explicitly opted out
+      if (!analyticsOptOut.isOptedOut()) {
+        localStorage.setItem('analytics-banner-seen', 'true');
+        setShowBanner(false);
+      }
+    };
 
-      // Auto-dismiss banner after user interaction (implied consent)
-      const handleUserInteraction = () => {
-        // Only auto-accept if they haven't explicitly opted out
-        if (!analyticsOptOut.isOptedOut()) {
-          localStorage.setItem('analytics-banner-seen', 'true');
-          setShowBanner(false);
-        }
-      };
+    // Listen for user interactions that imply they're using the app
+    const interactionEvents = ['click', 'scroll', 'keydown'];
+    const timeoutId = setTimeout(() => {
+      // Auto-dismiss after 30 seconds of the banner being visible
+      handleUserInteraction();
+    }, UI.ANALYTICS_BANNER_TIMEOUT_MS);
 
-      // Listen for user interactions that imply they're using the app
-      const interactionEvents = ['click', 'scroll', 'keydown'];
-      const timeoutId = setTimeout(() => {
-        // Auto-dismiss after 30 seconds of the banner being visible
-        handleUserInteraction();
-      }, UI.ANALYTICS_BANNER_TIMEOUT_MS);
+    // Add event listeners for user interactions
+    interactionEvents.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true });
+    });
 
-      // Add event listeners for user interactions
+    // Cleanup function
+    return () => {
+      clearTimeout(timeoutId);
       interactionEvents.forEach(event => {
-        document.addEventListener(event, handleUserInteraction, { once: true });
+        document.removeEventListener(event, handleUserInteraction);
       });
-
-      // Cleanup function
-      return () => {
-        clearTimeout(timeoutId);
-        interactionEvents.forEach(event => {
-          document.removeEventListener(event, handleUserInteraction);
-        });
-      };
-    }
-  }, []);
+    };
+  }, [showBanner]);
 
   const handleOptOut = () => {
     analyticsOptOut.optOut();

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FixedSizeList as VirtualList } from 'react-window';
 import { formatGP, formatDuration, formatROI } from '../../utils/formatUtils';
@@ -29,31 +29,78 @@ function toCSV(rows) {
   return [headers.join(','), ...lines].join('\n');
 }
 
+// Helper function to measure scrollbar width (moved outside to avoid inline function)
+function measureScrollbarWidth() {
+  try {
+    const outer = document.createElement('div');
+    outer.style.visibility = 'hidden';
+    outer.style.position = 'absolute';
+    outer.style.top = '-9999px';
+    outer.style.width = '100px';
+    outer.style.height = '100px';
+    outer.style.overflow = 'scroll';
+    document.body.appendChild(outer);
+    const width = outer.offsetWidth - outer.clientWidth;
+    document.body.removeChild(outer);
+    return width && width > 0 ? width : 0;
+  } catch (_e) {
+    return 0;
+  }
+}
+
+// HeaderCell component moved outside to prevent recreation on each render
+function HeaderCell({ label, keyId, align = 'left', sortKey, sortDir, toggleSort }) {
+  return (
+    <button
+      onClick={() => toggleSort(keyId)}
+      className={`px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white ${align === 'right' ? 'text-right' : 'text-left'}`}
+    >
+      {label} {sortKey === keyId ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+    </button>
+  );
+}
+
+// Row component moved outside to prevent recreation on each render
+function Row({ row, style }) {
+  return (
+    <div
+      style={style}
+      className="grid grid-cols-12 border-t border-gray-700 items-center text-sm hover:bg-gray-800"
+    >
+      <div className="col-span-3 px-3 py-2 text-gray-200">
+        {row.ts ? new Date(row.ts).toLocaleString() : '-'}
+      </div>
+      <div className="col-span-1 px-3 py-2 text-right text-gray-200">
+        {row.quantity?.toLocaleString?.() || row.quantity || 0}
+      </div>
+      <div className="col-span-2 px-3 py-2 text-right text-gray-200">
+        {formatGP(row.avgBuyPrice || 0)}
+      </div>
+      <div className="col-span-2 px-3 py-2 text-right text-gray-200">
+        {formatGP(row.avgSellPrice || 0)}
+      </div>
+      <div
+        className={`col-span-2 px-3 py-2 text-right ${row.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}
+      >
+        {formatGP(row.profit || 0)}
+      </div>
+      <div className="col-span-1 px-3 py-2 text-right text-gray-200">
+        {row.durationMin != null ? formatDuration(row.durationMin) : '-'}
+      </div>
+      <div className="col-span-1 px-3 py-2 text-right text-gray-200">
+        {typeof row.roi === 'number' ? formatROI(row.roi) : '-'}
+      </div>
+    </div>
+  );
+}
+
 export default function GuestItemTransactions({ flips = [], pageSize = 20, itemName = 'Item' }) {
   const [sortKey, setSortKey] = useState('date');
   const [sortDir, setSortDir] = useState('desc');
   const [page, setPage] = useState(0);
   const [showAll, setShowAll] = useState(false);
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
-
-  // Measure platform scrollbar width once to align header with virtual list body when scrollbars appear
-  useEffect(() => {
-    try {
-      const outer = document.createElement('div');
-      outer.style.visibility = 'hidden';
-      outer.style.position = 'absolute';
-      outer.style.top = '-9999px';
-      outer.style.width = '100px';
-      outer.style.height = '100px';
-      outer.style.overflow = 'scroll';
-      document.body.appendChild(outer);
-      const width = outer.offsetWidth - outer.clientWidth;
-      document.body.removeChild(outer);
-      if (width && width > 0) setScrollbarWidth(width);
-    } catch (_e) {
-      // no-op
-    }
-  }, []);
+  // Initialize scrollbar width with lazy initializer to avoid setState in effect
+  const [scrollbarWidth] = useState(() => measureScrollbarWidth());
 
   const sorted = useMemo(() => {
     const arr = [...flips];
@@ -103,46 +150,6 @@ export default function GuestItemTransactions({ flips = [], pageSize = 20, itemN
     URL.revokeObjectURL(url);
   };
 
-  const HeaderCell = ({ label, keyId, align = 'left' }) => (
-    <button
-      onClick={() => toggleSort(keyId)}
-      className={`px-3 py-2 text-xs font-semibold text-gray-200 hover:text-white ${align === 'right' ? 'text-right' : 'text-left'}`}
-    >
-      {label} {sortKey === keyId ? (sortDir === 'asc' ? '▲' : '▼') : ''}
-    </button>
-  );
-
-  const Row = ({ row, style }) => (
-    <div
-      style={style}
-      className="grid grid-cols-12 border-t border-gray-700 items-center text-sm hover:bg-gray-800"
-    >
-      <div className="col-span-3 px-3 py-2 text-gray-200">
-        {row.ts ? new Date(row.ts).toLocaleString() : '-'}
-      </div>
-      <div className="col-span-1 px-3 py-2 text-right text-gray-200">
-        {row.quantity?.toLocaleString?.() || row.quantity || 0}
-      </div>
-      <div className="col-span-2 px-3 py-2 text-right text-gray-200">
-        {formatGP(row.avgBuyPrice || 0)}
-      </div>
-      <div className="col-span-2 px-3 py-2 text-right text-gray-200">
-        {formatGP(row.avgSellPrice || 0)}
-      </div>
-      <div
-        className={`col-span-2 px-3 py-2 text-right ${row.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}
-      >
-        {formatGP(row.profit || 0)}
-      </div>
-      <div className="col-span-1 px-3 py-2 text-right text-gray-200">
-        {row.durationMin != null ? formatDuration(row.durationMin) : '-'}
-      </div>
-      <div className="col-span-1 px-3 py-2 text-right text-gray-200">
-        {typeof row.roi === 'number' ? formatROI(row.roi) : '-'}
-      </div>
-    </div>
-  );
-
   return (
     <div className="bg-gray-800 p-6 rounded-lg">
       <div className="flex items-center justify-between mb-3">
@@ -171,25 +178,73 @@ export default function GuestItemTransactions({ flips = [], pageSize = 20, itemN
         style={showAll && scrollbarWidth ? { paddingRight: scrollbarWidth } : undefined}
       >
         <div className="col-span-3">
-          <HeaderCell label="Date" keyId="date" />
+          <HeaderCell
+            label="Date"
+            keyId="date"
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+          />
         </div>
         <div className="col-span-1 text-right">
-          <HeaderCell label="Qty" keyId="quantity" align="right" />
+          <HeaderCell
+            label="Qty"
+            keyId="quantity"
+            align="right"
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+          />
         </div>
         <div className="col-span-2 text-right">
-          <HeaderCell label="Avg Buy" keyId="buy" align="right" />
+          <HeaderCell
+            label="Avg Buy"
+            keyId="buy"
+            align="right"
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+          />
         </div>
         <div className="col-span-2 text-right">
-          <HeaderCell label="Avg Sell" keyId="sell" align="right" />
+          <HeaderCell
+            label="Avg Sell"
+            keyId="sell"
+            align="right"
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+          />
         </div>
         <div className="col-span-2 text-right">
-          <HeaderCell label="Profit" keyId="profit" align="right" />
+          <HeaderCell
+            label="Profit"
+            keyId="profit"
+            align="right"
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+          />
         </div>
         <div className="col-span-1 text-right">
-          <HeaderCell label="Dur" keyId="duration" align="right" />
+          <HeaderCell
+            label="Dur"
+            keyId="duration"
+            align="right"
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+          />
         </div>
         <div className="col-span-1 text-right">
-          <HeaderCell label="ROI" keyId="roi" align="right" />
+          <HeaderCell
+            label="ROI"
+            keyId="roi"
+            align="right"
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+          />
         </div>
       </div>
 

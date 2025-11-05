@@ -4,19 +4,16 @@ import { getFlipsByDate } from '../utils/supabaseClient';
 
 export default function useFlipsByDate(date) {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!date); // Only set loading true if we have a date
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Skip effect entirely if no date
     if (!date) {
-      setData(null);
-      setLoading(false);
       return;
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
     async function fetchData() {
       try {

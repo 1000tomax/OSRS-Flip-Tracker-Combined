@@ -25,6 +25,38 @@ function computeQuartiles(values) {
   return { min, q1, median: med, q3, max, iqr, count: xs.length };
 }
 
+// Row component moved outside to prevent recreation on each render
+function Row({ label, s, y, scaleX }) {
+  if (!s) return null;
+  const xMin = scaleX(s.min);
+  const xQ1 = scaleX(s.q1);
+  const xMed = scaleX(s.median);
+  const xQ3 = scaleX(s.q3);
+  const xMax = scaleX(s.max);
+  return (
+    <g>
+      {/* whiskers */}
+      <line x1={xMin} y1={y} x2={xQ1} y2={y} stroke="#9CA3AF" strokeWidth="2" />
+      <line x1={xQ3} y1={y} x2={xMax} y2={y} stroke="#9CA3AF" strokeWidth="2" />
+      {/* box */}
+      <rect
+        x={xQ1}
+        y={y - 10}
+        width={Math.max(2, xQ3 - xQ1)}
+        height={20}
+        fill="#374151"
+        stroke="#60a5fa"
+      />
+      {/* median */}
+      <line x1={xMed} y1={y - 12} x2={xMed} y2={y + 12} stroke="#60a5fa" strokeWidth="2" />
+      {/* label */}
+      <text x={20} y={y - 16} fill="#E5E7EB" fontSize="12">
+        {label} (n={s.count})
+      </text>
+    </g>
+  );
+}
+
 export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] }) {
   const [showInfo, setShowInfo] = useState(false);
   const stats = useMemo(
@@ -53,37 +85,6 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
   const scaleX = v => {
     if (vMax === vMin) return pad + (width - 2 * pad) / 2;
     return pad + ((v - vMin) / (vMax - vMin)) * (width - 2 * pad);
-  };
-
-  const Row = ({ label, s, y }) => {
-    if (!s) return null;
-    const xMin = scaleX(s.min);
-    const xQ1 = scaleX(s.q1);
-    const xMed = scaleX(s.median);
-    const xQ3 = scaleX(s.q3);
-    const xMax = scaleX(s.max);
-    return (
-      <g>
-        {/* whiskers */}
-        <line x1={xMin} y1={y} x2={xQ1} y2={y} stroke="#9CA3AF" strokeWidth="2" />
-        <line x1={xQ3} y1={y} x2={xMax} y2={y} stroke="#9CA3AF" strokeWidth="2" />
-        {/* box */}
-        <rect
-          x={xQ1}
-          y={y - 10}
-          width={Math.max(2, xQ3 - xQ1)}
-          height={20}
-          fill="#374151"
-          stroke="#60a5fa"
-        />
-        {/* median */}
-        <line x1={xMed} y1={y - 12} x2={xMed} y2={y + 12} stroke="#60a5fa" strokeWidth="2" />
-        {/* label */}
-        <text x={pad} y={y - 16} fill="#E5E7EB" fontSize="12">
-          {label} (n={s.count})
-        </text>
-      </g>
-    );
   };
 
   const ticks = 4;
@@ -204,8 +205,8 @@ export default function ItemPriceRangeChart({ buyPrices = [], sellPrices = [] })
             </text>
           </g>
         ))}
-        <Row label="Buy" s={stats.buy} y={40} />
-        <Row label="Sell" s={stats.sell} y={85} />
+        <Row label="Buy" s={stats.buy} y={40} scaleX={scaleX} />
+        <Row label="Sell" s={stats.sell} y={85} scaleX={scaleX} />
       </svg>
     </div>
   );

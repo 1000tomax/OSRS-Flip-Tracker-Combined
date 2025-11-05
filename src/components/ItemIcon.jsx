@@ -27,10 +27,12 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
 
   // Set up intersection observer for lazy loading
   useEffect(() => {
-    if (!lazy || !containerRef.current) {
-      setIsVisible(true);
-      return;
-    }
+    // Only set up observer if lazy loading is enabled
+    if (!lazy) return;
+
+    // If ref isn't ready yet, skip setup (effect will run again on next render)
+    const element = containerRef.current;
+    if (!element) return;
 
     const observer = new IntersectionObserver(
       entries => {
@@ -46,7 +48,7 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
       }
     );
 
-    observer.observe(containerRef.current);
+    observer.observe(element);
 
     return () => observer.disconnect();
   }, [lazy]);

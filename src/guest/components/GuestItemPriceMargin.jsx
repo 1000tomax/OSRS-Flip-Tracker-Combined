@@ -114,14 +114,40 @@ export default function GuestItemPriceMargin({ flips = [] }) {
   const [refBottom, setRefBottom] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Track last base values to avoid unnecessary updates
+  const lastBaseRef = useRef({
+    xMin: base.xMin,
+    xMax: base.xMax,
+    yMin: base.yMin,
+    yMax: base.yMax,
+  });
+
   // Keep domains in sync if base changes (new item/data)
   useEffect(() => {
+    // Check if base has actually changed
+    const hasChanged =
+      lastBaseRef.current.xMin !== base.xMin ||
+      lastBaseRef.current.xMax !== base.xMax ||
+      lastBaseRef.current.yMin !== base.yMin ||
+      lastBaseRef.current.yMax !== base.yMax;
+
+    if (!hasChanged) return;
+
+    // Update ref and state - this is intentional synchronization of zoom state when data changes
+    lastBaseRef.current = { xMin: base.xMin, xMax: base.xMax, yMin: base.yMin, yMax: base.yMax };
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setXDomain([base.xMin, base.xMax]);
+
     setYDomain([base.yMin, base.yMax]);
+
     setRefLeft(null);
+
     setRefRight(null);
+
     setRefTop(null);
+
     setRefBottom(null);
+
     setFocus(null);
   }, [base.xMin, base.xMax, base.yMin, base.yMax]);
 

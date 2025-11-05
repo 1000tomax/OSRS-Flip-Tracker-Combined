@@ -11,6 +11,27 @@ import {
 } from 'recharts';
 import ChartFullscreenModal from './ChartFullscreenModal';
 
+// Custom tooltip component moved outside to prevent recreation on each render
+function CustomTooltip({ active, payload }) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-gray-900 border border-gray-600 rounded-lg p-3 shadow-lg">
+        <p className="text-white font-medium">{data.displayDate}</p>
+        <p className="text-gray-400 text-xs">{data.displayLabel}</p>
+        <p className="text-purple-400">
+          Flips: <span className="font-bold">{data.flipCount}</span>
+        </p>
+        <p className="text-gray-300 text-sm">Items: {data.uniqueItems}</p>
+        <p className={data.totalProfit >= 0 ? 'text-green-400 text-sm' : 'text-red-400 text-sm'}>
+          Profit: {data.totalProfit.toLocaleString()} GP
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
+
 export default function GuestFlipVolumeChart({ guestData }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   // Process data for flip volume chart
@@ -92,27 +113,6 @@ export default function GuestFlipVolumeChart({ guestData }) {
       </div>
     );
   }
-
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-gray-900 border border-gray-600 rounded-lg p-3 shadow-lg">
-          <p className="text-white font-medium">{data.displayDate}</p>
-          <p className="text-gray-400 text-xs">{data.displayLabel}</p>
-          <p className="text-purple-400">
-            Flips: <span className="font-bold">{data.flipCount}</span>
-          </p>
-          <p className="text-gray-300 text-sm">Items: {data.uniqueItems}</p>
-          <p className={data.totalProfit >= 0 ? 'text-green-400 text-sm' : 'text-red-400 text-sm'}>
-            Profit: {data.totalProfit.toLocaleString()} GP
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   const chartContent = (
     <>

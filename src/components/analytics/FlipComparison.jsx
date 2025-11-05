@@ -2,49 +2,50 @@ import React from 'react';
 import { formatGP } from '../../utils/formatUtils';
 import { ANALYTICS } from '@/config/constants';
 
-export default function FlipComparison({ fastFlips, slowFlips }) {
-  const ComparisonCard = ({ title, data, color }) => {
-    if (!data) {
-      return (
-        <div className={`p-6 rounded-lg border ${color} opacity-50`}>
-          <h3 className="text-lg font-semibold mb-4 text-white">{title}</h3>
-          <p className="text-gray-400 text-center">No data available</p>
-        </div>
-      );
-    }
-
+// ComparisonCard component defined outside to prevent recreation on each render
+function ComparisonCard({ title, data, color }) {
+  if (!data) {
     return (
-      <div
-        className={`p-6 rounded-lg border ${color} transition-all duration-200 hover:scale-[1.02]`}
-      >
+      <div className={`p-6 rounded-lg border ${color} opacity-50`}>
         <h3 className="text-lg font-semibold mb-4 text-white">{title}</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs text-gray-400 mb-1">Avg ROI</p>
-            <p className="text-2xl font-bold text-white">{data.avgRoi}%</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1">GP/Hour</p>
-            <p className="text-2xl font-bold text-white">{formatGP(data.avgGpPerHour)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1">Success Rate</p>
-            <p className="text-2xl font-bold text-white">{data.successRate}%</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1">Avg Capital</p>
-            <p className="text-2xl font-bold text-white">{formatGP(data.avgCapital)}</p>
-          </div>
-        </div>
-        <div className="mt-4 pt-4 border-t border-gray-700">
-          <p className="text-sm text-gray-300">
-            <span className="font-medium text-white">{data.count}</span> flips analyzed
-          </p>
-        </div>
+        <p className="text-gray-400 text-center">No data available</p>
       </div>
     );
-  };
+  }
 
+  return (
+    <div
+      className={`p-6 rounded-lg border ${color} transition-all duration-200 hover:scale-[1.02]`}
+    >
+      <h3 className="text-lg font-semibold mb-4 text-white">{title}</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-xs text-gray-400 mb-1">Avg ROI</p>
+          <p className="text-2xl font-bold text-white">{data.avgRoi}%</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-400 mb-1">GP/Hour</p>
+          <p className="text-2xl font-bold text-white">{formatGP(data.avgGpPerHour)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-400 mb-1">Success Rate</p>
+          <p className="text-2xl font-bold text-white">{data.successRate}%</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-400 mb-1">Avg Capital</p>
+          <p className="text-2xl font-bold text-white">{formatGP(data.avgCapital)}</p>
+        </div>
+      </div>
+      <div className="mt-4 pt-4 border-t border-gray-700">
+        <p className="text-sm text-gray-300">
+          <span className="font-medium text-white">{data.count}</span> flips analyzed
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function FlipComparison({ fastFlips, slowFlips }) {
   const getWinner = () => {
     if (!fastFlips || !slowFlips) return null;
 

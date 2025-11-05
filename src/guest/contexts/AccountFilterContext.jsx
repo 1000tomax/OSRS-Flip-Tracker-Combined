@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from 'react';
 import { useGuestData } from './GuestDataContext';
 
 const AccountFilterContext = createContext();
@@ -32,10 +40,17 @@ export function AccountFilterProvider({ children }) {
     return guestData.metadata.accounts;
   }, [guestData]);
 
+  const initializedRef = useRef(false);
+
   useEffect(() => {
-    if (selectedAccounts === null && availableAccounts.length > 0) {
-      setSelectedAccounts(availableAccounts);
-    }
+    // Use ref to track initialization and avoid re-running
+    if (initializedRef.current) return;
+    if (selectedAccounts !== null || availableAccounts.length === 0) return;
+
+    // This is intentional state initialization - sync with available accounts when they become available
+    initializedRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedAccounts(availableAccounts);
   }, [availableAccounts, selectedAccounts]);
 
   useEffect(() => {

@@ -197,6 +197,9 @@ export default function ItemSelectorPage({
     return filteredItems.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredItems, currentPage]);
 
+  // Calculate current time once on mount to avoid impure function calls
+  const [currentTime] = useState(() => Date.now());
+
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   const handleToggleItem = itemId => {
@@ -807,7 +810,7 @@ export default function ItemSelectorPage({
                 // Format timestamp
                 let timeAgo = 'N/A';
                 if (price?.highTime) {
-                  const secondsAgo = Math.floor(Date.now() / 1000) - price.highTime;
+                  const secondsAgo = Math.floor(currentTime / 1000) - price.highTime;
                   if (secondsAgo < SECONDS_PER_MINUTE) timeAgo = `${secondsAgo}s ago`;
                   else if (secondsAgo < SECONDS_PER_HOUR)
                     timeAgo = `${Math.floor(secondsAgo / SECONDS_PER_MINUTE)}m ago`;
