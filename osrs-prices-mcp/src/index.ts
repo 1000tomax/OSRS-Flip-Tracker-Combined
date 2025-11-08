@@ -911,14 +911,16 @@ export default {
         }
       );
     } catch (error) {
+      // Log full error server-side for debugging
       console.error('MCP Server Error:', error);
+
+      // Return sanitized error to client (no stack traces or sensitive details)
       return new Response(
         JSON.stringify({
           jsonrpc: '2.0',
           error: {
             code: -32603,
-            message: 'Internal error',
-            data: error instanceof Error ? error.message : String(error),
+            message: 'Internal server error',
           },
           id: null,
         }),
