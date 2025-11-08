@@ -59,3 +59,7 @@ data-processing/raw-input/
 # Temporary CSV files
 flips.csv
 *.csv.bak
+
+# MCP Server sensitive config
+osrs-prices-mcp/wrangler.toml
+osrs-prices-mcp/test-deployment.sh

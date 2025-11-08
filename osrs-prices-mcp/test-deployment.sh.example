@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Set the auth token from your wrangler.toml
+AUTH_TOKEN="your-auth-token-here"
+
+echo "Testing deployed MCP server..."
+echo ""
+
+# Test 1: Initialize
+echo "=== Test 1: Initialize ==="
+curl -s -X POST https://osrs-prices-mcp.tcoudal.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $AUTH_TOKEN" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {}
+  }' | jq .
+
+echo ""
+echo "=== Test 2: List Tools ==="
+curl -s -X POST https://osrs-prices-mcp.tcoudal.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $AUTH_TOKEN" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list",
+    "params": {}
+  }' | jq .
+
+echo ""
+echo "=== Test 3: Get Latest Prices for Tracked Items ==="
+curl -s -X POST https://osrs-prices-mcp.tcoudal.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $AUTH_TOKEN" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "get_latest_prices",
+      "arguments": {
+        "item_ids": ["20724", "27277", "24777"]
+      }
+    }
+  }' | jq .
+
+echo ""
+echo "=== Test 4: Search for Items ==="
+curl -s -X POST https://osrs-prices-mcp.tcoudal.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $AUTH_TOKEN" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "tools/call",
+    "params": {
+      "name": "get_item_mapping",
+      "arguments": {
+        "search_name": "imbued heart"
+      }
+    }
+  }' | jq .

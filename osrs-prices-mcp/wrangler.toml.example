@@ -1,0 +1,10 @@
+name = "osrs-prices-mcp"
+main = "dist/index.js"
+compatibility_date = "2024-11-07"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+MCP_AUTH_TOKEN = "your-secure-token-here"
+
+[observability]
+enabled = true

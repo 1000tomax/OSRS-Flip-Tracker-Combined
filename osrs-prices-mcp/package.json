@@ -1,0 +1,30 @@
+{
+  "name": "osrs-prices-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for OSRS real-time price data from the OSRS Wiki API",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "wrangler deploy --dry-run --outdir=dist",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": [
+    "mcp",
+    "osrs",
+    "runescape",
+    "prices"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "workers-mcp": "latest"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.96.0"
+  }
+}
