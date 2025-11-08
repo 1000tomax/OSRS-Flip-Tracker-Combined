@@ -5,6 +5,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 MCP_AUTH_TOKEN = "your-secure-token-here"
+SUPABASE_URL = "https://fmmdulnvciiafuuogwfu.supabase.co"
+SUPABASE_KEY = "your-supabase-anon-key-here"
 
 [observability]
 enabled = true
