@@ -1,7 +1,7 @@
 /* eslint-env node */
 // Simple test script to verify OSRS API endpoints
 const OSRS_API_BASE = 'https://prices.runescape.wiki/api/v1/osrs';
-const USER_AGENT = 'OSRS Investment Tracker MCP - Claude AI Assistant';
+const USER_AGENT = 'OSRS Investment Tracker MCP - discord: Mreedon';
 
 const TRACKED_ITEMS = ['20724', '27277', '24777'];
 const ITEM_NAMES = {

@@ -2,8 +2,7 @@ const BASE_URL = 'https://prices.runescape.wiki/api/v1/osrs';
 
 // ⚠️ REQUIRED: Descriptive User-Agent per OSRS Wiki API policy
 const headers = {
-  'User-Agent':
-    'OSRS Flip Dashboard Blocklist Generator - github.com/1000tomax/OSRS-Flip-Tracker-Combined',
+  'User-Agent': 'OSRS Flip Dashboard - discord: Mreedon',
 };
 
 /**

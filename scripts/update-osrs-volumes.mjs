@@ -25,8 +25,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const BASE_URL = 'https://prices.runescape.wiki/api/v1/osrs';
 const headers = {
-  'User-Agent':
-    'OSRS Flip Dashboard Volume Updater - github.com/1000tomax/OSRS-Flip-Tracker-Combined',
+  'User-Agent': 'OSRS Flip Dashboard Volume Updater - discord: Mreedon',
 };
 
 /**

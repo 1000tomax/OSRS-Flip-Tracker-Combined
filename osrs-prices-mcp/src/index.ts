@@ -4,7 +4,7 @@
  */
 
 const OSRS_API_BASE = 'https://prices.runescape.wiki/api/v1/osrs';
-const USER_AGENT = 'OSRS Investment Tracker MCP - Claude AI Assistant';
+const USER_AGENT = 'OSRS Investment Tracker MCP - discord: Mreedon';
 
 interface Env {
   MCP_AUTH_TOKEN: string;
