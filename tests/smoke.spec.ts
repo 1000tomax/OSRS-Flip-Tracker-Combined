@@ -29,7 +29,7 @@ test.describe('Deployment Smoke Test', () => {
     const errors: string[] = [];
 
     // Collect any console errors
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -43,9 +43,8 @@ test.describe('Deployment Smoke Test', () => {
 
     // Check that no critical errors occurred
     // Note: We filter out known warnings/non-critical errors if needed
-    const criticalErrors = errors.filter(error =>
-      !error.includes('service worker') &&
-      !error.includes('favicon')
+    const criticalErrors = errors.filter(
+      error => !error.includes('service worker') && !error.includes('favicon')
     );
 
     expect(criticalErrors).toHaveLength(0);
