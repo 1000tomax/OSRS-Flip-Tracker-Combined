@@ -25,7 +25,7 @@ export default defineConfig({
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: 'http://localhost:4173',
 
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
@@ -44,7 +44,7 @@ export default defineConfig({
     ? undefined
     : {
         command: 'npm run preview',
-        url: 'http://127.0.0.1:4173',
+        url: 'http://localhost:4173',
         reuseExistingServer: true,
         timeout: 120 * 1000,
       },
