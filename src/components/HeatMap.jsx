@@ -1,192 +1,365 @@
-/**
- * HEAT MAP COMPONENT
- *
- * This component creates a visual "heat map" showing trading activity throughout the day.
- * It takes flip data and creates 24 hourly bars (one for each hour) showing:
- * - How many flips happened in each hour
- * - How much profit was made in each hour
- * - Visual intensity based on activity level
- *
- * Think of it like a bar chart where:
- * - Taller bars = more activity
- * - Green bars = profitable hours
- * - Red bars = loss-making hours
- * - Gray bars = no activity
- *
- * This helps you see patterns like:
- * - What times of day you're most active
- * - Which hours are most profitable
- * - Whether you trade consistently or in bursts
- */
-
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { formatGP } from '../utils/formatUtils';
-import { HEATMAP } from '@/config/constants';
 
-/**
- * HeatMap Component - Shows hourly trading activity for a specific day
- *
- * @param {Array} flips - Array of flip transactions for the day
- * @param {string} date - The date being displayed (for debugging/context)
- * @returns {JSX.Element} - The heat map visualization
- */
-export default function HeatMap({ flips }) {
-  /**
-   * Process the flip data into hourly buckets for visualization
-   *
-   * This is the "brain" of the heat map - it takes raw flip data and organizes
-   * it into 24 hourly buckets (0:00-23:59) with statistics for each hour.
-   *
-   * The useMemo hook means this calculation only runs when the flips data changes,
-   * not on every re-render (performance optimization).
-   */
+// Color intensity function for green/red gradient
+const getIntensityColor = (value, maxValue) => {
+  if (value === 0 || maxValue === 0) return 'bg-gray-700';
+
+  const normalized = Math.abs(value) / maxValue;
+
+  // Negative values get red shades
+  if (value < 0) {
+    if (normalized >= 0.8) return 'bg-red-400';
+    if (normalized >= 0.6) return 'bg-red-500';
+    if (normalized >= 0.4) return 'bg-red-600';
+    if (normalized >= 0.2) return 'bg-red-700';
+    return 'bg-red-900';
+  }
+
+  // Positive values get green shades
+  if (normalized >= 0.8) return 'bg-green-400';
+  if (normalized >= 0.6) return 'bg-green-500';
+  if (normalized >= 0.4) return 'bg-green-600';
+  if (normalized >= 0.2) return 'bg-green-700';
+  if (normalized > 0) return 'bg-green-900';
+  return 'bg-gray-700';
+};
+
+// Format hour for display
+const formatHour = hour => {
+  if (hour === 0) return '12am';
+  if (hour === 12) return '12pm';
+  if (hour < 12) return `${hour}am`;
+  return `${hour - 12}pm`;
+};
+
+export default function HeatMap({ guestData, onCellClick = null }) {
+  // Metric toggle state: 'profit', 'transactions', 'profitPerFlip'
+  const [selectedMetric, setSelectedMetric] = useState('profit');
+
+  // Minimum flips required to show GP/Flip data (configurable by user)
+  const [minFlipsThreshold, setMinFlipsThreshold] = useState(3);
+
   const heatMapData = useMemo(() => {
-    // Return empty array if no data (component will show nothing)
-    if (!flips || flips.length === 0) return [];
+    if (!guestData?.flipsByDate) return { grid: {}, totalProfit: 0, totalTransactions: 0 };
 
-    // Filter out incomplete or invalid flips
-    // We only want flips that:
-    // - Actually sold something (closed_quantity > 0)
-    // - Made money (received_post_tax > 0)
-    // - Have a completion time (closed_time exists)
-    // - Are marked as finished (not in progress)
-    const validFlips = flips.filter(
-      f =>
-        f.closed_quantity > 0 && f.received_post_tax > 0 && f.closed_time && f.status === 'FINISHED'
+    // Initialize 7x24 grid (day of week x hour of day)
+    const grid = {};
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    // Initialize empty grid
+    for (let day = 0; day < 7; day++) {
+      grid[day] = {};
+      for (let hour = 0; hour < 24; hour++) {
+        grid[day][hour] = {
+          profit: 0,
+          transactions: 0,
+          percentage: 0,
+          profitPerFlip: 0,
+        };
+      }
+    }
+
+    let totalProfit = 0;
+    let totalTransactions = 0;
+
+    // Process all flips
+    Object.entries(guestData.flipsByDate).forEach(([, dayData]) => {
+      // Handle both old format (array) and new format (object with flips array)
+      const flips = Array.isArray(dayData) ? dayData : dayData.flips || [];
+      flips.forEach(flip => {
+        // Parse the sell time to get day of week and hour
+        const lastSellTime = flip.lastSellTime || flip.last_sell_time;
+        if (lastSellTime) {
+          const sellDate = new Date(lastSellTime);
+          const dayOfWeek = sellDate.getDay(); // 0 = Sunday, 6 = Saturday
+          const hour = sellDate.getHours(); // 0-23
+
+          // Add to the grid
+          if (grid[dayOfWeek] && grid[dayOfWeek][hour]) {
+            grid[dayOfWeek][hour].profit += flip.profit || 0;
+            grid[dayOfWeek][hour].transactions += 1;
+            totalProfit += flip.profit || 0;
+            totalTransactions += 1;
+          }
+        }
+      });
+    });
+
+    // Calculate percentages and profit per flip
+    for (let day = 0; day < 7; day++) {
+      for (let hour = 0; hour < 24; hour++) {
+        // Calculate percentage of total profit
+        grid[day][hour].percentage =
+          totalProfit > 0 ? (grid[day][hour].profit / totalProfit) * 100 : 0;
+
+        // Calculate profit per flip only if we have enough flips for meaningful data
+        grid[day][hour].profitPerFlip =
+          grid[day][hour].transactions >= minFlipsThreshold
+            ? grid[day][hour].profit / grid[day][hour].transactions
+            : 0;
+      }
+    }
+
+    return {
+      grid,
+      totalProfit,
+      totalTransactions,
+      dayNames,
+    };
+  }, [guestData, minFlipsThreshold]);
+
+  // Calculate max values for each metric, considering the minimum flip threshold
+  const maxValues = useMemo(() => {
+    let maxProfit = 0;
+    let maxTransactions = 0;
+    let maxPercentage = 0;
+    let maxProfitPerFlip = 0;
+
+    for (let day = 0; day < 7; day++) {
+      for (let hour = 0; hour < 24; hour++) {
+        const cell = heatMapData.grid[day]?.[hour];
+        if (cell) {
+          // Always include profit and transactions in the scale
+          maxProfit = Math.max(maxProfit, Math.abs(cell.profit));
+          maxTransactions = Math.max(maxTransactions, cell.transactions);
+          maxPercentage = Math.max(maxPercentage, Math.abs(cell.percentage));
+
+          // Only include profitPerFlip in the scale if it meets the threshold
+          // This makes the color scale adjust to only the visible GP/Flip data
+          if (selectedMetric === 'profitPerFlip' && cell.transactions >= minFlipsThreshold) {
+            maxProfitPerFlip = Math.max(maxProfitPerFlip, Math.abs(cell.profitPerFlip));
+          } else if (selectedMetric !== 'profitPerFlip') {
+            // For other metrics, always include all profitPerFlip data in potential scale
+            maxProfitPerFlip = Math.max(maxProfitPerFlip, Math.abs(cell.profitPerFlip));
+          }
+        }
+      }
+    }
+
+    return { maxProfit, maxTransactions, maxPercentage, maxProfitPerFlip };
+  }, [heatMapData, minFlipsThreshold, selectedMetric]);
+
+  // Get value and color for a cell based on selected metric
+  const getCellData = (day, hour) => {
+    const cell = heatMapData.grid[day]?.[hour];
+    if (!cell) return { value: 0, display: '', color: 'bg-gray-700' };
+
+    let value, maxValue;
+
+    switch (selectedMetric) {
+      case 'profit':
+        value = cell.profit;
+        maxValue = maxValues.maxProfit;
+        break;
+      case 'transactions':
+        value = cell.transactions;
+        maxValue = maxValues.maxTransactions;
+        break;
+      case 'profitPerFlip':
+        // For GP/Flip, only show color if cell meets minimum threshold
+        if (cell.transactions >= minFlipsThreshold) {
+          value = cell.profitPerFlip;
+          maxValue = maxValues.maxProfitPerFlip;
+        } else {
+          // Below threshold - show as gray (no color)
+          return { value: 0, color: 'bg-gray-700', cell };
+        }
+        break;
+      default:
+        value = cell.profit;
+        maxValue = maxValues.maxProfit;
+    }
+
+    const color = getIntensityColor(value, maxValue);
+    return { value, color, cell };
+  };
+
+  if (!heatMapData.grid || Object.keys(heatMapData.grid).length === 0) {
+    return (
+      <div className="bg-gray-800 p-6 rounded-lg">
+        <p className="text-gray-400">No data available for heatmap</p>
+      </div>
     );
+  }
 
-    // Create 24 empty buckets, one for each hour of the day
-    // Array(24) creates array with 24 undefined elements
-    // .fill(0) fills them with 0
-    // .map() converts each into an object with hour data
-    const hourlyBuckets = Array(24)
-      .fill(0)
-      .map((_, hour) => ({
-        hour, // 0-23 (hour of the day)
-        flips: 0, // Number of flips completed this hour
-        profit: 0, // Total profit made this hour
-        intensity: 0, // Visual intensity (0-1, calculated later)
-      }));
-
-    // Go through each valid flip and add it to the appropriate hour bucket
-    validFlips.forEach(flip => {
-      const closeTime = new Date(flip.closed_time); // Parse the completion time
-      const hour = closeTime.getHours(); // Get hour (0-23)
-      const profit = flip.received_post_tax - flip.spent; // Calculate profit
-
-      // Add this flip's data to the correct hour bucket
-      hourlyBuckets[hour].flips += 1; // Increment flip count
-      hourlyBuckets[hour].profit += profit; // Add to profit total
-    });
-
-    // Calculate maximum values across all hours for normalization
-    // This lets us scale the visual intensity relative to the busiest hour
-    const maxFlips = Math.max(...hourlyBuckets.map(b => b.flips));
-    const maxProfit = Math.max(...hourlyBuckets.map(b => Math.abs(b.profit)));
-
-    // Calculate visual intensity for each hour (0-1 scale)
-    // This determines how tall and opaque each bar appears
-    hourlyBuckets.forEach(bucket => {
-      // Intensity based on number of flips (more flips = more intense)
-      const flipIntensity = maxFlips > 0 ? bucket.flips / maxFlips : 0;
-
-      // Intensity based on profit amount (higher profit = more intense)
-      const profitIntensity = maxProfit > 0 ? Math.abs(bucket.profit) / maxProfit : 0;
-
-      // Combine both metrics, weighing flip count slightly higher
-      // This means busy hours are emphasized more than just profitable hours
-      bucket.intensity = Math.max(flipIntensity, profitIntensity * HEATMAP.PROFIT_WEIGHT);
-    });
-
-    return hourlyBuckets;
-  }, [flips]); // Only recalculate when flips data changes
-
-  if (heatMapData.length === 0) return null;
+  // Get user's timezone for display
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
-    <div className="mb-6">
-      {/* Time markers */}
-      <div className="flex justify-between items-center mb-2 px-1">
-        {['12a', '3a', '6a', '9a', '12p', '3p', '6p', '9p'].map(time => (
-          <div key={time} className="text-xs text-gray-400 font-medium">
-            {time}
-          </div>
-        ))}
-      </div>
+    <div className="bg-gray-800 p-6 rounded-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-white">📊 Trading Heat Map</h3>
+          <p className="text-xs text-gray-400 mt-1">Hours shown in your timezone: {userTimezone}</p>
+        </div>
 
-      {/* Heat map bars container */}
-      <div className="flex gap-1 h-8 items-end relative">
-        {heatMapData.map((bucket, i) => {
-          const intensity = bucket.intensity;
-          const height = Math.max(4, intensity * 100); // Min height for visibility
-          const isGreen = bucket.profit >= 0;
-
-          return (
-            <div
-              key={i}
-              className={`flex-1 rounded-sm transition-all duration-200 cursor-pointer relative group ${
-                intensity > 0
-                  ? isGreen
-                    ? 'bg-green-500 hover:bg-green-400'
-                    : 'bg-red-500 hover:bg-red-400'
-                  : 'bg-gray-700 hover:bg-gray-600'
+        {/* Metric toggle buttons and min flips input */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedMetric('profit')}
+              className={`px-3 py-1 text-sm rounded transition-colors ${
+                selectedMetric === 'profit'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
-              style={{
-                height: `${height}%`,
-                opacity:
-                  intensity > 0 ? Math.max(HEATMAP.MIN_OPACITY, intensity) : HEATMAP.EMPTY_OPACITY,
-              }}
             >
-              {/* Custom tooltip */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 px-3 py-2 bg-gray-800 border border-gray-600 text-white text-sm rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                <div className="font-medium text-yellow-400">{bucket.hour}:00</div>
-                <div className="text-xs text-gray-300">
-                  {bucket.flips} flips •{' '}
-                  <span className={bucket.profit >= 0 ? 'text-green-400' : 'text-red-400'}>
-                    {bucket.profit >= 0 ? '+' : ''}
-                    {formatGP(bucket.profit)}
-                  </span>
-                </div>
-                {/* Tooltip arrow */}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
-              </div>
-            </div>
-          );
-        })}
+              Total Profit
+            </button>
+            <button
+              onClick={() => setSelectedMetric('transactions')}
+              className={`px-3 py-1 text-sm rounded transition-colors ${
+                selectedMetric === 'transactions'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              # Flips
+            </button>
+            <button
+              onClick={() => setSelectedMetric('profitPerFlip')}
+              className={`px-3 py-1 text-sm rounded transition-colors ${
+                selectedMetric === 'profitPerFlip'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              GP/Flip
+            </button>
+          </div>
+
+          {/* Min flips threshold input */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-gray-400">Min flips:</label>
+            <input
+              type="number"
+              min="1"
+              max="20"
+              value={minFlipsThreshold}
+              onChange={e => {
+                const maxThreshold = 20;
+                setMinFlipsThreshold(
+                  Math.max(1, Math.min(maxThreshold, parseInt(e.target.value, 10) || 1))
+                );
+              }}
+              className="w-12 px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Heatmap grid - Days as rows, Hours as columns */}
+      <div>
+        <div className="w-full">
+          {/* Hour headers */}
+          <div className="grid grid-cols-[50px_repeat(24,_minmax(0,_1fr))] gap-[2px] mb-1">
+            <div></div>
+            {Array.from({ length: 24 }, (_, hour) => (
+              <div key={hour} className="text-[10px] text-gray-400 text-center">
+                {hour % 2 === 0 ? formatHour(hour) : ''}
+              </div>
+            ))}
+          </div>
+
+          {/* Day rows */}
+          {heatMapData.dayNames.map((dayName, day) => (
+            <div
+              key={day}
+              className="grid grid-cols-[50px_repeat(24,_minmax(0,_1fr))] gap-[2px] mb-[2px]"
+            >
+              <div className="text-[11px] text-gray-300 pr-1 flex items-center justify-end">
+                {dayName.slice(0, 3)}
+              </div>
+              {Array.from({ length: 24 }, (_, hour) => {
+                const cellData = getCellData(day, hour);
+                return (
+                  <button
+                    type="button"
+                    key={`${day}-${hour}`}
+                    className={`h-7 ${cellData.color} rounded-sm relative group cursor-pointer transition-all duration-200 hover:ring-1 hover:ring-green-400 hover:z-10 ${
+                      onCellClick && cellData.cell?.transactions > 0
+                        ? 'hover:ring-2 hover:ring-blue-400'
+                        : ''
+                    }`}
+                    title={`${dayName} ${formatHour(hour)}${onCellClick && cellData.cell?.transactions > 0 ? ' - Click to view transactions' : ''}`}
+                    onClick={() => {
+                      if (onCellClick && cellData.cell?.transactions > 0) {
+                        onCellClick({ day, hour, dayName, formattedHour: formatHour(hour) });
+                      }
+                    }}
+                    disabled={!onCellClick || !(cellData.cell?.transactions > 0)}
+                  >
+                    {/* Detailed tooltip */}
+                    {cellData.cell && cellData.value !== 0 && (
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 border border-gray-600 text-white text-xs rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        <div className="font-bold">
+                          {dayName} {formatHour(hour)}
+                        </div>
+                        <div
+                          className={cellData.cell.profit >= 0 ? 'text-green-400' : 'text-red-400'}
+                        >
+                          Total: {formatGP(cellData.cell.profit)}
+                        </div>
+                        <div>Flips: {cellData.cell.transactions}</div>
+                        <div className="text-blue-400">
+                          GP/Flip:{' '}
+                          {cellData.cell.transactions >= minFlipsThreshold
+                            ? formatGP(cellData.cell.profitPerFlip)
+                            : cellData.cell.transactions > 0
+                              ? `${formatGP(cellData.cell.profit / cellData.cell.transactions)} (< ${minFlipsThreshold} flips)`
+                              : '0'}
+                        </div>
+                        <div className="text-gray-400">
+                          % of Total: {cellData.cell.percentage.toFixed(2)}%
+                        </div>
+                        {onCellClick && cellData.cell?.transactions > 0 && (
+                          <div className="text-blue-300 text-xs mt-1 border-t border-gray-600 pt-1">
+                            Click to view transactions
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Legend and info */}
+      <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          {/* Negative values legend */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-red-400">Loss</span>
+            <div className="flex gap-1">
+              <div className="w-3 h-3 bg-red-400 rounded-sm"></div>
+              <div className="w-3 h-3 bg-red-600 rounded-sm"></div>
+              <div className="w-3 h-3 bg-red-800 rounded-sm"></div>
+            </div>
+          </div>
+
+          {/* Zero/no data */}
+          <div className="w-3 h-3 bg-gray-700 rounded-sm"></div>
+
+          {/* Positive values legend */}
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              <div className="w-3 h-3 bg-green-900 rounded-sm"></div>
+              <div className="w-3 h-3 bg-green-600 rounded-sm"></div>
+              <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
+            </div>
+            <span className="text-xs text-green-400">Profit</span>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-xs text-gray-500 mt-2">
+        💡 Hover over cells for details. Green = profit, Red = loss, Gray = no data. Adjust "Min
+        flips" to control GP/Flip sensitivity.
+      </p>
     </div>
   );
 }
-
-/**
- * HOW THE HEATMAP WORKS - LEARNING NOTES
- *
- * 1. **Data Processing**:
- *    - Takes raw flip data and groups it by hour (0-23)
- *    - Calculates total flips and profit for each hour
- *    - Normalizes intensity so the busiest hour gets full intensity
- *
- * 2. **Visual Design**:
- *    - 24 bars arranged horizontally (one per hour)
- *    - Bar height represents activity level
- *    - Bar color represents profit (green) vs loss (red)
- *    - Bar opacity represents intensity (more active = more opaque)
- *
- * 3. **Interactive Features**:
- *    - Hover over any bar to see detailed stats
- *    - Smooth animations when data changes
- *    - Responsive design works on mobile
- *
- * 4. **Performance Optimizations**:
- *    - useMemo prevents unnecessary recalculations
- *    - Only re-renders when flips data actually changes
- *    - CSS transitions handled by browser GPU
- *
- * 5. **Learning Concepts Demonstrated**:
- *    - React hooks (useMemo)
- *    - Array methods (map, filter, forEach)
- *    - Date manipulation
- *    - Conditional rendering
- *    - CSS-in-JS styling
- *    - Component composition
- */
