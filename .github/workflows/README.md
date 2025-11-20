@@ -51,7 +51,16 @@ Keeps OSRS item volume data fresh:
 **Required Secrets:**
 
 - `SUPABASE_URL`: Your Supabase project URL
-- `SUPABASE_KEY`: Supabase service role key
+- `SUPABASE_KEY`: Supabase service role key (not anon key!)
+
+**Setup Instructions:**
+
+Before running this workflow, you need to create the `osrs_item_volumes` table in Supabase:
+
+1. Go to your Supabase project → SQL Editor
+2. Run the SQL file: `supabase/create-volume-table.sql`
+3. Configure the required secrets in GitHub (Settings → Secrets and variables → Actions)
+4. Manually trigger the workflow once to populate initial data
 
 ---
 
