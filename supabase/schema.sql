@@ -203,3 +203,7 @@ GRANT EXECUTE ON FUNCTION refresh_item_stats TO authenticated;
 COMMENT ON TABLE flips IS 'OSRS Grand Exchange flip transactions';
 COMMENT ON MATERIALIZED VIEW item_stats IS 'Aggregated statistics per item (refresh periodically)';
 COMMENT ON FUNCTION get_daily_summaries IS 'Returns daily flip summaries for dashboard';
+
+-- Additional tables for OSRS data
+-- Run create-volume-table.sql to set up volume data storage
+-- Run create-computed-data-tables.sql to set up computed data storage
