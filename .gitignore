@@ -19,6 +19,9 @@ dist-ssr
 coverage
 *.lcov
 .nyc_output
+test-results/
+playwright-report/
+playwright/.cache/
 
 # Environment variables
 .env
