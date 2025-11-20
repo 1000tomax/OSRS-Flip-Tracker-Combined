@@ -43,28 +43,55 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Start Preview Server
-        run: npm run preview &
+        run: |
+          nohup npm run preview > preview.log 2>&1 &
+          echo $! > preview.pid
+          echo "Started preview server with PID $(cat preview.pid)"
         env:
           CI: true
 
       - name: Wait for Preview Server
         run: |
           echo "Waiting for preview server to be ready..."
+          sleep 2
           for i in {1..30}; do
-            if curl -s http://127.0.0.1:4173 > /dev/null; then
+            if curl -f -s -o /dev/null http://localhost:4173; then
               echo "Preview server is ready!"
               exit 0
             fi
             echo "Attempt $i: Server not ready, waiting..."
             sleep 1
           done
-          echo "Preview server failed to start"
+          echo "❌ Preview server failed to start"
+          echo "=== Preview server logs ==="
+          cat preview.log || echo "No log file found"
+          echo "=== Checking if preview process is running ==="
+          ps aux | grep "vite preview" || true
+          echo "=== Attempting to curl with verbose output ==="
+          curl -v http://localhost:4173 || true
           exit 1
 
       - name: Run Deployment Smoke Tests
         run: npx playwright test --config=playwright.config.ts
         env:
           CI: true
+
+      - name: Stop Preview Server
+        if: always()
+        run: |
+          if [ -f preview.pid ]; then
+            PID=$(cat preview.pid)
+            echo "Stopping preview server (PID: $PID)"
+            kill $PID || true
+          fi
+
+      - name: Upload Playwright Report
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
 
       - name: Deploy to Cloudflare Pages
         id: deploy
