@@ -1,78 +1,140 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy, useEffect } from 'react';
-import ErrorBoundary from './components/ErrorBoundary';
-import Navigation from './components/Navigation';
-import LoadingSpinner from './components/LoadingSpinner';
-import SEO from './components/SEO';
+import { DataProvider, useData } from './contexts/DataContext';
+import { AccountFilterProvider } from './contexts/AccountFilterContext';
+import { ItemsAnalysisProvider } from './contexts/ItemsAnalysisContext';
+import AccountFilterBar from './components/AccountFilterBar';
+import UploadPage from './pages/UploadPage';
+import Dashboard from './pages/Dashboard';
+import AnalyticsDisclosure from './components/AnalyticsDisclosure';
+import AppErrorBoundary from './components/AppErrorBoundary';
+import FeedbackButton from './components/FeedbackButton';
 import SupportButton from './components/Footer';
+import SEO from './components/SEO';
 
-// Lazy load most page components for code splitting
-const Home = lazy(() => import('./pages/Home'));
-const Items = lazy(() => import('./pages/Items'));
-const FlipLogs = lazy(() => import('./pages/FlipLogs'));
-const Charts = lazy(() => import('./pages/Charts'));
-const ProfitVelocity = lazy(() => import('./pages/ProfitVelocity'));
-const IconTest = lazy(() => import('./pages/IconTest'));
-const TestDiscordReport = lazy(() => import('./pages/TestDiscordReport'));
+// Lazy load item pages for code splitting
+const ItemsList = lazy(() => import('./pages/ItemsList'));
+const ItemDeepDive = lazy(() => import('./pages/ItemDeepDive'));
+const BlocklistGeneratorPage = lazy(() => import('./pages/BlocklistGeneratorPage'));
 
-// Lazy load the entire guest mode - it's a separate "app"
-const GuestModeApp = lazy(() => import('./guest/GuestModeApp'));
+// Protected route component - redirects to upload if no data
+function RequireData({ children }) {
+  const { guestData } = useData();
 
-// Import analytics pages directly to debug routing issue
-import TradingHeatMap from './pages/TradingHeatMap';
-import CapitalEfficiency from './pages/CapitalEfficiency';
+  if (!guestData) {
+    return <Navigate to="/" replace />;
+  }
 
-// Component to conditionally show navigation
-function AppContent() {
-  const location = useLocation();
-  const isGuestMode = location.pathname.startsWith('/guest');
+  return children;
+}
 
+// Component to conditionally render account filter bar
+function RequireDataForFilter({ children }) {
+  const { guestData } = useData();
+
+  if (!guestData) {
+    return null;
+  }
+
+  return children;
+}
+
+// Wrapper for ItemsAnalysisProvider
+function ItemsAnalysisRoot({ children }) {
+  return <ItemsAnalysisProvider>{children}</ItemsAnalysisProvider>;
+}
+
+// Loading fallback component
+function LoadingFallback({ text = 'Loading...' }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
-      {!isGuestMode && <Navigation />}
-      <main id="main-content" role="main">
-        <Suspense
-          fallback={
-            <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white font-sans p-4">
-              <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-lg">
-                <LoadingSpinner size="large" text="Loading page..." />
-              </div>
-            </div>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{
+        backgroundColor: 'rgba(0,0,0,0.55)',
+        backdropFilter: 'blur(2px)',
+      }}
+    >
+      <div className="bg-gray-900/90 border border-gray-700 rounded-xl px-6 py-5 shadow-2xl flex items-center gap-4">
+        <div className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+        <div className="text-gray-200 font-medium">{text}</div>
+      </div>
+    </div>
+  );
+}
+
+function AppContent() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-gray-900 to-purple-900">
+      {/* Persistent banner */}
+      <div className="bg-yellow-500 text-black p-2 text-center font-bold sticky top-0 z-50">
+        Your data never leaves this browser
+      </div>
+
+      {/* Account filter bar - only shows when data is loaded */}
+      <RequireDataForFilter>
+        <AccountFilterBar />
+      </RequireDataForFilter>
+
+      <Routes>
+        {/* Upload is always accessible */}
+        <Route path="/" element={<UploadPage />} />
+
+        {/* Dashboard requires data to be uploaded first */}
+        <Route
+          path="/dashboard"
+          element={
+            <RequireData>
+              <Dashboard />
+            </RequireData>
           }
-        >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/items" element={<Items />} />
-            <Route path="/flip-logs" element={<FlipLogs />} />
-            <Route path="/charts" element={<Charts />} />
-            <Route path="/performance" element={<ProfitVelocity />} />
-            <Route path="/profit-velocity" element={<ProfitVelocity />} />
-            <Route path="/heatmap" element={<TradingHeatMap />} />
-            <Route path="/efficiency" element={<CapitalEfficiency />} />
-            <Route path="/icon-test" element={<IconTest />} />
-            <Route path="/test-discord" element={<TestDiscordReport />} />
+        />
 
-            {/* Guest mode - completely separate, lazy loaded */}
-            <Route
-              path="/guest/*"
-              element={
-                <Suspense
-                  fallback={
-                    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-gray-900 to-purple-900 flex items-center justify-center">
-                      <div className="text-white text-xl">Loading Guest Mode...</div>
-                    </div>
-                  }
-                >
-                  <GuestModeApp />
-                </Suspense>
-              }
-            />
+        {/* Items list */}
+        <Route
+          path="/items"
+          element={
+            <RequireData>
+              <Suspense fallback={<LoadingFallback text="Loading Items..." />}>
+                <ItemsList />
+              </Suspense>
+            </RequireData>
+          }
+        />
 
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </Suspense>
-      </main>
+        {/* Individual item deep dive */}
+        <Route
+          path="/items/:itemName"
+          element={
+            <RequireData>
+              <Suspense fallback={<LoadingFallback text="Loading Item..." />}>
+                <ItemDeepDive />
+              </Suspense>
+            </RequireData>
+          }
+        />
+
+        {/* Blocklist Generator - accessible without data */}
+        <Route
+          path="/blocklist-generator"
+          element={
+            <Suspense fallback={<LoadingFallback text="Loading Generator..." />}>
+              <BlocklistGeneratorPage />
+            </Suspense>
+          }
+        />
+
+        {/* Catch-all redirect to upload */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {/* Analytics disclosure */}
+      <AnalyticsDisclosure />
+
+      {/* Feedback button */}
+      <FeedbackButton />
+
+      {/* Support/footer button */}
       <SupportButton />
     </div>
   );
@@ -86,10 +148,10 @@ function App() {
         const isExcluded = localStorage.getItem('exclude-analytics');
         if (isExcluded) {
           localStorage.removeItem('exclude-analytics');
-          console.log('📊 Analytics tracking re-enabled. Refresh to apply.');
+          console.log('Analytics tracking re-enabled. Refresh to apply.');
         } else {
           localStorage.setItem('exclude-analytics', 'true');
-          console.log('🚫 You are now excluded from analytics. Refresh to apply.');
+          console.log('You are now excluded from analytics. Refresh to apply.');
         }
       }
     };
@@ -99,12 +161,18 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
+    <AppErrorBoundary>
       <Router>
         <SEO />
-        <AppContent />
+        <DataProvider>
+          <AccountFilterProvider>
+            <ItemsAnalysisRoot>
+              <AppContent />
+            </ItemsAnalysisRoot>
+          </AccountFilterProvider>
+        </DataProvider>
       </Router>
-    </ErrorBoundary>
+    </AppErrorBoundary>
   );
 }
 

@@ -7,8 +7,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { getValidatedIconUrl } from '../utils/itemIcons';
-import { reportFailedIcon } from '../utils/iconReporting';
-import ReportIconButton from './ReportIconButton';
 
 /**
  * ItemIcon Component
@@ -72,8 +70,6 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
             setError(false);
           } else {
             setError(true);
-            // Automatically report failed icon (throttled)
-            reportFailedIcon(itemName, { source: 'Automatic Detection' });
             // Call onError callback if provided
             if (onError) onError();
           }
@@ -139,20 +135,11 @@ export default function ItemIcon({ itemName, size = 24, className = '', lazy = t
  * Convenience component that displays an item name with its icon.
  * Used in tables and lists for consistent formatting.
  */
-export function ItemWithIcon({
-  itemName,
-  size = 24,
-  className = '',
-  textClassName = '',
-  showReportButton = false,
-}) {
-  const [iconFailed, setIconFailed] = useState(false);
-
+export function ItemWithIcon({ itemName, size = 24, className = '', textClassName = '' }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <ItemIcon itemName={itemName} size={size} onError={() => setIconFailed(true)} />
+      <ItemIcon itemName={itemName} size={size} />
       <span className={textClassName}>{itemName}</span>
-      {showReportButton && iconFailed && <ReportIconButton itemName={itemName} />}
     </div>
   );
 }
