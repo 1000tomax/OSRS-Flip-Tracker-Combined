@@ -139,6 +139,21 @@ export default [
       'no-undef': 'off',
     },
   },
+  // Playwright test files
+  {
+    files: ['tests/**/*.spec.{js,ts}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      // Relax rules for test files
+      'no-magic-numbers': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-console': 'off',
+    },
+  },
   {
     files: ['**/*.{js,jsx}'],
     rules: {
@@ -148,7 +163,7 @@ export default [
     },
   },
   {
-    files: ['tailwind.config.js', 'scripts/**/*.{js,cjs}'],
+    files: ['tailwind.config.js', 'scripts/**/*.{js,cjs}', 'playwright.config.ts'],
     languageOptions: {
       globals: globals.node,
     },

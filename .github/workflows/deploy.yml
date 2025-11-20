@@ -42,8 +42,27 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
+      - name: Start Preview Server
+        run: npm run preview &
+        env:
+          CI: true
+
+      - name: Wait for Preview Server
+        run: |
+          echo "Waiting for preview server to be ready..."
+          for i in {1..30}; do
+            if curl -s http://127.0.0.1:4173 > /dev/null; then
+              echo "Preview server is ready!"
+              exit 0
+            fi
+            echo "Attempt $i: Server not ready, waiting..."
+            sleep 1
+          done
+          echo "Preview server failed to start"
+          exit 1
+
       - name: Run Deployment Smoke Tests
-        run: npm run test:smoke
+        run: npx playwright test --config=playwright.config.ts
         env:
           CI: true
 
