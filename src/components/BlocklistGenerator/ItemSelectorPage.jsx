@@ -295,6 +295,27 @@ export default function ItemSelectorPage({
   };
 
   const handleDownload = () => {
+    // Calculate the counts for confirmation
+    const blockedItemIds =
+      mode === 'trade'
+        ? items.filter(item => !checkedItems.has(item.id)).map(item => item.id)
+        : Array.from(checkedItems);
+
+    const blockedCount = blockedItemIds.length;
+    const totalCount = items.length;
+
+    // Show confirmation dialog with counts
+    // eslint-disable-next-line no-alert
+    const confirmed = confirm(
+      `⚠️ Blocklist Confirmation\n\n` +
+        `This will block ${blockedCount}/${totalCount} items.\n\n` +
+        `Is that what you intend to do?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     // Prompt user for profile name
     // eslint-disable-next-line no-alert
     const profileName = prompt('Enter a name for your blocklist profile:', 'Custom Blocklist');
@@ -303,13 +324,6 @@ export default function ItemSelectorPage({
     if (!profileName || !profileName.trim()) {
       return;
     }
-
-    // If mode is 'trade', blocked items are the unchecked ones
-    // If mode is 'block', blocked items are the checked ones
-    const blockedItemIds =
-      mode === 'trade'
-        ? items.filter(item => !checkedItems.has(item.id)).map(item => item.id)
-        : Array.from(checkedItems);
 
     onDownload(blockedItemIds, profileName.trim());
 
