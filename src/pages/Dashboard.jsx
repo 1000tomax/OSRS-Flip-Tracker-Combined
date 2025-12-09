@@ -707,11 +707,18 @@ export default function Dashboard() {
       {activeTab === 'overview' && (
         <>
           {/* Summary Cards - No challenge metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="text-gray-400 text-sm">Total Profit</div>
               <div className="text-2xl font-bold text-green-400">
                 {guestData.totalProfit.toLocaleString()} GP
+              </div>
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <div className="text-gray-400 text-sm">Tax Paid</div>
+              <div className="text-2xl font-bold text-red-400">
+                {(guestData.totalTax || 0).toLocaleString()} GP
               </div>
             </div>
 

@@ -160,6 +160,12 @@ export default function UploadPage() {
           const totalFlips = itemStats.reduce((sum, item) => sum + (item.flipCount || 0), 0);
           const uniqueItems = itemStats.length;
 
+          // Calculate total tax paid from all flips
+          const totalTax = Object.values(flipsByDate).reduce((sum, dayData) => {
+            const flips = Array.isArray(dayData) ? dayData : dayData?.flips || [];
+            return sum + flips.reduce((daySum, f) => daySum + (f.sellerTax || f.tax || 0), 0);
+          }, 0);
+
           // Create daily summaries from flipsByDate
           const dailySummaries = Object.entries(flipsByDate)
             .map(([date, dayData]) => ({
@@ -219,6 +225,7 @@ export default function UploadPage() {
             totalProfit,
             totalFlips,
             uniqueItems,
+            totalTax,
             timezone,
             accounts: rawData.accounts || [],
             allFlips,
