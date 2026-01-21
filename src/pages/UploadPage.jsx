@@ -55,7 +55,7 @@ export default function UploadPage() {
       // Skip validations for demo data
       if (!isDemoData) {
         // VALIDATION 1: File size check (prevent worker crashes)
-        const maxFileSize = 5 * 1024 * 1024; // 5MB limit
+        const maxFileSize = 20 * 1024 * 1024; // 20MB limit
         if (file.size > maxFileSize) {
           const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
           const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1);
