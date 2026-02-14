@@ -104,6 +104,12 @@ export function AccountFilterProvider({ children }) {
 
   const getFilteredData = useCallback(() => {
     if (!guestData) return null;
+
+    // If there's only one account, always show all data (no filtering needed)
+    if (availableAccounts.length <= 1) {
+      return guestData;
+    }
+
     if (!selectedAccounts || selectedAccounts.length === 0) {
       return {
         ...guestData,
@@ -114,6 +120,7 @@ export function AccountFilterProvider({ children }) {
         totalProfit: 0,
         totalFlips: 0,
         uniqueItems: 0,
+        totalTax: 0,
       };
     }
 
@@ -175,6 +182,7 @@ export function AccountFilterProvider({ children }) {
     const totalProfit = filteredFlips.reduce((sum, f) => sum + (f.profit || 0), 0);
     const totalFlips = filteredFlips.length;
     const uniqueItems = Object.keys(itemStatsMap).length;
+    const totalTax = filteredFlips.reduce((sum, f) => sum + (f.sellerTax || f.tax || 0), 0);
 
     return {
       ...guestData,
@@ -185,6 +193,7 @@ export function AccountFilterProvider({ children }) {
       totalProfit,
       totalFlips,
       uniqueItems,
+      totalTax,
     };
   }, [guestData, selectedAccounts, availableAccounts, filterFlips]);
 
