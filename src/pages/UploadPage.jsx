@@ -153,7 +153,35 @@ export default function UploadPage() {
           // Handle both new and old data structures
           const rawData = e.data.data || e.data.result;
           const flipsByDate = rawData.flipsByDate || {};
-          const itemStats = rawData.itemStats || [];
+          let itemStats = rawData.itemStats || [];
+
+          // SAFEGUARD: If itemStats is empty but flipsByDate has data, rebuild itemStats
+          // This handles cases where the worker failed to populate itemStats correctly
+          if (itemStats.length === 0 && Object.keys(flipsByDate).length > 0) {
+            console.warn('itemStats was empty, rebuilding from flipsByDate...');
+            const itemStatsMap = {};
+
+            Object.values(flipsByDate).forEach(dayData => {
+              const flips = Array.isArray(dayData) ? dayData : dayData?.flips || [];
+              flips.forEach(flip => {
+                const itemName = flip.item || flip.itemId || 'Unknown';
+                if (!itemStatsMap[itemName]) {
+                  itemStatsMap[itemName] = {
+                    item: itemName,
+                    totalProfit: 0,
+                    flipCount: 0,
+                    totalQuantity: 0,
+                  };
+                }
+                itemStatsMap[itemName].totalProfit += flip.profit || 0;
+                itemStatsMap[itemName].flipCount++;
+                itemStatsMap[itemName].totalQuantity += flip.bought || flip.quantity || 0;
+              });
+            });
+
+            itemStats = Object.values(itemStatsMap);
+            console.log(`Rebuilt itemStats: ${itemStats.length} items`);
+          }
 
           // Calculate totals from the data
           const totalProfit = itemStats.reduce((sum, item) => sum + (item.totalProfit || 0), 0);
